@@ -17,7 +17,8 @@ ODBStorage::ODBStorage()
     try {
         odb::transaction t(db_->begin());
         // db_->execute("PRAGMA foreign_keys=OFF");
-        odb::schema_catalog::create_schema(*db_, "", true);
+        // odb::schema_catalog::create_schema(*db_, "", true);
+        odb::schema_catalog::create_schema(*db_, "", false);
         // db_->execute("PRAGMA foreign_keys=ON");
         t.commit();
         // odb::schema_catalog::create_schema(*db_, "", true); // drop existing
