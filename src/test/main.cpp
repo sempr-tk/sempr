@@ -5,80 +5,34 @@ using namespace sempr::storage;
 using namespace sempr::entity;
 
 #include <sempr/processing/DebugModule.h>
+#include <sempr/processing/DBUpdateModule.h>
 using namespace sempr::processing;
 
 #include <fstream>
 #include <iostream>
 #include <boost/uuid/uuid.hpp>
 
-
-#include <unordered_map>
-#include <typeinfo>
-#include <typeindex>
-#include <functional>
-#include <typeinfo>
-
-class Base {public: virtual ~Base(){} };
-class A : public Base {};
-class B : public Base {};
-
-class BModule {
-public:
-    template<typename D, typename F> void AddOverload(F f) {
-        // insert pair (type --> lambda calling f plus a static_cast) into map
-        types_[typeid(D)] = [f](std::shared_ptr<Base> event) {
-            f(std::static_pointer_cast<D>(event));
-        };
-        std::cout << "added " << typeid(D).name()  << '\n';
-    }
-    
-    virtual void process(std::shared_ptr<Base> event) {
-        if (types_.find(typeid(*event)) != types_.end()) {
-            types_[typeid(*event)](event);
-        } else {
-            std::cout << "couldnt find " << typeid(*event).name() << '\n';
-        }
-    }
-    
-private:
-    std::unordered_map<
-        std::type_index, 
-        std::function<void(std::shared_ptr<Base>)> > types_;
-};
-
-class PrintModule : public BModule {
-public:
-    PrintModule() {
-        // AddOverload<std::shared_ptr<A> >( &PrintModule::printA );
-        AddOverload<A>([this](std::shared_ptr<A> blub) {
-            printA(blub);
-            std::cout << "GOT AN A, YAY" << '\n';
-        });
-    }
-    
-    void printA(std::shared_ptr<A> a) {
-        std::cout << "GOT AN A" << '\n';
-    }
-};
-
-
-
 int main(int argc, char** args)
 {
-    auto base = std::make_shared<Base>();
-    auto a = std::make_shared<A>();
-    auto b = std::make_shared<B>();
-
-    PrintModule pr;
-    pr.process(base);
-    pr.process(a);
-
-    // return 0;
     ODBStorage::Ptr storage( new ODBStorage() );
     DebugModule::Ptr debug( new DebugModule() );
+    DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     
     sempr::core::Core c(storage);
     c.addModule(debug);
+    c.addModule(updater);
+    
+    {
+        std::cout << "LOADING" << '\n';
+        // show all entities
+        std::vector<DBObject::Ptr> entities;
+        storage->loadAll(entities);
+        for (DBObject::Ptr e : entities) {
+            std::cout << "loaded: " << e->uuid() << '\n';
+        }
+        std::cout << "END LOADING" << '\n';
+    }
+    
     
     boost::uuids::uuid mug_id;
     {
@@ -109,10 +63,14 @@ int main(int argc, char** args)
         p->first_ = "Max"; p->last_ = "Mustermann";
         p->age_ = 45;
         p->gender_ = Person::MALE;
+        c.addEntity(p);
         
-        storage->save(p);
+        p->age_ = 46;
+        p->changed();
+        
         mug->owner_ = p;
-        storage->save(mug);
+        // storage->save(mug);
+        mug->changed();
     }
     
     
