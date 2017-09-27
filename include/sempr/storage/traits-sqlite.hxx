@@ -33,13 +33,14 @@ public:
             std::memset(uuid.data, 0, 16);
         }
         
-        std::cout << "set_value: " << uuid << '\n';
+        // called multiple times per load. why?
+        // std::cout << "set_value: " << uuid << " is null: " << is_null << " size: " << n << '\n';
     }
     
     static void
     set_image(image_type& b, std::size_t& n, bool& is_null, const value_type& uuid)
     {
-        std::cout << "set_image" << '\n';
+        // std::cout << "set_image" << '\n';
         is_null = false;
         std::string tmp = boost::uuids::to_string(uuid);
         n = tmp.size();
