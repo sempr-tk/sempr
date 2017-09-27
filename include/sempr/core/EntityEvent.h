@@ -10,7 +10,7 @@ namespace sempr { namespace core {
 class EntityEvent : public Event {
 public:
     using Ptr = std::shared_ptr<EntityEvent>;
-    enum EventType { CREATED, CHANGED, REMOVED };
+    enum EventType { CREATED, CHANGED, REMOVED, LOADED };
     EntityEvent(entity::Entity::Ptr entity, EventType type);
     virtual ~EntityEvent();
     
