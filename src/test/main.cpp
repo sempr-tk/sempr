@@ -71,6 +71,14 @@ int main(int argc, char** args)
         mug->owner_ = p;
         // storage->save(mug);
         mug->changed();
+        
+        Person::Ptr p2 = std::make_shared<Person>();
+        p2->first_ = "Someone"; p2->last_ = "Else";
+        p2->age_ = 27;
+        c.addEntity(p2);
+        mug->owner_ = p2;
+        mug->changed();
+        
     }
     
     

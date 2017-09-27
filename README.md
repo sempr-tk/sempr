@@ -22,7 +22,6 @@ make
 ```
 
 ## Usage
-**TODO**: _Rename sempr to sempr_
 ``` c++
 #include <sempr/sempr.h>
 using namespace sempr::storage;
@@ -80,13 +79,30 @@ first: 0
 
 ## Entity
 ## Events
-The basic event-handler provides two base-implementations to cope with events:
-``` c++
-virtual void process(Event::Ptr); // for custom events
-virtual void process(EntityEvent::Ptr); // for events that refer to a specific entity
-```
-To handle additional events, override one of those methods and use ``dynamic_pointer_cast`` to check the type of event.
-
-**TODO:** _Is there no better way to handle this, make it static-type-safe and extendable? (e.g. double dispatch using visitor pattern, type safe but not extendable.)_
-
 ### EventBroker
+
+## Processing Modules
+SEMPR can be extended by adding processing modules that react to events (**TODO:** _and accept queries_) as you need them. Every processing module manages a mapping of ``type_index`` to function. Whenever a event needs to be processed, the ``type_index`` of the event is looked up in the map an the respective function is called. This mechanism allows a kind of type-safe way to handle events, while being able to easily add new processing modules and events. However, there is one major drawback: Derived events have a new  ``type_index`` and hence do not trigger the functions registered for their base types.
+
+To create a custom processing module you have to subclass from ``Module`` and register a function using ``addOverload``, as shown below:
+
+``` c++
+class CustomModule : public Module
+{
+public:
+	CustomModule()
+	{
+		addOverload<SpecialEvent>(
+			[this](SpecialEvent::Ptr event)
+			{
+				myVerySpecialProcessingMethod(event);
+			}
+		);
+	}
+	
+	void myVerySpecialProcessingMethod(SpecialEvent::Ptr event)
+	{
+		// ...
+	}
+};
+```
