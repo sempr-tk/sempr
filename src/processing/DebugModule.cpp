@@ -24,7 +24,23 @@ void DebugModule::process(core::Event::Ptr e) {
 }
 
 void DebugModule::process(core::EntityEvent::Ptr e) {
-    std::cout << "EntityEvent::Ptr " << e->getEntity()->id() << '\n';
+    switch(e->what()) {
+        case core::EntityEvent::CREATED:
+            std::cout << "CREATED";
+            break;
+        case core::EntityEvent::CHANGED:
+            std::cout << "CHANGED";
+            break;
+        case core::EntityEvent::REMOVED:
+            std::cout << "REMOVED";
+            break;
+        case core::EntityEvent::LOADED:
+            std::cout << "LOADED";
+            break;
+        default:
+            std::cout << "UNKNOWN EntityEvent";
+    }
+    std::cout << ": " << e->getEntity()->id() << '\n';
 }
 
 } /* processing */
