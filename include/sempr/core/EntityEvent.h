@@ -2,38 +2,50 @@
 #define SEMPR_CORE_ENTITYEVENT_H_
 
 #include <sempr/core/Event.h>
-#include <sempr/entity/Entity.h>
-
 
 namespace sempr { namespace core {
     
-class EntityEvent : public Event {
+class EntityEventBase : public Event {
 public:
-    using Ptr = std::shared_ptr<EntityEvent>;
     enum EventType { CREATED, CHANGED, REMOVED, LOADED };
-    EntityEvent(entity::Entity::Ptr entity, EventType type);
-    virtual ~EntityEvent();
-    
-    /** Access the entity this event refers to */
-    entity::Entity::Ptr getEntity();
-    
-    /** convenience function including a dynamic pointer cast */
-    template <class T>
-    std::shared_ptr<T> getEntityAs() {
-        return std::dynamic_pointer_cast<T>(entity_);
-    }
-    
-    template <class T>
-    bool entityIsA() const {
-        return std::dynamic_pointer_cast<T>(entity_).get() != NULL;
-    }
+    EntityEventBase(EventType t) : type_(t) {}
+    virtual ~EntityEventBase(){}
     
     /** returns the internal event type (created, changed, removed) */
-    EventType what();
-
+    EventType what() { return type_; }
+    
 protected:
-    entity::Entity::Ptr entity_;
     EventType type_;
+    
+};
+
+/**
+    The templated class EntityEvent adds static type-safety to the type of
+    entity it is pointing to. Additionally, as each instantiaton is a new type,
+    it can be used to trigger only those processing-modules that explicitly
+    subscribed to them. 
+    TODO: Caveat: Subscribing to BaseEntityEvent is not sufficient
+    to get all events -- whenever a specific event is fired, a BaseEntityEvent
+    should be fired, too!
+*/
+template<class EntityT>    
+class EntityEvent : public EntityEventBase {
+public:
+    using Ptr = std::shared_ptr<EntityEvent<EntityT> >;
+    EntityEvent(std::shared_ptr<EntityT> entity, EventType type)
+        : entity_(entity), EntityEventBase(type)
+    {
+    }
+    
+    virtual ~EntityEvent(){}
+    
+    /** Access the entity this event refers to */
+    std::shared_ptr<EntityT> getEntity() {
+        return std::static_pointer_cast<EntityT>(entity_);
+    }
+    
+protected:
+    std::shared_ptr<EntityT> entity_;    
 };
 
     

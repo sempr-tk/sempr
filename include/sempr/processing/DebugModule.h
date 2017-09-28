@@ -2,6 +2,7 @@
 #define SEMPR_PROCESSING_DEBUGMODULE_H_
 
 #include <sempr/processing/Module.h>
+#include <sempr/entity/Entity.h>
 
 namespace sempr { namespace processing {
     
@@ -14,7 +15,7 @@ public:
     virtual std::string type() const override;
     
     virtual void process(core::Event::Ptr e) override;
-    void process(core::EntityEvent::Ptr e);
+    void process(entity::Entity::Event::Ptr e);
 };
     
 } /* processing */

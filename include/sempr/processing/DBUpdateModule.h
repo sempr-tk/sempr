@@ -4,6 +4,7 @@
 #include <sempr/core/EntityEvent.h>
 #include <sempr/processing/Module.h>
 #include <sempr/storage/Storage.h>
+#include <sempr/entity/Entity.h>
 
 namespace sempr { namespace processing {
 
@@ -13,7 +14,7 @@ public:
     DBUpdateModule(storage::Storage::Ptr storage);
     
     /** upon receiving a changed-event, update the database */
-    void process(core::EntityEvent::Ptr e);
+    void process(entity::Entity::Event::Ptr e);
     
 private:
     storage::Storage::Ptr storage_;

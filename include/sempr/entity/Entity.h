@@ -10,7 +10,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <sempr/storage/DBObject.h>
 #include <sempr/core/Event.h>
-// #include <sempr/core/EntityEvent.h>
+#include <sempr/core/EntityEvent.h>
 // #include <sempr/core/Core.h>
 // #include <sempr/core/EventBroker.h>
 
@@ -33,11 +33,20 @@ class Entity : public storage::DBObject, public std::enable_shared_from_this<Ent
 public:
     Entity(){}
     using Ptr = std::shared_ptr<Entity>;
+    using Event = core::EntityEvent<Entity>;
     virtual std::string id() const { return boost::uuids::to_string(uuid()); }
     virtual ~Entity(){}
 
-    /** fires an event signalling that this entity changed **/
-    void changed();
+    /** fires an event signalling that this entity changed.
+        Needs to be overriden for sub-types to also fire special events, like
+        RDFEvent, GeometryEvent, ... (TODO create those -- or instantiate?)
+        (TODO: what to do on creation? --> created() virtual method!,
+        same for removed(), loaded())
+    */
+    virtual void changed();
+    virtual void created();
+    virtual void loaded();
+    virtual void removed();
     
 protected:
     /** fires an event **/

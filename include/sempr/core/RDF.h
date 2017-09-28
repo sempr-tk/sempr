@@ -1,5 +1,5 @@
-#ifndef SEMPR_RDFENTITYI_H_
-#define SEMPR_RDFENTITYI_H_
+#ifndef SEMPR_RDF_H_
+#define SEMPR_RDF_H_
 
 #include <string>
 #include <vector>
@@ -74,15 +74,9 @@ public:
     std::string subject, predicate, object, document;
 };
 
-
-class RDFEntityI {
-public:
-    virtual void getTriples(std::vector<Triple>& triples) const = 0;
-};
-
 } /* core */
     
 } /* sempr */
 
 
-#endif /* end of include guard: SEMPR_RDFENTITYI_H_ */
+#endif /* end of include guard: SEMPR_RDF_H_ */

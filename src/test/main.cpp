@@ -12,6 +12,8 @@ using namespace sempr::processing;
 #include <iostream>
 #include <boost/uuid/uuid.hpp>
 
+
+
 int main(int argc, char** args)
 {
     ODBStorage::Ptr storage( new ODBStorage() );
@@ -50,7 +52,7 @@ int main(int argc, char** args)
         for (int i = 0; i < mug1->temperature_.size(); i++) {
             std::cout << "temp[" << i << "]: " << mug1->temperature_[i] << '\n';
         }    
-        storage->save(mug1);
+        
         mug_id = mug1->uuid();
         mug1->changed();
     }
