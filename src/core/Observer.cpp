@@ -23,7 +23,7 @@ void Observer::notify(Event::Ptr event)
     if (types_.find(typeid(*event)) != types_.end()) {
         types_[typeid(*event)](event);
     } else {
-        std::cout << "couldnt find " << typeid(*event).name() << '\n';
+        std::cout << typeid(*this).name() << " couldnt find " << typeid(*event).name() << '\n';
     }
 }
 

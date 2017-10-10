@@ -4,12 +4,12 @@
 #include <sempr/entity/Entity.h>
 #include <sempr/storage/History.h>
 // #include <sempr/core/RDF.h>
-#include <sempr/entity/RDFEntityI.h>
+#include <sempr/entity/RDFEntity.h>
 
 namespace sempr { namespace entity {
     
 #pragma db object
-class Person : public Entity, public RDFEntityI {
+class Person : public RDFEntity {
 public:
     using Ptr = std::shared_ptr<Person>;
     

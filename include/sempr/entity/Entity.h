@@ -15,6 +15,44 @@
 // #include <sempr/core/EventBroker.h>
 
 
+#define ENTITY_DEFAULT_CHANGED(CLASS) \
+    virtual void changed() { \
+        auto e = std::make_shared<sempr::core::EntityEvent<CLASS> >(  \
+            shared_from_base<CLASS>(), sempr::core::EntityEventBase::CHANGED  \
+        );  \
+        fireEvent(e);  \
+    }
+
+#define ENTITY_DEFAULT_CREATED(CLASS) \
+    virtual void created() { \
+        auto e = std::make_shared<sempr::core::EntityEvent<CLASS> >(  \
+            shared_from_base<CLASS>(), sempr::core::EntityEventBase::CREATED  \
+        );  \
+        fireEvent(e);  \
+    }
+
+#define ENTITY_DEFAULT_LOADED(CLASS) \
+    virtual void loaded() { \
+        auto e = std::make_shared<sempr::core::EntityEvent<CLASS> >(  \
+            shared_from_base<CLASS>(), sempr::core::EntityEventBase::LOADED  \
+        );  \
+        fireEvent(e);  \
+    }
+
+#define ENTITY_DEFAULT_REMOVED(CLASS) \
+    virtual void removed() { \
+        auto e = std::make_shared<sempr::core::EntityEvent<CLASS> >(  \
+            shared_from_base<CLASS>(), sempr::core::EntityEventBase::REMOVED  \
+        );  \
+        fireEvent(e);  \
+    }
+
+#define ENTITY_DEFAULT_EVENT_METHODS(class) \
+    ENTITY_DEFAULT_CREATED(class) \
+    ENTITY_DEFAULT_LOADED(class) \
+    ENTITY_DEFAULT_CHANGED(class) \
+    ENTITY_DEFAULT_REMOVED(class)
+
 
 namespace sempr { 
     namespace core {
@@ -52,6 +90,11 @@ protected:
     /** fires an event **/
     void fireEvent(core::Event::Ptr e);
     
+    template<class Derived>
+    std::shared_ptr<Derived> shared_from_base() {
+        return std::static_pointer_cast<Derived>(shared_from_this());
+    }
+    
 private:
     friend class odb::access;
     friend class core::Core;
@@ -59,11 +102,6 @@ private:
     /** used to fire events, set by the core **/
     #pragma db transient
     std::weak_ptr<core::EventBroker> broker_;
-    
-    template<class Derived>
-    std::shared_ptr<Derived> shared_from_base() {
-        return std::static_pointer_cast<Derived>(shared_from_this());
-    }
 };
 
 }}
