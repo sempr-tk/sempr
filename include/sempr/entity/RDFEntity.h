@@ -14,7 +14,7 @@ public:
     using Event = core::EntityEvent<RDFEntity>;
     virtual void getTriples(std::vector<core::Triple>& triples) const = 0;
     
-    ENTITY_DEFAULT_EVENT_METHODS(RDFEntity);
+    ENTITY_DEFAULT_EVENT_METHODS(RDFEntity, Entity);
 };
 
 }}
