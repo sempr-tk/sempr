@@ -21,7 +21,7 @@ public:
     
     void addEntity(entity::Entity::Ptr entity);
     void removeEntity(entity::Entity::Ptr entity);
-    void removeEntity(const std::string& entity_id);
+    // void removeEntity(const std::string& entity_id);
     
     
     void addModule(processing::Module::Ptr module);
