@@ -1,16 +1,3 @@
-## Next steps:
-- remove map of entities from the core, put it into a generic object processing module (that later on will also answer queries)
-- allow entites to create more entities
-```
-void created(Core* core) {
-	other_ = make_shared<Other>();
-	core->save(other_);
-	changed();
-	...
-```
-	
-
-
 # Semantic Mapping, Processing and Reasoning (SEMPR)
 ## Installation
 One main dependency of SEMPR is the object relational mapping framework [ODB](http://www.codesynthesis.com/products/odb/download.xhtml), which uses a special compiler to create the necessary database code.
@@ -21,12 +8,12 @@ You will need:
 - Common Runtime LIbrary (libodb-2.4.0)
 - Database Runtime Libraries
 	- libodb-sqlite-2.4.0
-	- more to be announced. ;) 
+	- ... more as soon as different database backends are implemented.
 - Profile Libraries
 	- libodb-boost-2.4.0
-  
-  Follow the respecting installation instructions. Afterwards, compile SEMPR using``cmake``:
-  
+
+Follow the respecting installation instructions. Afterwards, compile SEMPR using``cmake``:
+
 ``` bash
 mkdir build 
 cd build
@@ -36,7 +23,8 @@ make
 
 ## Usage
 ``` c++
-#include <sempr/sempr.h>
+#include <sempr/sempr.hpp>
+using namespace sempr::processing;
 using namespace sempr::storage;
 using namespace sempr::entity;
 using namespace sempr::core;
@@ -50,8 +38,11 @@ int main(int argc, char** args)
 	Core core(storage);
 	
 	// create processing modules that react on events
-	DebugModule::Ptr debug( new DebugModule() );
-	core.addModule(debug);
+	DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
+	ActiveObjectStore::Ptr active( new ActiveObjectStore() );
+
+	core.addModule(updater);
+	core.addModule(active);
 	
 	// CoffeeMug::Ptr mug1( new CoffeeMug() );
 	core.addEntity(mug1);	// triggers an EntityEvent
