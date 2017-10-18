@@ -21,6 +21,9 @@ cmake ..
 make 
 ```
 
+## License
+SEMPR itself is released under a 3-clause BSD license. However, it relies heavily on [ODB](http://www.codesynthesis.com/products/odb/download.xhtml) which, without a license exception, is licenced under GPL.
+
 ## Usage
 ``` c++
 #include <sempr/sempr.hpp>
