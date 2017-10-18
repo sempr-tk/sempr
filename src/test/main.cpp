@@ -1,12 +1,12 @@
-#include <sempr/sempr.h>
+#include <sempr/sempr.hpp>
 using namespace sempr::storage;
 
-#include <sempr/entity/CoffeeMug.h>
+#include <sempr/entity/CoffeeMug.hpp>
 using namespace sempr::entity;
 
-#include <sempr/processing/DebugModule.h>
-#include <sempr/processing/DBUpdateModule.h>
-#include <sempr/processing/ActiveObjectStore.h>
+#include <sempr/processing/DebugModule.hpp>
+#include <sempr/processing/DBUpdateModule.hpp>
+#include <sempr/processing/ActiveObjectStore.hpp>
 using namespace sempr::processing;
 
 #include <fstream>

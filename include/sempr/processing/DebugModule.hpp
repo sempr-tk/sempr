@@ -1,8 +1,8 @@
 #ifndef SEMPR_PROCESSING_DEBUGMODULE_H_
 #define SEMPR_PROCESSING_DEBUGMODULE_H_
 
-#include <sempr/processing/Module.h>
-#include <sempr/entity/Entity.h>
+#include <sempr/processing/Module.hpp>
+#include <sempr/entity/Entity.hpp>
 
 namespace sempr { namespace processing {
     

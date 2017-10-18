@@ -7,7 +7,7 @@
 #include <odb/sqlite/database.hxx>
 #include <odb/session.hxx>
 
-#include <sempr/storage/Storage.h>
+#include <sempr/storage/Storage.hpp>
 
 #include <memory>
 

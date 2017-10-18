@@ -1,14 +1,14 @@
 #ifndef SEMPR_CORE_CORE_H_
 #define SEMPR_CORE_CORE_H_
 
-#include <sempr/core/Event.h>
-#include <sempr/core/EventBroker.h>
-#include <sempr/core/Observer.h>
-#include <sempr/query/Query.h>
-#include <sempr/entity/Entity.h>
+#include <sempr/core/Event.hpp>
+#include <sempr/core/EventBroker.hpp>
+#include <sempr/core/Observer.hpp>
+#include <sempr/query/Query.hpp>
+#include <sempr/entity/Entity.hpp>
 
-#include <sempr/storage/Storage.h>
-#include <sempr/processing/Module.h>
+#include <sempr/storage/Storage.hpp>
+#include <sempr/processing/Module.hpp>
 #include <string>
 #include <map>
 #include <memory>

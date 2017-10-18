@@ -1,4 +1,4 @@
-#include <sempr/entity/Person.h>
+#include <sempr/entity/Person.hpp>
 
 namespace sempr { namespace entity {
 

@@ -1,4 +1,4 @@
-#include <sempr/storage/DBObject.h>
+#include <sempr/storage/DBObject.hpp>
 
 namespace sempr { namespace storage {
 

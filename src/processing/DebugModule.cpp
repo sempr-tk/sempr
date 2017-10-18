@@ -1,4 +1,4 @@
-#include <sempr/processing/DebugModule.h>
+#include <sempr/processing/DebugModule.hpp>
 
 #include <iostream>
 

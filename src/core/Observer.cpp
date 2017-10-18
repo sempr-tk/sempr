@@ -1,4 +1,4 @@
-#include <sempr/core/Observer.h>
+#include <sempr/core/Observer.hpp>
 #include <iostream>
 
 namespace sempr { namespace core {

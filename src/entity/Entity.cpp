@@ -1,6 +1,6 @@
-#include <sempr/entity/Entity.h>
-#include <sempr/core/EntityEvent.h>
-#include <sempr/core/EventBroker.h>
+#include <sempr/entity/Entity.hpp>
+#include <sempr/core/EntityEvent.hpp>
+#include <sempr/core/EventBroker.hpp>
 #include <cassert>
 
 namespace sempr { namespace entity {

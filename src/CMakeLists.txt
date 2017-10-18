@@ -1,9 +1,9 @@
 
 file(GLOB_RECURSE SRC_FILES core/* data/* entity/* processing/* query/* storage/*)
 file(GLOB_RECURSE ODB_FILES 
-    ../include/sempr/storage/DBObject.h
-    ../include/sempr/storage/History.h
-    ../include/sempr/storage/Dummy.h
+    ../include/sempr/storage/DBObject.hpp
+    ../include/sempr/storage/History.hpp
+    ../include/sempr/storage/Dummy.hpp
     ../include/sempr/data/*
     ../include/sempr/entity/*
 )

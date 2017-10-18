@@ -1,10 +1,10 @@
 #ifndef SEMPR_ENTITY_RDFENTITY_H_
 #define SEMPR_ENTITY_RDFENTITY_H_
 
-#include <sempr/core/RDF.h>
-#include <sempr/entity/Entity.h>
-#include <sempr/core/EventBroker.h>
-#include <sempr/core/EntityEvent.h>
+#include <sempr/core/RDF.hpp>
+#include <sempr/entity/Entity.hpp>
+#include <sempr/core/EventBroker.hpp>
+#include <sempr/core/EntityEvent.hpp>
 
 namespace sempr { namespace entity {
 

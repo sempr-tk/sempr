@@ -1,9 +1,9 @@
 #ifndef SEMPR_ENTITY_COFFEEMUG_H_
 #define SEMPR_ENTITY_COFFEEMUG_H_
 
-#include <sempr/entity/Entity.h>
-#include <sempr/entity/Person.h>
-#include <sempr/storage/History.h>
+#include <sempr/entity/Entity.hpp>
+#include <sempr/entity/Person.hpp>
+#include <sempr/storage/History.hpp>
 #include <odb/core.hxx>
 
 namespace sempr { namespace entity {

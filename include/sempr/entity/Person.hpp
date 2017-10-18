@@ -1,10 +1,10 @@
 #ifndef SEMPR_ENTITY_PERSON_H_
 #define SEMPR_ENTITY_PERSON_H_
 
-#include <sempr/entity/Entity.h>
-#include <sempr/storage/History.h>
-// #include <sempr/core/RDF.h>
-#include <sempr/entity/RDFEntity.h>
+#include <sempr/entity/Entity.hpp>
+#include <sempr/storage/History.hpp>
+// #include <sempr/core/RDF.hpp>
+#include <sempr/entity/RDFEntity.hpp>
 
 namespace sempr { namespace entity {
     

@@ -1,7 +1,7 @@
 #ifndef SEMPR_STORAGE_STORAGE_H_
 #define SEMPR_STORAGE_STORAGE_H_
 
-#include <sempr/storage/DBObject.h>
+#include <sempr/storage/DBObject.hpp>
 #include <DBObject_odb.h>
 // #include <sempr/storage/DBObject_odb.h>
 

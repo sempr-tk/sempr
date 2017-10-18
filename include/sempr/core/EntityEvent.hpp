@@ -1,7 +1,7 @@
 #ifndef SEMPR_CORE_ENTITYEVENT_H_
 #define SEMPR_CORE_ENTITYEVENT_H_
 
-#include <sempr/core/Event.h>
+#include <sempr/core/Event.hpp>
 
 namespace sempr { namespace core {
     

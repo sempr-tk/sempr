@@ -1,4 +1,4 @@
-#include <sempr/core/Event.h>
+#include <sempr/core/Event.hpp>
 
 namespace sempr { namespace core {
 

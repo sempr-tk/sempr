@@ -1,8 +1,8 @@
 #ifndef SEMPR_CORE_EVENTBROKER_H_
 #define SEMPR_CORE_EVENTBROKER_H_
 
-#include <sempr/core/Event.h>
-#include <sempr/core/Observer.h>
+#include <sempr/core/Event.hpp>
+#include <sempr/core/Observer.hpp>
 #include <memory>
 #include <string>
 #include <queue>

@@ -1,4 +1,4 @@
-#include <sempr/core/EventBroker.h>
+#include <sempr/core/EventBroker.hpp>
 #include <algorithm>
 #include <iostream>
 

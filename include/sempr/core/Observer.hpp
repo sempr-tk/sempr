@@ -1,8 +1,8 @@
 #ifndef SEMPR_CORE_OBSERVER_H_
 #define SEMPR_CORE_OBSERVER_H_
 
-#include <sempr/core/Event.h>
-#include <sempr/core/EntityEvent.h>
+#include <sempr/core/Event.hpp>
+#include <sempr/core/EntityEvent.hpp>
 
 #include <unordered_map>
 #include <typeindex>

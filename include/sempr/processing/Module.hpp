@@ -3,9 +3,9 @@
 
 #include <string>
 #include <memory>
-#include <sempr/core/Event.h>
-#include <sempr/core/Observer.h>
-#include <sempr/core/EntityEvent.h>
+#include <sempr/core/Event.hpp>
+#include <sempr/core/Observer.hpp>
+#include <sempr/core/EntityEvent.hpp>
 
 namespace sempr { namespace processing {
     

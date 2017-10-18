@@ -1,4 +1,4 @@
-#include <sempr/core/RDF.h>
+#include <sempr/core/RDF.hpp>
 
 namespace sempr { namespace core {
     

@@ -1,4 +1,4 @@
-#include <sempr/processing/ActiveObjectStore.h>
+#include <sempr/processing/ActiveObjectStore.hpp>
 
 namespace sempr { namespace processing {
 

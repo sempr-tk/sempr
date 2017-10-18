@@ -1,5 +1,5 @@
-#include <sempr/core/Core.h>
-#include <sempr/core/EntityEvent.h>
+#include <sempr/core/Core.hpp>
+#include <sempr/core/EntityEvent.hpp>
 
 namespace sempr { namespace core {
 

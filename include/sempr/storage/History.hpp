@@ -3,7 +3,7 @@
 
 #include <odb/core.hxx>
 
-#include <sempr/storage/DBObject.h>
+#include <sempr/storage/DBObject.hpp>
 #include <ostream>
 #include <vector>
 

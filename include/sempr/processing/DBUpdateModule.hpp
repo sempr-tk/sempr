@@ -1,10 +1,10 @@
 #ifndef SEMPR_PROCESSING_DBUPDATEMODULE_H_
 #define SEMPR_PROCESSING_DBUPDATEMODULE_H_
 
-#include <sempr/core/EntityEvent.h>
-#include <sempr/processing/Module.h>
-#include <sempr/storage/Storage.h>
-#include <sempr/entity/Entity.h>
+#include <sempr/core/EntityEvent.hpp>
+#include <sempr/processing/Module.hpp>
+#include <sempr/storage/Storage.hpp>
+#include <sempr/entity/Entity.hpp>
 
 namespace sempr { namespace processing {
 

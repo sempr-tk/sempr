@@ -1,4 +1,4 @@
-#include <sempr/processing/Module.h>
+#include <sempr/processing/Module.hpp>
 
 namespace sempr { namespace processing {
 

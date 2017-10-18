@@ -8,11 +8,9 @@
 #include <memory>
 
 #include <boost/uuid/uuid_io.hpp>
-#include <sempr/storage/DBObject.h>
-#include <sempr/core/Event.h>
-#include <sempr/core/EntityEvent.h>
-// #include <sempr/core/Core.h>
-// #include <sempr/core/EventBroker.h>
+#include <sempr/storage/DBObject.hpp>
+#include <sempr/core/Event.hpp>
+#include <sempr/core/EntityEvent.hpp>
 
 
 #define ENTITY_DEFAULT_CHANGED(CLASS, BASE) \
