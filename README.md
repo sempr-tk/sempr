@@ -1,4 +1,7 @@
 # Semantic Mapping, Processing and Reasoning (SEMPR)
+## Status
+As the development of SEMPR just started recently, please do not expect a fully featured system. We are working on it. :)
+
 ## Installation
 One main dependency of SEMPR is the object relational mapping framework [ODB](http://www.codesynthesis.com/products/odb/download.xhtml), which uses a special compiler to create the necessary database code.
 
