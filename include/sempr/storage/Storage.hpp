@@ -2,7 +2,9 @@
 #define SEMPR_STORAGE_STORAGE_H_
 
 #include <sempr/storage/DBObject.hpp>
-#include <DBObject_odb.h>
+// include these in cpp-files, else there will be problems finding the includes
+// -- is this the right way to do that?
+// #include <DBObject_odb.h>
 // #include <sempr/storage/DBObject_odb.h>
 
 #include <memory>

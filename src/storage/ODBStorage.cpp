@@ -1,4 +1,5 @@
 #include <sempr/storage/ODBStorage.hpp>
+#include <DBObject_odb.h>
 #include <odb/core.hxx>
 #include <odb/schema-catalog.hxx>
 

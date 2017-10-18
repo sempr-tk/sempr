@@ -35,5 +35,3 @@ target_link_libraries(sempr_core ${ODB_LIBRARIES})
 target_compile_definitions(sempr_core PUBLIC -DDATABASE_SQLITE)
 # target_include_directories(sempr_core 
     # PRIVATE ${ODB_COMPILE_OUTPUT_DIR} )
-
-add_subdirectory(test)
