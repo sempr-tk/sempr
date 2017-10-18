@@ -1,0 +1,44 @@
+<package>
+    <description brief="A Semantic Environment Mapping, Processing and Reasoning Framework">
+        SEMPR is a framework to represent the environment and perform different
+        types of processing and/or reasoning on the saved data. It relies on the
+        object relational mapping system ODB to provide access to a 
+        database-backend. Changes of the data are propagated forward using an
+        event-mechanism to allow processing modules to generate derived information
+        as soon as possible, while queries can be handled between the modules
+        to perform other processes on-demand. One key aspect of the system is the
+        connection of geometric and semantic data, to generate symbolic
+        information by processing geometries as well as creating new geometries
+        based on symbolic data.
+    </description>
+    <author>nils.niemann@dfki.de</author>
+    <maintainer>nils.niemann@dfki.de, benjamin.kisliuk@dfki.de</maintainer>
+    <license>New BSD</license>
+    <url>https://git.hb.dfki.de/nniemann/SEMPR</url>
+    <logo>...</logo>
+    
+    <!-- <depend package="package1"/>  -->
+    <!-- <depend package="package2"/> -->
+    
+    <keywords>
+        <keyword>environment</keyword>
+        <keyword>representation</keyword>
+        <keyword>reasoning</keyword>
+        <keyword>database</keyword>
+    </keywords>
+    <stage>0</stage>
+    
+    <!-- <use>single project</use> -->
+    <use>multi project</use>
+    <use>external</use>
+    
+    <activity>active</activity>
+    <!-- <activity>pending</activity> -->
+    <!-- <activity>discontinued</activity> -->
+    
+<tags>
+    <tag>c++</tag>
+    <tag>ubuntu</tag>
+    <tag>odb</tag>
+</tags>
+</package>
