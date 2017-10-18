@@ -11,6 +11,9 @@
 
 // processing
 #include <sempr/processing/Module.hpp>
+#include <sempr/processing/ActiveObjectStore.hpp>
+#include <sempr/processing/DBUpdateModule.hpp>
+#include <sempr/processing/DebugModule.hpp>
 
 // query
 
