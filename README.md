@@ -15,7 +15,14 @@ You will need:
 - Profile Libraries
 	- libodb-boost-2.4.0
 
+Under Ubuntu (>=16.04) you can install those as prepackaged version.
+
+```
+sudo apt-get install odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4
+```
+
 Follow the respecting installation instructions. Afterwards, compile SEMPR using``cmake``:
+
 
 ``` bash
 mkdir build
