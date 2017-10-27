@@ -3,6 +3,7 @@
 
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/Entity.hpp>
+#include <iostream>
 
 
 namespace sempr { namespace processing {
@@ -28,16 +29,16 @@ public:
     ActiveObjectStore();
     virtual ~ActiveObjectStore();
     virtual std::string type() const override;
-    
+
     void process(entity::Entity::Event::Ptr event);
-    
+
     void printStats() const {
         // gather #objects per class
         std::map<std::type_index, size_t> perClass;
         for (auto p : entities_) {
             perClass[typeid(*p.second)]++;
         }
-        
+
         std::cout << "--- ActiveObjectStore ---" << '\n';
         std::cout << "#total entities: " << entities_.size() << '\n';
         std::cout << "#classes:        " << perClass.size() << '\n';
@@ -50,17 +51,17 @@ public:
             std::cout << "  " << p.first << '\n';
         }
     }
-    
+
 private:
     // map entity-id to entity
     std::map<std::string, entity::Entity::Ptr> entities_;
-    
+
     void addEntity(entity::Entity::Ptr e);
     void removeEntity(entity::Entity::Ptr e);
 };
 
 } /* processing */
-    
+
 } /* sempr */
 
 
