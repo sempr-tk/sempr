@@ -18,10 +18,10 @@ You will need:
 Follow the respecting installation instructions. Afterwards, compile SEMPR using``cmake``:
 
 ``` bash
-mkdir build 
+mkdir build
 cd build
 cmake ..
-make 
+make
 ```
 
 ## License
@@ -39,34 +39,36 @@ int main(int argc, char** args)
 {
 	// create a storage module
 	ODBStorage::Ptr storage( new ODBStorage() );
-	
+
 	// create the core structure of sempr
 	Core core(storage);
-	
+
 	// create processing modules that react on events
 	DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
 	ActiveObjectStore::Ptr active( new ActiveObjectStore() );
 
 	core.addModule(updater);
 	core.addModule(active);
-	
+
 	// CoffeeMug::Ptr mug1( new CoffeeMug() );
 	core.addEntity(mug1);	// triggers an EntityEvent
-	
+
 	return 0;
 }
 ```
 
 ## Internal structure
-SEMPR consists of a collection of different `Entity`s (things that can be stored in the database) and processing modules. Whenever a something changed and the rest of the system needs to be informed, an event can be delivered to the processing modules. Typically, an event stores a pointer to the entity that changed, and the processing modules subscribe to specific types of events (see [processing modules](#processing-modules)). 
+SEMPR consists of a collection of different `Entity`s (things that can be stored in the database) and processing modules. Whenever a something changed and the rest of the system needs to be informed, an event can be delivered to the processing modules. Typically, an event stores a pointer to the entity that changed, and the processing modules subscribe to specific types of events (see [processing modules](#processing-modules)).
 
-Events are the way automatic (forward) processing is implemented: Whenever something changed, all processing modules get the chance to react to the change, update their internal datastructure, modify data and trigger more events, etc. Since some calculations might be very cost-intensive, methods exist to create information on-demand (backward processing/reasoning): Whenever a `Query` is to be answered, not only the currently existing data is checked for an answer, but the query itself is handed to the processing modules in order to extend the results. while processing a query, the modules may create sub-queries of their own. This exhibits a risk of endless loops -- later implementations might introduces clever strategies to cope with that, e.g. a depth-limit.
+Events are the way automatic (forward) processing is implemented in SEMPR: Whenever something changed, all processing modules get the chance to react to the change, update their internal datastructure, modify data and trigger more events etc. Since some calculations might be very cost-intensive, methods exist to create information on demand (backward processing/reasoning): Whenever a `Query` is to be answered, not only the currently existing data is checked for an answer, but the query itself is handed to the processing modules in order to extend the results. while processing a query, the modules may create sub-queries of their own. This exhibits a risk of endless loops -- later implementations might introduce clever strategies to cope with this problem, e.g. a depth-limit.
+
 **TODO:** _This has not been implemented yet._
 
-The main focus of processing modules lies on symbolic and spatial reasoning. Hence, interfaces are needed as to provide those information, symbolic knowledge and geometries, in an orderly manner. Therefore, currently two subclasses of `Entity` are proposed: `RDFEntity` and `GeometricEntity`. Since many entities may provide both types of data, one could try to inherit from both classes. One problem that arises in such a situation is that virtual inheritance is not supported by the underlying database system, which heavily relies on static casts (and one cannot static-cast through a virtual base). *You have been warned.* The preferred way of dealing with this is to use `RDFEntity` and `GeometricEntity` inside your classes, instead of inheriting from them. Moreover, there may be different implementations, e.g. `MeshEntity` or `PointEntity`. See the diagram below.
+The main focus of processing modules lies on symbolic and spatial reasoning. Hence, interfaces are expected to provide this information - symbolic knowledge and geometries - in an orderly manner. Therefore, currently two subclasses of `Entity` are proposed: `RDFEntity` and `GeometricEntity`. Since many entities may provide both types of data, one could try to inherit from both classes. One problem that may arise in such a situation is that virtual inheritance is not supported by the underlying database system, which heavily relies on static casts (and one cannot static-cast through a virtual base). *You have been warned.* The preferred way of dealing with this is to use `RDFEntity` and `GeometricEntity` inside your classes, instead of inheriting from them. Moreover, there may be different implementations, e.g. `MeshEntity` or `PointEntity`. See the diagram below.
 
 ![alt](doc/Entity-Structure.png)
-Another way would be to inherit from one of those classes and use the other one. E.g., a `Person`-class could inherit from `RDFEntity` as it would be overkill to create another object just for some symbolic data. Instead, the `Person` could implement the interface (nothing more than a method to return symbolic data as triples) itself, and for a geometric representation allow the user to attach a `Mesh`. As a consequence, whoever modifiese the mesh should also trigger a `Person::changed()`(in addition to `Mesh::changed()`, which might even be called directly as a result of the modification).
+
+Another way would be to inherit from one of those classes and use the other one. E.g., a `Person`-class could inherit from `RDFEntity` as it would be overkill to create another object just for some symbolic data. Instead, the `Person` could implement the interface (nothing more than a method to return symbolic data as triples) itself, and for a geometric representation allow the user to attach a `Mesh`. As a consequence, whoever modifies the mesh should also trigger a `Person::changed()`(in addition to `Mesh::changed()`, which might even be called directly as a result of the modification).
 
 >**Something to think about:**
 Assume the following structure (simplified):
@@ -78,13 +80,13 @@ public:
  	Something* else_;
 };
 ```
-> What does it mean to change any part of this structure? Which events shall be triggered?
+> What does it mean to change any part of this structure? Which events should be triggered?
 Should modifying through `Base` also trigger `Derived::changed()`? Sure.
 Should modifying through `Derived`also trigger `Base::changed()`? Maybe.
-Should modifying `Something`through `Derived`s pointer trigger `Derived::changed()`? Maybe.
+Should modifying `Something` through `Derived`s pointer trigger `Derived::changed()`? Maybe.
 Should modifying `Something`through `Derived`s pointer trigger `Base::changed()`? Maybe not?
 
-Care must be taken that every relevant type of event is fired when an entity is created / loaded / changed or erased. When entities are added to the core, they are given a access to the event-broker, so that they are able to inform the system about changes. The question of _entity-ownership_ is a hard one -- who creates (i.e.: persists), updates and removes an entity? This is left to the user for now. Allowing an entity to create other entities is a difficult task: The entity needs access to the core (and/or database?), and take care that no pointers to non-persisted entities are to be saved. Therefore we will for now assume that the user creates and adds all entities to the core, and only creates the connections afterwards (e.g., first adding a mesh and an object, and calling something alike `object->setMesh(mesh)`afterwards. `setMesh`should, in turn, save the pointer to the mesh and call `changed()`, a method that has to be overriden by entity-types to fire special events.)
+Care must be taken that every relevant type of event is fired when an entity is created / loaded / changed or erased. When entities are added to the core, they are given access to the event-broker, so that they are able to inform the system about changes. The question of _entity-ownership_ is a hard one -- who creates (i.e.: persists), updates and removes an entity? This is left to the user for now. Allowing an entity to create other entities is a difficult task: The entity needs access to the core (and/or database?), and take care that no pointers to non-persisted entities are to be saved. Therefore we will for now assume that the user creates and adds all entities to the core, and only creates the connections afterwards (e.g., first adding a mesh and an object, and calling something alike `object->setMesh(mesh)` afterwards. `setMesh` should, in turn, save the pointer to the mesh and call `changed()`, a method that has to be overriden by entity-types to fire special events.)
 
 
 ## Storage
@@ -116,9 +118,10 @@ first: 0
 ```
 **TODO:** _store timestamps and use them to index into the vector_
 
-
 ## Entity
+
 ## Events
+
 ### EventBroker
 
 ## Processing Modules
@@ -139,7 +142,7 @@ public:
 			}
 		);
 	}
-	
+
 	void myVerySpecialProcessingMethod(SpecialEvent::Ptr event)
 	{
 		// ...
@@ -156,7 +159,7 @@ Entity::Ptr e1( new Entity() );					// 1.
 // or:
 Entity::Ptr e2 = std::make_shared<Entity>();	// 2.
 ```
-But: Version `1.` needs two heap allocations, version `2-` only one. But, as the memory for the entity and the control-structure of the shared pointer are allocated in one call, it cannot be freed until all shared **and** weak-ptrs are gone! Whereas in `1.`, when all shared_ptrs are out of scope, at least the memory of the entity is freed.
+But: Version `1.` needs two heap allocations, version `2.` only one. But, as the memory for the entity and the control-structure of the shared pointer are allocated in one call, it cannot be freed until all shared **and** weak-ptrs are gone! Whereas in `1.`, when all shared_ptrs are out of scope, at least the memory of the entity is freed.
 
 
 ## TODO
