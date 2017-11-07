@@ -2,8 +2,16 @@
 #include <sempr/core/EntityEvent.hpp>
 #include <sempr/core/EventBroker.hpp>
 #include <cassert>
+#include <Entity_odb.h>
 
 namespace sempr { namespace entity {
+
+Entity::Entity()
+{
+    // initialize the discriminator to recognize the most derived type of this
+    // object to be "Entity". Has to be repeated in every sub-class.
+    setDiscriminator<Entity>();
+}
 
 void Entity::fireEvent(core::Event::Ptr e) {
     core::EventBroker::Ptr b = broker_.lock();
@@ -15,7 +23,7 @@ void Entity::fireEvent(core::Event::Ptr e) {
 void Entity::changed() {
     baseCalled_ = false;
     changed_impl();
-    assert(baseCalled_ && 
+    assert(baseCalled_ &&
         "The base method Entity::changed_impl() "
         "has not been called during Entity::changed()!");
 }
@@ -23,7 +31,7 @@ void Entity::changed() {
 void Entity::created() {
     baseCalled_ = false;
     created_impl();
-    assert(baseCalled_ && 
+    assert(baseCalled_ &&
         "The base method Entity::created_impl() "
         "has not been called during Entity::created()!");
 }
@@ -31,7 +39,7 @@ void Entity::created() {
 void Entity::loaded() {
     baseCalled_ = false;
     loaded_impl();
-    assert(baseCalled_ && 
+    assert(baseCalled_ &&
         "The base method Entity::loaded_impl() "
         "has not been called during Entity::loaded()!");
 }
@@ -39,7 +47,7 @@ void Entity::loaded() {
 void Entity::removed() {
     baseCalled_ = false;
     removed_impl();
-    assert(baseCalled_ && 
+    assert(baseCalled_ &&
         "The base method Entity::removed_impl() "
         "has not been called during Entity::removed()!");
 }
@@ -69,5 +77,5 @@ void Entity::removed_impl() {
 }
 
 } /* entity */
-    
+
 } /* sempr */

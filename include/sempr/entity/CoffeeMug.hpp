@@ -13,14 +13,12 @@ namespace sempr { namespace entity {
 class CoffeeMug : public Entity {
 public:
     using Ptr = std::shared_ptr<CoffeeMug>;
-    
-    CoffeeMug() {
-        temperature_ = 100;
-    }
-    
+
+    CoffeeMug();
+
     storage::History<int> temperature_;
     storage::History<Person::Ptr> owner_;
-    
+
 protected:
     friend class odb::access;
 };

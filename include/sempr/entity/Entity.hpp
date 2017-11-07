@@ -56,13 +56,13 @@
     ENTITY_DEFAULT_REMOVED(class,base)
 
 
-namespace sempr { 
+namespace sempr {
     namespace core {
         class Core;
         class EventBroker;
         // class Event;
     }
-     
+
 namespace entity {
 
 /**
@@ -71,18 +71,20 @@ namespace entity {
 #pragma db object
 class Entity : public storage::DBObject, public std::enable_shared_from_this<Entity>  {
 public:
-    Entity(){}
+    Entity();
+    virtual ~Entity(){}
+
     using Ptr = std::shared_ptr<Entity>;
     using Event = core::EntityEvent<Entity>;
     virtual std::string id() const { return boost::uuids::to_string(uuid()); }
-    virtual ~Entity(){}
+
 
     /** Fires an event signalling that this entity changed (EntityEvent<Entity>).
-        Derived classes need to override changed_impl() to also fire special 
+        Derived classes need to override changed_impl() to also fire special
         events, like EntityEvent<RDFEntity>, EntityEvent<GeometricEntity>, ...
     */
     void changed();
-    
+
     /** TODO: Everyone might modify an entity and thus call entity->changed()
         to trigger the processing pipeline. However, what about created, loaded
         and removed? One could argue that the storage module actually should be
@@ -92,26 +94,26 @@ public:
         loaded(). Also, this would allow entities to create other entites on their
         own, as they could just call child->created() and child->removed() to
         persist or delete them, besides using child->changed().
-        
+
         Well, I drifted away from what I originally wanted to say.
-        Should we make created, loaded and removed private? In that case, they 
-        could still be overridden by derived classes, but could only be used by 
+        Should we make created, loaded and removed private? In that case, they
+        could still be overridden by derived classes, but could only be used by
         the Core (assuming a "friend class Core" in Entity) --> enforced tasks.
     */
     void created();
     void loaded();
     void removed();
-    
+
 protected:
     /** fires an event **/
     void fireEvent(core::Event::Ptr e);
-    
+
     template<class Derived>
     std::shared_ptr<Derived> shared_from_base() {
         return std::static_pointer_cast<Derived>(shared_from_this());
     }
-    
-    
+
+
     /**
         To make sure that a derived class does not forget to throw an
         EntityEvent<Entity> on change/creation/load/removed, the methods
@@ -122,18 +124,18 @@ protected:
     virtual void created_impl();
     virtual void loaded_impl();
     virtual void removed_impl();
-    
+
 private:
     friend class odb::access;
     friend class core::Core;
-    
+
     /** used to fire events, set by the core */
     #pragma db transient
     std::weak_ptr<core::EventBroker> broker_;
-    
+
     /**
         Helper to check if the base implementations of ..._impl() have been
-        called. 
+        called.
     */
     #pragma db transient
     bool baseCalled_;
