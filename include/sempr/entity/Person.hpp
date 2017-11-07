@@ -3,34 +3,37 @@
 
 #include <sempr/entity/Entity.hpp>
 #include <sempr/storage/History.hpp>
-// #include <sempr/core/RDF.hpp>
 #include <sempr/entity/RDFEntity.hpp>
 
 namespace sempr { namespace entity {
 
 #pragma db object
-class Person : public RDFEntity {
+class Person : public Entity {
 public:
     using Ptr = std::shared_ptr<Person>;
     enum Gender { MALE, FEMALE, UNKNOWN };
 
-    Person();
+    /**
+        Takes a persisted(!) RDFEntity as input to store its information in,
+        as we currently have no mechanism to create (and persist!) entities from
+        within an entity right now.
+    */
+    Person(RDFEntity::Ptr rdf);
     virtual ~Person(){}
 
     unsigned int age_; // TODO replace with a timestamp "born"
     std::string first_, last_; /// name
     Gender gender_;
 
-    /** return symbolic knowledge about this person **/
-    void getTriples(std::vector<core::Triple>& triples) const override;
-
 protected:
     friend class odb::access;
+    RDFEntity::Ptr rdfEntity_;
+    Person() {}
 };
 
-    // enable history:
-    typedef storage::History<Person::Ptr> PersonHistory;
-    #pragma db value(PersonHistory)
+// enable history:
+typedef storage::History<Person::Ptr> PersonHistory;
+#pragma db value(PersonHistory)
 
 }}
 
