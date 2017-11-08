@@ -24,7 +24,7 @@ void Entity::fireEvent(core::Event::Ptr e) {
 }
 
 void Entity::changed() {
-    if (!announced_) return;
+    if (!announced_) return;  // only publish changes if it has been announced (created() or loaded())
 
     baseCalled_ = false;
     changed_impl();
@@ -34,6 +34,8 @@ void Entity::changed() {
 }
 
 void Entity::created() {
+    if (announced_) return; // do not announce twice.
+
     baseCalled_ = false;
     created_impl();
     assert(baseCalled_ &&
@@ -43,6 +45,8 @@ void Entity::created() {
 }
 
 void Entity::loaded() {
+    if (announced_) return; // do not announce twice.
+    
     baseCalled_ = false;
     loaded_impl();
     assert(baseCalled_ &&
