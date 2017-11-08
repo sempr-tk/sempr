@@ -13,22 +13,19 @@ public:
     using Ptr = std::shared_ptr<Person>;
     enum Gender { MALE, FEMALE, UNKNOWN };
 
-    /**
-        Takes a persisted(!) RDFEntity as input to store its information in,
-        as we currently have no mechanism to create (and persist!) entities from
-        within an entity right now.
-    */
-    Person(RDFEntity::Ptr rdf);
+    Person();
     virtual ~Person(){}
+    void init();
+
+    ENTITY_DEFAULT_EVENT_METHODS(Person, Entity);
+    
+protected:
+    friend class odb::access;
+    RDFEntity::Ptr rdfEntity_;
 
     unsigned int age_; // TODO replace with a timestamp "born"
     std::string first_, last_; /// name
     Gender gender_;
-
-protected:
-    friend class odb::access;
-    RDFEntity::Ptr rdfEntity_;
-    Person() {}
 };
 
 // enable history:
