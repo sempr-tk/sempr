@@ -36,17 +36,6 @@ public:
 
     virtual const boost::uuids::uuid& uuid() const { return id_; }
 
-
-    // database-callbacks.
-    virtual void prePersist(odb::database& db) const;
-    virtual void postPersist(odb::database& db) const;
-    virtual void preUpdate(odb::database& db) const;
-    virtual void postUpdate(odb::database& db) const;
-    virtual void preErase(odb::database& db) const;
-    virtual void postErase(odb::database& db) const;
-    virtual void preLoad(odb::database& db);
-    virtual void postLoad(odb::database& db);
-
     /**
         Returns the auto-assigned (odb) discriminator to distinguish between
         different entities. To always return the discriminator of the _dynamic_
@@ -59,6 +48,16 @@ public:
     const std::string discriminator() const;
 
 protected:
+    // database-callbacks.
+    virtual void prePersist(odb::database& db) const;
+    virtual void postPersist(odb::database& db) const;
+    virtual void preUpdate(odb::database& db) const;
+    virtual void postUpdate(odb::database& db) const;
+    virtual void preErase(odb::database& db) const;
+    virtual void postErase(odb::database& db) const;
+    virtual void preLoad(odb::database& db);
+    virtual void postLoad(odb::database& db);
+
 
     /** set the discriminator to the value used by odb. */
     template <class T>
@@ -66,6 +65,13 @@ protected:
         discriminator_ = odb::object_traits_impl<T, odb::id_common>::info.discriminator;
     }
 
+    /**
+        Set the parent of this object. If the parent is deleted from the database,
+        its children are deleted, too.
+    */
+    void setParent(std::shared_ptr<const DBObject> parent) {
+        parent_ = parent;
+    }
 
 private:
     friend class odb::access;
@@ -84,7 +90,7 @@ private:
     // std::string typeid_; // yes.
 
     #pragma db on_delete(cascade)
-    std::weak_ptr<DBObject> parent_;
+    std::weak_ptr<const DBObject> parent_;
 
     static boost::uuids::random_generator uuid_gen;
 
