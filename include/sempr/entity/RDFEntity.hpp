@@ -18,6 +18,7 @@ class RDFEntity : public Entity {
 public:
     using Ptr = std::shared_ptr<RDFEntity>;
     using Event = core::EntityEvent<RDFEntity>;
+    RDFEntity();
     virtual ~RDFEntity(){}
 
     void getTriples(std::vector<Triple>& triples) const;

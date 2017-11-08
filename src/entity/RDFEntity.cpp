@@ -1,7 +1,13 @@
 #include <sempr/entity/RDFEntity.hpp>
-// #include <RDFEntity_odb.h>
+#include <RDFEntity_odb.h>
 
 namespace sempr { namespace entity {
+
+RDFEntity::RDFEntity()
+{
+    setDiscriminator<RDFEntity>();
+}
+
 
 void RDFEntity::getTriples(std::vector<Triple> &triples) const
 {
