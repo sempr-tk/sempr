@@ -92,7 +92,29 @@ Should modifying through `Derived`also trigger `Base::changed()`? Maybe.
 Should modifying `Something` through `Derived`s pointer trigger `Derived::changed()`? Maybe.
 Should modifying `Something`through `Derived`s pointer trigger `Base::changed()`? Maybe not?
 
-Care must be taken that every relevant type of event is fired when an entity is created / loaded / changed or erased. When entities are added to the core, they are given access to the event-broker, so that they are able to inform the system about changes. The question of _entity-ownership_ is a hard one -- who creates (i.e.: persists), updates and removes an entity? This is left to the user for now. Allowing an entity to create other entities is a difficult task: The entity needs access to the core (and/or database?), and take care that no pointers to non-persisted entities are to be saved. Therefore we will for now assume that the user creates and adds all entities to the core, and only creates the connections afterwards (e.g., first adding a mesh and an object, and calling something alike `object->setMesh(mesh)` afterwards. `setMesh` should, in turn, save the pointer to the mesh and call `changed()`, a method that has to be overriden by entity-types to fire special events.)
+Care must be taken that every relevant type of event is fired when an entity is created / loaded / changed or erased. When entities are added to the core, they are given access to the event-broker, so that they are able to inform the system about changes. 
+
+### Entity Ownership
+The question of _entity-ownership_ is a hard one -- who creates (i.e.: persists), updates and removes an entity? In the case of complex entities that consist of multiple other entities -- e.g. a `CoffeeMug` that holds semantic information in an `RDFEntity` and its geometric representation in a `GeometricEntity` -- it would be convenient to let the entity itself manage its sub-entities. There are a few things that have to be taken care of:
+
+- When an entity is persisted or updated in the database, its **pointers must be valid**: The pointed-to entity must have already been persisted in the database, else you will violate a `foreign-key-constraint`.
+- The created entity must be **advertised to the system** to allow processing modules to do their job. Therefore, it needs a pointer to the `EventBroker`.
+
+SEMPR provides a mechanism to do this semi-automatically: Whenever an `Entity`creates another `Entity` and keeps a pointer to it, it needs to register it as a child using:
+``` c++ 
+void Entity::registerChildEntity(Entity::Ptr)
+```
+Upon persisting or updating the parent entity, the following steps are executed:
+
+1. Before persisting/updating the parent, all newly registered children
+	1. get a pointer to the event-broker
+	2. get persisted in the database (which might trigger this mechanism again, recursively)
+2. After persisting/updating the parent, all newly registered children
+	1. are given a pointer to the parent with `on delete cascade` enabled
+	2. are updated (to apply the parent-pointer)
+	3. are announced to the system through invocation of `child->created()`
+
+The `on-delete-cascade` mechanic is database-internal: Whenever an entity has a valid parent-pointer and the parent is removed from the database, the child-entity is removed, too. This ensures that no orphans remain in the database, but it does not trigger any events on the code-side of things. Hence we need to trigger those events ourselves, which forces us to keep a list of all children. **TODO! Keep this list, removed-event for all children, but also loaded() upon loading of the parent! This will result in multiple loaded-events for children, when e.g. loading coffeemugs and all rdftriples. Hmm! Throw loaded only in postLoaded? But how to get the event-broker? This problem remains in the sole child->loaded() during postLoad of the parent...**
 
 
 ## Storage
