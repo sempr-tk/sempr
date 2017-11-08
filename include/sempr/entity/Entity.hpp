@@ -162,14 +162,20 @@ private:
     // need to handle the children ONCE, i.e. when this entity is persisted
     // or updated.
     #pragma db transient
-    mutable std::vector<Entity::Ptr> children_;
+    mutable std::vector<Entity::Ptr> newChildren_;
+
+    /** Besides the list of newly registered children, we need to keep track
+        of all our children. When the parent is created, loaded or removed
+        we must fire the according events for the children, too. This is done
+        in created() / loaded() / removed().
+    */
+    std::vector<Entity::Ptr> children_;
 
     /** persist newly registered children upon persist/update */
     void handleChildrenPre(odb::database& db) const;
     /** set newly registered childrens parent to this and fire their
         created-events after persist/update */
     void handleChildrenPost(odb::database& db) const;
-
 
     /**
         Helper to check if the base implementations of ..._impl() have been

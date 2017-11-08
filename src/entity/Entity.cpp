@@ -36,6 +36,11 @@ void Entity::changed() {
 void Entity::created() {
     if (announced_) return; // do not announce twice.
 
+    // first, announce all children
+    for (auto child : children_) {
+        child->created();
+    }
+
     baseCalled_ = false;
     created_impl();
     assert(baseCalled_ &&
@@ -46,7 +51,12 @@ void Entity::created() {
 
 void Entity::loaded() {
     if (announced_) return; // do not announce twice.
-    
+
+    // first, announce all children
+    for (auto child : children_) {
+        child->loaded();
+    }
+
     baseCalled_ = false;
     loaded_impl();
     assert(baseCalled_ &&
@@ -57,11 +67,17 @@ void Entity::loaded() {
 
 void Entity::removed() {
     if (!announced_) return;
+
     baseCalled_ = false;
     removed_impl();
     assert(baseCalled_ &&
         "The base method Entity::removed_impl() "
         "has not been called during Entity::removed()!");
+
+    // in the end, announce all children
+    for (auto child : children_) {
+        child->removed();
+    }
 }
 
 void Entity::changed_impl() {
@@ -93,6 +109,7 @@ void Entity::removed_impl() {
 void Entity::registerChildEntity(Entity::Ptr child)
 {
     children_.push_back(child);
+    newChildren_.push_back(child);
 }
 
 
@@ -120,7 +137,7 @@ void Entity::postUpdate(odb::database &db) const
 void Entity::handleChildrenPre(odb::database &db) const
 {
     std::cout << discriminator() << "  PRE" << '\n';
-    for (auto child : children_)
+    for (auto child : newChildren_)
     {
         // set the broker first, so that the child may fire events after it has
         // been persisted. This needs to be done now, because the child may have
@@ -136,19 +153,14 @@ void Entity::handleChildrenPost(odb::database &db) const
     std::cout << discriminator() << "  POST" << '\n';
 
     // set the childrens parent to this.
-    for (auto child : children_)
+    for (auto child : newChildren_)
     {
         child->setParent(shared_from_this());
         db.update(child);
     }
-    // persist first, process second
-    for (auto child : children_)
-    {
-        child->created();
-    }
 
     // no need to do this ever again:
-    children_.clear();
+    newChildren_.clear();
 
     /*
         Cite from the documentation (p. 223):
