@@ -4,18 +4,18 @@
 namespace sempr { namespace core {
 
 Core::Core(storage::Storage::Ptr backend)
-    : storage_(backend), eventBroker_(new EventBroker())
+    : storage_(backend)
 {
+    eventBroker_ = EventBroker::getInstance();
 }
 
 void Core::addEntity(entity::Entity::Ptr entity) {
     if (entity.get()) {
         entities_[entity->id()] = entity;
-        entity->broker_ = getEventBroker();
-        
+
         // persist
         storage_->save(entity);
-        
+
         // signal update
         entity->created();
         // auto ev = std::make_shared<EntityEvent<entity::Entity> >(entity, EntityEventBase::CREATED);
@@ -44,5 +44,5 @@ void Core::addModule(processing::Module::Ptr module) {
 }
 
 } /* core */
-    
+
 } /* sempr */

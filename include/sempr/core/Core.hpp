@@ -18,31 +18,30 @@ namespace sempr { namespace core {
 class Core {
 public:
     Core(storage::Storage::Ptr backend);
-    
+
     void addEntity(entity::Entity::Ptr entity);
     void removeEntity(entity::Entity::Ptr entity);
     // void removeEntity(const std::string& entity_id);
-    
-    
+
+
     void addModule(processing::Module::Ptr module);
-    EventBroker::Ptr getEventBroker() { return eventBroker_; }
-    
+
     // TODO queries stellen
     // wie unterscheidet sich eine SPARQL-Query (Query-Modul)
     // von einer RDF-Query (Reasoning/Processing-Module)?
     // Sind die Query-Module im Endeffekt in der gleichen Struktur angesiedelt,
     // wie Processing-Module? (Mein Eindruck: Ja.)
     // void answerQuery(Query::Ptr query);
-    
+
 private:
     /// map entity-id to entity
     std::map<std::string, entity::Entity::Ptr> entities_;
-    
+
     storage::Storage::Ptr storage_;
     std::vector<processing::Module::Ptr> modules_;
     EventBroker::Ptr eventBroker_;
 };
-    
+
 }}
 
 
