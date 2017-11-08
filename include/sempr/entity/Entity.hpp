@@ -177,6 +177,15 @@ private:
     */
     #pragma db transient
     bool baseCalled_;
+
+    /**
+        Helper to check if this entity has been announced to the system via
+        "created()" or "loaded()". If not, "changed()" will _not_ fire an event.
+        This behaviour allows us to initialize entities without changed-events
+        for every step in between.
+    */
+    #pragma db transient
+    bool announced_;
 };
 
 }}

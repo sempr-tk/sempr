@@ -6,8 +6,11 @@
 
 namespace sempr { namespace entity {
 
-Entity::Entity()
+Entity::Entity() : announced_(false)
 {
+    // get the eventbroker
+    broker_ = core::EventBroker::getInstance();
+
     // initialize the discriminator to recognize the most derived type of this
     // object to be "Entity". Has to be repeated in every sub-class.
     setDiscriminator<Entity>();
@@ -21,6 +24,8 @@ void Entity::fireEvent(core::Event::Ptr e) {
 }
 
 void Entity::changed() {
+    if (!announced_) return;
+
     baseCalled_ = false;
     changed_impl();
     assert(baseCalled_ &&
@@ -34,6 +39,7 @@ void Entity::created() {
     assert(baseCalled_ &&
         "The base method Entity::created_impl() "
         "has not been called during Entity::created()!");
+    announced_ = true;
 }
 
 void Entity::loaded() {
@@ -42,9 +48,11 @@ void Entity::loaded() {
     assert(baseCalled_ &&
         "The base method Entity::loaded_impl() "
         "has not been called during Entity::loaded()!");
+    announced_ = true;
 }
 
 void Entity::removed() {
+    if (!announced_) return;
     baseCalled_ = false;
     removed_impl();
     assert(baseCalled_ &&
