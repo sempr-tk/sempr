@@ -114,7 +114,9 @@ Upon persisting or updating the parent entity, the following steps are executed:
 	2. are updated (to apply the parent-pointer)
 	3. are announced to the system through invocation of `child->created()`
 
-The `on-delete-cascade` mechanic is database-internal: Whenever an entity has a valid parent-pointer and the parent is removed from the database, the child-entity is removed, too. This ensures that no orphans remain in the database, but it does not trigger any events on the code-side of things. Hence we need to trigger those events ourselves, which forces us to keep a list of all children. **TODO! Keep this list, removed-event for all children, but also loaded() upon loading of the parent! This will result in multiple loaded-events for children, when e.g. loading coffeemugs and all rdftriples. Hmm! Throw loaded only in postLoaded? But how to get the event-broker? This problem remains in the sole child->loaded() during postLoad of the parent...**
+The `on-delete-cascade` mechanic is database-internal: Whenever an entity has a valid parent-pointer and the parent is removed from the database, the child-entity is removed, too. This ensures that no orphans remain in the database, but it does not trigger any events on the code-side of things. Hence we need to trigger those events ourselves, which forces us to keep a list of all children. This list is managed inside `Entity`. Whenever the `Entiy::created()`, `Entiy::loaded()` or `Entiy::removed()` is called, the Entity also calls the same method of all of its children, thus firing the respective events for all of them. The parents `created() / removed()` are called when adding/removing it to/from the system (`Core::[add/remove]Entity`).
+
+**TODO: loaded() needs to be called on postLoad(), doesn't it? [Alternative: Storage calls it on loading.... inconsistent...]  To make everything a bit more consistent, do we need to call removed() on postDelete()? but created() has to be separated from the db-callbacks since we might want to create temporary, non-persistent objects...? then again, same goes for removed().**
 
 
 ## Storage
