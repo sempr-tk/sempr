@@ -20,7 +20,8 @@ int main(int argc, char** args)
     // test init of discriminator
     DBObject::Ptr p1(new DBObject());
     Entity::Ptr p2(new Entity());
-    Person::Ptr p3(new Person());
+    RDFEntity::Ptr pRDF(new RDFEntity());
+    Person::Ptr p3(new Person(pRDF));
 
     std::cout << p1->discriminator() << '\n';
     std::cout << p2->discriminator() << '\n';
@@ -43,7 +44,10 @@ int main(int argc, char** args)
         CoffeeMug::Ptr mug1 = std::make_shared<CoffeeMug>();
         c.addEntity(mug1);
 
-        Person::Ptr person1 = std::make_shared<Person>();
+        RDFEntity::Ptr personRDF(new RDFEntity());
+        c.addEntity(personRDF);
+
+        Person::Ptr person1 = std::make_shared<Person>(personRDF);
         c.addEntity(person1);
         active->printStats();
         // c.removeEntity(person1);
@@ -57,8 +61,7 @@ int main(int argc, char** args)
         std::vector<DBObject::Ptr> entities;
         storage->loadAll(entities);
         for (DBObject::Ptr e : entities) {
-            std::cout << "loaded: " << e->uuid() << '\n';
-            std::cout << "Discriminator:" << e->discriminator() << '\n';
+            std::cout << "loaded: " << e->discriminator() << " " << e->uuid() << '\n';
         }
         std::cout << "END LOADING" << '\n';
     }
