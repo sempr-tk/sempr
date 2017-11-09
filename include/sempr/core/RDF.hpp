@@ -52,30 +52,9 @@ namespace owl {
 #   undef OWL
 }
 
-class Triple {
-
-public:
-    Triple(const std::string& s, const std::string& p, const std::string& o)
-        : subject(s), predicate(p), object(o), document("")
-    {
-    }
-    
-    Triple(const std::string& s, const std::string& p, const std::string& o,
-            const std::string& d)
-        : subject(s), predicate(p), object(o), document(d)
-    {
-    }
-    
-    Triple(const Triple& other)
-        : subject(other.subject), predicate(other.predicate), 
-            object(other.object), document(other.document)
-    {
-    }
-    std::string subject, predicate, object, document;
-};
 
 } /* core */
-    
+
 } /* sempr */
 
 

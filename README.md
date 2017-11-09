@@ -57,7 +57,7 @@ int main(int argc, char** args)
 	core.addModule(updater);
 	core.addModule(active);
 
-	// CoffeeMug::Ptr mug1( new CoffeeMug() );
+	CoffeeMug::Ptr mug1( new CoffeeMug() );
 	core.addEntity(mug1);	// triggers an EntityEvent
 
 	return 0;
@@ -65,17 +65,16 @@ int main(int argc, char** args)
 ```
 
 ## Internal structure
-SEMPR consists of a collection of different `Entity`s (things that can be stored in the database) and processing modules. Whenever a something changed and the rest of the system needs to be informed, an event can be delivered to the processing modules. Typically, an event stores a pointer to the entity that changed, and the processing modules subscribe to specific types of events (see [processing modules](#processing-modules)).
+SEMPR consists of a collection of different `Entity`s (things that can be stored in the database) and processing modules. Whenever something changed and the rest of the system needs to be informed, an event can be delivered to the processing modules. Typically, an event stores a pointer to the entity that changed, and the processing modules subscribe to specific types of events (see [processing modules](#processing-modules)).
 
 Events are the way automatic (forward) processing is implemented in SEMPR: Whenever something changed, all processing modules get the chance to react to the change, update their internal datastructure, modify data and trigger more events etc. Since some calculations might be very cost-intensive, methods exist to create information on demand (backward processing/reasoning): Whenever a `Query` is to be answered, not only the currently existing data is checked for an answer, but the query itself is handed to the processing modules in order to extend the results. while processing a query, the modules may create sub-queries of their own. This exhibits a risk of endless loops -- later implementations might introduce clever strategies to cope with this problem, e.g. a depth-limit.
 
 **TODO:** _This has not been implemented yet._
 
-The main focus of processing modules lies on symbolic and spatial reasoning. Hence, interfaces are expected to provide this information - symbolic knowledge and geometries - in an orderly manner. Therefore, currently two subclasses of `Entity` are proposed: `RDFEntity` and `GeometricEntity`. Since many entities may provide both types of data, one could try to inherit from both classes. One problem that may arise in such a situation is that virtual inheritance is not supported by the underlying database system, which heavily relies on static casts (and one cannot static-cast through a virtual base). *You have been warned.* The preferred way of dealing with this is to use `RDFEntity` and `GeometricEntity` inside your classes, instead of inheriting from them. Moreover, there may be different implementations, e.g. `MeshEntity` or `PointEntity`. See the diagram below.
+The main focus of processing modules lies on symbolic and spatial reasoning. Hence, interfaces are expected to provide this information - symbolic knowledge and geometries - in an orderly manner. Therefore, currently two subclasses of `Entity` are proposed: `RDFEntity` and `GeometricEntity`. Complex entities that aggregate other entities should do exactly that: E.g., `SomeSpecialEntity` might be represented by a mesh plus semantic information. If for whatever reason you want to inherit from an Entity, be aware: Virtual inheritance is not supported by the underlying database, at it heavily relies on static casts (and one cannot static-cast through a virtual base).
+Moreover, there may be different specializations, e.g. `MeshEntity` or `PointEntity`. See the diagram below.
 
 ![alt](doc/Entity-Structure.png)
-
-Another way would be to inherit from one of those classes and use the other one. E.g., a `Person`-class could inherit from `RDFEntity` as it would be overkill to create another object just for some symbolic data. Instead, the `Person` could implement the interface (nothing more than a method to return symbolic data as triples) itself, and for a geometric representation allow the user to attach a `Mesh`. As a consequence, whoever modifies the mesh should also trigger a `Person::changed()`(in addition to `Mesh::changed()`, which might even be called directly as a result of the modification).
 
 >**Something to think about:**
 Assume the following structure (simplified):
