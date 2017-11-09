@@ -33,7 +33,7 @@ private:
     EventBroker() {};
 
     std::queue<Event::Ptr> eventQueue;
-    std::map<std::string, std::vector<Observer::Ptr> > observers;
+    std::map<std::string, std::vector<std::weak_ptr<Observer> > > observers;
 
 };
 
