@@ -15,33 +15,33 @@ namespace sempr { namespace storage {
 
 /**
     Backend for storing entities and their data.
-    
+
 */
 class ODBStorage : public Storage {
 public:
     using Ptr = std::shared_ptr<ODBStorage>;
-    
-    ODBStorage();
+
+    ODBStorage(const std::string& dbName = "test_sqlite.db", bool clearDatabase = false);
     ~ODBStorage();
-    
+
     /** save data */
     void save( DBObject::Ptr data ) override;
-    
+
     /** load a single object **/
     DBObject::Ptr load( const boost::uuids::uuid& id ) override;
     /** load all objects **/
     void loadAll( std::vector<DBObject::Ptr>& data ) override;
-    
+
     /** remove an object **/
     void remove( DBObject::Ptr data ) override;
 
 private:
     std::unique_ptr<odb::database> db_;
     std::unique_ptr<odb::session> session_;
-    
+
 
 };
-    
+
 }}
 
 #endif /* end of include guard: SEMPR_STORAGE_ODBSTORAGE_H_ */
