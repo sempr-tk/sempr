@@ -16,7 +16,7 @@ include_directories(${ODB_COMPILE_OUTPUT_DIR})
 include_directories(include)
 
 add_subdirectory(src)
-add_subdirectory(test)
+
 
 enable_testing()
-add_test(NAME test1 COMMAND unittest)
+add_subdirectory(test)
