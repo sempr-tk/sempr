@@ -1,6 +1,6 @@
 before_script:
     - apt-get update -qq
-    - apt-get install -y -qq odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4
+    - apt-get install -y -qq odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev
     - apt-get install -y -qq g++ cmake
     - apt-get install -y -qq libboost-all-dev
     
