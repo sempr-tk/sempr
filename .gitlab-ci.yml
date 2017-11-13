@@ -1,16 +1,18 @@
 before_script:
-    - apt-get update -qq && apt-get install odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4
+    - apt-get update -qq && apt-get install -y -qq odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4
     
 stages:
     - build
     - test
     
 build:
+    stage: build
     script:
     - mkdir build && cd build
     - cmake ..
     - make -j8
     
 test:
+    stage: test
     script:
     - make test
