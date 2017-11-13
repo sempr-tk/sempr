@@ -14,8 +14,13 @@ build:
     - mkdir build && cd build
     - cmake ..
     - make -j8
+    artifacts:
+        paths:
+        - build/
+        expire_in: 1 hour
     
 test:
     stage: test
     script:
+    - cd build
     - make test
