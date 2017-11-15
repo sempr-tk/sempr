@@ -35,8 +35,8 @@ void sempr::entity::RDFValue::makeValid()
             throw std::runtime_error("RDFValue makeValid() failed: not a literal");
 
         literal_ = node_.literal();
-        std::cout << "makeValid. " << stringRepresentation_  << '\n';
-        std::cout << "makeValid. " << node_.literal().toString().toStdString() << '\n';
+        // std::cout << "makeValid. " << stringRepresentation_  << '\n';
+        // std::cout << "makeValid. " << node_.literal().toString().toStdString() << '\n';
     }
 
     valid_ = true;

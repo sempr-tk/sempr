@@ -17,7 +17,7 @@ void DBUpdateModule::process(entity::Entity::Event::Ptr e)
 {
     if (e->what() == core::EntityEventBase::CHANGED)
     {
-        std::cout << "UPDATER: SAVING " << e->getEntity()->id() << '\n';
+        // std::cout << "UPDATER: SAVING " << e->getEntity()->id() << '\n';
         storage_->save(e->getEntity());
     }
 }
