@@ -30,51 +30,27 @@ int main(int argc, char** args)
 
 
     {
-        // Person::Ptr p(new Person());
-        // c.addEntity(p);
-        //
-        // RDFPropertyMap::Ptr map(new RDFPropertyMap(*p));
-        // c.addEntity(map);
-        // (*map)["age"] = 5.; // double value
-        // (*map)["name"] = std::string("Max");
-        // (*map)["weight"] = 20.3;
-        //
-        // RDFPropertyMap& m = *map;
-        // int age = m["age"];
-        // m["age"] = age; // overwrite original double with int --> change of type!
-        //
-        // std::string ages = m["age"];
-        // std::cout << "string-age: " << ages << '\n';
-        //
-        // std::string ages2 = m["age"];
-        // std::cout << "string-age: " << ages2 << '\n';
-        //
-        // // try a pointer!
-        // m["person-obj"] = p;
+        // insert.
+        Person::Ptr p(new Person());
+        c.addEntity(p);
+
+
+        // retrieve
 
         std::vector<DBObject::Ptr> objects;
         storage->loadAll(objects);
         for (auto o : objects) {
-            RDFPropertyMap::Ptr m = std::dynamic_pointer_cast<RDFPropertyMap>(o);
-            if (m.get()) {
-                std::cout << "got RDFPropertyMap:" << '\n';
-                // std::cout << (*m)["age"] << '\n'; // error.
-                // std::cout << (*m)["name"] << '\n';
-                // std::cout << (*m)["weight"] << '\n';
-                int age = (*m)["age"];
-                std::string name = (*m)["name"];
-                double weight = (*m)["weight"];
-                Person::Ptr person = (*m)["person-obj"];
-                std::cout << age << '\n';
-                std::cout << name << '\n';
-                std::cout << weight << '\n';
-                std::cout << "person-obj: " << person->id() << '\n';
+            Person::Ptr p = std::dynamic_pointer_cast<Person>(o);
+            if (p) {
+                p->loaded(); // no changed-events before announcement!
+                std::cout << "Person id: " << p->id() << std::endl;
 
-                // get invalid
-                RDFPropertyMap::Ptr invalid = (*m)["person-obj"];
-                std::cout << "propertymap: " << invalid.get()  << '\n';
-                invalid = (*m)["foobarbaz"];
-                std::cout << "propertymap: " << invalid.get()  << '\n';
+                // add a year.
+                p->age(p->age()+1);
+                std::cout << "Person: "
+                    << p->name() << ", "
+                    << p->age() << " years old, "
+                    << p->height() << "m." << std::endl;
             }
         }
     }
