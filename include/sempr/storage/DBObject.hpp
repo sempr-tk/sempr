@@ -58,7 +58,6 @@ protected:
     virtual void preLoad(odb::database& db);
     virtual void postLoad(odb::database& db);
 
-
     /** set the discriminator to the value used by odb. */
     template <class T>
     void setDiscriminator() {
