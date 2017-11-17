@@ -18,7 +18,14 @@ public:
     void init();
 
     ENTITY_DEFAULT_EVENT_METHODS(Person, Entity);
-    
+
+    std::string getFirst(){ return first_; }
+    void setFirst(std::string s){ first_ = s; }
+    std::string getLast(){ return last_; }
+    void setLast(std::string s){ last_ = s; }
+    Gender getGender(){ return gender_; }
+    void setGender(Gender g){ gender_ = g; }
+
 protected:
     friend class odb::access;
     RDFEntity::Ptr rdfEntity_;
