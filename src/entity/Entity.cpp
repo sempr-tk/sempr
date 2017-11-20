@@ -108,6 +108,15 @@ void Entity::removed_impl() {
 
 void Entity::registerChildEntity(Entity::Ptr child)
 {
+    /**
+        Two vectors to save the child into:
+        1. the persistent children_ vector that gets stored in the database
+        2. the transient newChildren_ vector
+
+        newChildren_ is traversed during pre[persist/update] to persist the
+        children, so that the persistent children_-vector only contains valid
+        references.
+    */
     children_.push_back(child);
     newChildren_.push_back(child);
 }
@@ -132,6 +141,30 @@ void Entity::postUpdate(odb::database &db) const
 {
     handleChildrenPost(db);
 }
+
+void Entity::preLoad(odb::database& db)
+{
+    /**
+        https://git.hb.dfki.de/nniemann/SEMPR/issues/2
+
+        Upon loading an entity, odb creates it with its default ctor, which
+        might create and register new children! If the entity is saved again,
+        the new children solely exist in the children_ vector, but their
+        originally intended member_-variable (e.g. mother_, cadmodel_, ...)
+        will be overwritten with the value that was stored previously.
+
+        The fix is the following: Just clear the newChildren_-vector on preLoad.
+        Don't be afraid if you look into the registerChildEntity-method: Yes,
+        it pushes new children into newChildren_ *AND* children_ simultanously.
+        However, we only need to clear newChildren_: These are the ones that get
+        handled upon persisting/updating the entity. But aren't the invalid,
+        duplicated entities within children_ persisted, too, you ask? No!
+        Because that vector gets overwritten by odb when the object is loaded
+        and filled with data. :)
+    */
+    newChildren_.clear();
+}
+
 
 
 void Entity::handleChildrenPre(odb::database &db) const
