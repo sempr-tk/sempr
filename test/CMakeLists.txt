@@ -1,7 +1,17 @@
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED filesystem)
 
-add_executable(semprtest main.cpp)
-target_link_libraries(semprtest sempr_core)
+add_executable(manual_test main.cpp)
+target_link_libraries(manual_test sempr_core)
 
-add_executable(unittest test.cpp)
-target_link_libraries(unittest sempr_core)
+
+
+
+
+add_executable(sempr_test_bin SEMPR_tests.cpp)
+target_link_libraries(sempr_test_bin sempr_core )
+
+if(Boost_FOUND)
+  message("found boost")
+  include_directories(${Boost_INCLUDE_DIRS})
+  target_link_libraries(sempr_test_bin ${Boost_LIBRARIES})
+endif()

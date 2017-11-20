@@ -113,6 +113,24 @@ protected:
         return std::static_pointer_cast<Derived>(shared_from_this());
     }
 
+    /**
+        Registers a child-entity: Every entity that is created inside of this
+        and used in a relationship (aka, member variable smart pointer) has to
+        be persisted before this one to prevent foreign-key-errors. Registered
+        children are automatically handled inside pre- and postPersist of the
+        Entity-Class. Also, this entity is set to be their parent, resulting in
+        on-delete-cascade: If this is removed from the database, so are the
+        children.
+        TODO: Are events handled correctly in the case of the removal through
+        a cascade?
+    */
+    void registerChildEntity(Entity::Ptr child);
+
+    /** handle registered children */
+    virtual void prePersist(odb::database& db) const override;
+    virtual void postPersist(odb::database& db) const override;
+    virtual void preUpdate(odb::database& db) const override;
+    virtual void postUpdate(odb::database& db) const override;
 
     /**
         To make sure that a derived class does not forget to throw an
@@ -134,11 +152,46 @@ private:
     std::weak_ptr<core::EventBroker> broker_;
 
     /**
+        In order to allow entities within entities and a correct
+        on-delete-cascade mechanism (i.e., remove the child if the parent has
+        been removed), we need to register children and handle them with care
+        before persistence / update.
+    */
+    // no need to keep the references to the children.
+    // Their "parent_" will be set, and we only
+    // need to handle the children ONCE, i.e. when this entity is persisted
+    // or updated.
+    #pragma db transient
+    mutable std::vector<Entity::Ptr> newChildren_;
+
+    /** Besides the list of newly registered children, we need to keep track
+        of all our children. When the parent is created, loaded or removed
+        we must fire the according events for the children, too. This is done
+        in created() / loaded() / removed().
+    */
+    std::vector<Entity::Ptr> children_;
+
+    /** persist newly registered children upon persist/update */
+    void handleChildrenPre(odb::database& db) const;
+    /** set newly registered childrens parent to this and fire their
+        created-events after persist/update */
+    void handleChildrenPost(odb::database& db) const;
+
+    /**
         Helper to check if the base implementations of ..._impl() have been
         called.
     */
     #pragma db transient
     bool baseCalled_;
+
+    /**
+        Helper to check if this entity has been announced to the system via
+        "created()" or "loaded()". If not, "changed()" will _not_ fire an event.
+        This behaviour allows us to initialize entities without changed-events
+        for every step in between.
+    */
+    #pragma db transient
+    bool announced_;
 };
 
 }}

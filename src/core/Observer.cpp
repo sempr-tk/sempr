@@ -1,5 +1,4 @@
 #include <sempr/core/Observer.hpp>
-#include <iostream>
 
 namespace sempr { namespace core {
 
@@ -10,7 +9,7 @@ Observer::Observer()
     );
 }
 
-Observer::~Observer() 
+Observer::~Observer()
 {
 }
 
@@ -28,5 +27,5 @@ void Observer::notify(Event::Ptr event)
 }
 
 } /* core */
-    
+
 } /* sempr */

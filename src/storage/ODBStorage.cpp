@@ -6,20 +6,18 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include <iostream>
-
 namespace sempr { namespace storage {
-    
-ODBStorage::ODBStorage()
+
+ODBStorage::ODBStorage(const std::string& db_name, bool clearDatabase)
 {
-    db_.reset( new odb::sqlite::database("test_sqlite.db",
+    db_.reset( new odb::sqlite::database(db_name,
                     SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE ));
     session_.reset( new odb::session() );
     try {
         odb::transaction t(db_->begin());
         // db_->execute("PRAGMA foreign_keys=OFF");
         // odb::schema_catalog::create_schema(*db_, "", true);
-        odb::schema_catalog::create_schema(*db_, "", false);
+        odb::schema_catalog::create_schema(*db_, "", clearDatabase);
         // db_->execute("PRAGMA foreign_keys=ON");
         t.commit();
         // odb::schema_catalog::create_schema(*db_, "", true); // drop existing
@@ -28,21 +26,21 @@ ODBStorage::ODBStorage()
     }
 }
 
-ODBStorage::~ODBStorage() 
+ODBStorage::~ODBStorage()
 {
 }
 
 
 void ODBStorage::save( DBObject::Ptr o ) {
     odb::transaction t(db_->begin());
-    
+
     if (!o->persisted()) {
         setID(o, boost::uuids::random_generator()());
         db_->persist(o);
     } else {
         db_->update(o);
     }
-    
+
     t.commit();
 }
 
