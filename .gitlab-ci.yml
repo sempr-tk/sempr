@@ -26,4 +26,4 @@ test:
     stage: test
     script:
     - cd build
-    - make test
+    - ./test/sempr_test_bin
