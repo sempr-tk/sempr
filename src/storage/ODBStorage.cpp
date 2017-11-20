@@ -6,8 +6,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-#include <iostream>
-
 namespace sempr { namespace storage {
 
 ODBStorage::ODBStorage(const std::string& db_name, bool clearDatabase)

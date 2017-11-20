@@ -1,6 +1,5 @@
 #include <sempr/core/EventBroker.hpp>
 #include <algorithm>
-#include <iostream>
 
 namespace sempr { namespace core {
 

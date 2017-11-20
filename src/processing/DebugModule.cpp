@@ -1,5 +1,4 @@
 #include <sempr/processing/DebugModule.hpp>
-
 #include <iostream>
 
 namespace sempr { namespace processing {
@@ -44,5 +43,5 @@ void DebugModule::process(entity::Entity::Event::Ptr e) {
 }
 
 } /* processing */
-    
+
 } /* sempr */

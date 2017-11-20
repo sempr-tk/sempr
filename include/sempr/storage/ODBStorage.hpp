@@ -21,7 +21,7 @@ class ODBStorage : public Storage {
 public:
     using Ptr = std::shared_ptr<ODBStorage>;
 
-    ODBStorage(const std::string& dbName = "test_sqlite.db", bool clearDatabase = false);
+    ODBStorage(const std::string& dbName = "sempr_sqlite.db", bool clearDatabase = false);
     ~ODBStorage();
 
     /** save data */
@@ -29,6 +29,14 @@ public:
 
     /** load a single object **/
     DBObject::Ptr load( const boost::uuids::uuid& id ) override;
+
+    template <typename T> std::shared_ptr<T> load( const boost::uuids::uuid& id ) {
+        odb::transaction t( db_->begin() );
+        std::shared_ptr<T> o( db_->load<T>(id) );
+        t.commit();
+        return o;
+    }
+
     /** load all objects **/
     void loadAll( std::vector<DBObject::Ptr>& data ) override;
 

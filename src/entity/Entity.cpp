@@ -149,7 +149,6 @@ void Entity::handleChildrenPre(odb::database &db) const
 
 void Entity::handleChildrenPost(odb::database &db) const
 {
-
     // set the childrens parent to this.
     for (auto child : newChildren_)
     {

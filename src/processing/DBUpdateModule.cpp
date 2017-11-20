@@ -1,5 +1,4 @@
 #include <sempr/processing/DBUpdateModule.hpp>
-#include <iostream>
 
 namespace sempr { namespace processing {
 

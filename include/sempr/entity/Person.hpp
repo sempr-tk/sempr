@@ -16,6 +16,11 @@ public:
     Person();
     virtual ~Person(){}
 
+    /**
+        There are multiple ways to manage information inside a class.
+        The first that is presented here is the use of an RDFPropertyMap which
+        makes the information available to RDF-Reasoners.
+    */
     // getter/setter for name, age and height.
     int age() { return (*prop_)["age"]; }
     void age(int i) { (*prop_)["age"] = i; changed(); prop_->changed(); }
@@ -28,10 +33,22 @@ public:
 
     ENTITY_DEFAULT_EVENT_METHODS(Person, Entity);
 
+
+    /** Another way is to use explicit member variables. */
+
+    std::string getFirst(){ return first_; }
+    void setFirst(std::string s){ first_ = s; }
+    std::string getLast(){ return last_; }
+    void setLast(std::string s){ last_ = s; }
+    Gender getGender(){ return gender_; }
+    void setGender(Gender g){ gender_ = g; }
+
 protected:
     friend class odb::access;
 
     RDFPropertyMap::Ptr prop_;
+    std::string first_, last_;
+    Gender gender_;
 };
 
 // enable history:
