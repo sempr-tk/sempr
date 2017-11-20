@@ -5,6 +5,7 @@ before_script:
     - apt-get install -y -qq libboost-all-dev
     - apt-get install -y -qq pkg-config
     - apt-get install -y -qq libsoprano-dev
+    - apt-get install -y -qq qt4-default
 
 stages:
     - build
