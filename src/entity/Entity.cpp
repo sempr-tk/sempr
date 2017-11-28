@@ -124,26 +124,31 @@ void Entity::registerChildEntity(Entity::Ptr child)
 
 void Entity::prePersist(odb::database &db) const
 {
+    DBObject::prePersist(db);
     handleChildrenPre(db);
 }
 
 void Entity::postPersist(odb::database &db) const
 {
+    DBObject::postPersist(db);
     handleChildrenPost(db);
 }
 
 void Entity::preUpdate(odb::database &db) const
 {
+    DBObject::preUpdate(db);
     handleChildrenPre(db);
 }
 
 void Entity::postUpdate(odb::database &db) const
 {
+    DBObject::postUpdate(db);
     handleChildrenPost(db);
 }
 
 void Entity::preLoad(odb::database& db)
 {
+    DBObject::preLoad(db);
     /**
         https://git.hb.dfki.de/nniemann/SEMPR/issues/2
 

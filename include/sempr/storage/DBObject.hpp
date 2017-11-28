@@ -29,9 +29,11 @@ public:
         //: id_(boost::uuids::nil_generator()()), parent_(parent) {}
     virtual ~DBObject(){}
 
-    /*  returns true if the object has an id pointing into the database.
-        used to check if "update" or "persist" is needed. */
-    bool persisted() const { return !id_.is_nil(); }
+    /*
+        Returns true if the object is known to be persisted (if it has been
+        saved or loaded before).
+    */
+    bool persisted() const { return persisted_; }
 
 
     virtual const boost::uuids::uuid& uuid() const { return id_; }
@@ -84,6 +86,11 @@ private:
 
     #pragma db transient
     std::string discriminator_;
+
+    /// A flag that states if the object has already been persisted.
+    /// Is set to "false" in the ctor and to "true" in persist/load-callbacks
+    #pragma db transient
+    mutable bool persisted_;
 
     // test: does this collide with the discriminator?
     // std::string typeid_; // yes.

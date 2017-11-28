@@ -5,13 +5,14 @@ namespace sempr { namespace storage {
 
 boost::uuids::random_generator DBObject::uuid_gen = boost::uuids::random_generator();
 
-DBObject::DBObject() : id_(boost::uuids::nil_generator()()) , parent_()
+DBObject::DBObject()
+    : id_(boost::uuids::nil_generator()()) , parent_(), persisted_(false)
 {
     setDiscriminator<DBObject>();
 }
 
 DBObject::DBObject(DBObject::Ptr parent)
-    : id_(boost::uuids::nil_generator()()), parent_(parent)
+    : id_(boost::uuids::nil_generator()()), parent_(parent), persisted_(false)
 {
     setDiscriminator<DBObject>();
 }
@@ -63,12 +64,12 @@ void DBObject::dbcallback(odb::callback_event e, odb::database &db) const
 
 
 void DBObject::prePersist(odb::database& db) const {}
-void DBObject::postPersist(odb::database& db) const {}
+void DBObject::postPersist(odb::database& db) const { persisted_ = true; }
 void DBObject::preUpdate(odb::database& db) const {}
 void DBObject::postUpdate(odb::database& db) const {}
 void DBObject::preErase(odb::database& db) const {}
 void DBObject::postErase(odb::database& db) const {}
-void DBObject::preLoad(odb::database& db) {}
+void DBObject::preLoad(odb::database& db) { persisted_ = true; }
 
 void DBObject::postLoad(odb::database& db)
 {
