@@ -3,11 +3,14 @@ before_script:
     - apt-get install -y -qq odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev
     - apt-get install -y -qq g++ cmake
     - apt-get install -y -qq libboost-all-dev
-    
+    - apt-get install -y -qq pkg-config
+    - apt-get install -y -qq libsoprano-dev
+    - apt-get install -y -qq qt4-default
+
 stages:
     - build
     - test
-    
+
 build:
     stage: build
     script:
@@ -18,9 +21,9 @@ build:
         paths:
         - build/
         expire_in: 1 hour
-    
+
 test:
     stage: test
     script:
     - cd build
-    - make test
+    - ./test/sempr_test_bin

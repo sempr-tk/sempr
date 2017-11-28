@@ -149,6 +149,32 @@ first: 0
 **TODO:** _store timestamps and use them to index into the vector_
 
 ## Entity
+### RDFPropertyMap
+The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, a triple exists for every key-value-pair. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
+```c++
+RDFPropertyMap::Ptr map(new RDFPropertyMap("subject", "http://baseURI/"));
+core.addEntity(map);
+
+// syntactic sugar to avoid having to write (*map)["key"]
+RDFPropertyMap& m = *map;
+m["foo"] = 42;
+m["bar"] = 1.234f;
+m["baz"] = "Hello, World!";
+
+// create another entity and point to it.
+Person::Ptr person(new Person());
+core.addEntity(person);
+
+m["uncle"] = person;
+```
+This snippet maps to the following set of triples:
+```
+(subject <http://baseURI/foo> "42"^^xsd:integer)
+(subject <http://baseURI/bar> "1.234"^^xsd:float)
+(subject <http://baseURI/baz> "Hello, World!"^^xsd:string)
+(subject <http://baseURI/uncle> <http://baseURI/[persons-uuid]>)
+```
+By using an `RDFPropertyMap` other entites are able to store their information and provide them in an RDFEntity without much redundancy and overhead. Whether you want to use the `RDFPropertyMap` exclusively or just use it to store otherwise transient data members in (during prePeresist/preUpdate/postLoad) is up to you -- as long as the map gets the values they are available to (optional, not yet implemented) reasoners.
 
 ## Events
 

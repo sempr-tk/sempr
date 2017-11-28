@@ -52,7 +52,7 @@ void EventBroker::processEvent() {
     if (!eventQueue.empty()) {
         Event::Ptr event = eventQueue.front();
 
-        //std::cout << "EventBroker::processEvent " << typeid(*event).name() << '\n';
+        // std::cout << "EventBroker::processEvent " << typeid(*event).name() << '\n';
 
         // notify all observers registered to the topic
         for (auto o : observers[event->topic()]) {
