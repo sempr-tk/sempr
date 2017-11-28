@@ -133,6 +133,14 @@ protected:
     virtual void postUpdate(odb::database& db) const override;
 
     /**
+        On pre-load, discard the newChildren_ that may have been created and
+        registered in the constructor, but whose member-variables would be
+        overwritten during the load anyways, leaving behind a child entity that
+        is solely referred to by the (new)children_-vector.
+    */
+    virtual void preLoad(odb::database& db) override;
+
+    /**
         To make sure that a derived class does not forget to throw an
         EntityEvent<Entity> on change/creation/load/removed, the methods
         changed(), ... just call the _impl()-methods and check if

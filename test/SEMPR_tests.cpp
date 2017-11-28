@@ -181,6 +181,49 @@ BOOST_AUTO_TEST_CASE(deletion) {
 BOOST_AUTO_TEST_SUITE_END()
 
 
+
+BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
+    std::string db_path = "test_sqlite.db";
+
+    BOOST_AUTO_TEST_CASE(register_children_no_duplicates_test)
+    {
+        boost::uuids::uuid personId;
+        size_t numBefore;
+
+        {
+            ODBStorage::Ptr storage = setUpStorage(db_path, true);
+            Core core(storage);
+            Person::Ptr person(new Person());
+            core.addEntity(person);
+            personId = person->uuid();
+        }
+        {
+            ODBStorage::Ptr storage = loadStorage(db_path);
+            Core core(storage);
+
+            // load: creates an RDFEntity in the ctor
+            Person::Ptr person = storage->load<Person>(personId);
+
+            // get the current number of objects in the database.
+            std::vector<DBObject::Ptr> all;
+            storage->loadAll(all);
+            numBefore = all.size();
+
+            // save: this should *not* add another entity.
+            storage->save(person);
+        }
+        {
+            ODBStorage::Ptr storage = loadStorage(db_path);
+            Core core(storage);
+
+            checkEntitiesInStorage(storage, numBefore); // <-- should be the same as before.
+        }
+
+        removeStorage(db_path);
+    }
+BOOST_AUTO_TEST_SUITE_END()
+
+
 /**
     a series of tests to check the functionality of the RDFPropertyMap
     which is used for easy storage of primitive datatypes and object-pointers
