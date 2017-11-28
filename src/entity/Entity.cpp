@@ -169,7 +169,6 @@ void Entity::preLoad(odb::database& db)
 
 void Entity::handleChildrenPre(odb::database &db) const
 {
-    //std::cout << discriminator() << "  PRE" << '\n';
     for (auto child : newChildren_)
     {
         // set the broker first, so that the child may fire events after it has
@@ -183,8 +182,6 @@ void Entity::handleChildrenPre(odb::database &db) const
 
 void Entity::handleChildrenPost(odb::database &db) const
 {
-    //std::cout << discriminator() << "  POST" << '\n';
-
     // set the childrens parent to this.
     for (auto child : newChildren_)
     {
