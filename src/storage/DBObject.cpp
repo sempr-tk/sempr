@@ -3,16 +3,14 @@
 
 namespace sempr { namespace storage {
 
-boost::uuids::random_generator DBObject::uuid_gen = boost::uuids::random_generator();
-
-DBObject::DBObject()
-    : id_(boost::uuids::nil_generator()()) , parent_(), persisted_(false)
+DBObject::DBObject(const core::IDGenBase& idgen)
+    : id_(idgen.generate()) , parent_(), persisted_(false)
 {
     setDiscriminator<DBObject>();
 }
 
-DBObject::DBObject(DBObject::Ptr parent)
-    : id_(boost::uuids::nil_generator()()), parent_(parent), persisted_(false)
+DBObject::DBObject(DBObject::Ptr parent, const core::IDGenBase& idgen)
+    : id_(idgen.generate()), parent_(parent), persisted_(false)
 {
     setDiscriminator<DBObject>();
 }
@@ -40,8 +38,6 @@ void DBObject::dbcallback(odb::callback_event e, odb::database &db) const
 {
     switch (e) {
         case odb::callback_event::pre_persist:
-            // assumption: this is NOT created const.
-            const_cast<DBObject*>(this)->id_ = DBObject::uuid_gen();
             prePersist(db);
             break;
         case odb::callback_event::post_persist:

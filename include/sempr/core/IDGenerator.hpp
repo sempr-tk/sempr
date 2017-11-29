@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <sempr/core/IDGenerationStrategy.hpp>
+#include <sempr/core/UUIDGeneration.hpp>
 
 namespace sempr { namespace core {
 /**
@@ -16,8 +17,7 @@ private:
     std::unique_ptr<IDGenerationStrategy> strategy_;
 
     /// private ctor (singleton!) with a default strategy.
-    // TODO set default!
-    IDGenerator() : strategy_(nullptr) {}
+    IDGenerator() : strategy_(new UUIDGeneration()) {}
 
 public:
     static IDGenerator& getInstance() {
@@ -40,11 +40,14 @@ public:
         // TODO get a better prefix
         return strategy_->generate(typeid(Entity).name());
     }
-}
+};
 
-/** Base class for the ID-Generation-Wrapper */
+/**
+    Base class for the ID-Generation-Wrapper. The generate-method can actually
+    be const since it won't modify itself, but only the ID-generation-instance.
+*/
 struct IDGenBase {
-    virtual std::string generate() = 0;
+    virtual std::string generate() const = 0;
 };
 
 /**
@@ -63,7 +66,7 @@ struct IDGenBase {
 */
 template <class Entity>
 struct IDGen : public IDGenBase {
-    std::string generate() override {
+    std::string generate() const override {
         return IDGenerator::getInstance().generate<Entity>();
     }
 };

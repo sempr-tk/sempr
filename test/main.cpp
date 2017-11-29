@@ -12,7 +12,6 @@ using namespace sempr::processing;
 
 #include <fstream>
 #include <iostream>
-#include <boost/uuid/uuid.hpp>
 
 #include <odb/database.hxx>
 #include <Person_odb.h>

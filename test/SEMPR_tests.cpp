@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(insertion)
 
 BOOST_AUTO_TEST_CASE(retrieval){
     // retrieval. New ODBStorage, new session, force to load from database
-  boost::uuids::uuid id;
+  std::string id;
   std::string first = "Peter";
   std::string last = "Müller";
   Person::Gender gender = Person::Gender::MALE;
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(retrieval){
 
     core.addEntity(person);
 
-    id = person->uuid();
+    id = person->id();
   }
 
   {
@@ -159,14 +159,14 @@ BOOST_AUTO_TEST_CASE(update) {
 }
 
 BOOST_AUTO_TEST_CASE(deletion) {
-  boost::uuids::uuid id;
+  std::string id;
 
 
   ODBStorage::Ptr storage = setUpStorage(db_path, true);
   Core core(storage);
   Person::Ptr person(new Person());
   core.addEntity(person);
-  id = person->uuid();
+  id = person->id();
 
   // load all entites, check if there are exactly 2 (person and its RDF).
   checkEntitiesInStorage(storage, 2);
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
 
     BOOST_AUTO_TEST_CASE(register_children_no_duplicates_test)
     {
-        boost::uuids::uuid personId;
+        std::string personId;
         size_t numBefore;
 
         {
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
             Core core(storage);
             Person::Ptr person(new Person());
             core.addEntity(person);
-            personId = person->uuid();
+            personId = person->id();
         }
         {
             ODBStorage::Ptr storage = loadStorage(db_path);
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
 
     // to keep between tests.
-    boost::uuids::uuid mapId, personId;
+    std::string mapId, personId;
     std::string databaseFile = "test_sqlite.db";
 
     BOOST_AUTO_TEST_CASE(propertymap_insertion)
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         // create an entity and assign different values
         RDFPropertyMap::Ptr map(new RDFPropertyMap("subject", "http://baseURI/"));
         core.addEntity(map);
-        mapId = map->uuid();
+        mapId = map->id();
 
 
         RDFPropertyMap& m = *map;
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         // create another entity and point to it.
         Person::Ptr person(new Person());
         core.addEntity(person);
-        personId = person->uuid();
+        personId = person->id();
 
         m["person"] = person;
     }
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         std::string s = m["string"];
         BOOST_CHECK_EQUAL(s, "Hello, World!");
         Person::Ptr person = m["person"];
-        BOOST_CHECK_EQUAL(personId, person->uuid());
+        BOOST_CHECK_EQUAL(personId, person->id());
 
         // test invalid accesses
         BOOST_CHECK_THROW(

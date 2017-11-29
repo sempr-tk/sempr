@@ -7,7 +7,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/uuid/uuid_io.hpp>
 #include <sempr/storage/DBObject.hpp>
 #include <sempr/core/Event.hpp>
 #include <sempr/core/EntityEvent.hpp>
@@ -76,8 +75,6 @@ public:
 
     using Ptr = std::shared_ptr<Entity>;
     using Event = core::EntityEvent<Entity>;
-    virtual std::string id() const { return boost::uuids::to_string(uuid()); }
-
 
     /** Fires an event signalling that this entity changed (EntityEvent<Entity>).
         Derived classes need to override changed_impl() to also fire special

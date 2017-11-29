@@ -5,11 +5,9 @@
 #include <odb/database.hxx>
 #include <odb/callback.hxx>
 #include <memory>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 #include <sempr/storage/History.hpp>
+#include <sempr/core/IDGenerator.hpp>
 
 namespace sempr { namespace storage {
     class Storage;
@@ -19,14 +17,20 @@ class DBObject {
 public:
     using Ptr = std::shared_ptr<DBObject>;
 
-    DBObject();// : id_(boost::uuids::nil_generator()()) , parent_() {}
-    /*  Assigning a parent to the object transfers data-ownership. If the
+    /**
+        The DBObject takes an IDGenBase& to allow derived classes to specify
+        their own ID-generation-method, or at least specialize the global
+        strategy for the most derived type. (--> Chair_1 instead of DBObject_37)
+    */
+    DBObject(const core::IDGenBase& idgen = core::IDGen<DBObject>());
+
+    /**
+        Assigning a parent to the object transfers data-ownership. If the
         parent is removed from the database, this object will be removed as well.
         Careful: This is a database-internal mechanism, no event will be fired,
         except if done so explicitly from the parent...
     */
-    DBObject(DBObject::Ptr parent);
-        //: id_(boost::uuids::nil_generator()()), parent_(parent) {}
+    DBObject(DBObject::Ptr parent, const core::IDGenBase& idgen = core::IDGen<DBObject>());
     virtual ~DBObject(){}
 
     /*
@@ -36,7 +40,7 @@ public:
     bool persisted() const { return persisted_; }
 
 
-    virtual const boost::uuids::uuid& uuid() const { return id_; }
+    std::string id() const { return id_; }
 
     /**
         Returns the auto-assigned (odb) discriminator to distinguish between
@@ -81,8 +85,8 @@ private:
     void dbcallback(odb::callback_event e, odb::database& db);
     void dbcallback(odb::callback_event e, odb::database& db) const;
 
-    #pragma db id type("TEXT")
-    boost::uuids::uuid id_;
+    #pragma db id
+    std::string id_;
 
     #pragma db transient
     std::string discriminator_;
@@ -97,9 +101,6 @@ private:
 
     #pragma db on_delete(cascade)
     std::weak_ptr<const DBObject> parent_;
-
-    static boost::uuids::random_generator uuid_gen;
-
 };
 
 #pragma db view object(DBObject)

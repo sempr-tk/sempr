@@ -23,7 +23,7 @@ public:
     using Ptr = std::shared_ptr<RDFPropertyMap>;
     /** All elements are stored as (subject baseURI+key value) */
     RDFPropertyMap(const std::string& subject, const std::string& baseURI);
-    /** All elements are stored as (baseURI+obj.uuid() baseURI+key value) */
+    /** All elements are stored as (baseURI+obj.id() baseURI+key value) */
     RDFPropertyMap(const storage::DBObject& obj,
                     const std::string& baseURI = "sempr://");
 

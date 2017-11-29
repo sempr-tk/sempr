@@ -10,7 +10,7 @@ RDFPropertyMap::RDFPropertyMap(const std::string& subject, const std::string& ba
 }
 
 RDFPropertyMap::RDFPropertyMap(const storage::DBObject& obj, const std::string& baseURI)
-    :   subject_("<" + baseURI + boost::uuids::to_string(obj.uuid()) + ">"),
+    :   subject_("<" + baseURI + obj.id() + ">"),
         baseURI_(baseURI)
 {
     setDiscriminator<RDFPropertyMap>();
