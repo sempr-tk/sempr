@@ -6,7 +6,8 @@
 
 namespace sempr { namespace entity {
 
-Entity::Entity() : announced_(false)
+Entity::Entity(const core::IDGenBase& idgen)
+    : DBObject(idgen), announced_(false)
 {
     // get the eventbroker
     broker_ = core::EventBroker::getInstance();
@@ -14,6 +15,20 @@ Entity::Entity() : announced_(false)
     // initialize the discriminator to recognize the most derived type of this
     // object to be "Entity". Has to be repeated in every sub-class.
     setDiscriminator<Entity>();
+}
+
+// note: constructor "chaining" is only valid since c++11 and is called
+// "delegating constructors". One major restriction: You may *NOT*
+// initialize any other member variable!
+// --> this is invalid:
+//  Entity::Entity() : Entity(core::IDGen<Entity>()), foo_(123) { }
+// --> but this is okay:
+//  Entity::Entity() : Entity(core::IDGen<Entity>()) { foo_ = 123; }
+/**
+    Default: use IDGen<Entity>
+*/
+Entity::Entity() : Entity(core::IDGen<Entity>())
+{
 }
 
 void Entity::fireEvent(core::Event::Ptr e) {

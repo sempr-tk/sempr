@@ -23,6 +23,10 @@ int main(int argc, char** args)
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
 
+    // sempr::core::IDGenerator::getInstance().setStrategy(
+    //     std::unique_ptr<sempr::core::UUIDGeneration>( new sempr::core::UUIDGeneration(false) )
+    // );
+
     sempr::core::Core c(storage);
     c.addModule(active);
     c.addModule(debug);

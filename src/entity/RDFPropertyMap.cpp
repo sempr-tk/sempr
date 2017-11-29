@@ -3,17 +3,31 @@
 
 namespace sempr { namespace entity {
 
+RDFPropertyMap::RDFPropertyMap(const core::IDGenBase& idgen,
+    const std::string& subject, const std::string& baseURI)
+    : RDFEntity(idgen), subject_(subject), baseURI_(baseURI)
+{
+    setDiscriminator<RDFPropertyMap>();
+}
+
 RDFPropertyMap::RDFPropertyMap(const std::string& subject, const std::string& baseURI)
-    : subject_(subject), baseURI_(baseURI)
+    : RDFPropertyMap(core::IDGen<RDFPropertyMap>(), subject, baseURI)
+{
+}
+
+
+RDFPropertyMap::RDFPropertyMap(const core::IDGenBase& idgen,
+    const storage::DBObject& obj, const std::string& baseURI)
+    :   RDFEntity(idgen),
+        subject_("<" + baseURI + obj.id() + ">"),
+        baseURI_(baseURI)
 {
     setDiscriminator<RDFPropertyMap>();
 }
 
 RDFPropertyMap::RDFPropertyMap(const storage::DBObject& obj, const std::string& baseURI)
-    :   subject_("<" + baseURI + obj.id() + ">"),
-        baseURI_(baseURI)
+    :   RDFPropertyMap(core::IDGen<RDFPropertyMap>(), obj, baseURI)
 {
-    setDiscriminator<RDFPropertyMap>();
 }
 
 RDFValueProxy RDFPropertyMap::operator[](const std::string& key)

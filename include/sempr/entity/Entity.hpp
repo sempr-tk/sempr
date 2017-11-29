@@ -71,6 +71,8 @@ namespace entity {
 class Entity : public storage::DBObject, public std::enable_shared_from_this<Entity>  {
 public:
     Entity();
+    Entity(const core::IDGenBase& idgen);
+
     virtual ~Entity(){}
 
     using Ptr = std::shared_ptr<Entity>;

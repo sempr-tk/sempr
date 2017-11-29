@@ -12,11 +12,15 @@ namespace sempr { namespace core {
 */
 class UUIDGeneration : public IDGenerationStrategy {
 public:
+    UUIDGeneration(bool usePrefix = true) : usePrefix_(usePrefix) {}
     std::string generate(const std::string& prefix) override;
 
 private:
+    bool usePrefix_;
     static boost::uuids::random_generator uuidGenerator_;
 };
+
+
 
 }}
 
