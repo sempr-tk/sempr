@@ -5,6 +5,8 @@
 #include <sempr/core/IDGenerationStrategy.hpp>
 #include <sempr/core/UUIDGeneration.hpp>
 
+#include <odb/core.hxx>
+
 namespace sempr { namespace core {
 /**
     The IDGenerator is a (singleton) class that is used to create unique ids
@@ -37,8 +39,17 @@ public:
     */
     template <class Entity>
     std::string generate() {
-        // TODO get a better prefix
-        return strategy_->generate(typeid(Entity).name());
+        // for a prefix, use the odb-generated discriminator
+        std::string prefix =
+            odb::object_traits_impl<Entity, odb::id_common>::info.discriminator;
+
+        // for readability remove the namespaces
+        auto pos = prefix.rfind("::");
+        if (pos != prefix.npos) {
+            prefix = prefix.substr(pos+2);
+        }
+
+        return strategy_->generate(prefix);
     }
 };
 

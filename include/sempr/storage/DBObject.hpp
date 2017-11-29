@@ -18,19 +18,23 @@ public:
     using Ptr = std::shared_ptr<DBObject>;
 
     /**
-        The DBObject takes an IDGenBase& to allow derived classes to specify
-        their own ID-generation-method, or at least specialize the global
-        strategy for the most derived type. (--> Chair_1 instead of DBObject_37)
-    */
-    DBObject(const core::IDGenBase& idgen = core::IDGen<DBObject>());
-
-    /**
         Assigning a parent to the object transfers data-ownership. If the
         parent is removed from the database, this object will be removed as well.
         Careful: This is a database-internal mechanism, no event will be fired,
         except if done so explicitly from the parent...
+
+        Default ctor: Implicitely set the IDGenBase to IDGen<DBObject>().
     */
-    DBObject(DBObject::Ptr parent, const core::IDGenBase& idgen = core::IDGen<DBObject>());
+    DBObject(DBObject::Ptr parent = NULL);
+
+    /**
+        Takes an IDGenBase& to allow derived classes to specify
+        their own ID-generation-method, or at least specialize the global
+        strategy for the most derived type.
+        (--> Chair_1 instead of DBObject_37)
+    */
+    DBObject(const core::IDGenBase& idgen, DBObject::Ptr parent = NULL);
+
     virtual ~DBObject(){}
 
     /*
