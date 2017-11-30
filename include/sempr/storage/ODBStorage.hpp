@@ -37,6 +37,21 @@ public:
         return o;
     }
 
+
+    /**
+        Load all instances of a given type.
+    */
+    template <typename T>
+    void loadAll(std::vector<std::shared_ptr<T> >& list) {
+        odb::transaction t(db_->begin());
+        odb::result<T> r = db_->query<T>();
+        for (auto it = r.begin(); it != r.end(); ++it)
+        {
+            list.push_back(it.load());
+        }
+        t.commit();
+    }
+
     /** load all objects **/
     void loadAll( std::vector<DBObject::Ptr>& data ) override;
 

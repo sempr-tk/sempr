@@ -15,6 +15,7 @@ using namespace sempr::processing;
 #include <boost/uuid/uuid.hpp>
 
 #include <odb/database.hxx>
+#include <Person_odb.h>
 
 int main(int argc, char** args)
 {
@@ -37,21 +38,34 @@ int main(int argc, char** args)
 
         // retrieve
 
-        std::vector<DBObject::Ptr> objects;
-        storage->loadAll(objects);
-        for (auto o : objects) {
-            Person::Ptr p = std::dynamic_pointer_cast<Person>(o);
-            if (p) {
-                p->loaded(); // no changed-events before announcement!
-                std::cout << "Person id: " << p->id() << std::endl;
+        // std::vector<DBObject::Ptr> objects;
+        // storage->loadAll(objects);
+        // for (auto o : objects) {
+        //     Person::Ptr p = std::dynamic_pointer_cast<Person>(o);
+        //     if (p) {
+        //         p->loaded(); // no changed-events before announcement!
+        //         std::cout << "Person id: " << p->id() << std::endl;
+        //
+        //         // add a year.
+        //         p->age(p->age()+1);
+        //         std::cout << "Person: "
+        //             << p->name() << ", "
+        //             << p->age() << " years old, "
+        //             << p->height() << "m." << std::endl;
+        //     }
+        // }
+        std::vector<Person::Ptr> persons;
+        storage->loadAll(persons);
+        for (auto p : persons) {
+            p->loaded(); // no changed-events before announcement!
+            std::cout << "Person id: " << p->id() << std::endl;
 
-                // add a year.
-                p->age(p->age()+1);
-                std::cout << "Person: "
-                    << p->name() << ", "
-                    << p->age() << " years old, "
-                    << p->height() << "m." << std::endl;
-            }
+            // add a year.
+            p->age(p->age()+1);
+            std::cout << "Person: "
+                << p->name() << ", "
+                << p->age() << " years old, "
+                << p->height() << "m." << std::endl;
         }
     }
 
