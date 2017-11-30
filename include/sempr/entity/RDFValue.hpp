@@ -118,6 +118,7 @@ public:
         // stringRepresentation_ = ("\"" + literal_.toString() + "\"^^<" + literal_.dataTypeUri().toString() + ">").toStdString();
         Soprano::Node tmp = Soprano::Node::createLiteralNode(literal_);
         stringRepresentation_ = tmp.toN3().toStdString();
+        return *this;
     }
 
     /** Assign a pointer to a Entity */
@@ -132,6 +133,7 @@ public:
             QUrl(QString("sempr://") + QString::fromStdString(pointer_->id()))
         );
         stringRepresentation_ = tmp.toN3().toStdString();
+        return *this;
     }
 
     // overload for c-strings (so that map["name"]="Max" wont result in "true"^^<xsd:boolean>)

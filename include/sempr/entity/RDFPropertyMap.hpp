@@ -80,6 +80,7 @@ public:
         // emit a changed-event (?)
         // TODO -- maybe not and leave it to the user?
         propertyMap_->changed();
+        return *this;
     }
 
     /** Casts -- implemented by RDFValue */

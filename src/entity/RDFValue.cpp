@@ -14,6 +14,7 @@ sempr::entity::RDFValue& sempr::entity::RDFValue::operator = (const std::string&
     type_ = Type::LITERAL;
     literal_ = QString::fromStdString(value);
     stringRepresentation_ = ("\"" + literal_.toString() + "\"^^<" + literal_.dataTypeUri().toString() + ">").toStdString();
+    return *this;
 }
 
 sempr::entity::RDFValue& sempr::entity::RDFValue::operator = (const char* value) {
@@ -22,6 +23,7 @@ sempr::entity::RDFValue& sempr::entity::RDFValue::operator = (const char* value)
     // stringRepresentation_ = ("\"" + literal_.toString() + "\"^^<" + literal_.dataTypeUri().toString() + ">").toStdString();
     Soprano::Node tmp = Soprano::Node::createLiteralNode(literal_);
     stringRepresentation_ = tmp.toN3().toStdString();
+    return *this;
 }
 
 
