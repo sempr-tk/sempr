@@ -14,6 +14,10 @@ class UUIDGeneration : public IDGenerationStrategy {
 public:
     UUIDGeneration(bool usePrefix = true) : usePrefix_(usePrefix) {}
     std::string generate(const std::string& prefix) override;
+    void revoke(const std::string& prefix, const std::string& id) override
+    {
+        // nothing to do.
+    }
 
 private:
     bool usePrefix_;

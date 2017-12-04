@@ -34,11 +34,10 @@ public:
         strategy_ = std::move(strategy);
     }
 
-    /**
-        Create a new ID for a given type of entity.
-    */
+
     template <class Entity>
-    std::string generate() {
+    std::string getPrefix()
+    {
         // for a prefix, use the odb-generated discriminator
         std::string prefix =
             odb::object_traits_impl<Entity, odb::id_common>::info.discriminator;
@@ -49,38 +48,29 @@ public:
             prefix = prefix.substr(pos+2);
         }
 
+        return prefix;
+    }
+
+    /**
+        Create a new ID for a given type of entity.
+    */
+    template <class Entity>
+    std::string generate() {
+        std::string prefix = getPrefix<Entity>();
+
         return strategy_->generate(prefix);
     }
-};
 
-/**
-    Base class for the ID-Generation-Wrapper. The generate-method can actually
-    be const since it won't modify itself, but only the ID-generation-instance.
-*/
-struct IDGenBase {
-    virtual std::string generate() const = 0;
-};
-
-/**
-    A convenience wrapper for use in entity classes. For a correct IDGeneration,
-    every Entity-Class must accept a IDGenBase-object that wraps the entity-type
-    and the IDGenerator-instance. Use it like this:
-        SomeEntity(IDGenBase& gen = IDGen<SomeEntity>())
-            : Entity(gen)
-        {
-            setDiscriminator<SomeEntity>();
-            // ctor of SomeEntity
-        }
-    Far down the hierarchy, DBObject's ctor will use the IDGenerator to set its
-    id. Therefore, it will be already set inside the ctors of the derived
-    classes and can be used when creating sub-entities, creating relations, etc.
-*/
-template <class Entity>
-struct IDGen : public IDGenBase {
-    std::string generate() const override {
-        return IDGenerator::getInstance().generate<Entity>();
+    /**
+        Revoke an existing ID
+    */
+    template <class Entity>
+    void revoke(const std::string& id) {
+        std::string prefix = getPrefix<Entity>();
+        strategy_->revoke(prefix, id);
     }
 };
+
 
 } /* core */
 } /* sempr */

@@ -12,7 +12,15 @@ namespace sempr { namespace core {
 class IDGenerationStrategy {
 public:
     virtual ~IDGenerationStrategy() {};
+    /**
+        Generate a new id, based on a given prefix.
+    */
     virtual std::string generate(const std::string& prefix) = 0;
+    /**
+        Revoke an existing id, freeing it for further use.
+        Also takes the prefix it has been created from as an input.
+    */
+    virtual void revoke(const std::string& prefix, const std::string& id) = 0;
 };
 
 }}
