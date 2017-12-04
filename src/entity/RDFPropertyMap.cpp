@@ -3,7 +3,7 @@
 
 namespace sempr { namespace entity {
 
-RDFPropertyMap::RDFPropertyMap(const core::IDGenBase& idgen,
+RDFPropertyMap::RDFPropertyMap(const core::IDGenBase* idgen,
     const std::string& subject, const std::string& baseURI)
     : RDFEntity(idgen), subject_(subject), baseURI_(baseURI)
 {
@@ -11,12 +11,12 @@ RDFPropertyMap::RDFPropertyMap(const core::IDGenBase& idgen,
 }
 
 RDFPropertyMap::RDFPropertyMap(const std::string& subject, const std::string& baseURI)
-    : RDFPropertyMap(core::IDGen<RDFPropertyMap>(), subject, baseURI)
+    : RDFPropertyMap(new core::IDGen<RDFPropertyMap>(), subject, baseURI)
 {
 }
 
 
-RDFPropertyMap::RDFPropertyMap(const core::IDGenBase& idgen,
+RDFPropertyMap::RDFPropertyMap(const core::IDGenBase* idgen,
     const storage::DBObject& obj, const std::string& baseURI)
     :   RDFEntity(idgen),
         subject_("<" + baseURI + obj.id() + ">"),
@@ -26,7 +26,7 @@ RDFPropertyMap::RDFPropertyMap(const core::IDGenBase& idgen,
 }
 
 RDFPropertyMap::RDFPropertyMap(const storage::DBObject& obj, const std::string& baseURI)
-    :   RDFPropertyMap(core::IDGen<RDFPropertyMap>(), obj, baseURI)
+    :   RDFPropertyMap(new core::IDGen<RDFPropertyMap>(), obj, baseURI)
 {
 }
 

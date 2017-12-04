@@ -7,7 +7,9 @@
 #include <memory>
 
 #include <sempr/storage/History.hpp>
-#include <sempr/core/IDGenerator.hpp>
+// #include <sempr/core/IDGenerator.hpp>
+#include <sempr/core/IDGenUtil.hpp>
+
 
 namespace sempr { namespace storage {
     class Storage;
@@ -33,7 +35,7 @@ public:
         strategy for the most derived type.
         (--> Chair_1 instead of DBObject_37)
     */
-    DBObject(const core::IDGenBase& idgen, DBObject::Ptr parent = NULL);
+    DBObject(const core::IDGenBase* idgen, DBObject::Ptr parent = NULL);
 
     virtual ~DBObject(){}
 
@@ -99,6 +101,14 @@ private:
     /// Is set to "false" in the ctor and to "true" in persist/load-callbacks
     #pragma db transient
     mutable bool persisted_;
+
+protected:
+    /// The wrapper from which the given id was generated.
+    /// this is used to revoke the id in preLoad.
+    #pragma db transient
+    std::unique_ptr<const core::IDGenBase> idgenerator_;
+
+private:
 
     // test: does this collide with the discriminator?
     // std::string typeid_; // yes.

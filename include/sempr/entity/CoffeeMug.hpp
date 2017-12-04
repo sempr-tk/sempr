@@ -15,7 +15,7 @@ public:
     using Ptr = std::shared_ptr<CoffeeMug>;
 
     CoffeeMug();
-    CoffeeMug(const core::IDGenBase&);
+    CoffeeMug(const core::IDGenBase*);
 
     storage::History<int> temperature_;
     storage::History<Person::Ptr> owner_;

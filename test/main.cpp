@@ -16,6 +16,8 @@ using namespace sempr::processing;
 #include <odb/database.hxx>
 #include <Person_odb.h>
 
+#include <sempr/core/IncrementalIDGeneration.hpp>
+
 int main(int argc, char** args)
 {
     ODBStorage::Ptr storage( new ODBStorage() );
@@ -23,13 +25,14 @@ int main(int argc, char** args)
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
 
-    // sempr::core::IDGenerator::getInstance().setStrategy(
-    //     std::unique_ptr<sempr::core::UUIDGeneration>( new sempr::core::UUIDGeneration(false) )
-    // );
+    sempr::core::IDGenerator::getInstance().setStrategy(
+        // std::unique_ptr<sempr::core::UUIDGeneration>( new sempr::core::UUIDGeneration(false) )
+        std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
+    );
 
     sempr::core::Core c(storage);
     c.addModule(active);
-    c.addModule(debug);
+    // c.addModule(debug);
     c.addModule(updater);
 
 
@@ -37,6 +40,8 @@ int main(int argc, char** args)
         // insert.
         Person::Ptr p(new Person());
         c.addEntity(p);
+        Person::Ptr p2(new Person());
+        c.addEntity(p2);
 
 
         // retrieve

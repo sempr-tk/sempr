@@ -6,7 +6,7 @@
 
 namespace sempr { namespace entity {
 
-Entity::Entity(const core::IDGenBase& idgen)
+Entity::Entity(const core::IDGenBase* idgen)
     : DBObject(idgen), announced_(false)
 {
     // get the eventbroker
@@ -27,7 +27,7 @@ Entity::Entity(const core::IDGenBase& idgen)
 /**
     Default: use IDGen<Entity>
 */
-Entity::Entity() : Entity(core::IDGen<Entity>())
+Entity::Entity() : Entity(new core::IDGen<Entity>())
 {
 }
 
@@ -181,7 +181,12 @@ void Entity::preLoad(odb::database& db)
         duplicated entities within children_ persisted, too, you ask? No!
         Because that vector gets overwritten by odb when the object is loaded
         and filled with data. :)
+        What we also need to do: The newChildren_ got an ID that we want to
+        release again!
     */
+    for (auto c : newChildren_) {
+        c->idgenerator_->revoke(c->id());
+    }
     newChildren_.clear();
 }
 

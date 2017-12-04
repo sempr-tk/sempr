@@ -3,13 +3,13 @@
 
 namespace sempr { namespace entity {
 
-RDFEntity::RDFEntity(const core::IDGenBase& idgen)
+RDFEntity::RDFEntity(const core::IDGenBase* idgen)
     : Entity(idgen)
 {
     setDiscriminator<RDFEntity>();
 }
 
-RDFEntity::RDFEntity() : RDFEntity(core::IDGen<RDFEntity>())
+RDFEntity::RDFEntity() : RDFEntity(new core::IDGen<RDFEntity>())
 {
 }
 

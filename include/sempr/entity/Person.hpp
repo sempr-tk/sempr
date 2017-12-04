@@ -14,7 +14,7 @@ public:
     enum Gender { MALE, FEMALE, UNKNOWN };
 
     Person();
-    Person(const core::IDGenBase&);
+    Person(const core::IDGenBase*);
     virtual ~Person(){}
 
     /**

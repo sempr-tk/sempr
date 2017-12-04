@@ -4,17 +4,14 @@
 namespace sempr { namespace storage {
 
 DBObject::DBObject(DBObject::Ptr parent)
-    : parent_(parent), persisted_(false)
+    : DBObject(new core::IDGen<DBObject>(), parent)
 {
-    // use a default id generation-parameterization
-    id_ = core::IDGen<DBObject>().generate();
-    setDiscriminator<DBObject>();
 }
 
-DBObject::DBObject(const core::IDGenBase& idgen, DBObject::Ptr parent)
-    : parent_(parent), persisted_(false)
+DBObject::DBObject(const core::IDGenBase* idgen, DBObject::Ptr parent)
+    : parent_(parent), persisted_(false), idgenerator_(idgen)
 {
-    id_ = idgen.generate();
+    id_ = idgen->generate();
     setDiscriminator<DBObject>();
 }
 
@@ -68,10 +65,20 @@ void DBObject::preUpdate(odb::database& db) const {}
 void DBObject::postUpdate(odb::database& db) const {}
 void DBObject::preErase(odb::database& db) const {}
 void DBObject::postErase(odb::database& db) const {}
-void DBObject::preLoad(odb::database& db) { persisted_ = true; }
+void DBObject::preLoad(odb::database& db)
+{
+    std::cout << "preLoad of " << id() << '\n';
+    persisted_ = true;
+
+    // an ID has been generated, but we already have one (that's going to be
+    // assinged between pre- and postLoad). Hence, revoke the current one, to
+    // "free" it.
+    idgenerator_->revoke(this->id_);
+}
 
 void DBObject::postLoad(odb::database& db)
 {
+    std::cout << "postLoad of " << id() << '\n';
     // query for the discriminator
     DBObject_type t = db.query_value<DBObject_type>(odb::query<DBObject_type>::id == id_);
     discriminator_ = t.discriminator_;

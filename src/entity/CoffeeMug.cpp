@@ -4,14 +4,14 @@
 
 namespace sempr { namespace entity {
 
-CoffeeMug::CoffeeMug(const core::IDGenBase& idgen)
+CoffeeMug::CoffeeMug(const core::IDGenBase* idgen)
     : Entity(idgen)
 {
     setDiscriminator<CoffeeMug>();
     temperature_ = 100;
 }
 
-CoffeeMug::CoffeeMug() : CoffeeMug(core::IDGen<CoffeeMug>())
+CoffeeMug::CoffeeMug() : CoffeeMug(new core::IDGen<CoffeeMug>())
 {
 }
 
