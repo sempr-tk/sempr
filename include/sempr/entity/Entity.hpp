@@ -171,6 +171,14 @@ private:
     #pragma db transient
     mutable std::vector<Entity::Ptr> newChildren_;
 
+
+    /**
+        Releases the ids of newChildren_. This is needed since the children
+        might be created in the ctor of this entity, even when they are
+        overwritten in a subsequent load.
+    */
+    void freeChildIDs();
+
     /** Besides the list of newly registered children, we need to keep track
         of all our children. When the parent is created, loaded or removed
         we must fire the according events for the children, too. This is done

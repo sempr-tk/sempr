@@ -137,6 +137,18 @@ void Entity::registerChildEntity(Entity::Ptr child)
 }
 
 
+void Entity::freeChildIDs()
+{
+    // only need to traverse newChildren_:
+    // every DBObject revokes its own ID in preLoad, but the newChildren_
+    // are freshly created and not known to odb, hence no preLoad-call.
+    for (auto c : newChildren_)
+    {
+        c->idgenerator_->revoke(c->id());
+        c->freeChildIDs();
+    }
+}
+
 void Entity::prePersist(odb::database &db) const
 {
     DBObject::prePersist(db);
@@ -184,9 +196,7 @@ void Entity::preLoad(odb::database& db)
         What we also need to do: The newChildren_ got an ID that we want to
         release again!
     */
-    for (auto c : newChildren_) {
-        c->idgenerator_->revoke(c->id());
-    }
+    freeChildIDs();
     newChildren_.clear();
 }
 
