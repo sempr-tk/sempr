@@ -8,11 +8,28 @@
 
 namespace sempr { namespace entity {
 
-    #pragma db value
-    struct PrefixIDInfo {
+    /**
+        The PrefixIDInfo is a simple helper-class that holds information about
+        the IDs that have been created for a specific (implicit) prefix:
+        - highest: The highest ever assigned ID
+        - revoked: A list of IDs that are free to be reused
+        Since this is needed for the ID-generation it must not use the
+        ID-generation itself. The PrefixAssignedIDs-class is responsible to
+        manage these objects and assign them fixed IDs.
+    */
+    #pragma db object // value not possible, container inside container not allowed!
+    class PrefixIDInfo : public Entity {
+    public:
+        using Ptr = std::shared_ptr<PrefixIDInfo>;
+        PrefixIDInfo(const core::IDGenBase*);
+
         // std::string prefix;
         std::size_t highest;
         std::set<size_t> revoked;
+
+    private:
+        friend class odb::access;
+        PrefixIDInfo();
     };
 
     /**
@@ -37,11 +54,19 @@ namespace sempr { namespace entity {
         */
         void revokeID(const std::string& prefix, size_t id);
 
+    protected:
+        // update the map entries, too!
+        // TODO: Discuss: Should this be a feature of the
+        // child-handling-capability of Entity? Update all children on update
+        // of the parent? <--> changed()-events lead to updates through the
+        // DBUpdateModule. Do we really need that module?
+        void preUpdate(odb::database& db) const override;
+
     private:
         PrefixAssignedIDs() {}
 
         friend class odb::access;
-        std::map<std::string, PrefixIDInfo> prefixInfos_;
+        std::map<std::string, PrefixIDInfo::Ptr> prefixInfos_;
     };
 
 }}
