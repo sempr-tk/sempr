@@ -162,7 +162,7 @@ MyClass(const core::IDGenBase& gen = core::IDGen<MyClass>())  // error!
  	// ctor stuff
  }
 ```
-Since some strategies may want to use the type-traits defined by odb we cannot use `core::IDGen<MyClass>` in the header file of `MyClass` -- odb must compile the header first and create a `MyClass_odb.h` which can be included in `MyClass.cpp` and provides the type traits we need. Therefore, the following approach is to be used:
+Since some strategies may want to use the type-traits defined by odb we cannot use `core::IDGen<MyClass>` in the header file of `MyClass` -- odb must compile the header first and create a `MyClass_odb.h` which can be included in `MyClass.cpp` and provides the type traits we need. Therefore, the following approach is to be used (also, since the DBObject-class needs access to the generation-object later on to free its own id on removal, we pass it a pointer. DBObject takes care of deletion):
 ```c++
 /* MyClass.hpp */
 class MyClass : public Entity {
@@ -170,24 +170,24 @@ class MyClass : public Entity {
 	MyClass();
 
 	/// alternative to allow derived classes to pass their own IDGen<DerivedClass>
-	MyClass(const core::IDGenBase& gen);
+	MyClass(const core::IDGenBase* gen);
 };
 
 /* MyClass.cpp */
 MyClass::MyClass()
-	: Entity( core::IDGen<MyClass>() )
+	: Entity(new core::IDGen<MyClass>())
 {
 	// ctor stuff
 }
 
-MyClass::MyClass(const core::IDGenBase& gen)
-	: Entity( gen )
+MyClass::MyClass(const core::IDGenBase* gen)
+	: Entity(gen)
 {
 	// ctor stuff
 }
 ```
 
-**TODO:** This way, even when loading an entity a new id is generated and overwritten by ODB afterwards. Is there a way to prevent this? Or at least free the id?
+The DBObject takes care of freeing IDs, so that they can be reused later on. This is only relevant for the `IncrementalIDGeneration`: If you create Object\_1 to 10 and remove Object\_3, "Object\_3" joins the pool of revoked ids and can be assigned to the next object to be created.
 
 ### RDFPropertyMap
 The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, a triple exists for every key-value-pair. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
