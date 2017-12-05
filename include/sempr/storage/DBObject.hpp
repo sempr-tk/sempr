@@ -105,6 +105,8 @@ private:
 protected:
     /// The wrapper from which the given id was generated.
     /// this is used to revoke the id in preLoad.
+    /// It's only protected since the Entity-class needs access
+    /// to release IDs of its newChildren_ in preLoad.
     #pragma db transient
     std::unique_ptr<const core::IDGenBase> idgenerator_;
 

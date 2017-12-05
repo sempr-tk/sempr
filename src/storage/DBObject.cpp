@@ -67,7 +67,6 @@ void DBObject::preErase(odb::database& db) const {}
 void DBObject::postErase(odb::database& db) const {}
 void DBObject::preLoad(odb::database& db)
 {
-    std::cout << "preLoad of " << id() << '\n';
     persisted_ = true;
 
     // an ID has been generated, but we already have one (that's going to be
@@ -78,7 +77,6 @@ void DBObject::preLoad(odb::database& db)
 
 void DBObject::postLoad(odb::database& db)
 {
-    std::cout << "postLoad of " << id() << '\n';
     // query for the discriminator
     DBObject_type t = db.query_value<DBObject_type>(odb::query<DBObject_type>::id == id_);
     discriminator_ = t.discriminator_;

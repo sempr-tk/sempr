@@ -9,9 +9,8 @@ Person::Person(const core::IDGenBase* idgen)
     : Entity(idgen)
 {
     setDiscriminator<Person>();
-    std::cout << id() << " creates an RDFPropertyMap!" << '\n';
     prop_ = RDFPropertyMap::Ptr(new RDFPropertyMap(*this));
-    std::cout << id() << " created an RDFPropertyMap, namely " << prop_->id() << '\n';
+    // std::cout << id() << " created an RDFPropertyMap, namely " << prop_->id() << '\n';
 
     registerChildEntity(prop_);
 

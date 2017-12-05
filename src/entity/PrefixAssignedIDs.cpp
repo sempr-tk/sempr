@@ -23,7 +23,7 @@ size_t PrefixAssignedIDs::getIDForPrefix(const std::string &prefix)
 {
     PrefixIDInfo::Ptr info = prefixInfos_[prefix];
     if (!info) {
-        std::cout << "Create new PrefixIDInfo for " << prefix << '\n';
+        // std::cout << "Create new PrefixIDInfo for " << prefix << '\n';
         info = PrefixIDInfo::Ptr(
             new PrefixIDInfo(new core::PredefinedID("PrefixIDInfo_" + prefix))
         );

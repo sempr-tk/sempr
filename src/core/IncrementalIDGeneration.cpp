@@ -1,6 +1,7 @@
 #include <sempr/core/IncrementalIDGeneration.hpp>
 #include <PrefixAssignedIDs_odb.h>
 
+#include <iostream>
 #include <sstream>
 
 namespace sempr { namespace core {
@@ -14,8 +15,8 @@ IncrementalIDGeneration::IncrementalIDGeneration(storage::ODBStorage::Ptr st)
         prefixInfo_ =
         storage->load<PrefixAssignedIDs>("IncIDGen_config");
     } catch (odb::exception& e) {
-        std::cout << "Couldn't load config for IncrementalIDGeneration." << '\n';
-        std::cout << "Creating new one." << '\n';
+        std::cerr << "Couldn't load config for IncrementalIDGeneration. ";
+        std::cerr << "Creating new one." << '\n';
         prefixInfo_ = PrefixAssignedIDs::Ptr(
             new PrefixAssignedIDs(new PredefinedID("IncIDGen_config"))
         );
@@ -29,19 +30,14 @@ IncrementalIDGeneration::~IncrementalIDGeneration()
 }
 
 
-#include <iostream>
-
 std::string IncrementalIDGeneration::generate(const std::string& prefix) {
     size_t id = prefixInfo_->getIDForPrefix(prefix);
     std::string fullID = prefix + "_" + std::to_string(id);
 
-    // storage::ODBStorage::Ptr storage = storage_.lock();
     if (!storage) {
         throw std::runtime_error("IncrementalIDGeneration: ID requested, " \
                                  "but storage-object is already destroyed!");
     }
-    // storage->save(prefixInfo_);
-    std::cout << "generated id: " << fullID << '\n';
     return fullID;
 }
 
@@ -55,7 +51,6 @@ void IncrementalIDGeneration::revoke(const std::string &prefix, const std::strin
     size_t i;
     iss >> i;
     prefixInfo_->revokeID(prefix, i);
-    std::cout << "revoked id: " << prefix << ", " << id << '\n';
 }
 
 }}
