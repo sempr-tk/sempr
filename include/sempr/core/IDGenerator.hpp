@@ -34,6 +34,17 @@ public:
         strategy_ = std::move(strategy);
     }
 
+    /**
+        Resets the IDGenerator to the default UUIDGenerationStrategy. This is
+        used to free the previous strategy -- as e.g. the
+        IncrementalIDGeneration keeps a shared_ptr to the ODBStorage until its
+        own destruction. Which is a bit unfortunate since it is kept in a
+        global, static singleton until the end of time... or this reset.
+    */
+    void reset() {
+        strategy_ = std::unique_ptr<UUIDGeneration>(new UUIDGeneration());
+    }
+
 
     template <class Entity>
     std::string getPrefix()

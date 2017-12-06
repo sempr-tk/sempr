@@ -12,6 +12,7 @@
 #undef BOOST_NO_CXX11_SCOPED_ENUMS
 
 #include <sempr/entity/RDFPropertyMap.hpp>
+#include <sempr/core/IncrementalIDGeneration.hpp>
 
 using namespace sempr::core;
 using namespace sempr::storage;
@@ -25,6 +26,13 @@ ODBStorage::Ptr setUpStorage(std::string db_path, bool reset){
 
   BOOST_CHECK(!boost::filesystem::exists(db_path) );
   ODBStorage::Ptr storage( new ODBStorage(db_path, reset) );
+  // set the strategy to IncrementalIDGeneration.
+  IDGenerator::getInstance().setStrategy(
+      std::unique_ptr<IDGenerationStrategy>(
+          new IncrementalIDGeneration(storage)
+      )
+  );
+
   BOOST_CHECK(boost::filesystem::exists(db_path) );
 
   return storage;
@@ -33,12 +41,27 @@ ODBStorage::Ptr setUpStorage(std::string db_path, bool reset){
 ODBStorage::Ptr loadStorage(std::string db_path){
 
   BOOST_CHECK(boost::filesystem::exists(db_path));
+
+  // need to reset the IDGeneration first: It keeps a shared_ptr to storage,
+  // and storage keeps a session. If we didn't do this, we'd get
+  // "std::exception: session already in effect in this thread"
+  IDGenerator::getInstance().reset();
+
   ODBStorage::Ptr storage( new ODBStorage(db_path, false) );
+  // set the strategy to IncrementalIDGeneration.
+  IDGenerator::getInstance().setStrategy(
+      std::unique_ptr<IDGenerationStrategy>(
+          new IncrementalIDGeneration(storage)
+      )
+  );
 
   return storage;
 }
 
 void removeStorage(std::string db_path){
+  IDGenerator::getInstance().reset(); // free the current strategy
+  // (which keeps a pointer to ODBStorage)
+
   boost::filesystem::remove(db_path);
   BOOST_CHECK(!boost::filesystem::exists(db_path) );
 }
@@ -47,6 +70,14 @@ void checkEntitiesInStorage(ODBStorage::Ptr storage, int n){
   std::vector<DBObject::Ptr> all;
   storage->loadAll(all);
   BOOST_CHECK_EQUAL(all.size(), n);
+}
+
+template <class Entity>
+void checkEntitiesInStorage(ODBStorage::Ptr storage, int n)
+{
+    std::vector<std::shared_ptr<Entity> > all;
+    storage->loadAll<Entity>(all);
+    BOOST_CHECK_EQUAL(all.size(), n);
 }
 
 
@@ -92,8 +123,9 @@ BOOST_AUTO_TEST_CASE(insertion)
     ODBStorage::Ptr storage = setUpStorage(db_path, true);
     Core core(storage);
 
-    // load all entites, check if there are exactly 0 (person and its RDF).
-    checkEntitiesInStorage(storage, 0);
+    // load all entites, check if there are exactly 0 (person and its RDF)
+    // checkEntitiesInStorage(storage, 0);
+    // ^ sorry to disable this, but the id generation adds entities, too...
 
     // create  a person, which creates an rdf-entity within
     Person::Ptr p1(new Person());
@@ -102,8 +134,13 @@ BOOST_AUTO_TEST_CASE(insertion)
     // constraint-violation if the rdf-entity is persisted before the person.
     core.addEntity(p1);
 
-    // load all entites, check if there are exactly 2 (person and its RDF).
-    checkEntitiesInStorage(storage, 2);
+    // this doesn't hold anymore: the IncrementalIDGeneration adds some
+    // entities, too!
+    // // load all entites, check if there are exactly 2 (person and its RDF).
+    // checkEntitiesInStorage(storage, 2);
+    // there should be exactly 1 Person and 1 RDFPropertyMap
+    checkEntitiesInStorage<Person>(storage, 1);
+    checkEntitiesInStorage<RDFPropertyMap>(storage, 1);
 
     removeStorage(db_path);
 }
@@ -168,12 +205,14 @@ BOOST_AUTO_TEST_CASE(deletion) {
   core.addEntity(person);
   id = person->id();
 
-  // load all entites, check if there are exactly 2 (person and its RDF).
-  checkEntitiesInStorage(storage, 2);
+  // load all entites, check if there are exactly one person and its RDF.
+  checkEntitiesInStorage<Person>(storage, 1);
+  checkEntitiesInStorage<RDFPropertyMap>(storage, 1);
 
   core.removeEntity(person);
 
-  checkEntitiesInStorage(storage, 0);
+  checkEntitiesInStorage<Person>(storage, 0);
+  checkEntitiesInStorage<RDFPropertyMap>(storage, 0);
 
   removeStorage(db_path);
 }
@@ -187,8 +226,8 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
 
     BOOST_AUTO_TEST_CASE(register_children_no_duplicates_test)
     {
-        std::string personId;
         size_t numBefore;
+        std::string personId;
 
         {
             ODBStorage::Ptr storage = setUpStorage(db_path, true);
@@ -197,17 +236,21 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
             core.addEntity(person);
             personId = person->id();
         }
+
         {
             ODBStorage::Ptr storage = loadStorage(db_path);
             Core core(storage);
 
-            // load: creates an RDFEntity in the ctor
+            // load: creates an RDFPropertyMap in the ctor
             Person::Ptr person = storage->load<Person>(personId);
 
-            // get the current number of objects in the database.
-            std::vector<DBObject::Ptr> all;
-            storage->loadAll(all);
+            // get the current number of RDFPropertyMaps in the database.
+            std::vector<RDFPropertyMap::Ptr> all;
+            storage->loadAll<RDFPropertyMap>(all);
             numBefore = all.size();
+
+            // assure that there is exactly one RDFPropertyMap (for the one Person)
+            BOOST_CHECK_EQUAL(numBefore, 1);
 
             // save: this should *not* add another entity.
             storage->save(person);
@@ -216,7 +259,10 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
             ODBStorage::Ptr storage = loadStorage(db_path);
             Core core(storage);
 
-            checkEntitiesInStorage(storage, numBefore); // <-- should be the same as before.
+            std::vector<RDFPropertyMap::Ptr> all;
+            storage->loadAll<RDFPropertyMap>(all);
+
+            checkEntitiesInStorage<RDFPropertyMap>(storage, numBefore); // <-- should be the same as before.
         }
 
         removeStorage(db_path);
