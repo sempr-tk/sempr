@@ -1,8 +1,7 @@
 #ifndef SEMPR_CORE_OBSERVER_H_
 #define SEMPR_CORE_OBSERVER_H_
 
-#include <sempr/core/Event.hpp>
-#include <sempr/core/EntityEvent.hpp>
+#include <sempr/core/Observable.hpp>
 
 #include <unordered_map>
 #include <typeindex>
@@ -11,46 +10,46 @@
 namespace sempr { namespace core {
 
 /**
-    The Observer-Class allows to register functions for specific types of events.
+    The Observer-Class allows to register functions for specific types of events
+    and queries.
     E.g.:
-        AddOverload<Event>(
-            [this](Event::Ptr foo) { do_something_with(foo); }
+        AddOverload<Observable>(
+            [this](Observable::Ptr foo) { do_something_with(foo); }
         );
-    Registers a lambda function that takes an Event::Ptr and calls
-    this->do_something_with(foo) whenever such an event is to be processed.
+    Registers a lambda function that takes an Observable::Ptr and calls
+    this->do_something_with(foo) whenever an Observable is to be processed.
+    This can be any type of Event or Query.
+
     Be aware that this only works for specific types: This function will *not*
-    be called for any derived event, only for specific types.
-*/    
+    be called for any derived event/query, only for specific types.
+*/
 class Observer {
 public:
     using Ptr = std::shared_ptr<Observer>;
     Observer();
     virtual ~Observer();
-    
-    /** To be overridden by derived classes **/
-    virtual void process(Event::Ptr event);
-    
-    /** Called by the EventBroker **/
-    void notify(Event::Ptr event);
-    
+
+    /** Called by the EventBroker or for query-handling **/
+    void notify(Observable::Ptr);
+
 protected:
     /** registers a new (type-->function) pair **/
     template<typename D, typename F>
     void addOverload(F f) {
-        types_[typeid(D)] = 
-            [f](Event::Ptr event) {
-                f(std::static_pointer_cast<D>(event));
+        types_[typeid(D)] =
+            [f](Observable::Ptr o) {
+                f(std::static_pointer_cast<D>(o));
             };
     }
-    
+
 private:
     std::unordered_map<
         std::type_index,
-        std::function<void(Event::Ptr)> > types_;
+        std::function<void(Observable::Ptr)> > types_;
 };
-    
+
 } /* core */
-    
+
 } /* sempr */
 
 
