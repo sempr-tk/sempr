@@ -2,7 +2,7 @@
 #define SEMPR_QUERY_OBJECTQUERY_HPP_
 
 #include <sempr/query/Query.hpp>
-#include <sempr/core/DBObject.hpp>
+#include <sempr/storage/DBObject.hpp>
 #include <odb/core.hxx>
 #include <memory>
 
@@ -30,6 +30,7 @@ namespace sempr { namespace query {
     public:
         using Ptr = std::shared_ptr<ObjectQueryBase>;
         virtual ~ObjectQueryBase(){}
+        std::string type() const override { return "ObjectQuery"; }
 
         /**
             Every derived class of ObjectQueryBase may implement its own
@@ -41,7 +42,6 @@ namespace sempr { namespace query {
     private:
 
     };
-
 
 
     /**
@@ -64,7 +64,7 @@ namespace sempr { namespace query {
             if (odb::object_traits_impl<T, odb::id_common>::info.discriminator
                 == object->discriminator())
             {
-                results.push_back(std::static_pointer_cast<T>(object);
+                results.push_back(std::static_pointer_cast<T>(object));
             }
         }
 

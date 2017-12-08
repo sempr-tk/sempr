@@ -26,12 +26,12 @@ public:
 
     void addModule(processing::Module::Ptr module);
 
-    // TODO queries stellen
-    // wie unterscheidet sich eine SPARQL-Query (Query-Modul)
-    // von einer RDF-Query (Reasoning/Processing-Module)?
-    // Sind die Query-Module im Endeffekt in der gleichen Struktur angesiedelt,
-    // wie Processing-Module? (Mein Eindruck: Ja.)
-    // void answerQuery(Query::Ptr query);
+    /**
+        Let the core handle a query: Forwards the query to every module.
+        TODO: Need a strategy to allow Modules asking queries, too, and to
+        avoid endless loops when doing so.
+    */
+    void answerQuery(query::Query::Ptr query);
 
 private:
     /// map entity-id to entity
