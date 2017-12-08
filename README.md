@@ -40,6 +40,7 @@ SEMPR itself is released under a 3-clause BSD license. However, it relies heavil
 using namespace sempr::processing;
 using namespace sempr::storage;
 using namespace sempr::entity;
+using namespace sempr::query;
 using namespace sempr::core;
 
 int main(int argc, char** args)
@@ -57,8 +58,21 @@ int main(int argc, char** args)
 	core.addModule(updater);
 	core.addModule(active);
 
+	// add a new entity
 	CoffeeMug::Ptr mug1( new CoffeeMug() );
 	core.addEntity(mug1);	// triggers an EntityEvent
+	
+	// load entities from the database (should be done sparsely).
+	std::vector<CoffeeMug::Ptr> mugs;
+	storage->loadAll(mugs);
+	
+	// more often, you'll want to query for an active (previously loaded) object
+	ObjectQuery<CoffeeMug>::Ptr mugQuery( new ObjectQuery<CoffeeMug>() );
+	core.answer(mugQuery);
+	for (auto mug : mugQuery->results)
+	{
+		std::cout << "mug: " << mug->id() << std::endl;
+	}
 
 	return 0;
 }
@@ -181,7 +195,7 @@ By using an `RDFPropertyMap` other entites are able to store their information a
 ### EventBroker
 
 ## Processing Modules
-SEMPR can be extended by adding processing modules that react to events (**TODO:** _and accept queries_) as you need them. Every processing module manages a mapping of ``type_index`` to functions. Whenever an event needs to be processed, the ``type_index`` of the event is looked up in the map and the respective function is called. This mechanism allows a kind of type-safe way to handle events, while being able to easily add new processing modules and events. However, there is one major drawback: Derived events have a new  ``type_index`` and hence do not trigger the functions registered for their base types.
+SEMPR can be extended by adding processing modules that react to events and accept queries as you need them. Every processing module manages a mapping of ``type_index`` to functions. Whenever an event needs to be processed, the ``type_index`` of the event is looked up in the map and the respective function is called. This mechanism allows a kind of type-safe way to handle events, while being able to easily add new processing modules and events. However, there is one major drawback: Derived events have a new  ``type_index`` and hence do not trigger the functions registered for their base types.
 
 To create a custom processing module you have to subclass from ``Module`` and register a function using ``addOverload``, as shown below:
 
@@ -206,6 +220,15 @@ public:
 };
 ```
 
+### Query
+There are two ways of adding query-answering-capabilities to a module: The base class `Module` provides a default implementation of `virtual void Module::answer(Query::Ptr);` in which it simply calls `this->notify(query)`. This is possible because `Query`derives from `Observable` just like `Event`. Therefore you can use the `addOverload`-mechanism that has been described before to also register query-types.
+
+There may be a need to handle things a bit differently: E.g., the `ActiveObjectStore` supports the `ObjectQueryBase`-type which is inherited by the templated `ObjectQuery<Entity>` - queries. Since the addOverload-mechanism only works for exact types and the ActiveObjectStore cannot know all types of entities in advance, it overrides the `answer`-method. This way it can implement the type-check using a dynamic cast and thus hande any query derived from `ObjectQueryBase`.
+
+**TODO: This is a different way to handle the same problem as we encountered with events. For events, we decided to fire one event of every inherited type explicitly. Can one method profit from the other? Is there a way to combine this, use one consistent strategy?**
+
+
+
 ## Pitfalls
 ### Entity creation
 The base `Entity` inherits from `std::enable_shared_from_this<Entity>` to enable entities to create smart pointers to themselves, which is needed e.g. in the `Entity::changed()` method, which creates a `EntityEvent` pointing to itself and fires it through the `EventBroker` that it has been given from the `Core`. **Care** must be taken that `shared_from_this()` is only called after a smart-pointer to the object has already been created! Which in turn means that you should not create entities on the stack, but always into smart pointers:
@@ -227,7 +250,6 @@ But: Version `1.` needs two heap allocations, version `2.` only one. But, as the
 	- geometric object
 	- general object (to be wrapped by use-case-classes, plus factory, to avoid the odb compiler)
 - Add processing modules
-	- entity queries
 	- symbolic reasoning (rdf)
 	- something tf-like (use envire)
 	- GeometryCache
