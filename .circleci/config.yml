@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build_and_test:
+  build:
     docker:
       - image: gcc:6
     steps:
