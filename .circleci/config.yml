@@ -12,8 +12,6 @@ jobs:
       - run: apt-get install -y -qq pkg-config
       - run: apt-get install -y -qq libsoprano-dev
       - run: apt-get install -y -qq qt4-default
-      - run: mkdir build && cd build
-      - run: ls
-      - run: ls ..
-      - run: cmake .. && make -j8
-      - run: ./test/sempr_test_bin
+      - run: mkdir build
+      - run: cd build && cmake .. && make -j8
+      - run: cd build && ./test/sempr_test_bin
