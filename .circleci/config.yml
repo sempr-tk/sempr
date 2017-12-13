@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build_and_test:
+    docker:
+      - image: gcc:6
+    steps:
+      - checkout
+      - run: apt-get update -qq
+      - run: apt-get install -y -qq odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev
+      - run: apt-get install -y -qq g++ cmake
+      - run: apt-get install -y -qq libboost-all-dev
+      - run: apt-get install -y -qq pkg-config
+      - run: apt-get install -y -qq libsoprano-dev
+      - run: apt-get install -y -qq qt4-default
+      - run: mkdir build && cd build
+      - run: cmake .. && make -j8
+      - run: ./test/sempr_test_bin
