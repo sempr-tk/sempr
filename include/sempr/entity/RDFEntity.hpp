@@ -29,6 +29,8 @@ public:
     void removeTripleAt(const size_t& index);
     void clear();
     size_t size() const;
+    std::vector<Triple>::const_iterator begin() const;
+    std::vector<Triple>::const_iterator end() const;
 
 
     ENTITY_DEFAULT_EVENT_METHODS(RDFEntity, Entity);
