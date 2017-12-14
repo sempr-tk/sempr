@@ -4,14 +4,20 @@
 #include <string>
 #include <vector>
 
-namespace sempr { namespace core {
+namespace sempr {
+    const std::string& baseURI();
+    
+    namespace core {
+
 
 namespace rdf {
+    const std::string& baseURI();
     const std::string& type();
 }
 
 namespace rdfs {
 #   define RDFS(name) const std::string& (name)();
+    RDFS(baseURI)
     RDFS(Resource)
     RDFS(Class)
     RDFS(subClassOf)
@@ -23,6 +29,7 @@ namespace rdfs {
 
 namespace owl {
 #   define OWL(name) const std::string& (name)();
+    OWL(baseURI)
     OWL(Class)
     OWL(FunctionalProperty)
     OWL(Nothing)

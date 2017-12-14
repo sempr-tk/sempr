@@ -1,8 +1,19 @@
 #include <sempr/core/RDF.hpp>
 
-namespace sempr { namespace core {
-    
+namespace sempr {
+    const std::string& baseURI() {
+        static const std::string t = "sempr://";
+        return t;
+    }
+
+    namespace core {
+
 namespace rdf {
+    const std::string& baseURI() {
+        static const std::string t = "www.w3.org/1999/02/22-rdf-syntax-ns#";
+        return t;
+    }
+
     const std::string& type() {
         static const std::string t = "<www.w3.org/1999/02/22-rdf-syntax-ns#type>";
         return t;
@@ -10,6 +21,11 @@ namespace rdf {
 }
 
 namespace rdfs {
+    const std::string& baseURI() {
+        static const std::string t = "http://www.w3.org/2000/01/rdf-schema#";
+        return t;
+    }
+
 #   define RDFS(name) \
     const std::string& (name)() { \
         static const std::string t = "<http://www.w3.org/2000/01/rdf-schema#(name)>"; \
@@ -25,9 +41,13 @@ namespace rdfs {
 }
 
 namespace owl {
+    const std::string& baseURI() {
+        static const std::string& t = "http://www.w3.org/2002/07/owl#";
+        return t;
+    }
 #   define OWL(name) \
     const std::string& (name)() { \
-        static const std::string& t = "<http://www.w3.org/2002/07/owl#http://www.w3.org/2002/07/owl#(name)>"; \
+        static const std::string& t = "<http://www.w3.org/2002/07/owl#(name)>"; \
         return t; \
     }
     OWL(Class)
@@ -61,5 +81,5 @@ namespace owl {
 
 
 } /* core */
-    
+
 } /* sempr */
