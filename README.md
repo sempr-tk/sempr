@@ -227,6 +227,24 @@ There may be a need to handle things a bit differently: E.g., the `ActiveObjectS
 
 **TODO: This is a different way to handle the same problem as we encountered with events. For events, we decided to fire one event of every inherited type explicitly. Can one method profit from the other? Is there a way to combine this, use one consistent strategy?**
 
+Example: Return all "Person"s from the list of currently active (i.e. already loaded or newly created) entities:
+```c++
+// setup the core and database
+ODBStorage::Ptr storage( new ODBStorage() );
+Core core(storage);
+
+// the ActiveObjectStore is a module that answers "ObjectQuery"s
+ActiveObjectStore::Ptr active(new ActiveObjectStore());
+core.addModule(active);
+
+// create a query, let the core process it and print the results.
+auto q = std::make_shared<ObjectQuery<Person> >();
+core.answerQuery(q);
+for (auto p : q->results) {
+    std::cout << "Person: " << p->id() << std::endl;
+}
+```
+
 
 
 ## Pitfalls
