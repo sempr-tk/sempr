@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(queries)
     std::string dbfile = "test_sqlite.db";
-    BOOST_AUTO_TEST_CASE(ObjectQuery)
+    BOOST_AUTO_TEST_CASE(ObjectQuery_test)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
         Core core(storage);
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_SUITE(queries)
 
         // query for persons
         {
-            auto q = std::make_shared<sempr::query::ObjectQuery<Person> >();
+            auto q = std::make_shared<ObjectQuery<Person> >();
             core.answerQuery(q);
             BOOST_CHECK_EQUAL(q->results.size(), 0);
         }
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_SUITE(queries)
         // query for persons
         Person::Ptr e;
         {
-            auto q = std::make_shared<sempr::query::ObjectQuery<Person> >();
+            auto q = std::make_shared<ObjectQuery<Person> >();
             core.answerQuery(q);
             BOOST_CHECK_EQUAL(q->results.size(), numPersons);
             e = q->results[0];
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_SUITE(queries)
         core.removeEntity(e);
         // query again
         {
-            auto q = std::make_shared<sempr::query::ObjectQuery<Person> >();
+            auto q = std::make_shared<ObjectQuery<Person> >();
             core.answerQuery(q);
             BOOST_CHECK_EQUAL(q->results.size(), numPersons-1);
         }
