@@ -8,6 +8,7 @@ using namespace sempr::entity;
 #include <sempr/processing/DebugModule.hpp>
 #include <sempr/processing/DBUpdateModule.hpp>
 #include <sempr/processing/ActiveObjectStore.hpp>
+#include <sempr/processing/SopranoModule.hpp>
 using namespace sempr::processing;
 
 #include <sempr/query/ObjectQuery.hpp>
@@ -73,6 +74,7 @@ int main(int argc, char** args)
     DebugModule::Ptr debug( new DebugModule() );
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
+    SopranoModule::Ptr semantic( new SopranoModule() );
 
     sempr::core::IDGenerator::getInstance().setStrategy(
         // std::unique_ptr<sempr::core::UUIDGeneration>( new sempr::core::UUIDGeneration(false) )
@@ -83,6 +85,7 @@ int main(int argc, char** args)
     c.addModule(active);
     // c.addModule(debug);
     c.addModule(updater);
+    c.addModule(semantic);
 
 
     {
@@ -140,6 +143,10 @@ int main(int argc, char** args)
     {
         std::cout << p->id() << ", age: " << p->age() << '\n';
     }
+
+    std::cout << "----------------" << '\n';
+    std::cout << "TEST SopranoModule" << '\n';
+    semantic->test();
 
     return 0;
 }

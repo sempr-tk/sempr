@@ -14,14 +14,15 @@ namespace sempr { namespace processing {
     */
     class SopranoModule : public Module {
     public:
-        using Ptr = std::shared_ptr<Module>;
+        using Ptr = std::shared_ptr<SopranoModule>;
         SopranoModule();
         ~SopranoModule();
-        
+
         std::string type() const { return "SopranoModule"; }
 
         void process(core::EntityEvent<entity::RDFEntity>::Ptr event);
-        // void process(core::Event::Ptr event) override;
+
+        void test();
 
     private:
         Soprano::Model* model_;
