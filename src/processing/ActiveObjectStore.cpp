@@ -19,7 +19,7 @@ std::string ActiveObjectStore::type() const {
 void ActiveObjectStore::process(entity::Entity::Event::Ptr e)
 {
     typedef core::EntityEventBase::EventType EventType;
-    
+
     switch(e->what()) {
         case EventType::LOADED:
         case EventType::CREATED:
@@ -27,6 +27,9 @@ void ActiveObjectStore::process(entity::Entity::Event::Ptr e)
             break;
         case EventType::REMOVED:
             removeEntity(e->getEntity());
+            break;
+        default:
+        // nothing
             break;
     }
 }
@@ -49,5 +52,5 @@ void ActiveObjectStore::removeEntity(entity::Entity::Ptr e)
 }
 
 } /* processing */
-    
+
 } /* sempr */

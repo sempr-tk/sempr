@@ -26,6 +26,9 @@ void DBObject::dbcallback(odb::callback_event e, odb::database &db)
         case odb::callback_event::post_load:
             postLoad(db);
             break;
+        default:
+            // nothing
+            break;
     }
 
 }
@@ -57,6 +60,9 @@ void DBObject::dbcallback(odb::callback_event e, odb::database &db) const
             break;
         case odb::callback_event::post_erase:
             postErase(db);
+            break;
+        default:
+            // nothing
             break;
     }
 }
