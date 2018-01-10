@@ -108,7 +108,7 @@ private:
     void makeValid();
 
 public:
-    RDFValue() : valid_(false), pointer_(NULL) {}
+    RDFValue() : pointer_(NULL), valid_(false) {}
 
     /** Assign a literal value */
     template <typename T>

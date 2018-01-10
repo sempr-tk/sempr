@@ -44,8 +44,8 @@ private:
     };
 
     std::map<std::string, Container> keyValueMap_;
-    std::string baseURI_;
     std::string subject_;
+    std::string baseURI_;
 };
 
 /** A proxy around a RDFPropertyMap pointing at a fixed element. This is used
