@@ -9,7 +9,7 @@ DBObject::DBObject(DBObject::Ptr parent)
 }
 
 DBObject::DBObject(const core::IDGenBase* idgen, DBObject::Ptr parent)
-    : parent_(parent), persisted_(false), idgenerator_(idgen)
+    : persisted_(false), idgenerator_(idgen), parent_(parent)
 {
     id_ = idgen->generate();
     setDiscriminator<DBObject>();
