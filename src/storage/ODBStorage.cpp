@@ -3,9 +3,6 @@
 #include <odb/core.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-
 namespace sempr { namespace storage {
 
 ODBStorage::ODBStorage(const std::string& db_name, bool clearDatabase)
@@ -35,7 +32,6 @@ void ODBStorage::save( DBObject::Ptr o ) {
     odb::transaction t(db_->begin());
 
     if (!o->persisted()) {
-        setID(o, boost::uuids::random_generator()());
         db_->persist(o);
     } else {
         db_->update(o);
@@ -45,7 +41,7 @@ void ODBStorage::save( DBObject::Ptr o ) {
 }
 
 
-DBObject::Ptr ODBStorage::load( const boost::uuids::uuid& id ) {
+DBObject::Ptr ODBStorage::load( const std::string& id ) {
     odb::transaction t( db_->begin() );
     DBObject::Ptr o( db_->load<DBObject>(id) );
     t.commit();

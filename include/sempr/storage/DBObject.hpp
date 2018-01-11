@@ -5,11 +5,11 @@
 #include <odb/database.hxx>
 #include <odb/callback.hxx>
 #include <memory>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 #include <sempr/storage/History.hpp>
+// #include <sempr/core/IDGenerator.hpp>
+#include <sempr/core/IDGenUtil.hpp>
+
 
 namespace sempr { namespace storage {
     class Storage;
@@ -19,22 +19,34 @@ class DBObject {
 public:
     using Ptr = std::shared_ptr<DBObject>;
 
-    DBObject();// : id_(boost::uuids::nil_generator()()) , parent_() {}
-    /*  Assigning a parent to the object transfers data-ownership. If the
+    /**
+        Assigning a parent to the object transfers data-ownership. If the
         parent is removed from the database, this object will be removed as well.
         Careful: This is a database-internal mechanism, no event will be fired,
         except if done so explicitly from the parent...
+
+        Default ctor: Implicitely set the IDGenBase to IDGen<DBObject>().
     */
-    DBObject(DBObject::Ptr parent);
-        //: id_(boost::uuids::nil_generator()()), parent_(parent) {}
+    DBObject(DBObject::Ptr parent = NULL);
+
+    /**
+        Takes an IDGenBase& to allow derived classes to specify
+        their own ID-generation-method, or at least specialize the global
+        strategy for the most derived type.
+        (--> Chair_1 instead of DBObject_37)
+    */
+    DBObject(const core::IDGenBase* idgen, DBObject::Ptr parent = NULL);
+
     virtual ~DBObject(){}
 
-    /*  returns true if the object has an id pointing into the database.
-        used to check if "update" or "persist" is needed. */
-    bool persisted() const { return !id_.is_nil(); }
+    /*
+        Returns true if the object is known to be persisted (if it has been
+        saved or loaded before).
+    */
+    bool persisted() const { return persisted_; }
 
 
-    virtual const boost::uuids::uuid& uuid() const { return id_; }
+    std::string id() const { return id_; }
 
     /**
         Returns the auto-assigned (odb) discriminator to distinguish between
@@ -79,20 +91,32 @@ private:
     void dbcallback(odb::callback_event e, odb::database& db);
     void dbcallback(odb::callback_event e, odb::database& db) const;
 
-    #pragma db id type("TEXT")
-    boost::uuids::uuid id_;
+    #pragma db id
+    std::string id_;
 
     #pragma db transient
     std::string discriminator_;
+
+    /// A flag that states if the object has already been persisted.
+    /// Is set to "false" in the ctor and to "true" in persist/load-callbacks
+    #pragma db transient
+    mutable bool persisted_;
+
+protected:
+    /// The wrapper from which the given id was generated.
+    /// this is used to revoke the id in preLoad.
+    /// It's only protected since the Entity-class needs access
+    /// to release IDs of its newChildren_ in preLoad.
+    #pragma db transient
+    std::unique_ptr<const core::IDGenBase> idgenerator_;
+
+private:
 
     // test: does this collide with the discriminator?
     // std::string typeid_; // yes.
 
     #pragma db on_delete(cascade)
     std::weak_ptr<const DBObject> parent_;
-
-    static boost::uuids::random_generator uuid_gen;
-
 };
 
 #pragma db view object(DBObject)

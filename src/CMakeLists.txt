@@ -15,12 +15,11 @@ file(GLOB_RECURSE ODB_FILES
 # message( "found files: ${SRC_FILES}")
 # message( "found files: ${ODB_FILES}")
 
-# find_package(Boost REQUIRED COMPONENTS uuid)
 
 odb_compile(SRC_FILES
     FILES ${ODB_FILES}
     INCLUDE ../include ${Soprano_INCLUDE_DIRS}
-    PROFILE boost/uuid
+    # PROFILE boost/uuid
     PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/include
     HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
     DB sqlite GENERATE_QUERY GENERATE_SESSION GENERATE_SCHEMA STANDARD c++11)
