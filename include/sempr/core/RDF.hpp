@@ -6,9 +6,12 @@
 
 namespace sempr {
     const std::string& baseURI();
-    
+
     namespace core {
 
+namespace xsd {
+    const std::string& baseURI();
+}
 
 namespace rdf {
     const std::string& baseURI();

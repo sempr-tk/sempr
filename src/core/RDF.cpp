@@ -8,6 +8,13 @@ namespace sempr {
 
     namespace core {
 
+namespace xsd {
+    const std::string& baseURI() {
+        static const std::string t = "http://www.w3.org/2001/XMLSchema#";
+        return t;
+    }
+}
+
 namespace rdf {
     const std::string& baseURI() {
         static const std::string t = "www.w3.org/1999/02/22-rdf-syntax-ns#";

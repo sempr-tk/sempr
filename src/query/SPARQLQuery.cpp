@@ -11,6 +11,7 @@ SPARQLQuery::SPARQLQuery()
     prefixes["rdfs"] = rdfs::baseURI();
     prefixes["owl"] = owl::baseURI();
     prefixes["sempr"] = sempr::baseURI();
+    prefixes["xsd"] = xsd::baseURI();
 }
 
 std::string SPARQLQuery::toString() const
@@ -18,7 +19,7 @@ std::string SPARQLQuery::toString() const
     std::string q = "";
     for (auto p : this->prefixes)
     {
-        q += "@prefix " + p.first + ": <" + p.second + "> . \n";
+        q += "PREFIX " + p.first + ": <" + p.second + "> \n";
     }
     q += this->query;
     return q;
