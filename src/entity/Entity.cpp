@@ -6,7 +6,8 @@
 
 namespace sempr { namespace entity {
 
-Entity::Entity() : announced_(false)
+Entity::Entity(const core::IDGenBase* idgen)
+    : DBObject(idgen), announced_(false)
 {
     // get the eventbroker
     broker_ = core::EventBroker::getInstance();
@@ -14,6 +15,20 @@ Entity::Entity() : announced_(false)
     // initialize the discriminator to recognize the most derived type of this
     // object to be "Entity". Has to be repeated in every sub-class.
     setDiscriminator<Entity>();
+}
+
+// note: constructor "chaining" is only valid since c++11 and is called
+// "delegating constructors". One major restriction: You may *NOT*
+// initialize any other member variable!
+// --> this is invalid:
+//  Entity::Entity() : Entity(core::IDGen<Entity>()), foo_(123) { }
+// --> but this is okay:
+//  Entity::Entity() : Entity(core::IDGen<Entity>()) { foo_ = 123; }
+/**
+    Default: use IDGen<Entity>
+*/
+Entity::Entity() : Entity(new core::IDGen<Entity>())
+{
 }
 
 void Entity::fireEvent(core::Event::Ptr e) {
@@ -122,28 +137,45 @@ void Entity::registerChildEntity(Entity::Ptr child)
 }
 
 
+void Entity::freeChildIDs()
+{
+    // only need to traverse newChildren_:
+    // every DBObject revokes its own ID in preLoad, but the newChildren_
+    // are freshly created and not known to odb, hence no preLoad-call.
+    for (auto c : newChildren_)
+    {
+        c->idgenerator_->revoke(c->id());
+        c->freeChildIDs();
+    }
+}
+
 void Entity::prePersist(odb::database &db) const
 {
+    DBObject::prePersist(db);
     handleChildrenPre(db);
 }
 
 void Entity::postPersist(odb::database &db) const
 {
+    DBObject::postPersist(db);
     handleChildrenPost(db);
 }
 
 void Entity::preUpdate(odb::database &db) const
 {
+    DBObject::preUpdate(db);
     handleChildrenPre(db);
 }
 
 void Entity::postUpdate(odb::database &db) const
 {
+    DBObject::postUpdate(db);
     handleChildrenPost(db);
 }
 
 void Entity::preLoad(odb::database& db)
 {
+    DBObject::preLoad(db);
     /**
         https://git.hb.dfki.de/nniemann/SEMPR/issues/2
 
@@ -161,7 +193,10 @@ void Entity::preLoad(odb::database& db)
         duplicated entities within children_ persisted, too, you ask? No!
         Because that vector gets overwritten by odb when the object is loaded
         and filled with data. :)
+        What we also need to do: The newChildren_ got an ID that we want to
+        release again!
     */
+    freeChildIDs();
     newChildren_.clear();
 }
 

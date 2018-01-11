@@ -19,6 +19,7 @@ public:
     using Ptr = std::shared_ptr<RDFEntity>;
     using Event = core::EntityEvent<RDFEntity>;
     RDFEntity();
+    RDFEntity(const core::IDGenBase*);
     virtual ~RDFEntity(){}
 
     void getTriples(std::vector<Triple>& triples) const;

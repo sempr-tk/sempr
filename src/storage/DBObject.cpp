@@ -3,16 +3,15 @@
 
 namespace sempr { namespace storage {
 
-boost::uuids::random_generator DBObject::uuid_gen = boost::uuids::random_generator();
-
-DBObject::DBObject() : id_(boost::uuids::nil_generator()()) , parent_()
+DBObject::DBObject(DBObject::Ptr parent)
+    : DBObject(new core::IDGen<DBObject>(), parent)
 {
-    setDiscriminator<DBObject>();
 }
 
-DBObject::DBObject(DBObject::Ptr parent)
-    : id_(boost::uuids::nil_generator()()), parent_(parent)
+DBObject::DBObject(const core::IDGenBase* idgen, DBObject::Ptr parent)
+    : parent_(parent), persisted_(false), idgenerator_(idgen)
 {
+    id_ = idgen->generate();
     setDiscriminator<DBObject>();
 }
 
@@ -25,6 +24,9 @@ void DBObject::dbcallback(odb::callback_event e, odb::database &db)
             break;
         case odb::callback_event::post_load:
             postLoad(db);
+            break;
+        default:
+            // nothing
             break;
     }
 
@@ -39,8 +41,6 @@ void DBObject::dbcallback(odb::callback_event e, odb::database &db) const
 {
     switch (e) {
         case odb::callback_event::pre_persist:
-            // assumption: this is NOT created const.
-            const_cast<DBObject*>(this)->id_ = DBObject::uuid_gen();
             prePersist(db);
             break;
         case odb::callback_event::post_persist:
@@ -58,17 +58,28 @@ void DBObject::dbcallback(odb::callback_event e, odb::database &db) const
         case odb::callback_event::post_erase:
             postErase(db);
             break;
+        default:
+            // nothing
+            break;
     }
 }
 
 
 void DBObject::prePersist(odb::database& db) const {}
-void DBObject::postPersist(odb::database& db) const {}
+void DBObject::postPersist(odb::database& db) const { persisted_ = true; }
 void DBObject::preUpdate(odb::database& db) const {}
 void DBObject::postUpdate(odb::database& db) const {}
 void DBObject::preErase(odb::database& db) const {}
 void DBObject::postErase(odb::database& db) const {}
-void DBObject::preLoad(odb::database& db) {}
+void DBObject::preLoad(odb::database& db)
+{
+    persisted_ = true;
+
+    // an ID has been generated, but we already have one (that's going to be
+    // assinged between pre- and postLoad). Hence, revoke the current one, to
+    // "free" it.
+    idgenerator_->revoke(this->id_);
+}
 
 void DBObject::postLoad(odb::database& db)
 {

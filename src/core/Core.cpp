@@ -9,6 +9,14 @@ Core::Core(storage::Storage::Ptr backend)
     eventBroker_ = EventBroker::getInstance();
 }
 
+void Core::answerQuery(query::Query::Ptr q)
+{
+    // same procedure as with events:
+    for (auto m : modules_) {
+        m->answer(q);
+    }
+}
+
 void Core::addEntity(entity::Entity::Ptr entity) {
     if (entity.get()) {
         entities_[entity->id()] = entity;

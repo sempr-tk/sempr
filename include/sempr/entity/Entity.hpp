@@ -7,7 +7,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/uuid/uuid_io.hpp>
 #include <sempr/storage/DBObject.hpp>
 #include <sempr/core/Event.hpp>
 #include <sempr/core/EntityEvent.hpp>
@@ -72,12 +71,12 @@ namespace entity {
 class Entity : public storage::DBObject, public std::enable_shared_from_this<Entity>  {
 public:
     Entity();
+    Entity(const core::IDGenBase* idgen);
+
     virtual ~Entity(){}
 
     using Ptr = std::shared_ptr<Entity>;
     using Event = core::EntityEvent<Entity>;
-    virtual std::string id() const { return boost::uuids::to_string(uuid()); }
-
 
     /** Fires an event signalling that this entity changed (EntityEvent<Entity>).
         Derived classes need to override changed_impl() to also fire special
@@ -171,6 +170,14 @@ private:
     // or updated.
     #pragma db transient
     mutable std::vector<Entity::Ptr> newChildren_;
+
+
+    /**
+        Releases the ids of newChildren_. This is needed since the children
+        might be created in the ctor of this entity, even when they are
+        overwritten in a subsequent load.
+    */
+    void freeChildIDs();
 
     /** Besides the list of newly registered children, we need to keep track
         of all our children. When the parent is created, loaded or removed

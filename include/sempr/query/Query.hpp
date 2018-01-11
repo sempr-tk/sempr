@@ -4,10 +4,16 @@
 #include <string>
 #include <memory>
 
-class Query {
-public:
-    virtual std::string type() const = 0;
-    virtual ~Query(){}
-};
+#include <sempr/core/Observable.hpp>
+
+namespace sempr { namespace query {
+
+    class Query : public core::Observable {
+    public:
+        virtual std::string type() const = 0;
+        virtual ~Query(){}
+    };
+
+}}
 
 #endif /* end of include guard: SEMPR_QUERY_QUERY_H_ */

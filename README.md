@@ -46,6 +46,7 @@ DFKI GmbH - Robotics Innovation Center
 using namespace sempr::processing;
 using namespace sempr::storage;
 using namespace sempr::entity;
+using namespace sempr::query;
 using namespace sempr::core;
 
 int main(int argc, char** args)
@@ -63,8 +64,21 @@ int main(int argc, char** args)
 	core.addModule(updater);
 	core.addModule(active);
 
+	// add a new entity
 	CoffeeMug::Ptr mug1( new CoffeeMug() );
 	core.addEntity(mug1);	// triggers an EntityEvent
+	
+	// load entities from the database (should be done sparsely).
+	std::vector<CoffeeMug::Ptr> mugs;
+	storage->loadAll(mugs);
+	
+	// more often, you'll want to query for an active (previously loaded) object
+	ObjectQuery<CoffeeMug>::Ptr mugQuery( new ObjectQuery<CoffeeMug>() );
+	core.answer(mugQuery);
+	for (auto mug : mugQuery->results)
+	{
+		std::cout << "mug: " << mug->id() << std::endl;
+	}
 
 	return 0;
 }
@@ -98,7 +112,7 @@ Should modifying through `Derived`also trigger `Base::changed()`? Maybe.
 Should modifying `Something` through `Derived`s pointer trigger `Derived::changed()`? Maybe.
 Should modifying `Something`through `Derived`s pointer trigger `Base::changed()`? Maybe not?
 
-Care must be taken that every relevant type of event is fired when an entity is created / loaded / changed or erased. When entities are added to the core, they are given access to the event-broker, so that they are able to inform the system about changes. 
+Care must be taken that every relevant type of event is fired when an entity is created / loaded / changed or erased. When entities are added to the core, they are given access to the event-broker, so that they are able to inform the system about changes.
 
 ### Entity Ownership
 The question of _entity-ownership_ is a hard one -- who creates (i.e.: persists), updates and removes an entity? In the case of complex entities that consist of multiple other entities -- e.g. a `CoffeeMug` that holds semantic information in an `RDFEntity` and its geometric representation in a `GeometricEntity` -- it would be convenient to let the entity itself manage its sub-entities. There are a few things that have to be taken care of:
@@ -107,7 +121,7 @@ The question of _entity-ownership_ is a hard one -- who creates (i.e.: persists)
 - The created entity must be **advertised to the system** to allow processing modules to do their job. Therefore, it needs a pointer to the `EventBroker`.
 
 SEMPR provides a mechanism to do this semi-automatically: Whenever an `Entity`creates another `Entity` and keeps a pointer to it, it needs to register it as a child using:
-``` c++ 
+``` c++
 void Entity::registerChildEntity(Entity::Ptr)
 ```
 Upon persisting or updating the parent entity, the following steps are executed:
@@ -155,6 +169,46 @@ first: 0
 **TODO:** _store timestamps and use them to index into the vector_
 
 ## Entity
+Entities are logical sets of data in SEMPR. You may use the one we've already provided or create new ones for your own special use-case.
+There are a few things that need to be remembered when creating a new entity-class:
+
+1. ODB needs to be able to access your data members. Add a `friend clas odb::access`
+2. Set the discriminator. ODB auto-generates a string to identify derived classes of DBObject, but only sets it as a class-trait and saves it in a special column in your database tables. SEMPR loads the discriminator from the databse automatically, but to have it available for newly created instances, you need to call `setDiscriminator<MyClass>();`in the constructor of `MyClass`.
+3. Enable specific ID generation. If you dont want all your objects to be called `DBObject_%i`, you will want to pass on a customized ID-generator. The DBObject-class accepts an instance of `IDGenBase`, so you may give it an `IDGen<MyClass>`-object. In turn, you may want to accept a generator yourself to allow derived classes to specify their own specific IDs. However, the following attempt will lead to some problems:
+```c++
+MyClass(const core::IDGenBase& gen = core::IDGen<MyClass>())  // error!
+	: Entity(gen)
+{
+ 	// ctor stuff
+ }
+```
+Since some strategies may want to use the type-traits defined by odb we cannot use `core::IDGen<MyClass>` in the header file of `MyClass` -- odb must compile the header first and create a `MyClass_odb.h` which can be included in `MyClass.cpp` and provides the type traits we need. Therefore, the following approach is to be used (also, since the DBObject-class needs access to the generation-object later on to free its own id on removal, we pass it a pointer. DBObject takes care of deletion):
+```c++
+/* MyClass.hpp */
+class MyClass : public Entity {
+	/// default ctor will use IDGen<MyClass>
+	MyClass();
+
+	/// alternative to allow derived classes to pass their own IDGen<DerivedClass>
+	MyClass(const core::IDGenBase* gen);
+};
+
+/* MyClass.cpp */
+MyClass::MyClass()
+	: Entity(new core::IDGen<MyClass>())
+{
+	// ctor stuff
+}
+
+MyClass::MyClass(const core::IDGenBase* gen)
+	: Entity(gen)
+{
+	// ctor stuff
+}
+```
+
+The DBObject takes care of freeing IDs, so that they can be reused later on. This is only relevant for the `IncrementalIDGeneration`: If you create Object\_1 to 10 and remove Object\_3, "Object\_3" joins the pool of revoked ids and can be assigned to the next object to be created.
+
 ### RDFPropertyMap
 The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, a triple exists for every key-value-pair. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
 ```c++
@@ -187,7 +241,7 @@ By using an `RDFPropertyMap` other entites are able to store their information a
 ### EventBroker
 
 ## Processing Modules
-SEMPR can be extended by adding processing modules that react to events (**TODO:** _and accept queries_) as you need them. Every processing module manages a mapping of ``type_index`` to functions. Whenever an event needs to be processed, the ``type_index`` of the event is looked up in the map and the respective function is called. This mechanism allows a kind of type-safe way to handle events, while being able to easily add new processing modules and events. However, there is one major drawback: Derived events have a new  ``type_index`` and hence do not trigger the functions registered for their base types.
+SEMPR can be extended by adding processing modules that react to events and accept queries as you need them. Every processing module manages a mapping of ``type_index`` to functions. Whenever an event needs to be processed, the ``type_index`` of the event is looked up in the map and the respective function is called. This mechanism allows a kind of type-safe way to handle events, while being able to easily add new processing modules and events. However, there is one major drawback: Derived events have a new  ``type_index`` and hence do not trigger the functions registered for their base types.
 
 To create a custom processing module you have to subclass from ``Module`` and register a function using ``addOverload``, as shown below:
 
@@ -212,6 +266,33 @@ public:
 };
 ```
 
+### Query
+There are two ways of adding query-answering-capabilities to a module: The base class `Module` provides a default implementation of `virtual void Module::answer(Query::Ptr);` in which it simply calls `this->notify(query)`. This is possible because `Query`derives from `Observable` just like `Event`. Therefore you can use the `addOverload`-mechanism that has been described before to also register query-types.
+
+There may be a need to handle things a bit differently: E.g., the `ActiveObjectStore` supports the `ObjectQueryBase`-type which is inherited by the templated `ObjectQuery<Entity>` - queries. Since the addOverload-mechanism only works for exact types and the ActiveObjectStore cannot know all types of entities in advance, it overrides the `answer`-method. This way it can implement the type-check using a dynamic cast and thus hande any query derived from `ObjectQueryBase`.
+
+**TODO: This is a different way to handle the same problem as we encountered with events. For events, we decided to fire one event of every inherited type explicitly. Can one method profit from the other? Is there a way to combine this, use one consistent strategy?**
+
+Example: Return all "Person"s from the list of currently active (i.e. already loaded or newly created) entities:
+```c++
+// setup the core and database
+ODBStorage::Ptr storage( new ODBStorage() );
+Core core(storage);
+
+// the ActiveObjectStore is a module that answers "ObjectQuery"s
+ActiveObjectStore::Ptr active(new ActiveObjectStore());
+core.addModule(active);
+
+// create a query, let the core process it and print the results.
+auto q = std::make_shared<ObjectQuery<Person> >();
+core.answerQuery(q);
+for (auto p : q->results) {
+    std::cout << "Person: " << p->id() << std::endl;
+}
+```
+
+
+
 ## Pitfalls
 ### Entity creation
 The base `Entity` inherits from `std::enable_shared_from_this<Entity>` to enable entities to create smart pointers to themselves, which is needed e.g. in the `Entity::changed()` method, which creates a `EntityEvent` pointing to itself and fires it through the `EventBroker` that it has been given from the `Core`. **Care** must be taken that `shared_from_this()` is only called after a smart-pointer to the object has already been created! Which in turn means that you should not create entities on the stack, but always into smart pointers:
@@ -233,7 +314,6 @@ But: Version `1.` needs two heap allocations, version `2.` only one. But, as the
 	- geometric object
 	- general object (to be wrapped by use-case-classes, plus factory, to avoid the odb compiler)
 - Add processing modules
-	- entity queries
 	- symbolic reasoning (rdf)
 	- something tf-like (use envire)
 	- GeometryCache

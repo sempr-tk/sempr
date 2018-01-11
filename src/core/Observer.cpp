@@ -1,28 +1,23 @@
 #include <sempr/core/Observer.hpp>
+// #include <iostream>
 
 namespace sempr { namespace core {
 
 Observer::Observer()
 {
-    addOverload<Event>(
-        [this](Event::Ptr e) { process(e); }
-    );
 }
 
 Observer::~Observer()
 {
 }
 
-void Observer::process(Event::Ptr e)
-{
-}
 
-void Observer::notify(Event::Ptr event)
+void Observer::notify(Observable::Ptr o)
 {
-    if (types_.find(typeid(*event)) != types_.end()) {
-        types_[typeid(*event)](event);
+    if (types_.find(typeid(*o)) != types_.end()) {
+        types_[typeid(*o)](o);
     } else {
-        // std::cout << typeid(*this).name() << " couldnt find " << typeid(*event).name() << '\n';
+        // std::cout << typeid(*this).name() << " couldnt find " << typeid(*o).name() << '\n';
     }
 }
 
