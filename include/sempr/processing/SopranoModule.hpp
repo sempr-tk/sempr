@@ -3,6 +3,7 @@
 
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/RDFEntity.hpp>
+#include <sempr/query/SPARQLQuery.hpp>
 #include <Soprano/Soprano>
 
 
@@ -20,7 +21,15 @@ namespace sempr { namespace processing {
 
         std::string type() const { return "SopranoModule"; }
 
+        /**
+            add / remove triples belonging to the event to the soprano module
+        */
         void process(core::EntityEvent<entity::RDFEntity>::Ptr event);
+
+        /**
+            answer a SPARQLQuery
+        */
+        void answer(query::SPARQLQuery::Ptr query);
 
         void test();
 
