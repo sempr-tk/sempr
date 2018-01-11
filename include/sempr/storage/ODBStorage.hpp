@@ -31,6 +31,9 @@ public:
     DBObject::Ptr load( const std::string& id ) override;
 
     template <typename T> std::shared_ptr<T> load( const std::string& id ) {
+
+        static_assert(std::is_base_of<DBObject, T>::value,"Classes that are to be loaded from ODBStorage must inherit from DBObject");
+
         odb::transaction t( db_->begin() );
         std::shared_ptr<T> o( db_->load<T>(id) );
         t.commit();
