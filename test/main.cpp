@@ -10,6 +10,9 @@ using namespace sempr::entity;
 #include <sempr/processing/ActiveObjectStore.hpp>
 using namespace sempr::processing;
 
+#include <sempr/query/ObjectQuery.hpp>
+using namespace sempr::query;
+
 #include <fstream>
 #include <iostream>
 
@@ -17,6 +20,24 @@ using namespace sempr::processing;
 #include <Person_odb.h>
 
 #include <sempr/core/IncrementalIDGeneration.hpp>
+
+// small, easy, specialized query for persons over the age of 55.
+class PersonQuery : public ObjectQueryBase {
+public:
+    std::vector<Person::Ptr> results;
+    void consider(DBObject::Ptr o) override
+    {
+        auto ptr = std::dynamic_pointer_cast<Person>(o);
+        if (ptr)
+        {
+            if (ptr->age() >= 55) {
+                results.push_back(ptr);
+            }
+        }
+    }
+};
+
+
 
 int main(int argc, char** args)
 {
@@ -60,7 +81,7 @@ int main(int argc, char** args)
 
     sempr::core::Core c(storage);
     c.addModule(active);
-    c.addModule(debug);
+    // c.addModule(debug);
     c.addModule(updater);
 
 
@@ -109,6 +130,16 @@ int main(int argc, char** args)
         }
     }
 
+    active->printStats();
+
+    // auto q = std::make_shared<ObjectQuery<Person> >();
+    auto q = std::make_shared<PersonQuery>();
+    c.answerQuery(q);
+    std::cout << "query results: " << q->results.size() << '\n';
+    for (auto p : q->results)
+    {
+        std::cout << p->id() << ", age: " << p->age() << '\n';
+    }
 
     return 0;
 }

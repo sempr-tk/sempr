@@ -3,6 +3,8 @@
 
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/Entity.hpp>
+#include <sempr/query/ObjectQuery.hpp>
+
 #include <iostream>
 
 
@@ -11,17 +13,9 @@ namespace sempr { namespace processing {
 /**
     The ActiveObjectStore is a module that listens for created/loaded or removed
     entities and updates an internal map.
-    TODO:
-        - decide how to use this module
-            - just put it into the set of all modules?
-            - give it a special place, to use it directly in the core?
-            - "dual-interface": query and methods?
-        - design & implement query
-            - get by id / uuid
-            - list by class (how? register before using?)
-            - in general: how to implement queries?
-                - again, map type --> method?
-                - how to server templated queries (--> contain class type!)?
+    TODO: We might want to be able to remove some objects just from the active
+    list (something like an "unload"). When implementing this: Remember to also
+    remove the object from the current odb::session!
 */
 class ActiveObjectStore : public Module {
 public:
@@ -30,26 +24,47 @@ public:
     virtual ~ActiveObjectStore();
     virtual std::string type() const override;
 
+    /**
+        Keep a list of currently used objects -- add on "created" or "loaded",
+        remove on "removed".
+    */
     void process(entity::Entity::Event::Ptr event);
 
-    void printStats() const {
+
+    /**
+        Override the default answer-method to allow handling of queries that
+        are derived from ObjectQueryBase.
+    */
+    void answer(query::Query::Ptr query) override;
+
+
+    /**
+        Answer an ObjectQuery.
+    */
+    void answer(query::ObjectQueryBase::Ptr query);
+
+
+    void printStats(bool showEntities = false) const {
         // gather #objects per class
-        std::map<std::type_index, size_t> perClass;
+        std::map<std::string, size_t> perClass;
         for (auto p : entities_) {
-            perClass[typeid(*p.second)]++;
+            perClass[p.second->discriminator()]++;
         }
 
         std::cout << "--- ActiveObjectStore ---" << '\n';
-        std::cout << "#total entities: " << entities_.size() << '\n';
-        std::cout << "#classes:        " << perClass.size() << '\n';
+        std::cout << "# total entities: " << entities_.size() << '\n';
+        std::cout << "# classes:        " << perClass.size() << '\n';
         std::cout << "classes:" << '\n';
         for (auto p : perClass) {
-            std::cout << "  #" << p.first.name() << ":    " << p.second << '\n';
+            std::cout << "  # " << p.first << ":    " << p.second << '\n';
         }
-        std::cout << "entities:" << '\n';
-        for(auto p : entities_) {
-            std::cout << "  " << p.first << '\n';
+        if (showEntities) {
+            std::cout << "entities:" << '\n';
+            for(auto p : entities_) {
+                std::cout << "  " << p.first << '\n';
+            }
         }
+        std::cout << "-------------------------" << '\n';
     }
 
 private:

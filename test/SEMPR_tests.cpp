@@ -12,12 +12,16 @@
 #undef BOOST_NO_CXX11_SCOPED_ENUMS
 
 #include <sempr/entity/RDFPropertyMap.hpp>
+
+#include <sempr/query/ObjectQuery.hpp>
 #include <sempr/core/IncrementalIDGeneration.hpp>
+
 
 using namespace sempr::core;
 using namespace sempr::storage;
 using namespace sempr::processing;
 using namespace sempr::entity;
+using namespace sempr::query;
 
 #define DISCRIMINATOR(T) (odb::object_traits_impl<T, odb::id_common>::info.discriminator)
 
@@ -344,4 +348,52 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
 
         removeStorage(databaseFile);
     }
+BOOST_AUTO_TEST_SUITE_END()
+
+
+BOOST_AUTO_TEST_SUITE(queries)
+    std::string dbfile = "test_sqlite.db";
+    BOOST_AUTO_TEST_CASE(ObjectQuery_test)
+    {
+        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
+        Core core(storage);
+
+        ActiveObjectStore::Ptr active(new ActiveObjectStore());
+        core.addModule(active);
+
+        // query for persons
+        {
+            auto q = std::make_shared<ObjectQuery<Person> >();
+            core.answerQuery(q);
+            BOOST_CHECK_EQUAL(q->results.size(), 0);
+        }
+
+        // add some stuff
+        int numPersons = 10;
+        for (int i = 0; i < numPersons; i++) {
+            Person::Ptr p(new Person());
+            core.addEntity(p);
+        }
+
+        // query.
+        // query for persons
+        Person::Ptr e;
+        {
+            auto q = std::make_shared<ObjectQuery<Person> >();
+            core.answerQuery(q);
+            BOOST_CHECK_EQUAL(q->results.size(), numPersons);
+            e = q->results[0];
+        }
+        // remove someone.
+        core.removeEntity(e);
+        // query again
+        {
+            auto q = std::make_shared<ObjectQuery<Person> >();
+            core.answerQuery(q);
+            BOOST_CHECK_EQUAL(q->results.size(), numPersons-1);
+        }
+
+        removeStorage(dbfile);
+    }
+
 BOOST_AUTO_TEST_SUITE_END()
