@@ -28,9 +28,9 @@ public:
     void save( DBObject::Ptr data ) override;
 
     /** load a single object **/
-    DBObject::Ptr load( const boost::uuids::uuid& id ) override;
+    DBObject::Ptr load( const std::string& id ) override;
 
-    template <typename T> std::shared_ptr<T> load( const boost::uuids::uuid& id ) {
+    template <typename T> std::shared_ptr<T> load( const std::string& id ) {
         odb::transaction t( db_->begin() );
         std::shared_ptr<T> o( db_->load<T>(id) );
         t.commit();
