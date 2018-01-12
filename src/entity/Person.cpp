@@ -18,6 +18,10 @@ Person::Person(const core::IDGenBase* idgen)
     m["name"] = "Max Mustermann";
     m["age"] = 42;
     m["height"] = 1.85;
+
+    RDFEntity::Ptr basic(new RDFEntity());
+    basic->addTriple(Triple( "<" + sempr::baseURI() + this->id() + ">", sempr::core::rdf::type(), "<" + sempr::baseURI() + "Person>"));
+    registerChildEntity(basic);
 }
 
 Person::Person() : Person(new core::IDGen<Person>())
