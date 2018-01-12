@@ -31,8 +31,6 @@ namespace sempr { namespace processing {
         */
         void answer(query::SPARQLQuery::Ptr query);
 
-        void test();
-
     private:
         Soprano::Model* model_;
     };

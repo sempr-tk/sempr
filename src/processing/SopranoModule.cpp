@@ -29,25 +29,6 @@ SopranoModule::~SopranoModule()
     delete model_;
 }
 
-void SopranoModule::test()
-{
-    QString query = "SELECT * WHERE { ?s ?p ?o .}";
-    auto resultIter = model_->executeQuery(query, Soprano::Query::QueryLanguageSparql);
-
-    size_t cnt = 0;
-    while (resultIter.next())
-    {
-        std::cout << "Result " << ++cnt << ": ";
-        auto bset = resultIter.currentBindings();
-        QStringList names = bset.bindingNames();
-        for (int i = 0; i < names.size(); i++) {
-            QString key = names[i];
-            QString value = bset[key].toString();
-            std::cout << key.toStdString() << " = " << value.toStdString() << " | ";
-        }
-        std::cout << '\n';
-    }
-}
 
 void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
 {
@@ -56,10 +37,13 @@ void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
         Soprano::Node(), Soprano::Node(), Soprano::Node(),
         Soprano::Node::createResourceNode(
             QUrl(
-                ("sempr://" + event->getEntity()->id()).c_str()
+                (sempr::baseURI() + event->getEntity()->id()).c_str()
             )
         )
     );
+
+    // if the entity was removed from the database we are finished now.
+    if (event->what() == event->REMOVED) return;
 
     // add all triples of the entity
     auto entity = event->getEntity();
@@ -70,7 +54,7 @@ void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
         // TODO -- the soprano module uses the entity's id directly for the 4th part in the "triple",
         // so this could/should be removed from the Triple-class and RDFEntity-stuff?
         Soprano::Node d = Soprano::Node::createResourceNode(
-            QUrl( ("sempr://" + entity->id()).c_str() )
+            QUrl( (sempr::baseURI() + entity->id()).c_str() )
         );
 
         model_->addStatement(s, p, o, d);
@@ -82,7 +66,7 @@ void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
 void SopranoModule::answer(query::SPARQLQuery::Ptr query)
 {
     QString sparql = QString::fromStdString(query->toString());
-    std::cout << sparql.toStdString() << '\n';
+    // std::cout << sparql.toStdString() << '\n';
     auto results = this->model_->executeQuery(sparql, Soprano::Query::QueryLanguageSparql);
 
     while (results.next())
