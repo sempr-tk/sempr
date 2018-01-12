@@ -2,7 +2,17 @@
 
 namespace sempr {
     const std::string& baseURI() {
-        static const std::string t = "sempr://";
+        /**
+            An entity inside the database is not available through some silly "http://whatever.com/sempr/EntityId",
+            hence we just reduce the base uri to "sempr:" too keep it short and simple.
+
+            Note: Not "sempr://"! The specification of URIs says that those two slashes are present
+            iff the authority part of the URI (scheme://authority/path/to/somewhere?query=sth#fragment)
+            is needed. This would make "Person_7" in "sempr://Person_7" an authority (like google.com)
+            instead of a path. A practical problem: QUrl converts authority-names to lowercase, so
+            every custom class or id or property would be changed.
+        */
+        static const std::string t = "sempr:";
         return t;
     }
 
@@ -17,12 +27,12 @@ namespace xsd {
 
 namespace rdf {
     const std::string& baseURI() {
-        static const std::string t = "www.w3.org/1999/02/22-rdf-syntax-ns#";
+        static const std::string t = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
         return t;
     }
 
     const std::string& type() {
-        static const std::string t = "<www.w3.org/1999/02/22-rdf-syntax-ns#type>";
+        static const std::string t = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
         return t;
     }
 }

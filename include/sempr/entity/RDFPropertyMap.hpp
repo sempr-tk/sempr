@@ -27,10 +27,10 @@ public:
 
     /** All elements are stored as (baseURI+obj.id() baseURI+key value) */
     RDFPropertyMap(const storage::DBObject& obj,
-                    const std::string& baseURI = "sempr://");
+                    const std::string& baseURI = sempr::baseURI());
     RDFPropertyMap(const core::IDGenBase*,
                     const storage::DBObject& obj,
-                    const std::string& baseURI = "sempr://");
+                    const std::string& baseURI = sempr::baseURI());
 
     virtual ~RDFPropertyMap(){}
 

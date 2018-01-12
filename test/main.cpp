@@ -145,11 +145,10 @@ int main(int argc, char** args)
     }
 
     std::cout << "----------------" << '\n';
-    semantic->test();
     std::cout << "TEST SopranoModule" << '\n';
 
     auto sq = std::make_shared<SPARQLQuery>();
-    sq->query = "SELECT * WHERE { ?s <sempr://age> ?age . FILTER (?age > 50) }";
+    sq->query = "SELECT * WHERE { ?s sempr:age ?age . FILTER (?age > 50) }";
     c.answerQuery(sq);
     for (auto r : sq->results) {
         for (auto p : r) {
