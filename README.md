@@ -269,6 +269,7 @@ public:
 ### Query
 There are two ways of adding query-answering-capabilities to a module: The base class `Module` provides a default implementation of `virtual void Module::answer(Query::Ptr);` in which it simply calls `this->notify(query)`. This is possible because `Query`derives from `Observable` just like `Event`. Therefore you can use the `addOverload`-mechanism that has been described before to also register query-types.
 
+#### ObjectQuery
 There may be a need to handle things a bit differently: E.g., the `ActiveObjectStore` supports the `ObjectQueryBase`-type which is inherited by the templated `ObjectQuery<Entity>` - queries. Since the addOverload-mechanism only works for exact types and the ActiveObjectStore cannot know all types of entities in advance, it overrides the `answer`-method. This way it can implement the type-check using a dynamic cast and thus hande any query derived from `ObjectQueryBase`.
 
 **TODO: This is a different way to handle the same problem as we encountered with events. For events, we decided to fire one event of every inherited type explicitly. Can one method profit from the other? Is there a way to combine this, use one consistent strategy?**
@@ -291,6 +292,50 @@ for (auto p : q->results) {
 }
 ```
 
+#### SPARQLQuery
+The `SopranoModule` keeps track of rdf triples and responds to SPARQL-queries. The `SPARQLQuery`-class uses a default list of prefixes to resolve `rdf`, `rdfs`, `owl`, `xsd` and (of course) `sempr` to their corresponding URIs.
+
+Excerpt from the test cases:
+```c++
+// [...]
+// on initialization, add the SopranoModule
+SopranoModule::Ptr semantic(new SopranoModule());
+core.addModule(semantic);
+
+// [...]
+
+// insert a few persons
+{
+    for (int i = 10; i < 20; i++) {
+        Person::Ptr p(new Person());
+        p->age(i);
+        p->height(1.5 + 0.01*i);
+        core.addEntity(p);
+    }
+}
+
+// query for persons of age 18 or older and get their heights
+{
+    SPARQLQuery::Ptr query(new SPARQLQuery());
+    query->query = 
+    	"SELECT * WHERE { " \
+            "?p rdf:type sempr:Person." \
+            "?p sempr:age ?age ." \
+             "FILTER(?age >= 18) ." \
+            "?p sempr:height ?height ." \
+         "}";
+     core.answerQuery(query);
+
+     // there should be 2 results, aged 18 and 19
+     for (auto r : query->results) {
+        // std::cout << "Query Result: " << r["p"] << " of age " << r["age"] << " is " << r["height"] << " m high." << '\n';
+        for (auto b : r) {
+            std::cout << b.first << "=" << b.second << "  |  ";
+        }
+        std::cout << std::endl;
+    }
+}
+```
 
 
 ## Pitfalls
