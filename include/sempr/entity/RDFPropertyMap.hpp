@@ -34,7 +34,23 @@ public:
 
     virtual ~RDFPropertyMap(){}
 
+    /**
+        Returns a proxy object that can be assigned a new value, or be casted to the type
+        that has been stored at the given key.
+    */
     RDFValueProxy operator[](const std::string& key);
+    RDFValueProxy operator()(const std::string& key);
+    
+    /**
+        Allows to set a baseURI that differs from the default. To read/write the same variable
+        again, you will always need to specify the baseURI, too.
+            map["type"] = "foo";
+            map["type", "http://example.com/"] = "baz";
+            // will _not_ overwrite the previous, except if "http://example.com" is the default
+            // baseURI.
+    */
+    RDFValueProxy operator()(const std::string& key, const std::string& baseURI);
+
 
     ENTITY_DEFAULT_EVENT_METHODS(RDFPropertyMap, RDFEntity);
 private:
