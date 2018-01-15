@@ -19,9 +19,10 @@ Person::Person(const core::IDGenBase* idgen)
     m["age"] = 42;
     m["height"] = 1.85;
 
-    RDFEntity::Ptr basic(new RDFEntity());
-    basic->addTriple(Triple( "<" + sempr::baseURI() + this->id() + ">", sempr::core::rdf::type(), "<" + sempr::baseURI() + "Person>"));
-    registerChildEntity(basic);
+    // RDFEntity::Ptr basic(new RDFEntity());
+    // basic->addTriple(Triple( "<" + sempr::baseURI() + this->id() + ">", sempr::core::rdf::type(), "<" + sempr::baseURI() + "Person>"));
+    // registerChildEntity(basic);
+    m("type", core::rdf::baseURI()) = RDFResource("<" + sempr::baseURI() + "Person" + ">");
 }
 
 Person::Person() : Person(new core::IDGen<Person>())
