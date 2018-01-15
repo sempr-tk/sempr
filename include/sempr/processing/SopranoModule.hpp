@@ -3,8 +3,10 @@
 
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/RDFEntity.hpp>
+#include <sempr/entity/RuleSet.hpp>
 #include <sempr/query/SPARQLQuery.hpp>
 #include <Soprano/Soprano>
+#include <Soprano/Inference/InferenceModel>
 
 
 namespace sempr { namespace processing {
@@ -27,12 +29,27 @@ namespace sempr { namespace processing {
         void process(core::EntityEvent<entity::RDFEntity>::Ptr event);
 
         /**
+            add / remove rules
+        */
+        void process(core::EntityEvent<entity::RuleSet>::Ptr event);
+
+        /**
             answer a SPARQLQuery
         */
         void answer(query::SPARQLQuery::Ptr query);
 
     private:
+        /// all updates take place inside the base model
         Soprano::Model* model_;
+        /// sparql queries are performed on the inference model
+        Soprano::Inference::InferenceModel* infmodel_;
+        /// if model and infmodel are out of sync, this flag is set and the next sparqlquery
+        /// triggers a performInference
+        bool dirty_;
+
+        /// a mapping between RuleSet-entities (string id) and their rules
+        std::map<std::string, std::vector<Soprano::Inference::Rule> > ruleMap_;
+
     };
 }}
 

@@ -20,6 +20,8 @@ using namespace sempr::query;
 #include <odb/database.hxx>
 #include <Person_odb.h>
 
+#include <RuleSet_odb.h>
+
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
 // small, easy, specialized query for persons over the age of 55.
@@ -44,33 +46,8 @@ int main(int argc, char** args)
 {
     int numInsert = 1;
     ODBStorage::Ptr storage( new ODBStorage() );
-
-    if (argc > 1) numInsert = atoi(args[1]);
-    if (argc > 2) {
-        storage.reset();
-        storage.reset(new ODBStorage(":memory:"));
-    }
-
-/* Performance results for "insert X persons, load them all, increment age"
-1. In-Memory-Database, X = 10000
-
-    time ./test/manual_test 10000 mem > /dev/null
-    real    0m3.994s
-    user    0m3.976s
-    sys     0m0.016s
-
-2. File-Database (sqlite3), X = 10000
-
-    time ./test/manual_test 10000 > /dev/null
-    real    13m6.421s
-    user    0m23.488s
-    sys     0m32.204s
-*/
-
-
-
     // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
-    // ODBStorage::Ptr storage( new ODBStorage() );
+
     DebugModule::Ptr debug( new DebugModule() );
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
@@ -83,9 +60,24 @@ int main(int argc, char** args)
 
     sempr::core::Core c(storage);
     c.addModule(active);
-    // c.addModule(debug);
+    c.addModule(debug);
     c.addModule(updater);
     c.addModule(semantic);
+
+    // add rules if not present
+    {
+        std::vector<RuleSet::Ptr> rulesets;
+        storage->loadAll(rulesets);
+        if (rulesets.size() > 0) {
+            std::cout << "found ruleset, not creating new" << '\n';
+            for (auto rs : rulesets) { rs->loaded(); }
+        } else {
+            std::cout << "no ruleset found, creating one." << '\n';
+            RuleSet::Ptr rules(new RuleSet());
+            rules->add("[someRule: (?p rdf:type sempr:Person) -> (?p rdf:type sempr:Human)]");
+            c.addEntity(rules);
+        }
+    }
 
 
     {
@@ -148,7 +140,8 @@ int main(int argc, char** args)
     std::cout << "TEST SopranoModule" << '\n';
 
     auto sq = std::make_shared<SPARQLQuery>();
-    sq->query = "SELECT * WHERE { ?s sempr:age ?age . FILTER (?age > 50) }";
+    // sq->query = "SELECT * WHERE { ?s sempr:age ?age . FILTER (?age > 50) }";
+    sq->query = "SELECT * WHERE { ?s rdf:type sempr:Human . }";
     c.answerQuery(sq);
     for (auto r : sq->results) {
         for (auto p : r) {

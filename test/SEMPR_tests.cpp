@@ -413,6 +413,68 @@ BOOST_AUTO_TEST_SUITE(queries)
     }
 
 
+    BOOST_AUTO_TEST_CASE(SPARQLQuery_test_inference)
+    {
+        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
+        Core core(storage);
+
+        ActiveObjectStore::Ptr active(new ActiveObjectStore());
+        SopranoModule::Ptr semantic(new SopranoModule());
+        core.addModule(active);
+        core.addModule(semantic);
+
+        // query anything, there should be nothing
+        {
+            SPARQLQuery::Ptr query(new SPARQLQuery());
+            query->query = "SELECT ?s WHERE { ?s ?p ?o . }";
+            core.answerQuery(query);
+            BOOST_CHECK_EQUAL(query->results.size(), 0);
+        }
+
+        // insert a few persons
+        {
+            for (int i = 0; i < 10; i++) {
+                Person::Ptr p(new Person());
+                p->age(i+10);
+                core.addEntity(p);
+            }
+        }
+
+        // query for humans, there should be none
+        {
+            SPARQLQuery::Ptr query(new SPARQLQuery());
+            query->query = "SELECT * WHERE { " \
+                            "?p rdf:type sempr:Human." \
+                            "}";
+            core.answerQuery(query);
+
+            BOOST_CHECK_EQUAL(query->results.size(), 0);
+        }
+
+        // add a rule that persons are humans
+        {
+            RuleSet::Ptr rules(new RuleSet());
+            rules->add("[personsAreHumans: (?p rdf:type sempr:Person) -> (?p rdf:type sempr:Human)]");
+            core.addEntity(rules);
+        }
+
+        // query for humans, there should be 10 (as there are persons)
+        {
+            SPARQLQuery::Ptr query(new SPARQLQuery());
+            query->query = "SELECT * WHERE { "\
+                            "?p rdf:type sempr:Human." \
+                            "}";
+            core.answerQuery(query);
+            BOOST_CHECK_EQUAL(query->results.size(), 10);
+        }
+    }
+    BOOST_AUTO_TEST_CASE(SPARQLQuery_test_inference_cleanup)
+    {
+        removeStorage(dbfile);
+    }
+
+
+
     BOOST_AUTO_TEST_CASE(ObjectQuery_test)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
