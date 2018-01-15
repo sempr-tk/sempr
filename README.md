@@ -234,7 +234,19 @@ This snippet maps to the following set of triples:
 (subject <http://baseURI/baz> "Hello, World!"^^xsd:string)
 (subject <http://baseURI/uncle> <http://baseURI/[persons-uuid]>)
 ```
-By using an `RDFPropertyMap` other entites are able to store their information and provide them in an RDFEntity without much redundancy and overhead. Whether you want to use the `RDFPropertyMap` exclusively or just use it to store otherwise transient data members in (during prePeresist/preUpdate/postLoad) is up to you -- as long as the map gets the values they are available to (optional, not yet implemented) reasoners.
+By using an `RDFPropertyMap` other entites are able to store their information and provide them in an RDFEntity without much redundancy and overhead. Whether you want to use the `RDFPropertyMap` exclusively or just use it to store otherwise transient data members (during prePeresist/preUpdate/postLoad) is up to you -- as long as the map gets the values they are available to (optional) reasoners.
+
+#### Problems / Usage
+The RDFPropertyMap is able to store literal values as well as pointers to other objects which will be represented as rdf resources. One problem arises when trying to store resources that are not pointers: How can we distinguish between the string `<http://example.com/foo>` and the resource uri (which looks the same)? The solution chosen here is the following: The RDFPropertyMap assumes that objects are to be interpreted as literal values, except when told otherwise. To prevent the resource string to be interpreted as a literal string (and thus stored and given to the reasoners as `"<http://example.com/foo>"^^<http://www.w3.org/2001/XMLSchema#string>`) you need to specify that it is indeed a resource:
+```c++
+m["foo"] = RDFResource( "<http://example.com/foo>" );
+```
+
+Furthermore you might want to save triples with a property that does not belong to the namespace that you specified in the `baseURI` of the property map. This might be the case if you want to add e.g. just a note on the type of object, i.e. a triple like `(sempr:Person_42 rdf:type sempr:Person)`. This can be achieved by explicitely specifying the baseURI of the property you want to access:
+```c++
+m("type", rdf::baseURI()) = RDFResource( "<" + rdf::baseURI() + "Person>" );
+```
+> Please note the round brackets as c++ does not allow multiple arguments for the square-bracket-operator. For the single-argument version you may use any type: `m["foo"]` and `m("foo")` are interchangable.
 
 ## Events
 
