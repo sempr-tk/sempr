@@ -16,6 +16,12 @@
 #include <sempr/query/ObjectQuery.hpp>
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
+// geometries
+#include <Geometry_odb.h>
+#include <Point_odb.h>
+#include <LineString_odb.h>
+#include <Polygon_odb.h>
+
 
 using namespace sempr::core;
 using namespace sempr::storage;
@@ -393,6 +399,74 @@ BOOST_AUTO_TEST_SUITE(queries)
             BOOST_CHECK_EQUAL(q->results.size(), numPersons-1);
         }
 
+        removeStorage(dbfile);
+    }
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+BOOST_AUTO_TEST_SUITE(geometries)
+    std::string dbfile = "test_sqlite.db";
+    BOOST_AUTO_TEST_CASE(geometries_insertion)
+    {
+        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
+        Core core(storage);
+
+        ActiveObjectStore::Ptr active(new ActiveObjectStore());
+        core.addModule(active);
+        DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+        core.addModule(updater);
+
+        // create a bunch of geometries
+        Point::Ptr point(new Point());
+        LineString::Ptr linestring(new LineString());
+        Polygon::Ptr polygon(new Polygon());
+
+        //           B
+        //         /   \ .
+        //  ls ---/- m  \ .
+        //      A ------ C
+        point->geometry()->setX(0); point->geometry()->setY(0);
+
+        auto ring = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
+        ring->addPoint(-1, -1);
+        ring->addPoint(0, 1);
+        ring->addPoint(1, -1);
+        ring->closeRings();
+        
+        polygon->geometry()->addRingDirectly(ring);
+
+        linestring->geometry()->addPoint(-5, 0);
+        linestring->geometry()->addPoint(0, 0);
+
+        // insert.
+        core.addEntity(point);
+        core.addEntity(linestring);
+        core.addEntity(polygon);
+    }
+
+    BOOST_AUTO_TEST_CASE(geometries_operations)
+    {
+        ODBStorage::Ptr storage = loadStorage(dbfile);
+
+        std::vector<Point::Ptr> points;
+        std::vector<LineString::Ptr> lstrings;
+        std::vector<Polygon::Ptr> polygons;
+
+        storage->loadAll(points);
+        storage->loadAll(lstrings);
+        storage->loadAll(polygons);
+
+        BOOST_CHECK_EQUAL(points.size(), 1);
+        BOOST_CHECK_EQUAL(lstrings.size(), 1);
+        BOOST_CHECK_EQUAL(polygons.size(), 1);
+
+        BOOST_CHECK(points[0]->geometry()->Within(polygons[0]->geometry()));
+        BOOST_CHECK(lstrings[0]->geometry()->Intersects(polygons[0]->geometry()));
+    }
+
+    BOOST_AUTO_TEST_CASE(geometries_cleanup)
+    {
         removeStorage(dbfile);
     }
 
