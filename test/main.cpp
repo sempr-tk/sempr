@@ -19,57 +19,17 @@ using namespace sempr::query;
 #include <odb/database.hxx>
 #include <Person_odb.h>
 
+#include <sempr/entity/spatial/Point.hpp>
+#include <Point_odb.h>
+
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
-// small, easy, specialized query for persons over the age of 55.
-class PersonQuery : public ObjectQueryBase {
-public:
-    std::vector<Person::Ptr> results;
-    void consider(DBObject::Ptr o) override
-    {
-        auto ptr = std::dynamic_pointer_cast<Person>(o);
-        if (ptr)
-        {
-            if (ptr->age() >= 55) {
-                results.push_back(ptr);
-            }
-        }
-    }
-};
-
-
+#include <gdal/cpl_conv.h> // CPLFree for kml export of geometries
 
 int main(int argc, char** args)
 {
-    int numInsert = 1;
-    ODBStorage::Ptr storage( new ODBStorage() );
-
-    if (argc > 1) numInsert = atoi(args[1]);
-    if (argc > 2) {
-        storage.reset();
-        storage.reset(new ODBStorage(":memory:"));
-    }
-
-/* Performance results for "insert X persons, load them all, increment age"
-1. In-Memory-Database, X = 10000
-
-    time ./test/manual_test 10000 mem > /dev/null
-    real    0m3.994s
-    user    0m3.976s
-    sys     0m0.016s
-
-2. File-Database (sqlite3), X = 10000
-
-    time ./test/manual_test 10000 > /dev/null
-    real    13m6.421s
-    user    0m23.488s
-    sys     0m32.204s
-*/
-
-
-
     // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
-    // ODBStorage::Ptr storage( new ODBStorage() );
+    ODBStorage::Ptr storage( new ODBStorage() );
     DebugModule::Ptr debug( new DebugModule() );
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
@@ -81,65 +41,42 @@ int main(int argc, char** args)
 
     sempr::core::Core c(storage);
     c.addModule(active);
-    // c.addModule(debug);
+    c.addModule(debug);
     c.addModule(updater);
 
+    for (int i = 0; i < 7; i++)
+    {
+        // create and insert a point
+        Point::Ptr p(new Point());
+        p->geometry()->setCoordinateDimension(3);
+        p->geometry()->setX(1);
+        p->geometry()->setY(2);
+        p->geometry()->setZ(3);
+        p->geometry()->setMeasured(true);
+        p->geometry()->setM(1.23);
+        c.addEntity(p);
+    }
 
     {
-        // insert.
-        for (int i = 0; i < numInsert; i++) {
-            Person::Ptr p(new Person());
-            c.addEntity(p);
-        }
-        // Person::Ptr p2(new Person());
-        // c.addEntity(p2);
+        // load all entities
+        std::vector<Entity::Ptr> entities;
+        storage->loadAll(entities);
+        for (auto e : entities) e->loaded();
 
-
-        // retrieve
-
-        // std::vector<DBObject::Ptr> objects;
-        // storage->loadAll(objects);
-        // for (auto o : objects) {
-        //     Person::Ptr p = std::dynamic_pointer_cast<Person>(o);
-        //     if (p) {
-        //         p->loaded(); // no changed-events before announcement!
-        //         std::cout << "Person id: " << p->id() << std::endl;
-        //
-        //         // add a year.
-        //         p->age(p->age()+1);
-        //         std::cout << "Person: "
-        //             << p->name() << ", "
-        //             << p->age() << " years old, "
-        //             << p->height() << "m." << std::endl;
-        //     }
-        // }
-
-        std::vector<Person::Ptr> persons;
-        storage->loadAll(persons);
-        for (auto p : persons) {
-            p->loaded(); // no changed-events before announcement!
-            // std::cout << "Person id: " << p->id() << std::endl;
-
-            // add a year.
-            p->age(p->age()+1);
-            std::cout
-                << p->id() << ": "
-                << p->name() << ", "
-                << p->age() << " years old, "
-                << p->height() << "m." << std::endl;
+        // query for points
+        ObjectQuery<Point>::Ptr query(new ObjectQuery<Point>());
+        c.answerQuery(query);
+        std::cout << "found " << query->results.size() << " points." << '\n';
+        for (auto r : query->results) {
+            char* str;
+            r->geometry()->exportToWkt(&str, wkbVariantIso);
+            std::cout << "point: " << str << '\n';
+            CPLFree(str);
         }
     }
 
-    active->printStats();
 
-    // auto q = std::make_shared<ObjectQuery<Person> >();
-    auto q = std::make_shared<PersonQuery>();
-    c.answerQuery(q);
-    std::cout << "query results: " << q->results.size() << '\n';
-    for (auto p : q->results)
-    {
-        std::cout << p->id() << ", age: " << p->age() << '\n';
-    }
+
 
     return 0;
 }
