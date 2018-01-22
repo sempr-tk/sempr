@@ -2,12 +2,14 @@
 #ifndef SEMPR_ENTITY_TRIPLE
 #define SEMPR_ENTITY_TRIPLE
 
+#include <string>
+
 namespace sempr { namespace entity {
 
 #pragma db value
 struct Triple {
     Triple() {}
-    
+
     Triple(const std::string& s, const std::string& p, const std::string& o)
         : subject(s), predicate(p), object(o), document("")
     {
