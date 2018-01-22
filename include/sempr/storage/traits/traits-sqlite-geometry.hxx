@@ -173,12 +173,14 @@ template <> class value_traits<OGRPoint*, id_text> : public value_traits<OGRGeom
 template <> class value_traits<OGRGeometryCollection*, id_text> : public value_traits<OGRGeometry*, id_text> {};
 template <> class value_traits<OGRCurvePolygon*, id_text> : public value_traits<OGRGeometry*, id_text> {};
 template <> class value_traits<OGRPolygon*, id_text> : public value_traits<OGRGeometry*, id_text> {};
+template <> class value_traits<OGRLineString*, id_text> : public value_traits<OGRGeometry*, id_text> {};
 
 // geometry-to-binary-blob
 template <> class value_traits<OGRPoint*, id_blob> : public value_traits<OGRGeometry*, id_blob> {};
 template <> class value_traits<OGRGeometryCollection*, id_blob> : public value_traits<OGRGeometry*, id_blob> {};
 template <> class value_traits<OGRCurvePolygon*, id_blob> : public value_traits<OGRGeometry*, id_blob> {};
 template <> class value_traits<OGRPolygon*, id_blob> : public value_traits<OGRGeometry*, id_blob> {};
+template <> class value_traits<OGRLineString*, id_blob> : public value_traits<OGRGeometry*, id_blob> {};
 
 
 } /* sqlite */
