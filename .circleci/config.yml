@@ -13,6 +13,7 @@ jobs:
       - run: apt-get install -y -qq libsoprano-dev
       - run: apt-get install -y -qq qt4-default
       - run: apt-get install -y -qq libgeos-dev
+      - run: apt-get install -y -qq git
       - run: git clone https://github.com/OSGeo/gdal.git -b tags/2.2.3
       - run: cd gdal/gdal && ./configure -with-geos=yes
       - run: cd gdal/gdal && make -j8
