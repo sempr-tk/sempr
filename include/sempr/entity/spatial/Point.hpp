@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_POINT_HPP_
 
 #include <sempr/entity/spatial/Geometry.hpp>
-#include <gdal/ogr_geometry.h>
+#include <ogr_geometry.h>
 
 
 

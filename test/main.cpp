@@ -24,7 +24,7 @@ using namespace sempr::query;
 
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
-#include <gdal/cpl_conv.h> // CPLFree for kml export of geometries
+#include <cpl_conv.h> // CPLFree for kml export of geometries
 
 int main(int argc, char** args)
 {

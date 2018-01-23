@@ -2,8 +2,8 @@
 #define SEMPR_TRAITS_SQLITE_GEOMETRY_HXX
 
 #include <odb/sqlite/traits.hxx>
-#include <gdal/ogr_geometry.h>
-#include <gdal/cpl_conv.h>
+#include <ogr_geometry.h>
+#include <cpl_conv.h>
 
 #include <cstddef> // std::size_t
 #include <cstring> // std::strncmp, std::memcpy

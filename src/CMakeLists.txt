@@ -4,6 +4,7 @@ include_directories(${Soprano_INCLUDE_DIRS})
 
 pkg_check_modules(GDAL REQUIRED gdal)
 include_directories(${GDAL_INCLUDE_DIRS})
+message("GDAL: ${GDAL_INCLUDE_DIRS}")
 
 
 file(GLOB_RECURSE SRC_FILES core/* data/* entity/* processing/* query/* storage/*)
