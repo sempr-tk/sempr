@@ -28,6 +28,16 @@ file(GLOB_RECURSE ODB_FILES
 # message( "found files: ${SRC_FILES}")
 # message( "found files: ${ODB_FILES}")
 
+# There are two variables to be set:
+# 1. the odb-compiler needs to know which database is used. e.g. "sqlite"
+# 2. the traits that implement serialization of new datatypes are selected based on the
+#    database, too, and need a definition of e.g. DATABASE_SQLITE.
+# So, we need to set both, and also pass our choice on to extensions of sempr.
+# - based on the "DATABASE" variable also set the definition of "DATABASE_*"
+# - add the DATABASE-variable to the pkgconfig-file. Extensions can use this to set the parameter
+#   for the odb-compiler.
+# - TODO: currently we also include -DDATABASE_* in the pkgconfig, so this is a bit redundant,
+#   isn't it?
 set(DATABASE sqlite)
 if (${DATABASE} MATCHES sqlite)
     set(CONFIG_DATABASE DATABASE_SQLITE)

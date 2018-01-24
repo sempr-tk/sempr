@@ -1,6 +1,7 @@
 prefix=@CMAKE_INSTALL_PREFIX@
 libdir=${prefix}/lib/sempr
 includedir=${prefix}/include
+database=@DATABASE@
 
 Name: sempr-core
 Description: Core library of SEMPR (Semantic Environment Mapping, Processing and Reasoning)
