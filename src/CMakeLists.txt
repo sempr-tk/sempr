@@ -4,7 +4,9 @@ include_directories(${Soprano_INCLUDE_DIRS})
 
 pkg_check_modules(GDAL REQUIRED gdal)
 include_directories(${GDAL_INCLUDE_DIRS})
-message("GDAL: ${GDAL_INCLUDE_DIRS}")
+
+pkg_check_modules(EIGEN REQUIRED eigen3)
+include_directories(${EIGEN_INCLUDE_DIRS})
 
 
 file(GLOB_RECURSE SRC_FILES core/* data/* entity/* processing/* query/* storage/*)
@@ -22,7 +24,7 @@ file(GLOB_RECURSE ODB_FILES
 
 odb_compile(SRC_FILES
     FILES ${ODB_FILES}
-    INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS}
+    INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
     # PROFILE boost/uuid
     PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/include
     HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
