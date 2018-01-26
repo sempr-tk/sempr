@@ -31,18 +31,17 @@ int main(int argc, char** args)
 
   switch(argc){
   case 2:{
-      std::cout << argc << std::endl;
       numInsert = atoi(args[1]);
     }
     break;
   case 3:{
-      numInsert = atoi(args[1]);
-      inmemory = boost::lexical_cast<bool>(std::atoi(args[2]));
+      numInsert = atoi(args[2]);
+      inmemory = boost::lexical_cast<bool>(std::atoi(args[1]));
     }
     break;
   default:
     {
-      std::cout << "usage: " << std::string(args[0]) << " <numInsert> <inMemory 1|0>" << std::endl;
+      std::cout << "usage: " << std::string(args[0]) << " <inMemory 1|0>  <numInsert>" << std::endl;
       return -1;
     }
     break;
@@ -69,35 +68,49 @@ int main(int argc, char** args)
   c.addModule(active);
   c.addModule(updater);
 
+auto start = std::chrono::high_resolution_clock::now();
+auto finish = std::chrono::high_resolution_clock::now();
+std::chrono::duration<double> elapsed;
+
+  std::cout << "insert "<< numInsert << " objects";
+  start = std::chrono::high_resolution_clock::now();
   {
-    // insert.
+    //INSERT
     for (int i = 0; i < numInsert; i++) {
         Person::Ptr p(new Person());
         p->age(0);
         c.addEntity(p);
     }
   }
+  finish = std::chrono::high_resolution_clock::now();
+  elapsed = finish - start;
+  std::cout << "done in:\t" << elapsed.count() << " s\n";
 
-    active->printStats();
+  //active->printStats();
+  std::vector<Person::Ptr> persons;
 
+  std::cout << "load "<< numInsert << " objects";
+  start = std::chrono::high_resolution_clock::now();
   {
-    std::vector<Person::Ptr> persons;
+    //LOAD
     storage->loadAll(persons);
-    for (auto p : persons) {
-        p->loaded(); // no changed-events before announcement!
-        // std::cout << "Person id: " << p->id() << std::endl;
+  }
+  finish = std::chrono::high_resolution_clock::now();
+  elapsed = finish - start;
+  std::cout << "done in:\t" << elapsed.count() << " s\n";
 
-        // add a year.
-        p->age(p->age()+1);
-        std::cout
-            << p->id() << ": "
-            << p->name() << ", "
-            << p->age() << " years old, "
-            << p->height() << "m." << std::endl;
+  std::cout << "update "<< numInsert << " objects";
+  start = std::chrono::high_resolution_clock::now();
+  {
+    //UPDATE
+    for (auto p : persons) {
+      p->loaded(); // no changed-events before announcement!
+      p->age(p->age()+1);
     }
   }
-
-    active->printStats();
+  finish = std::chrono::high_resolution_clock::now();
+  elapsed = finish - start;
+  std::cout << " done in:\t" << elapsed.count() << " s\n";
 
     return 0;
 }
