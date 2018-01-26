@@ -56,17 +56,16 @@ int main(int argc, char** args)
     storage = std::make_shared<ODBStorage>();
   }
 
-  DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
-  ActiveObjectStore::Ptr active( new ActiveObjectStore() );
+  //DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
+  //ActiveObjectStore::Ptr active( new ActiveObjectStore() );
 
   sempr::core::IDGenerator::getInstance().setStrategy(
-      // std::unique_ptr<sempr::core::UUIDGeneration>( new sempr::core::UUIDGeneration(false) )
       std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
   );
 
   sempr::core::Core c(storage);
-  c.addModule(active);
-  c.addModule(updater);
+  //c.addModule(active);
+  //c.addModule(updater);
 
 auto start = std::chrono::high_resolution_clock::now();
 auto finish = std::chrono::high_resolution_clock::now();
@@ -86,7 +85,7 @@ std::chrono::duration<double> elapsed;
   elapsed = finish - start;
   std::cout << "done in:\t" << elapsed.count() << " s\n";
 
-  //active->printStats();
+  /*//active->printStats();
   std::vector<Person::Ptr> persons;
 
   std::cout << "load "<< numInsert << " objects";
@@ -111,6 +110,6 @@ std::chrono::duration<double> elapsed;
   finish = std::chrono::high_resolution_clock::now();
   elapsed = finish - start;
   std::cout << " done in:\t" << elapsed.count() << " s\n";
-
+  */
     return 0;
 }
