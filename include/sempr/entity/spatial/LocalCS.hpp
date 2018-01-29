@@ -48,7 +48,7 @@ public:
 
     /// set the translation-part of the transformation
     void setTranslation(double x, double y, double z);
-    void setTranslation(const Eigen::Vector3d& vector);
+    void setTranslation(const Eigen::Vector3d& trans);
 
     // TODO: implement setter!
     // TODO: implement (de-)serialization!

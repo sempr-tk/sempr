@@ -69,5 +69,40 @@ Eigen::Affine3d LocalCS::getInverseRotTrans(const Eigen::Affine3d &mat)
     return inv;
 }
 
+void LocalCS::setRotation(double x, double y, double z, double angle)
+{
+    Eigen::Vector3d axis(x, y, z);
+    axis.normalize();
+    Eigen::AngleAxisd aa(angle, axis);
+
+    transform_.linear() = aa.toRotationMatrix();
+}
+
+void LocalCS::setRotation(const Eigen::Quaterniond& quat)
+{
+    transform_.linear() = quat.toRotationMatrix();
+}
+
+void LocalCS::setTranslation(double x, double y, double z)
+{
+    Eigen::Vector3d trans(x, y, z);
+    setTranslation(trans);
+}
+
+void LocalCS::setTranslation(const Eigen::Vector3d& trans)
+{
+    transform_.translation() = trans;
+}
+
+SpatialReference::Ptr LocalCS::getParent() const
+{
+    return parent_;
+}
+
+void LocalCS::setParent(SpatialReference::Ptr other)
+{
+    parent_ = other;
+}
+
 
 }}

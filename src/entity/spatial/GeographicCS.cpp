@@ -14,7 +14,7 @@ GeographicCS::GeographicCS(const std::string& name)
 }
 
 GeographicCS::GeographicCS(const std::string& name, const core::IDGenBase* idgen)
-    : SpatialReference(idgen)
+    : GlobalCS(idgen)
 {
     this->setDiscriminator<GeographicCS>();
     this->frame_.SetWellKnownGeogCS(name.c_str());

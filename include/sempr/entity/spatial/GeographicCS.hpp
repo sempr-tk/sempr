@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_SPATIAL_GEOGRAPHICCS_HPP_
 #define SEMPR_ENTITY_SPATIAL_GEOGRAPHICCS_HPP_
 
-#include <sempr/entity/spatial/SpatialReference.hpp>
+#include <sempr/entity/spatial/GlobalCS.hpp>
 #include <ogr_spatialref.h>
 
 namespace sempr { namespace entity {
@@ -12,7 +12,7 @@ namespace sempr { namespace entity {
     It is also a root of transformations.
 */
 #pragma db object
-class GeographicCS : public SpatialReference {
+class GeographicCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<GeographicCS>;
     SpatialReference::Ptr getRoot() override;
@@ -29,8 +29,6 @@ public:
 private:
     GeographicCS(); // just for ODB.
     friend class odb::access;
-    #pragma db type("TEXT")
-    OGRSpatialReference frame_;
 };
 
 

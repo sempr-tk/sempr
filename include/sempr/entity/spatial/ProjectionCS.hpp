@@ -1,10 +1,13 @@
 #ifndef SEMPR_ENTITY_SPATIAL_PROJECTIONCS_HPP_
 #define SEMPR_ENTITY_SPATIAL_PROJECTIONCS_HPP_
 
-#include <sempr/entity/spatial/SpatialReference.hpp>
+#include <sempr/entity/spatial/GlobalCS.hpp>
 #include <ogr_spatialref.h>
 
 namespace sempr { namespace entity {
+
+// forward declaration of GeographicCS -- both need to know each other
+class GeographicCS;
 
 
 /**
@@ -13,7 +16,7 @@ namespace sempr { namespace entity {
     It is also a root of transformations.
 */
 #pragma db object
-class ProjectionCS : public SpatialReference {
+class ProjectionCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<ProjectionCS>;
     SpatialReference::Ptr getRoot() override;
@@ -37,8 +40,6 @@ public:
 private:
     ProjectionCS(); // just for ODB.
     friend class odb::access;
-    #pragma db type("TEXT")
-    OGRSpatialReference frame_;
 };
 
 

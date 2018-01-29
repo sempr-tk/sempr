@@ -3,10 +3,11 @@
 
 namespace sempr { namespace entity {
 
-ProjectionCS::ProjectionCS() : SpatialReference(new core::IDGen<ProjectionCS>())
+ProjectionCS::ProjectionCS() : GlobalCS(new core::IDGen<ProjectionCS>())
 {
     this->setDiscriminator<ProjectionCS>();
 }
+
 
 // TODO error checking!
 ProjectionCS::Ptr ProjectionCS::CreateUTM(int zone, bool north, const std::string& base)
