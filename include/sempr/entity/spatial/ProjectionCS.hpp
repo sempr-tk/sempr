@@ -30,12 +30,14 @@ public:
         \param zone UTM zone
         \param north true if on northern hemisphere
         \param base geographic system to use, e.g. WGS84
+        \return empty ptr (NULL) on error, else a new ProjectionCS-entity.
     */
     static ProjectionCS::Ptr CreateUTM(int zone, bool north = true, const std::string& base = "WGS84");
 
     /**
         Create a ProjectionCS by applying an equirectangular projection centered at the given
         lat/lon coordinates in the chosen base system.
+        \return empty ptr (NULL) on error, else a new ProjectionCS-entity.
     */
     static ProjectionCS::Ptr CreateEquirect(double lat, double lon, const std::string& base = "WGS84");
 
