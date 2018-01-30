@@ -17,6 +17,7 @@ namespace sempr { namespace entity {
 class GlobalCS : public SpatialReference {
 public:
     using Ptr = std::shared_ptr<GlobalCS>;
+    ENTITY_DEFAULT_EVENT_METHODS(GlobalCS, SpatialReference);
 
     virtual SpatialReference::Ptr getRoot() override;
     Eigen::Affine3d transformationToRoot() const override;

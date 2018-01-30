@@ -13,6 +13,7 @@ namespace sempr { namespace entity {
 class LocalCS : public SpatialReference {
 public:
     using Ptr = std::shared_ptr<LocalCS>;
+    ENTITY_DEFAULT_EVENT_METHODS(LocalCS, SpatialReference);
 
     LocalCS();
 

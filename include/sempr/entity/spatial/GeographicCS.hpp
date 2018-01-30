@@ -15,13 +15,16 @@ namespace sempr { namespace entity {
 class GeographicCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<GeographicCS>;
+    ENTITY_DEFAULT_EVENT_METHODS(GeographicCS, GlobalCS);
+
     SpatialReference::Ptr getRoot() override;
     Eigen::Affine3d transformationToRoot() const override;
     Eigen::Affine3d transformationFromRoot() const override;
 
     /**
         Create a geographic coordinate system based on a well known text,
-        e.g. "WGS84", "WGS72", "NAD27", "NAD83" or any "EPSG:n"
+        e.g. "WGS84", "WGS72", "NAD27", "NAD83" or any "EPSG:n" that points to a geographic
+        reference frame.
     */
     GeographicCS(const std::string& name);
     GeographicCS(const std::string& name, const core::IDGenBase*);

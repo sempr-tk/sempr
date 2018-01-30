@@ -7,6 +7,8 @@
 namespace sempr { namespace entity {
 
 /**
+TODO geometry: methods to assign / change ref systems
+
     This class represents spatial reference systems. It is used to describe relations between
     geometries: Every geometry is bound to a SpatialReference, and every SpatialReference is either
     1. a geographic reference system, which is purely lat/lon and cannot be chained
@@ -19,6 +21,7 @@ namespace sempr { namespace entity {
 class SpatialReference : public Entity {
 public:
     using Ptr = std::shared_ptr<SpatialReference>;
+    ENTITY_DEFAULT_EVENT_METHODS(SpatialReference, Entity);
 
     /// get the root of this reference system (not the parent!)
     /// not const -- might return "shared_from_this()"...
