@@ -99,7 +99,12 @@ SpatialReference::Ptr LocalCS::getParent() const
     return parent_;
 }
 
-void LocalCS::setParent(SpatialReference::Ptr other)
+void LocalCS::setParent(LocalCS::Ptr other)
+{
+    parent_ = other;
+}
+
+void LocalCS::setParent(ProjectionCS::Ptr other)
 {
     parent_ = other;
 }

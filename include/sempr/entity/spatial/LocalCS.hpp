@@ -2,6 +2,8 @@
 #define SEMPR_ENTITY_SPATIAL_LOCALCS_HPP_
 
 #include <sempr/entity/spatial/SpatialReference.hpp>
+#include <sempr/entity/spatial/ProjectionCS.hpp>
+
 
 namespace sempr { namespace entity {
 
@@ -32,7 +34,8 @@ public:
 
     // set/get the parent
     SpatialReference::Ptr getParent() const;
-    void setParent(SpatialReference::Ptr);
+    void setParent(LocalCS::Ptr);
+    void setParent(ProjectionCS::Ptr);
 
 
     /**
