@@ -2,6 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_GEOMETRY_HPP_
 
 #include <sempr/entity/Entity.hpp>
+#include <sempr/entity/spatial/SpatialReference.hpp>
 #include <ogr_geometry.h>
 
 
@@ -28,10 +29,23 @@ public:
     // which again leads to compiler errors.
     virtual OGRGeometry* geometry() { return NULL; };
 
-    // TODO spatial reference!
+    /**
+        Assigns this geometry to the given reference frame. No transformations will be done.
+    */
+    void setCS(SpatialReference::Ptr cs);
+
+    /** returns the currently set SpatialReference */
+    SpatialReference::Ptr getCS() const;
+
+    /**
+        Transforms this geometry into the new reference frame.
+        \return false on error
+    */
+    bool transformToCS(SpatialReference::Ptr cs);
 
 private:
     friend class odb::access;
+    SpatialReference::Ptr referenceFrame_;
 };
 
 }}
