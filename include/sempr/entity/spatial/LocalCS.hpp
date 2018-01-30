@@ -54,9 +54,6 @@ public:
     void setTranslation(double x, double y, double z);
     void setTranslation(const Eigen::Vector3d& trans);
 
-    // TODO: implement setter!
-    // TODO: implement (de-)serialization!
-
 
     // get the transformation to the parent
     Eigen::Affine3d getTransform() const;
