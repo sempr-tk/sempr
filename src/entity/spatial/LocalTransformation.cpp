@@ -24,6 +24,9 @@ int LocalTransformation::Transform(int nCount, double *x, double *y, double *z)
 
 int LocalTransformation::TransformEx(int nCount, double *x, double *y, double *z, int *pabSuccess)
 {
+    // note: gdal always gives us a z-vector, too, regardless the actual type of point.
+    // but it works nevertheless: no measurements are overriden, not z-coordinate set by accident,
+    // the interpretation of the point stays valid.
     if (z) {
         tf3D(nCount, x, y, z, pabSuccess);
     } else {
@@ -58,7 +61,7 @@ void LocalTransformation::tf2D(int nCount, double *x, double *y, int *pabSuccess
     tx = mat_.matrix().coeff(0, 3);
     ty = mat_.matrix().coeff(1, 3);
 
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int i = 0; i < nCount; i++)
     {
         double tmpX = x[i];
@@ -101,7 +104,8 @@ void LocalTransformation::tf3D(int nCount, double *x, double *y, double *z, int 
     ty = mat_.matrix().coeff(1, 3);
     tz = mat_.matrix().coeff(2, 3);
 
-    #pragma omp parallel for
+    // TODO: Why does omp make this slow, even for large number of points?
+    // #pragma omp parallel for
     for (int n = 0; n < nCount; n++)
     {
         double tmpX = x[n];

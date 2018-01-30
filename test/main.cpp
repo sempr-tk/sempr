@@ -22,9 +22,25 @@ using namespace sempr::query;
 #include <sempr/entity/spatial/Point.hpp>
 #include <Point_odb.h>
 
+#include <sempr/entity/spatial/GeometryCollection.hpp>
+
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
 #include <cpl_conv.h> // CPLFree for kml export of geometries
+
+#include <sempr/entity/spatial/LocalCS.hpp>
+
+#ifndef M_PI
+#   define M_PI 3.141592653589793
+#endif
+
+void print(OGRGeometry* p)
+{
+    char* str;
+    p->exportToWkt(&str, wkbVariantIso);
+    std::cout << str << '\n';
+    CPLFree(str);
+}
 
 int main(int argc, char** args)
 {
@@ -44,39 +60,28 @@ int main(int argc, char** args)
     c.addModule(debug);
     c.addModule(updater);
 
-    for (int i = 0; i < 7; i++)
-    {
-        // create and insert a point
-        Point::Ptr p(new Point());
-        p->geometry()->setCoordinateDimension(3);
-        p->geometry()->setX(1);
-        p->geometry()->setY(2);
-        p->geometry()->setZ(3);
-        p->geometry()->setMeasured(true);
-        p->geometry()->setM(1.23);
-        c.addEntity(p);
+
+    LocalCS::Ptr root(new LocalCS());
+    LocalCS::Ptr frame(new LocalCS());
+    frame->setParent(root);
+    frame->setRotation(0, 0, 1, M_PI/2.);
+    frame->setTranslation(5, 6, 7);
+
+    GeometryCollection::Ptr coll(new GeometryCollection());
+    coll->setCS(frame);
+
+    std::cout << "insert..." << '\n';
+    for (size_t i = 0; i < 100000000; i++) {
+        OGRPoint* pt = (OGRPoint*) OGRGeometryFactory::createGeometry(wkbPointZM);
+        pt->setX(i); pt->setY(i);
+        coll->geometry()->addGeometryDirectly(pt);
     }
 
-    {
-        // load all entities
-        std::vector<Entity::Ptr> entities;
-        storage->loadAll(entities);
-        for (auto e : entities) e->loaded();
-
-        // query for points
-        ObjectQuery<Point>::Ptr query(new ObjectQuery<Point>());
-        c.answerQuery(query);
-        std::cout << "found " << query->results.size() << " points." << '\n';
-        for (auto r : query->results) {
-            char* str;
-            r->geometry()->exportToWkt(&str, wkbVariantIso);
-            std::cout << "point: " << str << '\n';
-            CPLFree(str);
-        }
-    }
-
-
-
+    // print(coll->geometry());
+    std::cout << "transform..." << '\n';
+    coll->transformToCS(root);
+    std::cout << "done." << '\n';
+    // print(coll->geometry());
 
     return 0;
 }
