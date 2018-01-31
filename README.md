@@ -237,18 +237,30 @@ This snippet maps to the following set of triples:
 By using an `RDFPropertyMap` other entites are able to store their information and provide them in an RDFEntity without much redundancy and overhead. Whether you want to use the `RDFPropertyMap` exclusively or just use it to store otherwise transient data members in (during prePeresist/preUpdate/postLoad) is up to you -- as long as the map gets the values they are available to (optional, not yet implemented) reasoners.
 
 ### Geometry
-To store geometric data, SEMPR relies on [GDAL](http://www.gdal.org/), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. The class hierarchy of `OGRGeometry` is mirrored in entities with the `Geometry`-base-class. Then entity-classes simply wrap a corresponding geometry: `entity::Point` contains a `OGRPoint*`etc.
+To store geometric data, SEMPR relies on [GDAL](http://www.gdal.org/), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. The class hierarchy of `OGRGeometry` is mirrored in entities with the `Geometry`-base-class. The entity-classes simply wrap a corresponding geometry: `entity::Point` contains an `OGRPoint*`etc.
 
 #### Spatial reference systems / coordinate systems
-**TODO**: Implement this stuff!
-There will be to layers of reference systems:
+Geometric data is not always stored in the same global reference system. In some cases it might be even beneficial to create local coordinate systems that are related to each other: If a parent system is changed, the children stay in relative position/orientation to their parent (and change on a more global scale). In order to support such chains and different reference systems -- even geographic ones -- the following distinctions have been made, and classes have been implemented.
 ##### Global references
-Geospatial referenced data, either in a geographic reference system (e.g. WGS84, interpret "x/y" of a point as "lat/lon" (or "lon/lat"?)), or in a projected reference system. The latter will project a plane onto a single point (lat/long) of the globe, and every coordinate within this system is in "x/y/z" relative to that point, in the frame of the plane. This can be useful e.g. to represent a corn-field: A polygon of (x/y)-coordinates, but in a coordinate system that is tied to a position on the globe in (lat/lon).
+Global reference systems inherit from the `GlobalCS`-class and are implicitly linked to each other, with the earth as a common root. Since "earth" is not modeled explicitely, the global references are also referred to as "root reference systems". Currently, they are supported through two classes: `GeographicCS` models geographic coordinate systems which are based on latitude and longitude coordinates. They do cannot be chained with other reference systems: How would an affine transformation relative to "WGS84" make any sense?
+
+In most cases you will want to represent data that is not directly aquired in (lon lat) but rather (x y z) coordinates, but which may be linked to a specific geographic location. This is what a `ProjectionCS` is used for: It defines a reference system projected to/from an underlying geographic one. Currently implemented are UTM-frames (*note: pure UTM,* **not** *MGRS!*) and equirectangular projections. The latter can be attached to any (lat lon) coordinate and defines a plane that touches the globe at that location. Since at this point the coordinates of any geometry attached to the coordinate system is interpreted as (x y z), it is possible to attach local reference systems to it.
 ##### Local references
-Another use case for reference systems is to model the fact that some objects are physically tied to each other. A screwdriver might be located on/in a container, and if we move the container, we move the screwdriver with it. What we need to represent is an affine transformation between two reference systems, with the root being a projected (global) reference system. GDAL already supports geographic and projected reference systems, and the conversion of geometries between those. What we need to add is a service that allows the transformation in local coordinate frames, too. This will be done by a **GeometryCache**.
+Local reference systems simply define affine transformations (currently only rotation and translation) between each other, every `LocalCS` having at most one parent coordinate system, which can be another `LocalCS` or a `ProjectionCS`.
+
+##### Geometry transformation
+The `Geometry`-class implements methods to set the current reference systems as well as transforming it into another one. There are a few things that can go wrong during `Geometry::transformToCS`, so it may throw an exception on you. If it does, the geometry remains in a valid, unchanged state.
+
+There exists some computational overhead for the transformations: First of all, the transformation is computed whenever it is needed, which means that the tree of reference frames is traversed from the source and target systems to their respective roots -- which shouldn't be too expensive. After that, there are two possibilities:
+
+1. The root coordinate systems are the same. In this case, one full transformation can be computed (source --> root --> target) and applied to the geometry in one iteration over its coordinates.
+2. The root coordinate systems are different. Since GDAL takes care of the transformation between them, and the local systems are an addition of sempr, we need three steps to transform the geometry: 
+	1. Transform from source local to source root
+	2. Let GDAL transform it from source root to target root
+	3. Transform from target root to target
 
 
-#### Implementation details
+#### Serialization
 The `traits-sqlite-geometry.hxx` implements a traits-class for `OGRGeometry*` with templated methods to store any pointer to an `OGRGeometry` or derived class. Currently, only a selected subset of GDALs geometries is supported, but serialization support is easily extended by inheriting from this traits-class: E.g., the line:
 
 ```c++
