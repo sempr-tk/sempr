@@ -50,6 +50,7 @@ namespace sempr { namespace query {
     template <class T>
     class ObjectQuery : public ObjectQueryBase {
     public:
+        using Ptr = std::shared_ptr<ObjectQuery<T> >;
         std::vector<std::shared_ptr<T> > results;
 
         void consider(storage::DBObject::Ptr object) override

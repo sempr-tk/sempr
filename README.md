@@ -248,6 +248,32 @@ m("type", rdf::baseURI()) = RDFResource( "<" + rdf::baseURI() + "Person>" );
 ```
 > Please note the round brackets as c++ does not allow multiple arguments for the square-bracket-operator. For the single-argument version you may use any type: `m["foo"]` and `m("foo")` are interchangable.
 
+### Geometry
+To store geometric data, SEMPR relies on [GDAL](http://www.gdal.org/), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. The class hierarchy of `OGRGeometry` is mirrored in entities with the `Geometry`-base-class. Then entity-classes simply wrap a corresponding geometry: `entity::Point` contains a `OGRPoint*`etc.
+
+#### Spatial reference systems / coordinate systems
+**TODO**: Implement this stuff!
+There will be to layers of reference systems:
+##### Global references
+Geospatial referenced data, either in a geographic reference system (e.g. WGS84, interpret "x/y" of a point as "lat/lon" (or "lon/lat"?)), or in a projected reference system. The latter will project a plane onto a single point (lat/long) of the globe, and every coordinate within this system is in "x/y/z" relative to that point, in the frame of the plane. This can be useful e.g. to represent a corn-field: A polygon of (x/y)-coordinates, but in a coordinate system that is tied to a position on the globe in (lat/lon).
+##### Local references
+Another use case for reference systems is to model the fact that some objects are physically tied to each other. A screwdriver might be located on/in a container, and if we move the container, we move the screwdriver with it. What we need to represent is an affine transformation between two reference systems, with the root being a projected (global) reference system. GDAL already supports geographic and projected reference systems, and the conversion of geometries between those. What we need to add is a service that allows the transformation in local coordinate frames, too. This will be done by a **GeometryCache**.
+
+
+#### Implementation details
+The `traits-sqlite-geometry.hxx` implements a traits-class for `OGRGeometry*` with templated methods to store any pointer to an `OGRGeometry` or derived class. Currently, only a selected subset of GDALs geometries is supported, but serialization support is easily extended by inheriting from this traits-class: E.g., the line:
+
+```c++
+template <> class value_traits<OGRPolygon*, id_blob> : public value_traits<OGRGeometry*, id_blob> {};
+```
+
+enables serialization of `OGRPolygon*` in binary form (WKB). In your entities, use e.g.:
+```c++
+#pragma db type("BLOB")
+OGRPolygon* polygon_;
+```
+
+
 ## Events
 
 ### EventBroker

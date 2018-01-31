@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: ubuntu:xenial
+    environment:
+      LD_LIBRARY_PATH=/usr/local/lib
     steps:
       - checkout
       - run: apt-get update -qq
@@ -12,6 +14,25 @@ jobs:
       - run: apt-get install -y -qq pkg-config
       - run: apt-get install -y -qq libsoprano-dev
       - run: apt-get install -y -qq qt4-default
+      - run: apt-get install -y -qq libgeos-dev
+      - run: apt-get install -y -qq git
+      - restore_cache:
+          keys:
+            - gdal-2.2.3-cache
+      - run:
+          name: Install GDAL
+          command: |
+            git clone https://github.com/OSGeo/gdal.git -b tags/2.2.3 || echo "gdal repo already present"
+            cd gdal/gdal 
+            ./configure -with-geos=yes
+            make -j8
+            make install
+      - save_cache:
+          key: gdal-2.2.3-cache
+          paths:
+            - gdal
       - run: mkdir build
+      - run: echo $LD_LIBRARY_PATH
       - run: cd build && cmake .. && make -j8
+      - run: ldd build/test/sempr_test_bin | grep gdal
       - run: cd build && ./test/sempr_test_bin

@@ -1,0 +1,26 @@
+#include <sempr/entity/spatial/GeometryCollection.hpp>
+#include <GeometryCollection_odb.h>
+
+namespace sempr { namespace entity {
+
+GeometryCollection::GeometryCollection() : GeometryCollection(new core::IDGen<GeometryCollection>())
+{
+}
+
+GeometryCollection::GeometryCollection(const core::IDGenBase* idgen)
+    : Geometry(idgen)
+{
+    this->setDiscriminator<GeometryCollection>();
+    geometry_ = static_cast<OGRGeometryCollection*>(OGRGeometryFactory::createGeometry(wkbGeometryCollection));
+}
+
+GeometryCollection::~GeometryCollection()
+{
+    OGRGeometryFactory::destroyGeometry(geometry_);
+}
+
+OGRGeometryCollection* GeometryCollection::geometry() {
+    return geometry_;
+}
+
+}}

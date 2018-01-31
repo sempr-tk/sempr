@@ -1,5 +1,5 @@
-#ifndef SEMPR_TRAITS_SQLITE_HXX
-#define SEMPR_TRAITS_SQLITE_HXX
+#ifndef SEMPR_TRAITS_SQLITE_UUID_HXX
+#define SEMPR_TRAITS_SQLITE_UUID_HXX
 
 #include <odb/sqlite/traits.hxx>
 #include <boost/uuid/uuid.hpp>
@@ -13,7 +13,7 @@
 #include <iostream>
 
 namespace odb { namespace sqlite {
-    
+
 
 template <>
 class value_traits<boost::uuids::uuid, id_text>
@@ -22,7 +22,7 @@ public:
     typedef boost::uuids::uuid value_type;
     typedef boost::uuids::uuid query_type;
     typedef details::buffer image_type;
-    
+
     static void
     set_value(value_type& uuid, const image_type& b, std::size_t n, bool is_null)
     {
@@ -32,11 +32,11 @@ public:
         } else {
             std::memset(uuid.data, 0, 16);
         }
-        
+
         // called multiple times per load. why?
         // std::cout << "set_value: " << uuid << " is null: " << is_null << " size: " << n << '\n';
     }
-    
+
     static void
     set_image(image_type& b, std::size_t& n, bool& is_null, const value_type& uuid)
     {
@@ -44,7 +44,7 @@ public:
         is_null = false;
         std::string tmp = boost::uuids::to_string(uuid);
         n = tmp.size();
-        
+
         if (b.capacity() < n) {
             b.capacity(n);
         }
@@ -52,10 +52,10 @@ public:
     }
 };
 
-    
+
 } /* sqlite */
-    
+
 } /* odb */
 
 
-#endif /* end of include guard: SEMPR_TRAITS_SQLITE_HXX */
+#endif /* end of include guard: SEMPR_TRAITS_SQLITE_UUID_HXX */
