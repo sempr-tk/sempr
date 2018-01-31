@@ -71,7 +71,7 @@ int main(int argc, char** args)
     coll->setCS(frame);
 
     std::cout << "insert..." << '\n';
-    for (size_t i = 0; i < 100000000; i++) {
+    for (size_t i = 0; i < 10000; i++) {
         OGRPoint* pt = (OGRPoint*) OGRGeometryFactory::createGeometry(wkbPointZM);
         pt->setX(i); pt->setY(i);
         coll->geometry()->addGeometryDirectly(pt);

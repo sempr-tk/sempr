@@ -688,6 +688,70 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
 
         BOOST_CHECK_CLOSE(p->geometry()->getX(),  461344, 0.0001);
         BOOST_CHECK_CLOSE(p->geometry()->getY(), 5481745, 0.0001);
-
     }
+
+    BOOST_AUTO_TEST_CASE(geometry_transformation_local)
+    {
+        LocalCS::Ptr root(new LocalCS());
+        LocalCS::Ptr frame(new LocalCS());
+        frame->setParent(root);
+        frame->setRotation(0, 0, 1, M_PI/2.); // 90 deg round Z-axis
+        frame->setTranslation(1, 0, 0); // shift 1 along X
+
+        Point::Ptr p(new Point());
+        p->geometry()->setX(1);
+        p->geometry()->setY(0);
+        // apply rotation
+        p->setCS(frame);
+        p->transformToCS(root);
+        // expect (1 1)
+        BOOST_CHECK_CLOSE(p->geometry()->getX(), 1, 0.000001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), 1, 0.000001);
+    }
+
+    BOOST_AUTO_TEST_CASE(geometry_transformation_global_local_combined)
+    {
+        /*
+            Create two root-coordinate systems:
+            1. wgs84
+            2. equirectangular projection at 52N 8E
+
+            Then, apply a local chain to (2):
+
+            (2) --rotate left--> (3) --translate (100, 200)--> (4) --rotate right--> (5)
+
+            lat: 52, lon: 8 in (1)
+            is (0 0) in (2)
+            is (0 0) in (3)
+            is (-100, -200) in (4)
+            is (200, -100) in (5)
+        */
+        GeographicCS::Ptr wgs84(new GeographicCS("WGS84"));
+        ProjectionCS::Ptr equi = ProjectionCS::CreateEquirect(52., 8., "WGS84");
+
+        LocalCS::Ptr localRot(new LocalCS());
+        localRot->setParent(equi);
+        localRot->setRotation(0, 0, 1, M_PI/2.);
+
+        LocalCS::Ptr localTrans(new LocalCS());
+        localTrans->setParent(localRot);
+        localTrans->setTranslation(100, 200, 0);
+        localTrans->setRotation(0, 0, 1, -M_PI/2.);
+
+
+        /*
+            Create a point in WGS84 at the center of the equirectangular projection.
+            --> (0,0) in equi --> (0, 0) in rot --> (200, -100) in transrot
+        */
+        Point::Ptr p(new Point());
+        std::string latlon = "POINT (8 52)"; // lon, lat
+        char* tmp = (char*)latlon.c_str();
+        p->geometry()->importFromWkt(&tmp);
+
+        p->setCS(wgs84);
+        p->transformToCS(localTrans);
+        BOOST_CHECK_CLOSE(p->geometry()->getX(),  200, 0.0000001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), -100, 0.0000001);
+    }
+
 BOOST_AUTO_TEST_SUITE_END()
