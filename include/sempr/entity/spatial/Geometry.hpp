@@ -39,9 +39,25 @@ public:
 
     /**
         Transforms this geometry into the new reference frame.
-        \return false on error
+        \throws TransformException if the geometry cannot be transformed.
+            Reasons may be:
+                - no geometry
+                - target/source null
+                - different root CS that are not global
+                - transform between two global frames not known to GDAL/proj4
     */
-    bool transformToCS(SpatialReference::Ptr cs);
+    void transformToCS(SpatialReference::Ptr cs);
+
+    /** Exception that may be thrown during transformToCS. */
+    class TransformException : public std::exception {
+    private:
+        std::string message_;
+    public:
+        explicit TransformException(const std::string& m) : message_(m) {}
+        virtual const char* what() const throw() {
+            return message_.c_str();
+        }
+    };
 
 private:
     friend class odb::access;

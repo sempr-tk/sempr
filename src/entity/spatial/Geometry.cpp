@@ -29,11 +29,11 @@ SpatialReference::Ptr Geometry::getCS() const
     return referenceFrame_;
 }
 
-bool Geometry::transformToCS(SpatialReference::Ptr cs)
+void Geometry::transformToCS(SpatialReference::Ptr cs)
 {
-    if (!this->geometry()) return false;
-    if (!this->referenceFrame_) return false;
-    if (!cs) return false;
+    if (!this->geometry()) throw TransformException("no geometry to transform");
+    if (!this->referenceFrame_) throw TransformException("source reference frame invalid");
+    if (!cs) throw TransformException("target reference frame invalid");
 
     auto rootThis = referenceFrame_->getRoot();
     auto rootOther = cs->getRoot();
@@ -52,21 +52,23 @@ bool Geometry::transformToCS(SpatialReference::Ptr cs)
     // 2. the geometries have different roots (e.g., one is on WGS84,
     //    and the other in a local coordinate system relative to UTM 32N)
     else {
-        GlobalCS::Ptr globalThis = std::dynamic_pointer_cast<GlobalCS>(referenceFrame_);
-        GlobalCS::Ptr globalOther = std::dynamic_pointer_cast<GlobalCS>(cs);
+        GlobalCS::Ptr globalThis = std::dynamic_pointer_cast<GlobalCS>(rootThis);
+        GlobalCS::Ptr globalOther = std::dynamic_pointer_cast<GlobalCS>(rootOther);
 
         if (!globalThis || !globalOther)
         {
             // we have two different roots that are not both of type
             // GlobalCS? no way to transform between them.
-            return false;
+            std::cout << globalThis.get() << '\n';
+            std::cout << globalOther.get() << '\n';
+            throw TransformException("different root systems that are not global");
         }
 
         // both are global!
         auto transform = globalThis->to(globalOther);
         if (!transform) {
             // transformation unknown to GDAL / proj4?!
-            return false;
+            throw TransformException("transform unknown to GDAL/proj4");
         }
         // 3 steps:
         // 1: this from ref to this->getRoot()
@@ -83,7 +85,6 @@ bool Geometry::transformToCS(SpatialReference::Ptr cs)
 
     // set new reference frame
     referenceFrame_ = cs;
-    return true;
 }
 
 
