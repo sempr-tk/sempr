@@ -9,8 +9,19 @@ RDFEntity::RDFEntity(const core::IDGenBase* idgen)
     setDiscriminator<RDFEntity>();
 }
 
+
 RDFEntity::RDFEntity() : RDFEntity(new core::IDGen<RDFEntity>())
 {
+}
+
+std::vector<Triple>::const_iterator RDFEntity::begin() const
+{
+    return triples_.begin();
+}
+
+std::vector<Triple>::const_iterator RDFEntity::end() const
+{
+    return triples_.end();
 }
 
 
