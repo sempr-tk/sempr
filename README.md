@@ -234,7 +234,19 @@ This snippet maps to the following set of triples:
 (subject <http://baseURI/baz> "Hello, World!"^^xsd:string)
 (subject <http://baseURI/uncle> <http://baseURI/[persons-uuid]>)
 ```
-By using an `RDFPropertyMap` other entites are able to store their information and provide them in an RDFEntity without much redundancy and overhead. Whether you want to use the `RDFPropertyMap` exclusively or just use it to store otherwise transient data members in (during prePeresist/preUpdate/postLoad) is up to you -- as long as the map gets the values they are available to (optional, not yet implemented) reasoners.
+By using an `RDFPropertyMap` other entites are able to store their information and provide them in an RDFEntity without much redundancy and overhead. Whether you want to use the `RDFPropertyMap` exclusively or just use it to store otherwise transient data members (during prePeresist/preUpdate/postLoad) is up to you -- as long as the map gets the values they are available to (optional) reasoners.
+
+#### Problems / Usage
+The RDFPropertyMap is able to store literal values as well as pointers to other objects which will be represented as rdf resources. One problem arises when trying to store resources that are not pointers: How can we distinguish between the string `<http://example.com/foo>` and the resource uri (which looks the same)? The solution chosen here is the following: The RDFPropertyMap assumes that objects are to be interpreted as literal values, except when told otherwise. To prevent the resource string to be interpreted as a literal string (and thus stored and given to the reasoners as `"<http://example.com/foo>"^^<http://www.w3.org/2001/XMLSchema#string>`) you need to specify that it is indeed a resource:
+```c++
+m["foo"] = RDFResource( "<http://example.com/foo>" );
+```
+
+Furthermore you might want to save triples with a property that does not belong to the namespace that you specified in the `baseURI` of the property map. This might be the case if you want to add e.g. just a note on the type of object, i.e. a triple like `(sempr:Person_42 rdf:type sempr:Person)`. This can be achieved by explicitely specifying the baseURI of the property you want to access:
+```c++
+m("type", rdf::baseURI()) = RDFResource( "<" + rdf::baseURI() + "Person>" );
+```
+> Please note the round brackets as c++ does not allow multiple arguments for the square-bracket-operator. For the single-argument version you may use any type: `m["foo"]` and `m("foo")` are interchangable.
 
 ### Geometry
 To store geometric data, SEMPR relies on [GDAL](http://www.gdal.org/), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. The class hierarchy of `OGRGeometry` is mirrored in entities with the `Geometry`-base-class. Then entity-classes simply wrap a corresponding geometry: `entity::Point` contains a `OGRPoint*`etc.
@@ -295,6 +307,7 @@ public:
 ### Query
 There are two ways of adding query-answering-capabilities to a module: The base class `Module` provides a default implementation of `virtual void Module::answer(Query::Ptr);` in which it simply calls `this->notify(query)`. This is possible because `Query`derives from `Observable` just like `Event`. Therefore you can use the `addOverload`-mechanism that has been described before to also register query-types.
 
+#### ObjectQuery
 There may be a need to handle things a bit differently: E.g., the `ActiveObjectStore` supports the `ObjectQueryBase`-type which is inherited by the templated `ObjectQuery<Entity>` - queries. Since the addOverload-mechanism only works for exact types and the ActiveObjectStore cannot know all types of entities in advance, it overrides the `answer`-method. This way it can implement the type-check using a dynamic cast and thus hande any query derived from `ObjectQueryBase`.
 
 **TODO: This is a different way to handle the same problem as we encountered with events. For events, we decided to fire one event of every inherited type explicitly. Can one method profit from the other? Is there a way to combine this, use one consistent strategy?**
@@ -317,6 +330,50 @@ for (auto p : q->results) {
 }
 ```
 
+#### SPARQLQuery
+The `SopranoModule` keeps track of rdf triples and responds to SPARQL-queries. The `SPARQLQuery`-class uses a default list of prefixes to resolve `rdf`, `rdfs`, `owl`, `xsd` and (of course) `sempr` to their corresponding URIs.
+
+Excerpt from the test cases:
+```c++
+// [...]
+// on initialization, add the SopranoModule
+SopranoModule::Ptr semantic(new SopranoModule());
+core.addModule(semantic);
+
+// [...]
+
+// insert a few persons
+{
+    for (int i = 10; i < 20; i++) {
+        Person::Ptr p(new Person());
+        p->age(i);
+        p->height(1.5 + 0.01*i);
+        core.addEntity(p);
+    }
+}
+
+// query for persons of age 18 or older and get their heights
+{
+    SPARQLQuery::Ptr query(new SPARQLQuery());
+    query->query = 
+    	"SELECT * WHERE { " \
+            "?p rdf:type sempr:Person." \
+            "?p sempr:age ?age ." \
+             "FILTER(?age >= 18) ." \
+            "?p sempr:height ?height ." \
+         "}";
+     core.answerQuery(query);
+
+     // there should be 2 results, aged 18 and 19
+     for (auto r : query->results) {
+        // std::cout << "Query Result: " << r["p"] << " of age " << r["age"] << " is " << r["height"] << " m high." << '\n';
+        for (auto b : r) {
+            std::cout << b.first << "=" << b.second << "  |  ";
+        }
+        std::cout << std::endl;
+    }
+}
+```
 
 
 ## Pitfalls
