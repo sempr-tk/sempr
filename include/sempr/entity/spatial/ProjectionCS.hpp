@@ -39,7 +39,7 @@ public:
         lon/lat coordinates in the chosen base system.
         \return empty ptr (NULL) on error, else a new ProjectionCS-entity.
     */
-    static ProjectionCS::Ptr CreateEquirect(double lon, double lat, const std::string& base = "WGS84");
+    static ProjectionCS::Ptr CreateEquirect(double lat, double lon, const std::string& base = "WGS84");
 
 private:
     ProjectionCS(); // just for ODB.
