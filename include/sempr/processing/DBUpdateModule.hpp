@@ -12,10 +12,10 @@ class DBUpdateModule : public Module {
 public:
     using Ptr = std::shared_ptr<DBUpdateModule>;
     DBUpdateModule(storage::Storage::Ptr storage);
-    
+
     /** upon receiving a changed-event, update the database */
     void process(entity::Entity::Event::Ptr e);
-    
+
 private:
     storage::Storage::Ptr storage_;
 };

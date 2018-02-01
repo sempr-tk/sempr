@@ -24,6 +24,9 @@ public:
     ODBStorage(const std::string& dbName = "sempr_sqlite.db", bool clearDatabase = false);
     ~ODBStorage();
 
+    /** save bulk data */
+    void save( std::vector<DBObject::Ptr>& data ) override;
+
     /** save data */
     void save( DBObject::Ptr data ) override;
 
@@ -39,7 +42,6 @@ public:
         t.commit();
         return o;
     }
-
 
     /**
         Load all instances of a given type.

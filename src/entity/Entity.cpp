@@ -200,8 +200,6 @@ void Entity::preLoad(odb::database& db)
     newChildren_.clear();
 }
 
-
-
 void Entity::handleChildrenPre(odb::database &db) const
 {
     for (auto child : newChildren_)
@@ -211,7 +209,7 @@ void Entity::handleChildrenPre(odb::database &db) const
         // children itself that it wants to fire events for in the cause of
         // its "persist".
         child->broker_ = broker_;
-        db.persist(child);
+        //db.persist(child);
     }
 }
 
@@ -221,7 +219,7 @@ void Entity::handleChildrenPost(odb::database &db) const
     for (auto child : newChildren_)
     {
         child->setParent(shared_from_this());
-        db.update(child);
+        //db.update(child);
     }
 
     // no need to do this ever again:

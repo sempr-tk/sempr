@@ -47,69 +47,77 @@ int main(int argc, char** args)
     break;
   }
 
-  ODBStorage::Ptr storage;
 
-  if (inmemory){
-    storage = std::make_shared<ODBStorage>(":memory:");
-  }
-  else {
-    storage = std::make_shared<ODBStorage>();
-  }
-
-  //DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
-  //ActiveObjectStore::Ptr active( new ActiveObjectStore() );
-
-  sempr::core::IDGenerator::getInstance().setStrategy(
-      std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
-  );
-
-  sempr::core::Core c(storage);
-  //c.addModule(active);
-  //c.addModule(updater);
-
-auto start = std::chrono::high_resolution_clock::now();
-auto finish = std::chrono::high_resolution_clock::now();
-std::chrono::duration<double> elapsed;
-
-  std::cout << "insert "<< numInsert << " objects";
-  start = std::chrono::high_resolution_clock::now();
   {
-    //INSERT
-    for (int i = 0; i < numInsert; i++) {
-        Person::Ptr p(new Person());
-        p->age(0);
-        c.addEntity(p);
+    ODBStorage::Ptr storage;
+
+    if (inmemory){
+      storage = std::make_shared<ODBStorage>(":memory:",true);
     }
-  }
-  finish = std::chrono::high_resolution_clock::now();
-  elapsed = finish - start;
-  std::cout << "done in:\t" << elapsed.count() << " s\n";
-
-  /*//active->printStats();
-  std::vector<Person::Ptr> persons;
-
-  std::cout << "load "<< numInsert << " objects";
-  start = std::chrono::high_resolution_clock::now();
-  {
-    //LOAD
-    storage->loadAll(persons);
-  }
-  finish = std::chrono::high_resolution_clock::now();
-  elapsed = finish - start;
-  std::cout << "done in:\t" << elapsed.count() << " s\n";
-
-  std::cout << "update "<< numInsert << " objects";
-  start = std::chrono::high_resolution_clock::now();
-  {
-    //UPDATE
-    for (auto p : persons) {
-      p->loaded(); // no changed-events before announcement!
-      p->age(p->age()+1);
+    else {
+      storage = std::make_shared<ODBStorage>();
     }
+
+    //DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
+    //DebugModule::Ptr debug(new DebugModule());
+    ActiveObjectStore::Ptr active( new ActiveObjectStore(storage) );
+
+    sempr::core::IDGenerator::getInstance().setStrategy(
+        std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
+    );
+
+    sempr::core::Core c(storage);
+    c.addModule(active);
+    //c.addModule(debug);
+    //c.addModule(updater);
+
+    auto start = std::chrono::high_resolution_clock::now();
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed;
+
+    std::cout << "insert "<< numInsert << " objects ";
+    start = std::chrono::high_resolution_clock::now();
+    {
+      //INSERT
+      for (int i = 0; i < numInsert; i++) {
+          Person::Ptr p(new Person());
+          p->age(0);
+          c.addEntity(p);
+      }
+
+      active->persistEntities();
+    }
+    finish = std::chrono::high_resolution_clock::now();
+    elapsed = finish - start;
+    std::cout << "done in:\t" << elapsed.count() << " s\n";
+    //sempr::core::IDGenerator::getInstance().reset();
+
+    if (inmemory){
+      storage.reset();
+      storage = std::make_shared<ODBStorage>(":memory:",true);
+    }
+    else {
+      storage.reset();
+      storage = std::make_shared<ODBStorage>();
+    }
+
+    std::cout << "insert "<< numInsert << " objects in bulk ";
+    start = std::chrono::high_resolution_clock::now();
+    {
+      //INSERT
+      for (int i = 0; i < numInsert; i++) {
+          Person::Ptr p(new Person());
+          p->age(0);
+          c.addEntity(p);
+      }
+
+      active->persistEntitiesInBulk();
+    }
+    finish = std::chrono::high_resolution_clock::now();
+    elapsed = finish - start;
+    std::cout << "done in:\t" << elapsed.count() << " s\n";
+    sempr::core::IDGenerator::getInstance().reset();
   }
-  finish = std::chrono::high_resolution_clock::now();
-  elapsed = finish - start;
-  std::cout << " done in:\t" << elapsed.count() << " s\n";
-  */
-    return 0;
+
+  return 0;
 }

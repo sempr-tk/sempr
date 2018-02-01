@@ -24,6 +24,9 @@ public:
     /** save data */
     virtual void save( DBObject::Ptr data ) = 0;
 
+    /** save bulk data */
+    virtual void save( std::vector<DBObject::Ptr>& data ) = 0;
+
     /** load a single object **/
     virtual DBObject::Ptr load( const std::string& id ) = 0;
 

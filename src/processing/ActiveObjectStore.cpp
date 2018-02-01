@@ -2,7 +2,7 @@
 
 namespace sempr { namespace processing {
 
-ActiveObjectStore::ActiveObjectStore() {
+ActiveObjectStore::ActiveObjectStore(storage::Storage::Ptr storage) : storage_(storage) {
     addOverload<entity::Entity::Event>(
         [this](entity::Entity::Event::Ptr e) { process(e); }
     );
@@ -21,8 +21,9 @@ void ActiveObjectStore::process(entity::Entity::Event::Ptr e)
     typedef core::EntityEventBase::EventType EventType;
 
     switch(e->what()) {
-        case EventType::LOADED:
         case EventType::CREATED:
+            addNewEntity(e->getEntity());
+        case EventType::LOADED:
             addEntity(e->getEntity());
             break;
         case EventType::REMOVED:
@@ -61,7 +62,25 @@ void ActiveObjectStore::answer(query::ObjectQueryBase::Ptr query)
     }
 }
 
+void ActiveObjectStore::persistEntities(){
 
+  for (auto o : newEntities_){
+    //std::cout << "send to persist: " << o->id() << std::endl;
+    storage_->save(o);
+  }
+  newEntities_.clear();
+}
+
+void ActiveObjectStore::persistEntitiesInBulk(){
+  storage_->save(newEntities_);
+  newEntities_.clear();
+}
+
+void ActiveObjectStore::addNewEntity(entity::Entity::Ptr e){
+  if (e.get()) {
+      newEntities_.push_back(e);
+  }
+}
 
 void ActiveObjectStore::addEntity(entity::Entity::Ptr e)
 {
@@ -73,6 +92,15 @@ void ActiveObjectStore::addEntity(entity::Entity::Ptr e)
 void ActiveObjectStore::removeEntity(entity::Entity::Ptr e)
 {
     if (e.get()) {
+        // remove from newEntities
+        for (auto it = newEntities_.begin(); it != newEntities_.end(); it++) {
+          if((*it)->id() == e->id()) {
+            newEntities_.erase(it);
+            break;
+          }
+        }
+
+        // remove from entities
         auto it = entities_.find(e->id());
         if (it != entities_.end()) {
             entities_.erase(it);

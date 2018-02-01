@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_SUITE(general_tests)
     ODBStorage::Ptr storage = setUpStorage(db_path,true);
 
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
-    ActiveObjectStore::Ptr active( new ActiveObjectStore() );
+    ActiveObjectStore::Ptr active( new ActiveObjectStore(storage) );
 
     Core core(storage);
     core.addModule(active);
@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_SUITE(queries)
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
         Core core(storage);
 
-        ActiveObjectStore::Ptr active(new ActiveObjectStore());
+        ActiveObjectStore::Ptr active(new ActiveObjectStore(storage));
         core.addModule(active);
 
         // query for persons

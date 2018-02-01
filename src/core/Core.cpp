@@ -22,7 +22,7 @@ void Core::addEntity(entity::Entity::Ptr entity) {
         entities_[entity->id()] = entity;
 
         // persist
-        storage_->save(entity);
+        //storage_->save(entity);
 
         // signal update
         entity->created();
