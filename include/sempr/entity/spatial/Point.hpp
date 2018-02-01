@@ -5,10 +5,7 @@
 #include <ogr_geometry.h>
 
 
-
-// TODO: do we really want another namespace-level? or just put geometry-stuff into the entity-ns
-// too? we can still keep the directory-structure, though...
-namespace sempr { namespace entity { /*namespace spatial {*/
+namespace sempr { namespace entity {
 
 /**
     A base class for all geometry entities. Contains methods to manage spatial reference systems
@@ -34,7 +31,7 @@ private:
     OGRPoint* geometry_;
 };
 
-}}/*}*/
+}}
 
 
 #endif /* end of include guard SEMPR_ENTITY_SPATIAL_POINT_HPP_ */

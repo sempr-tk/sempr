@@ -6,6 +6,9 @@ include_directories(${Soprano_INCLUDE_DIRS})
 pkg_check_modules(GDAL REQUIRED gdal)
 include_directories(${GDAL_INCLUDE_DIRS})
 
+pkg_check_modules(EIGEN REQUIRED eigen3)
+include_directories(${EIGEN_INCLUDE_DIRS})
+
 add_executable(manual_test main.cpp)
 target_link_libraries(manual_test sempr_core)
 

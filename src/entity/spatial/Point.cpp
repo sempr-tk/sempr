@@ -11,7 +11,7 @@ Point::Point(const core::IDGenBase* idgen)
     : Geometry(idgen)
 {
     this->setDiscriminator<Point>();
-    /** TODO: Test this.
+    /**
         I think we can indeed create geometry objects through their ctor, BUT:
         To load an object from wkt/wkb we use the GeometryFactory, and it is explicitely stated
         that a geometry created through the factory should be destroyed by it, too. In order to not
