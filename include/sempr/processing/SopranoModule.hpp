@@ -21,7 +21,7 @@ namespace sempr { namespace processing {
         SopranoModule();
         ~SopranoModule();
 
-        std::string type() const { return "SopranoModule"; }
+        std::string type() const override { return "SopranoModule"; }
 
         /**
             add / remove triples belonging to the event to the soprano module
@@ -36,7 +36,7 @@ namespace sempr { namespace processing {
         /**
             answer a SPARQLQuery
         */
-        void answer(query::SPARQLQuery::Ptr query);
+        void answerSPARQL(query::SPARQLQuery::Ptr query);
 
     private:
         /// all updates take place inside the base model
