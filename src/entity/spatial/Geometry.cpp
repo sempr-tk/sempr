@@ -19,6 +19,15 @@ Geometry::~Geometry()
 {
 }
 
+Geometry::Ptr Geometry::clone() const {
+    // raw clone is virtual! :)
+    return Geometry::Ptr(raw_clone());
+}
+
+Geometry* Geometry::raw_clone() const {
+    return NULL;
+}
+
 void Geometry::setCS(SpatialReference::Ptr cs)
 {
     referenceFrame_ = cs;

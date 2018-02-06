@@ -21,4 +21,14 @@ OGRSimpleCurve* SimpleCurve::geometry() {
     return NULL;
 }
 
+SimpleCurve::Ptr SimpleCurve::clone() const {
+    // raw clone is virtual! :)
+    return SimpleCurve::Ptr(raw_clone());
+}
+
+SimpleCurve* SimpleCurve::raw_clone() const
+{
+    return NULL;
+}
+
 }}

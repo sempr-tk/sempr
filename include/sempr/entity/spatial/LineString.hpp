@@ -20,10 +20,18 @@ public:
 
     OGRLineString* geometry() override;
 
+    /**
+        Get a new entity with the same geometry (copy) referring to the same instance of
+        SpatialReference.
+    */
+    LineString::Ptr clone() const;
+
 private:
     friend class odb::access;
     #pragma db type("TEXT")
     OGRLineString* geometry_;
+
+    virtual LineString* raw_clone() const override;
 };
 
 }}

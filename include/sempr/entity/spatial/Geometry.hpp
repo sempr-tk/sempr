@@ -5,7 +5,7 @@
 #include <sempr/entity/spatial/SpatialReference.hpp>
 #include <ogr_geometry.h>
 
-
+#include <type_traits>
 
 namespace sempr { namespace entity {
 
@@ -22,6 +22,7 @@ public:
 
     Geometry();
     Geometry(const core::IDGenBase*);
+
     virtual ~Geometry();
 
     // Note: I'd like this to be a pure virtual, but in that case ODB does not create a
@@ -59,7 +60,20 @@ public:
         }
     };
 
+    /**
+        Get a new entity with the same geometry (copy) referring to the same instance of
+        SpatialReference. (implemented by raw_clone)
+    */
+    Geometry::Ptr clone() const;
+
 private:
+    /**
+        Return a pointer to a clone of this. Uses the copy-constructor. To be implemented by derived
+        classes to copy the geometry and use the same SpatialReference (instance!).
+        \return nullptr "Geometry" is just an abstract concept, no need to copy this.
+    */
+    virtual Geometry* raw_clone() const;
+
     friend class odb::access;
     SpatialReference::Ptr referenceFrame_;
 };

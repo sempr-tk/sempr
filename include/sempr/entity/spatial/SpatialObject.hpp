@@ -27,6 +27,7 @@ private:
     friend class odb::access;
 
 public:
+    using Ptr = std::shared_ptr<SpatialObject>;
     SpatialObject();
     /**
         Access the GeometryCollection of this SpatialObject.

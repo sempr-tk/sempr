@@ -20,10 +20,18 @@ public:
 
     OGRPolygon* geometry() override;
 
+    /**
+        Get a new entity with the same geometry (copy) referring to the same instance of
+        SpatialReference.
+    */
+    Polygon::Ptr clone() const;
+
 private:
     friend class odb::access;
     #pragma db type("TEXT")
     OGRPolygon* geometry_;
+
+    virtual Polygon* raw_clone() const override;
 };
 
 }}

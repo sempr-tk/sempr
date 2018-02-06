@@ -39,4 +39,20 @@ OGRPoint* Point::geometry() {
     return geometry_;
 }
 
+Point::Ptr Point::clone() const {
+    // raw clone is virtual! :)
+    return Point::Ptr(raw_clone());
+}
+
+Point* Point::raw_clone() const
+{
+    Point* newInstance = new Point();
+    // set the same reference frame
+    newInstance->setCS(this->getCS());
+
+    // copy the geometry
+    *(newInstance->geometry_) = *geometry_; // use OGRGeometry copy ctor
+    return newInstance;
+}
+
 }}

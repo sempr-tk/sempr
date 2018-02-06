@@ -23,6 +23,7 @@
 
 // geometries
 #include <Geometry_odb.h>
+#include <GeometryCollection_odb.h>
 #include <Point_odb.h>
 #include <LineString_odb.h>
 #include <Polygon_odb.h>
@@ -44,6 +45,21 @@ using namespace sempr::query;
 
 #define DISCRIMINATOR(T) (odb::object_traits_impl<T, odb::id_common>::info.discriminator)
 
+
+
+std::string toString(OGRGeometry* p)
+{
+    char* str;
+    p->exportToWkt(&str, wkbVariantIso);
+    std::string s(str);
+    CPLFree(str);
+    return s;
+}
+
+void print(OGRGeometry* p)
+{
+    std::cout << toString(p) << '\n';
+}
 
 ODBStorage::Ptr setUpStorage(std::string db_path, bool reset){
 
@@ -541,6 +557,52 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(geometries)
     std::string dbfile = "test_sqlite.db";
+    BOOST_AUTO_TEST_CASE(geometries_cloneable)
+    {
+        // test if our CRTP "CloneableGeometry<class T>" works as expected.
+
+        // construct a OGRPolygon:
+        GeometryCollection::Ptr collection(new GeometryCollection());
+        float x[] = {0, 0, 1, 1};
+        float y[] = {0, 1, 1, 0};
+        for (int i = 0; i < 4; i++) {
+            OGRPoint* p = (OGRPoint*) OGRGeometryFactory::createGeometry(wkbPoint);
+            p->setX(x[i]); p->setY(y[i]);
+            collection->geometry()->addGeometryDirectly(p);
+        }
+        OGRPolygon* poly = (OGRPolygon*) collection->geometry()->ConvexHull();
+
+        // use it in a polygon:
+        Polygon::Ptr polygon(new Polygon());
+        *(polygon->geometry()) = *poly;
+        OGRGeometryFactory::destroyGeometry(poly);
+
+        // get the expected wkt output for comparisons.
+        std::string expectedWkt = toString(polygon->geometry());
+
+        // now, create different pointer to the same thing.
+        CurvePolygon::Ptr curve_polygon = polygon;
+        Geometry::Ptr geometry = polygon;
+
+        // clone them!
+        auto pclone = polygon->clone();   // Polygon::Ptr
+        auto cpclone = curve_polygon->clone(); // CurvePolygon::Ptr
+        auto gclone = geometry->clone(); // Geometry::Ptr
+
+        // change the original
+        polygon->geometry()->empty();
+
+        // print the clones
+        // print(pclone->geometry());
+        // print(cpclone->geometry());
+        // print(gclone->geometry());
+        BOOST_CHECK_EQUAL(expectedWkt, toString(pclone->geometry()));
+        BOOST_CHECK_EQUAL(expectedWkt, toString(cpclone->geometry()));
+        BOOST_CHECK_EQUAL(expectedWkt, toString(gclone->geometry()));
+
+    }
+
+
     BOOST_AUTO_TEST_CASE(geometries_insertion)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);

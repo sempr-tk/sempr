@@ -22,4 +22,14 @@ OGRSurface* Surface::geometry() {
     return NULL;
 }
 
+Surface::Ptr Surface::clone() const {
+    // raw clone is virtual! :)
+    return Surface::Ptr(raw_clone());
+}
+
+Surface* Surface::raw_clone() const
+{
+    return NULL;
+}
+
 }}

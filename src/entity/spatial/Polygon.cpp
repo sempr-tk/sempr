@@ -23,4 +23,20 @@ OGRPolygon* Polygon::geometry() {
     return geometry_;
 }
 
+Polygon::Ptr Polygon::clone() const {
+    // raw clone is virtual! :)
+    return Polygon::Ptr(raw_clone());
+}
+
+Polygon* Polygon::raw_clone() const
+{
+    Polygon* newInstance = new Polygon();
+    // set the same reference frame
+    newInstance->setCS(this->getCS());
+
+    // copy the geometry
+    *(newInstance->geometry_) = *geometry_; // use OGRGeometry copy ctor
+    return newInstance;
+}
+
 }}
