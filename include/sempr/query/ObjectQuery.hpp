@@ -45,13 +45,42 @@ namespace sempr { namespace query {
 
 
     /**
-        Query for all objects of the type specified as template parameter.
+        Query for all objects of the type specified as template parameter. As an optional parameter you may pass a function
+        with the signature
+            bool(std::shared_ptr<T>)
+        that will be used to check if an entity of type T should
+        be returned in the result list.
+
+        Example:
+        // to get all persons:
+        auto query = std::make_shared<ObjectQuery<Person> >();
+
+        // to get all persons of age 25 and above
+        auto query = std::make_shared<ObjectQuery<Person> >(
+            [](Person::Ptr p) { return p->age() >= 25; }
+        );
     */
     template <class T>
     class ObjectQuery : public ObjectQueryBase {
+    private:
+        typedef std::function<bool(std::shared_ptr<T>)> DecisionFunction_t;
+        DecisionFunction_t decision_;
     public:
         using Ptr = std::shared_ptr<ObjectQuery<T> >;
         std::vector<std::shared_ptr<T> > results;
+
+        ObjectQuery(DecisionFunction_t decisionFunction = nullptr)
+            : decision_(decisionFunction)
+        {
+        }
+
+        /// helper method to create queries with a decision-function more easily.
+        // template <typename X>
+        // static typename ObjectQuery<T, X>::Ptr create(X decisionFunction)
+        // {
+        //     typename ObjectQuery<T, X>::Ptr query(new ObjectQuery<T, X>(decisionFunction));
+        //     return query;
+        // }
 
         void consider(storage::DBObject::Ptr object) override
         {
@@ -65,7 +94,13 @@ namespace sempr { namespace query {
             if (odb::object_traits_impl<T, odb::id_common>::info.discriminator
                 == object->discriminator())
             {
-                results.push_back(std::static_pointer_cast<T>(object));
+                std::shared_ptr<T> o = std::static_pointer_cast<T>(object);
+                // add it to the result if there is no further criterion or the given decision
+                // function returns true
+                if (!decision_ || decision_(o))
+                {
+                    results.push_back(o);
+                }
             }
         }
 

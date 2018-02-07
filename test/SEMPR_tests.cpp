@@ -528,6 +528,7 @@ BOOST_AUTO_TEST_SUITE(queries)
         int numPersons = 10;
         for (int i = 0; i < numPersons; i++) {
             Person::Ptr p(new Person());
+            p->age(i);
             core.addEntity(p);
         }
 
@@ -547,6 +548,15 @@ BOOST_AUTO_TEST_SUITE(queries)
             auto q = std::make_shared<ObjectQuery<Person> >();
             core.answerQuery(q);
             BOOST_CHECK_EQUAL(q->results.size(), numPersons-1);
+        }
+
+        // test the decision-function-mechanism
+        {
+            auto q = std::make_shared<ObjectQuery<Person> >(
+                [](Person::Ptr person) { return person->age() >= 5; }
+            );
+            core.answerQuery(q);
+            BOOST_CHECK_EQUAL(q->results.size(), 5); // aged 5, 6, 7, 8, 9
         }
 
         removeStorage(dbfile);
