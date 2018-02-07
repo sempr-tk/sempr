@@ -1,6 +1,8 @@
 #include <sempr/entity/spatial/SpatialObject.hpp>
 #include <SpatialObject_odb.h>
 
+#include <sempr/entity/RDFValue.hpp>
+
 namespace sempr { namespace entity {
 
 SpatialObject::SpatialObject()
@@ -42,6 +44,11 @@ std::string SpatialObject::type(double* confidence) const
 void SpatialObject::type(const std::string& type, double confidence)
 {
     types_[type] = confidence;
+
+    // also update the rdf representation with the current highest type.
+    std::string bestType = this->type();
+    (*property_)("type", core::rdf::baseURI()) =  RDFResource("<" + bestType + ">");
+    property_->changed();
 }
 
 
