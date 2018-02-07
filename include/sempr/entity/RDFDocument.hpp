@@ -19,6 +19,8 @@ public:
     using Ptr = std::shared_ptr<RDFDocument>;
     ~RDFDocument();
 
+    std::string filename() const;
+
     /**
         Create an RDFDocument from a file.
     */

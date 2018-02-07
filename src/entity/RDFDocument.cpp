@@ -15,11 +15,15 @@ RDFDocument::~RDFDocument()
 {
 }
 
+std::string RDFDocument::filename() const {
+    return filename_;
+}
+
 RDFDocument::Ptr RDFDocument::FromFile(const std::string &file)
 {
     RDFDocument::Ptr doc(new RDFDocument());
     doc->filename_ = file;
-    
+
     //
     // const Soprano::Parser* p = Soprano::PluginManager::instance()->discoverParserForSerialization( Soprano::SerializationRdfXml );
     // Soprano::Ser
