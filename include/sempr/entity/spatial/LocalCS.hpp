@@ -18,6 +18,7 @@ public:
     ENTITY_DEFAULT_EVENT_METHODS(LocalCS, SpatialReference);
 
     LocalCS();
+    LocalCS(const core::IDGenBase*);
 
     SpatialReference::Ptr getRoot() override;
     Eigen::Affine3d transformationToRoot() const override;

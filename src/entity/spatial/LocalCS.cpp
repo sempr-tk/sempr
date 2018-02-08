@@ -4,11 +4,17 @@
 namespace sempr { namespace entity {
 
 LocalCS::LocalCS()
-    : SpatialReference(new core::IDGen<LocalCS>())
+    : LocalCS(new core::IDGen<LocalCS>())
+{
+}
+
+LocalCS::LocalCS(const core::IDGenBase* idgen)
+    : SpatialReference(idgen)
 {
     this->transform_.setIdentity();
     this->setDiscriminator<LocalCS>();
 }
+
 
 SpatialReference::Ptr LocalCS::getRoot()
 {
