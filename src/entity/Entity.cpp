@@ -64,6 +64,15 @@ void Entity::created() {
     announced_ = true;
 }
 
+void Entity::added() {
+  if (!announced_) return; // should only persisted if it has been announced
+  baseCalled_ = false;
+  added_impl();
+  assert(baseCalled_ &&
+      "The base method Entity::created_impl() "
+      "has not been called during Entity::added()!");
+}
+
 void Entity::loaded() {
     if (announced_) return; // do not announce twice.
 
@@ -119,7 +128,11 @@ void Entity::removed_impl() {
     baseCalled_ = true;
 }
 
-
+void Entity::added_impl() {
+    Event::Ptr e = std::make_shared<Event>(shared_from_this(), Event::ADDED);
+    fireEvent(e);
+    baseCalled_ = true;
+}
 
 void Entity::registerChildEntity(Entity::Ptr child)
 {
@@ -209,7 +222,7 @@ void Entity::handleChildrenPre(odb::database &db) const
         // children itself that it wants to fire events for in the cause of
         // its "persist".
         child->broker_ = broker_;
-        //db.persist(child);
+        db.persist(child);
     }
 }
 
@@ -219,7 +232,7 @@ void Entity::handleChildrenPost(odb::database &db) const
     for (auto child : newChildren_)
     {
         child->setParent(shared_from_this());
-        //db.update(child);
+        db.update(child);
     }
 
     // no need to do this ever again:

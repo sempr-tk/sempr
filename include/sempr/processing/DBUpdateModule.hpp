@@ -5,6 +5,7 @@
 #include <sempr/processing/Module.hpp>
 #include <sempr/storage/Storage.hpp>
 #include <sempr/entity/Entity.hpp>
+#include <vector>
 
 namespace sempr { namespace processing {
 
@@ -16,8 +17,19 @@ public:
     /** upon receiving a changed-event, update the database */
     void process(entity::Entity::Event::Ptr e);
 
+    void persistEntities();
+
+    void persistEntitiesInBulk();
+
 private:
     storage::Storage::Ptr storage_;
+
+    // list of newly added entities, not yet persistet
+    std::vector<storage::DBObject::Ptr> newEntities_;
+
+    void addNewEntity(entity::Entity::Ptr e);
+    void addEntity(entity::Entity::Ptr e);
+    void removeEntity(entity::Entity::Ptr e);
 };
 
 }}

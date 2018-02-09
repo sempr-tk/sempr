@@ -23,9 +23,9 @@ void Core::addEntity(entity::Entity::Ptr entity) {
 
         // persist
         //storage_->save(entity);
-
         // signal update
         entity->created();
+        entity->added();
         // auto ev = std::make_shared<EntityEvent<entity::Entity> >(entity, EntityEventBase::CREATED);
         // eventBroker_->enqueueEvent(ev);
     }

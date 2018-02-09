@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_SUITE(general_tests)
     ODBStorage::Ptr storage = setUpStorage(db_path,true);
 
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
-    ActiveObjectStore::Ptr active( new ActiveObjectStore(storage) );
+    ActiveObjectStore::Ptr active( new ActiveObjectStore() );
 
     Core core(storage);
     core.addModule(active);
@@ -350,7 +350,6 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
     }
 BOOST_AUTO_TEST_SUITE_END()
 
-
 BOOST_AUTO_TEST_SUITE(queries)
     std::string dbfile = "test_sqlite.db";
     BOOST_AUTO_TEST_CASE(ObjectQuery_test)
@@ -358,7 +357,7 @@ BOOST_AUTO_TEST_SUITE(queries)
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
         Core core(storage);
 
-        ActiveObjectStore::Ptr active(new ActiveObjectStore(storage));
+        ActiveObjectStore::Ptr active(new ActiveObjectStore());
         core.addModule(active);
 
         // query for persons

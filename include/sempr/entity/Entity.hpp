@@ -102,6 +102,7 @@ public:
     void created();
     void loaded();
     void removed();
+    void added();
 
 protected:
     /** fires an event **/
@@ -149,6 +150,7 @@ protected:
     virtual void created_impl();
     virtual void loaded_impl();
     virtual void removed_impl();
+    virtual void added_impl();
 
 private:
     friend class odb::access;

@@ -29,7 +29,7 @@ ODBStorage::~ODBStorage()
 
 void ODBStorage::save( std::vector<DBObject::Ptr>& in ) {
 
-    std::cout << "got bulk data: " << in.size() << " entries" << std::endl;
+//    std::cout << "got bulk data: " << in.size() << " entries" << std::endl;
     odb::transaction t(db_->begin());
     for(auto o : in){
       if (!o->persisted()) {

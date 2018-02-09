@@ -36,6 +36,9 @@ void DebugModule::process(entity::Entity::Event::Ptr e) {
         case core::EntityEventBase::LOADED:
             std::cout << "LOADED";
             break;
+        case core::EntityEventBase::ADDED:
+            std::cout << "ADDED";
+            break;
         default:
             std::cout << "UNKNOWN EntityEvent";
     }

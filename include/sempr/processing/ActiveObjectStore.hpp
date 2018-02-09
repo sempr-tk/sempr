@@ -22,7 +22,7 @@ class ActiveObjectStore : public Module {
 public:
     using Ptr = std::shared_ptr<ActiveObjectStore>;
 
-    ActiveObjectStore(storage::Storage::Ptr storage);
+    ActiveObjectStore();
     virtual ~ActiveObjectStore();
 
     virtual std::string type() const override;
@@ -53,7 +53,6 @@ public:
 
         std::cout << "--- ActiveObjectStore ---" << '\n';
         std::cout << "# total entities:\t" << entities_.size() << '\n';
-        std::cout << "# not persited:  \t" << newEntities_.size() << '\n';
         std::cout << "# classes:       \t" << perClass.size() << '\n';
         std::cout << "classes:" << '\n';
         for (auto p : perClass) {
@@ -68,19 +67,11 @@ public:
         std::cout << "-------------------------" << std::endl;
     }
 
-    void persistEntities();
-
-    void persistEntitiesInBulk();
 
 private:
-    // list of newly added entities, not yet persistet
-    std::vector<storage::DBObject::Ptr> newEntities_;
     // map entity-id to entity
     std::map<std::string, entity::Entity::Ptr> entities_;
-    // pointer to the used storage
-    storage::Storage::Ptr storage_;
 
-    void addNewEntity(entity::Entity::Ptr e);
     void addEntity(entity::Entity::Ptr e);
     void removeEntity(entity::Entity::Ptr e);
 };

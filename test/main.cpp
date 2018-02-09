@@ -50,7 +50,6 @@ int main(int argc, char** args)
 
   {
     ODBStorage::Ptr storage;
-
     if (inmemory){
       storage = std::make_shared<ODBStorage>(":memory:",true);
     }
@@ -58,9 +57,9 @@ int main(int argc, char** args)
       storage = std::make_shared<ODBStorage>();
     }
 
-    //DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
-    //DebugModule::Ptr debug(new DebugModule());
-    ActiveObjectStore::Ptr active( new ActiveObjectStore(storage) );
+    DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
+    DebugModule::Ptr debug(new DebugModule());
+    ActiveObjectStore::Ptr active( new ActiveObjectStore() );
 
     sempr::core::IDGenerator::getInstance().setStrategy(
         std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
@@ -69,53 +68,48 @@ int main(int argc, char** args)
     sempr::core::Core c(storage);
     c.addModule(active);
     //c.addModule(debug);
-    //c.addModule(updater);
+    c.addModule(updater);
 
     auto start = std::chrono::high_resolution_clock::now();
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed;
 
-    std::cout << "insert "<< numInsert << " objects ";
-    start = std::chrono::high_resolution_clock::now();
     {
-      //INSERT
-      for (int i = 0; i < numInsert; i++) {
-          Person::Ptr p(new Person());
-          p->age(0);
-          c.addEntity(p);
+      std::cout << "insert "<< numInsert << " objects\t " << std::endl;;
+      start = std::chrono::high_resolution_clock::now();
+      {
+        //INSERT
+        for (int i = 0; i < numInsert; i++) {
+            Person::Ptr p(new Person());
+            p->age(0);
+            c.addEntity(p);
+        }
+
+        updater->persistEntities();
       }
-
-      active->persistEntities();
-    }
-    finish = std::chrono::high_resolution_clock::now();
-    elapsed = finish - start;
-    std::cout << "done in:\t" << elapsed.count() << " s\n";
-    //sempr::core::IDGenerator::getInstance().reset();
-
-    if (inmemory){
-      storage.reset();
-      storage = std::make_shared<ODBStorage>(":memory:",true);
-    }
-    else {
-      storage.reset();
-      storage = std::make_shared<ODBStorage>();
+      finish = std::chrono::high_resolution_clock::now();
+      elapsed = finish - start;
+      std::cout << "done in:\t" << elapsed.count() << " s\n";
     }
 
-    std::cout << "insert "<< numInsert << " objects in bulk ";
-    start = std::chrono::high_resolution_clock::now();
     {
-      //INSERT
-      for (int i = 0; i < numInsert; i++) {
-          Person::Ptr p(new Person());
-          p->age(0);
-          c.addEntity(p);
-      }
+      std::cout << "insert "<< numInsert << " objects in bulk " << std::endl;;
+      start = std::chrono::high_resolution_clock::now();
+      {
+        //INSERT
+        for (int i = 0; i < numInsert; i++) {
+            Person::Ptr p(new Person());
+            p->age(0);
+            c.addEntity(p);
+        }
 
-      active->persistEntitiesInBulk();
+       updater->persistEntitiesInBulk();
+      }
+      finish = std::chrono::high_resolution_clock::now();
+      elapsed = finish - start;
+      std::cout << "done in:\t" << elapsed.count() << " s\n";
     }
-    finish = std::chrono::high_resolution_clock::now();
-    elapsed = finish - start;
-    std::cout << "done in:\t" << elapsed.count() << " s\n";
+
     sempr::core::IDGenerator::getInstance().reset();
   }
 
