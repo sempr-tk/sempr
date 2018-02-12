@@ -3,13 +3,13 @@
 
 namespace sempr { namespace storage {
 
-DBObject::DBObject(DBObject::Ptr parent)
-    : DBObject(new core::IDGen<DBObject>(), parent)
+DBObject::DBObject()
+    : DBObject(new core::IDGen<DBObject>())
 {
 }
 
-DBObject::DBObject(const core::IDGenBase* idgen, DBObject::Ptr parent)
-    : persisted_(false), idgenerator_(idgen), parent_(parent)
+DBObject::DBObject(const core::IDGenBase* idgen)
+    : persisted_(false), idgenerator_(idgen)
 {
     id_ = idgen->generate();
     setDiscriminator<DBObject>();

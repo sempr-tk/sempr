@@ -102,7 +102,6 @@ public:
     void created();
     void loaded();
     void removed();
-    void added();
 
 protected:
     /** fires an event **/
@@ -114,15 +113,10 @@ protected:
     }
 
     /**
-        Registers a child-entity: Every entity that is created inside of this
-        and used in a relationship (aka, member variable smart pointer) has to
-        be persisted before this one to prevent foreign-key-errors. Registered
-        children are automatically handled inside pre- and postPersist of the
-        Entity-Class. Also, this entity is set to be their parent, resulting in
-        on-delete-cascade: If this is removed from the database, so are the
-        children.
-        TODO: Are events handled correctly in the case of the removal through
-        a cascade?
+        Registers a child-entity: Every entity registered as a child-entity of this will be
+        announced (child->created() / child->loaded()) before and removed (child->removed()) after
+        this. This allows a class to be made of other entities, e.g. an RDFPropertyMap that
+        describes this but is invalid without this.
     */
     void registerChildEntity(Entity::Ptr child);
 
@@ -150,7 +144,6 @@ protected:
     virtual void created_impl();
     virtual void loaded_impl();
     virtual void removed_impl();
-    virtual void added_impl();
 
 private:
     friend class odb::access;
@@ -161,15 +154,9 @@ private:
     std::weak_ptr<core::EventBroker> broker_;
 
     /**
-        In order to allow entities within entities and a correct
-        on-delete-cascade mechanism (i.e., remove the child if the parent has
-        been removed), we need to register children and handle them with care
-        before persistence / update.
+        The vector of newChildren_ is only used to free the ids of the children that might have been
+        created in the default ctor during pre-load.
     */
-    // no need to keep the references to the children.
-    // Their "parent_" will be set, and we only
-    // need to handle the children ONCE, i.e. when this entity is persisted
-    // or updated.
     #pragma db transient
     mutable std::vector<Entity::Ptr> newChildren_;
 
@@ -187,12 +174,6 @@ private:
         in created() / loaded() / removed().
     */
     std::vector<Entity::Ptr> children_;
-
-    /** persist newly registered children upon persist/update */
-    void handleChildrenPre(odb::database& db) const;
-    /** set newly registered childrens parent to this and fire their
-        created-events after persist/update */
-    void handleChildrenPost(odb::database& db) const;
 
     /**
         Helper to check if the base implementations of ..._impl() have been
