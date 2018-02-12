@@ -54,6 +54,15 @@ namespace sempr { namespace entity {
         */
         void revokeID(const std::string& prefix, size_t id);
 
+
+        /**
+            make the PrefixAssignedID iterable to allow the IncrementalIDGeneration to save every
+            entry manually without fireing events and hoping for the best, but using the storage-
+            module itself for the task.
+        */
+        std::map<std::string, PrefixIDInfo::Ptr>::iterator begin() { return prefixInfos_.begin(); }
+        std::map<std::string, PrefixIDInfo::Ptr>::iterator end() { return prefixInfos_.end(); }
+
     protected:
         // update the map entries, too!
         // TODO: Discuss: Should this be a feature of the
