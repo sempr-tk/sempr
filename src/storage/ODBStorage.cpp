@@ -81,4 +81,13 @@ void ODBStorage::remove(DBObject::Ptr data) {
     t.commit();
 }
 
+void ODBStorage::remove(std::vector<DBObject::Ptr>& data)
+{
+    odb::transaction t( db_->begin() );
+    for (auto o : data) {
+        db_->erase(o);
+    }
+    t.commit();
+}
+
 }}
