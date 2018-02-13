@@ -41,9 +41,6 @@ public:
     /** upon receiving a changed-event, update the database */
     void process(entity::Entity::Event::Ptr e);
 
-    /** -- both variants for debugging/testing purposes -- */
-    void persistEntities();
-    void persistEntitiesInBulk();
 
     /** save the changed and erase the entities flagged for removal */
     void updateDatabase();

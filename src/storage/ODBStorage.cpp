@@ -32,6 +32,7 @@ void ODBStorage::save( std::vector<DBObject::Ptr>& in ) {
 //    std::cout << "got bulk data: " << in.size() << " entries" << std::endl;
     odb::transaction t(db_->begin());
     for(auto o : in){
+        // std::cout << "save " << o->id() << '\n';
       if (!o->persisted()) {
           //std::cout << "persist: " << o->id() << std::endl;
           db_->persist(o);
@@ -45,13 +46,13 @@ void ODBStorage::save( std::vector<DBObject::Ptr>& in ) {
 }
 
 void ODBStorage::save( DBObject::Ptr o ) {
-
+    // std::cout << "single-save: " << o->id() << '\n';
     odb::transaction t(db_->begin());
     if (!o->persisted()) {
-        //std::cout << "persist: " << o->id() << std::endl;
+        // std::cout << "persist: " << o->id() << std::endl;
         db_->persist(o);
     } else {
-        //std::cout << "update: " << o->id() << std::endl;
+        // std::cout << "update: " << o->id() << std::endl;
         db_->update(o);
     }
 
@@ -85,6 +86,7 @@ void ODBStorage::remove(std::vector<DBObject::Ptr>& data)
 {
     odb::transaction t( db_->begin() );
     for (auto o : data) {
+        // std::cout << "remove: " << o->id() << '\n';
         db_->erase(o);
     }
     t.commit();

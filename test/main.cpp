@@ -74,8 +74,9 @@ int main(int argc, char** args)
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed;
 
+    // INSERT ONE BY ONE
     {
-      std::cout << "insert "<< numInsert << " objects\t " << std::endl;;
+      std::cout << "insert "<< numInsert << " objects (one-by-one) ... " << std::flush;;
       start = std::chrono::high_resolution_clock::now();
       {
         //INSERT
@@ -84,33 +85,45 @@ int main(int argc, char** args)
             p->age(0);
             c.addEntity(p);
         }
-
-        updater->persistEntities();
       }
       finish = std::chrono::high_resolution_clock::now();
       elapsed = finish - start;
       std::cout << "done in:\t" << elapsed.count() << " s\n";
     }
 
+    // TODO: insert in bulk. not supported yet
     {
-      std::cout << "insert "<< numInsert << " objects in bulk " << std::endl;;
-      start = std::chrono::high_resolution_clock::now();
-      {
-        //INSERT
-        for (int i = 0; i < numInsert; i++) {
-            Person::Ptr p(new Person());
-            p->age(0);
-            c.addEntity(p);
-        }
 
-       updater->persistEntitiesInBulk();
-      }
-      finish = std::chrono::high_resolution_clock::now();
-      elapsed = finish - start;
-      std::cout << "done in:\t" << elapsed.count() << " s\n";
     }
 
-    sempr::core::IDGenerator::getInstance().reset();
+    // TODO: update all in bulk
+    {
+        std::cout << "load all persons ..." << std::flush;
+        std::vector<Person::Ptr> persons;
+        storage->loadAll(persons);
+        for (auto p : persons) { p->loaded(); }
+        std::cout << " " << persons.size() << " loaded." << '\n';
+
+        std::cout << "increment every persons age ... " << std::flush;
+        start = std::chrono::high_resolution_clock::now();
+        for (auto p : persons)
+        {
+            p->age(p->age() + 1);
+            p->changed();
+        }
+        finish = std::chrono::high_resolution_clock::now();
+        elapsed = finish-start;
+        std::cout << "done in " << elapsed.count() << " s" << '\n';
+
+        std::cout << "save the changes ... " << std::flush;
+        start = std::chrono::high_resolution_clock::now();
+        updater->updateDatabase();
+        finish = std::chrono::high_resolution_clock::now();
+        elapsed = finish-start;
+        std::cout << "done in " << elapsed.count() << " s" << '\n';
+    }
+
+
   }
 
   return 0;

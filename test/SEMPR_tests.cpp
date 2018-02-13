@@ -126,6 +126,8 @@ BOOST_AUTO_TEST_CASE(insertion)
     // setup. database will be reset (true)
     ODBStorage::Ptr storage = setUpStorage(db_path, true);
     Core core(storage);
+    DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+    core.addModule(updater);
 
     // load all entites, check if there are exactly 0 (person and its RDF)
     // checkEntitiesInStorage(storage, 0);
@@ -137,6 +139,9 @@ BOOST_AUTO_TEST_CASE(insertion)
     // save --> persist the person. check 1: we should not get a foreign-key-
     // constraint-violation if the rdf-entity is persisted before the person.
     core.addEntity(p1);
+
+    // explicitly save the current state.
+    updater->updateDatabase();
 
     // this doesn't hold anymore: the IncrementalIDGeneration adds some
     // entities, too!
@@ -159,6 +164,8 @@ BOOST_AUTO_TEST_CASE(retrieval){
   {
     ODBStorage::Ptr storage = setUpStorage(db_path, true);
     Core core(storage);
+    DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+    core.addModule(updater);
 
     // create  a person, which creates an rdf-entity within
     Person::Ptr person(new Person());
@@ -170,6 +177,7 @@ BOOST_AUTO_TEST_CASE(retrieval){
     person->setGender(gender);
 
     core.addEntity(person);
+    updater->updateDatabase();
 
     id = person->id();
   }
@@ -205,8 +213,12 @@ BOOST_AUTO_TEST_CASE(deletion) {
 
   ODBStorage::Ptr storage = setUpStorage(db_path, true);
   Core core(storage);
+  DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+  core.addModule(updater);
+
   Person::Ptr person(new Person());
   core.addEntity(person);
+  updater->updateDatabase();
   id = person->id();
 
   // load all entites, check if there are exactly one person and its RDF.
@@ -214,6 +226,7 @@ BOOST_AUTO_TEST_CASE(deletion) {
   checkEntitiesInStorage<RDFPropertyMap>(storage, 1);
 
   core.removeEntity(person);
+  updater->updateDatabase();
 
   checkEntitiesInStorage<Person>(storage, 0);
   checkEntitiesInStorage<RDFPropertyMap>(storage, 0);
@@ -236,8 +249,12 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
         {
             ODBStorage::Ptr storage = setUpStorage(db_path, true);
             Core core(storage);
+            DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+            core.addModule(updater);
+
             Person::Ptr person(new Person());
             core.addEntity(person);
+            updater->updateDatabase();
             personId = person->id();
         }
 
@@ -310,6 +327,8 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         personId = person->id();
 
         m["person"] = person;
+
+        updater->updateDatabase();
     }
 
 

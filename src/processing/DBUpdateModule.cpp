@@ -87,6 +87,10 @@ void DBUpdateModule::registerRemoved(storage::DBObject::Ptr obj)
 
 void DBUpdateModule::updateDatabase()
 {
+    std::cout << "updateDatabase:" << '\n';
+    std::cout << "  changed: " << toUpdate_.size() << '\n';
+    std::cout << "  removed: " << toRemove_.size() << '\n';
+    
     // save changed entities
     storage_->save(toUpdate_);
     toUpdate_.clear();
@@ -95,30 +99,6 @@ void DBUpdateModule::updateDatabase()
     storage_->remove(toRemove_);
     toRemove_.clear();
 }
-
-void DBUpdateModule::persistEntities() {
-  std::cout << "persisting " << toUpdate_.size() << " entities:" << std::endl;
-
-  for (auto o : toUpdate_){
-    //std::cout << "send to persist: " << o->id() << std::endl;
-    storage_->save(o);
-  }
-  toUpdate_.clear();
-
-  std::cout << "removing " << toRemove_.size() << " entities" << std::endl;
-
-  for (auto o : toRemove_) {
-      storage_->remove(o);
-  }
-  toRemove_.clear();
-}
-
-void DBUpdateModule::persistEntitiesInBulk(){
-  std::cout << "persisting " << toUpdate_.size() << " entities in bulk," << std::endl;
-  std::cout << " and removing " << toRemove_.size() << std::endl;
-  updateDatabase();
-}
-
 
 
 }}
