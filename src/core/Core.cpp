@@ -32,7 +32,6 @@ void Core::addEntity(entity::Entity::Ptr entity) {
 
 void Core::removeEntity(entity::Entity::Ptr entity) {
     if (entity.get()) {
-        storage_->remove(entity);
         entity->removed();
     }
 }
