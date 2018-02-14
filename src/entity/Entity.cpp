@@ -161,6 +161,7 @@ void Entity::prePersist(odb::database &db) const
 void Entity::postPersist(odb::database &db) const
 {
     DBObject::postPersist(db);
+    newChildren_.clear();
 }
 
 void Entity::preUpdate(odb::database &db) const
@@ -193,7 +194,7 @@ void Entity::preLoad(odb::database& db)
         What we also need to do: The newChildren_ got an ID that we want to
         release again!
     */
-    freeChildIDs();
+    freeChildIDs(); // TODO: Question: What about freeing the id in the dtor if not persistent? What about freeing the id of a removed entity?
     newChildren_.clear();
 }
 

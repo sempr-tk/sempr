@@ -87,13 +87,35 @@ void DBUpdateModule::registerRemoved(storage::DBObject::Ptr obj)
 
 void DBUpdateModule::updateDatabase()
 {
-    std::cout << "updateDatabase:" << '\n';
-    std::cout << "  changed: " << toUpdate_.size() << '\n';
-    std::cout << "  removed: " << toRemove_.size() << '\n';
-    
+    // std::cout << "updateDatabase:" << '\n';
+    // std::cout << "  changed: " << toUpdate_.size() << '\n';
+    // std::cout << "  removed: " << toRemove_.size() << '\n';
+
     // save changed entities
     storage_->save(toUpdate_);
     toUpdate_.clear();
+
+    // before removing, check the number of references!
+    for (auto& obj : toRemove_) {
+        // obj->removed() has already been called, so how many references to it are okay?
+
+        // min 2 ref: toRemove_, session
+        //      +1 as it may still live in user space
+        //  or
+        //      +2 if it is a child-entity: parent.someProperty, parent.children_
+        //
+        // so: 2 are best, 3 is unclear (user-space or module?), 4 is evil if it is not a child, but okay if it is,
+        // and if any object has a reference count of 5 or higher there is probably something
+        // going wrong.
+
+        if (obj.use_count() > 4)
+        {
+            std::cerr   << "Warning: Removing object from the database which has a critical number "
+                        << "of references left. Any unclean implementation of a processing module "
+                        << "that didn't react to a removed-event? "
+                        << "(" << obj->id() << ", " << obj.use_count() << ")" << '\n';
+        }
+    }
 
     // remove entities
     storage_->remove(toRemove_);
