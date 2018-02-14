@@ -34,9 +34,6 @@ public:
     void answerQuery(query::Query::Ptr query);
 
 private:
-    /// map entity-id to entity
-    std::map<std::string, entity::Entity::Ptr> entities_;
-
     storage::Storage::Ptr storage_;
     std::vector<processing::Module::Ptr> modules_;
     EventBroker::Ptr eventBroker_;
