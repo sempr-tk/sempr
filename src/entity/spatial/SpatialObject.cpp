@@ -52,4 +52,28 @@ void SpatialObject::type(const std::string& type, double confidence)
 }
 
 
+unsigned int SpatialObject::lastSeen() const
+{
+    unsigned int ts = (*property_)["lastSeen"];
+    return ts;
+}
+
+void SpatialObject::lastSeen(unsigned int ts)
+{
+    (*property_)["lastSeen"] = ts;
+    property_->changed();
+}
+
+bool SpatialObject::vanished() const
+{
+    bool v = (*property_)["vanished"];
+    return v;
+}
+
+void SpatialObject::vanished(bool v)
+{
+    (*property_)["vanished"] = v;
+    property_->changed();
+}
+
 }}

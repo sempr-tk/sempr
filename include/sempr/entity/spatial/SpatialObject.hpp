@@ -51,7 +51,14 @@ public:
     /** set the confidence for a given type */
     void type(const std::string&, double confidence);
 
-    // TODO implement
+    /** get/set the timestamp (in seconds) when the object has been seen last */
+    unsigned int lastSeen() const;
+    void lastSeen(unsigned int ts);
+
+    /** get/set if the object has vanished, i.e., has not been seen at the place we thought it was. */
+    bool vanished() const;
+    void vanished(bool v);
+
 
     ENTITY_DEFAULT_EVENT_METHODS(SpatialObject, Entity);
 };
