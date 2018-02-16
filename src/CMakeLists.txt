@@ -62,6 +62,29 @@ target_compile_definitions(sempr_core PUBLIC -D${CONFIG_DATABASE})
     # PRIVATE ${ODB_COMPILE_OUTPUT_DIR} )
 
 
+
+
+
+##
+## generate precompiled header (for autocomplete-clang)
+##
+# check if clang exists
+find_program(CLANG NAMES clang++)
+if (NOT CLANG)
+    message("clang not found, not generating pch.")
+else()
+    message("FOUND CLANG: ${CLANG}")
+    file(GLOB_RECURSE ALL_HEADERS ../include/*)
+    include(${PROJECT_SOURCE_DIR}/cmake/PCH.cmake)
+    add_precompiled_header(sempr-core.pch ALL_HEADERS "-D${CONFIG_DATABASE}")
+
+    install(
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/sempr-core.pch
+        DESTINATION include/sempr
+    )
+endif()
+
+
 ## install stuff
 install(
     TARGETS sempr_core
