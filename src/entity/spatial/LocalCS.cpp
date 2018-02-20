@@ -23,6 +23,15 @@ SpatialReference::Ptr LocalCS::getRoot()
     return this->shared_from_base<SpatialReference>();
 }
 
+bool LocalCS::isChildOf(SpatialReference::Ptr other) const
+{
+    // I'd generally prefer an iterative implementation, but SpatialReference has no "getParent",
+    // and I don't think there would be a noticable difference anyway. I don't expect the chain
+    // of LocalCS's to be too long.
+    if (!parent_) return false;
+    return (parent_ == other) || parent_->isChildOf(other);
+}
+
 Eigen::Affine3d LocalCS::transformationToRoot() const
 {
     //  root <-- A <-- B <-- C and geo_in_C

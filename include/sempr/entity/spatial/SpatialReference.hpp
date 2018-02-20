@@ -26,6 +26,17 @@ public:
     /// get the root of this reference system (not the parent!)
     /// not const -- might return "shared_from_this()"...
     virtual SpatialReference::Ptr getRoot();
+
+    /**
+        Check if this SpatialReference is the child of another one. This is usefull to check if
+        we need to recompute e.g. a Geometry based on the change of some arbitrary frame, as
+        currently no changed()-events are emitted for child-frames (or their connected geometries).
+        Feel free to discuss this here: https://github.com/sempr-tk/sempr/issues/13
+    */
+    // we dont need a "parent()"-method to do this. Default impl returns false, and only the
+    // LocalCS really needs to override this.
+    virtual bool isChildOf(SpatialReference::Ptr other) const;
+
     /// get the transformation to the root of this reference system
     virtual Eigen::Affine3d transformationToRoot() const;
     /// get the transformation from the root to this reference system

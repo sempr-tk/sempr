@@ -720,6 +720,8 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
 
         BOOST_CHECK(AinB.isApprox(expectedAinB));
         BOOST_CHECK(BinA.isApprox(expectedBinA));
+        BOOST_CHECK(b->isChildOf(a));
+        BOOST_CHECK(!a->isChildOf(b));
     }
 
     BOOST_AUTO_TEST_CASE(local_chain_translate)
@@ -740,6 +742,12 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
             c->setParent(b);
             d->setParent(b);
                 e->setParent(d);
+
+        BOOST_CHECK(b->isChildOf(a));
+        BOOST_CHECK(e->isChildOf(a));
+        BOOST_CHECK(c->isChildOf(a));
+        BOOST_CHECK(!c->isChildOf(d));
+
         b->setTranslation(1, 0, 0);
         c->setTranslation(1, 1, 0);
         d->setTranslation(1, -1, 0);
