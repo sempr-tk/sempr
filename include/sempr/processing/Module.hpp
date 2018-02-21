@@ -8,9 +8,32 @@
 #include <sempr/core/EntityEvent.hpp>
 #include <sempr/query/Query.hpp>
 
-namespace sempr { namespace processing {
+namespace sempr {
+
+namespace core {
+    class Core; // forward declaration of Core, since the module will keep a ptr to it.
+}
+
+namespace processing {
+
 
 class Module : public core::Observer{
+private:
+    /*
+        Raw pointer makes things easier in this case. It will be set by the core, and the core
+        will keep a shared_ptr to the module, so the module will die before the core. Everything
+        is fine. :)
+    */
+    core::Core* core_;
+    /* Making core a friend allows it to set the pointer without exposing yet another public method */
+    friend class core::Core;
+
+protected:
+    /**
+        Allows modules to ask queries.
+    */
+    void ask(query::Query::Ptr q);
+
 public:
     using Ptr = std::shared_ptr<Module>;
     virtual std::string type() const;

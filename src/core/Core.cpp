@@ -48,6 +48,9 @@ void Core::removeEntity(entity::Entity::Ptr entity) {
 
 void Core::addModule(processing::Module::Ptr module) {
     modules_.push_back(module);
+    module->core_ = this;   // allow the module to ask queries later on.
+    // NOTE: If we ever implement a "removeModule" make sure to un-set the pointer.
+
     eventBroker_->addObserver(module);
 }
 

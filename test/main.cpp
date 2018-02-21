@@ -44,6 +44,42 @@ void print(OGRGeometry* p)
     CPLFree(str);
 }
 
+
+// create a simple query
+class DummyQuery : public Query {
+public:
+    using Ptr = std::shared_ptr<DummyQuery>;
+    std::string type() const { return "DummyQuery"; }
+    int count;
+};
+
+// create a simple module that will just issue a sparql-query.
+class DummyModule : public Module {
+public:
+    using Ptr = std::shared_ptr<DummyModule>;
+    std::string type() const {
+        return "DummyModule";
+    }
+
+    DummyModule() {
+        addOverload<DummyQuery>(
+            [this] (DummyQuery::Ptr q) {
+                this->answerDummy(q);
+            }
+        );
+    }
+
+    void answerDummy(DummyQuery::Ptr query)
+    {
+        // just ask a sparql-query
+        SPARQLQuery::Ptr sparql(new SPARQLQuery());
+        sparql->query = "SELECT * WHERE { ?s ?p ?o . }";
+        this->ask(sparql);
+        // result of DummyQuery is the number of results of the sparql query
+        query->count = sparql->results.size();
+    }
+};
+
 int main(int argc, char** args)
 {
     // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
@@ -65,58 +101,22 @@ int main(int argc, char** args)
     c.addModule(updater);
     c.addModule(semantic);
 
-    // add rules if not present
-    {
-        std::vector<RuleSet::Ptr> rulesets;
-        storage->loadAll(rulesets);
-        if (rulesets.size() > 0) {
-            std::cout << "found ruleset, not creating new" << '\n';
-            for (auto rs : rulesets) { rs->loaded(); }
-        } else {
-            std::cout << "no ruleset found, creating one." << '\n';
-            RuleSet::Ptr rules(new RuleSet());
-            rules->add("[someRule: (?p rdf:type sempr:Person) -> (?p rdf:type sempr:Human)]");
-            c.addEntity(rules);
-        }
-    }
 
+    /********************************
+        test query-within-query
+    **********************************/
+    DummyModule::Ptr module(new DummyModule());
+    c.addModule(module);
 
-    LocalCS::Ptr root(new LocalCS());
-    LocalCS::Ptr frame(new LocalCS());
-    frame->setParent(root);
-    frame->setRotation(0, 0, 1, M_PI/2.);
-    frame->setTranslation(5, 6, 7);
+    DummyQuery::Ptr query(new DummyQuery());
+    c.answerQuery(query);
+    std::cout << query->count << '\n';
 
-    GeometryCollection::Ptr coll(new GeometryCollection());
-    coll->setCS(frame);
+    // add some rdf-stuff
+    Person::Ptr p(new Person());
+    c.addEntity(p);
 
-    std::cout << "insert..." << '\n';
-    for (size_t i = 0; i < 10000; i++) {
-        OGRPoint* pt = (OGRPoint*) OGRGeometryFactory::createGeometry(wkbPointZM);
-        pt->setX(i); pt->setY(i);
-        coll->geometry()->addGeometryDirectly(pt);
-    }
+    c.answerQuery(query);
+    std::cout << query->count << '\n';
 
-    // print(coll->geometry());
-    std::cout << "transform..." << '\n';
-    coll->transformToCS(root);
-    std::cout << "done." << '\n';
-    // print(coll->geometry());
-
-    std::cout << "----------------" << '\n';
-    std::cout << "TEST SopranoModule" << '\n';
-
-    auto sq = std::make_shared<SPARQLQuery>();
-    // sq->query = "SELECT * WHERE { ?s sempr:age ?age . FILTER (?age > 50) }";
-    sq->query = "SELECT * WHERE { ?s rdf:type sempr:Human . }";
-    c.answerQuery(sq);
-    for (auto r : sq->results) {
-        for (auto p : r) {
-            std::cout << p.second << " | ";
-        }
-        std::cout << '\n';
-    }
-
-
-    return 0;
 }

@@ -27,7 +27,7 @@ SopranoModule::SopranoModule()
     // for answering sparql queries
     addOverload<query::SPARQLQuery>(
         [this](query::SPARQLQuery::Ptr q) {
-            this->answer(q);
+            this->answerSPARQL(q);
         }
     );
 }
@@ -106,7 +106,7 @@ void SopranoModule::process(core::EntityEvent<entity::RuleSet>::Ptr event)
 
 
 
-void SopranoModule::answer(query::SPARQLQuery::Ptr query)
+void SopranoModule::answerSPARQL(query::SPARQLQuery::Ptr query)
 {
     if (dirty_) {
         infmodel_->performInference();
