@@ -33,7 +33,7 @@ function(add_precompiled_header _output _input _flags)
     set(_CLANG_CXX_FLAGS "")
     foreach(_flag ${_flags_list})
         if(_flag MATCHES "-fopenmp")
-            # ... just skip it.
+            # ... just skip it. no need for openmp if we just want a precompiled header for code completion
             #list(APPEND _CLANG_CXX_FLAGS "-fopenmp=libomp" "-fopenmp")
         else()
             list(APPEND _CLANG_CXX_FLAGS ${_flag})
@@ -46,9 +46,14 @@ function(add_precompiled_header _output _input _flags)
     ## At build time
     ##
     # compile the all_include.cpp to generate a precompiled header
+    find_program(_CLANG_EXE clang++)
+    if (NOT _CLANG_EXE)
+        message(FATAL_ERROR "Requested precompiled header \"${_output}\", but clang++ couldn't be found.")
+    endif()
+
     add_custom_command(
         OUTPUT ${_output}
-        COMMAND clang++
+        COMMAND ${_CLANG_EXE}
         ARGS -xc++-header -Xclang ${_CLANG_CXX_FLAGS} -Wno-everything ${_flags} -o ${_output} ${${_output}_iflags} ${_tmpfile}
         DEPENDS ${${_input}}
         COMMENT "Building precompiled header ${_output}"

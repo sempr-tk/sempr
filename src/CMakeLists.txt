@@ -68,13 +68,23 @@ target_compile_definitions(sempr_core PUBLIC -D${CONFIG_DATABASE})
 ##
 ## generate precompiled header (for autocomplete-clang)
 ##
+# Define a list of headers to exclude from the pch. Use this while working on SEMPR to avoid
+# having to generate from scratch when adding a new function etc.
+file(GLOB_RECURSE EXCLUDE_FROM_PCH
+    #../include/sempr/processing/SopranoModule.hpp # e.g.
+)
+
 # check if clang exists
-find_program(CLANG NAMES clang++)
+find_program(CLANG clang++)
 if (NOT CLANG)
     message("clang not found, not generating pch.")
 else()
     message("FOUND CLANG: ${CLANG}")
     file(GLOB_RECURSE ALL_HEADERS ../include/*)
+    if (EXCLUDE_FROM_PCH)
+        list(REMOVE_ITEM ALL_HEADERS ${EXCLUDE_FROM_PCH})
+    endif()
+
     include(${PROJECT_SOURCE_DIR}/cmake/PCH.cmake)
     add_precompiled_header(sempr-core.pch ALL_HEADERS "-D${CONFIG_DATABASE}")
 
