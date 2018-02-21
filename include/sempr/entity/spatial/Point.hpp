@@ -24,11 +24,18 @@ public:
 
     OGRPoint* geometry() override;
 
+    /**
+        Get a new entity with the same geometry (copy) referring to the same instance of
+        SpatialReference.
+    */
+    Point::Ptr clone() const;
 
 private:
     friend class odb::access;
     #pragma db type("TEXT")
     OGRPoint* geometry_;
+
+    virtual Point* raw_clone() const override;
 };
 
 }}

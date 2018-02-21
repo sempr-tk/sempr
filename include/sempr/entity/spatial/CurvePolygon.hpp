@@ -7,6 +7,7 @@ namespace sempr { namespace entity {
 
 /**
     Container class for OGRCurvePolygon
+    TODO: Polygon derives from this but has its own geometry-ptr, how can we clean this up? (as is, Polygon has to geometry_ fields (though a private one)). So, creating a polygon also creates an always empty curvepolygon.
 */
 #pragma db object
 class CurvePolygon : public Geometry {
@@ -20,10 +21,18 @@ public:
 
     OGRCurvePolygon* geometry() override;
 
+    /**
+        Get a new entity with the same geometry (copy) referring to the same instance of
+        SpatialReference.
+    */
+    CurvePolygon::Ptr clone() const;
+
 private:
     friend class odb::access;
     #pragma db type("TEXT")
     OGRCurvePolygon* geometry_;
+
+    virtual CurvePolygon* raw_clone() const override;
 };
 
 }}

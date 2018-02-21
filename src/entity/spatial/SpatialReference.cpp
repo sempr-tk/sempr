@@ -28,4 +28,11 @@ Eigen::Affine3d SpatialReference::transformationFromRoot() const
     return Eigen::Affine3d::Identity();
 }
 
+bool SpatialReference::isChildOf(SpatialReference::Ptr other) const
+{
+    // The base class has no knowledge of parent/child relations. That is a feature introduced
+    // by LocalCS.
+    return false;
+}
+
 }}

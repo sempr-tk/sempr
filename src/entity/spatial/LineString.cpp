@@ -23,4 +23,20 @@ OGRLineString* LineString::geometry() {
     return geometry_;
 }
 
+LineString::Ptr LineString::clone() const {
+    // raw clone is virtual! :)
+    return LineString::Ptr(raw_clone());
+}
+
+LineString* LineString::raw_clone() const
+{
+    LineString* newInstance = new LineString();
+    // set the same reference frame
+    newInstance->setCS(this->getCS());
+
+    // copy the geometry
+    *(newInstance->geometry_) = *geometry_; // use OGRGeometry copy ctor
+    return newInstance;
+}
+
 }}

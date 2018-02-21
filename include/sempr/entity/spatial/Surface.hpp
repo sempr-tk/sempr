@@ -20,10 +20,18 @@ public:
 
     OGRSurface* geometry() override;
 
+    /**
+        Get a new entity with the same geometry (copy) referring to the same instance of
+        SpatialReference.
+    */
+    Surface::Ptr clone() const;
+
 private:
     friend class odb::access;
     // #pragma db type("TEXT")
     // OGRSurface* geometry_;   // OGRSurface is abstract!
+
+    Surface* raw_clone() const override;
 };
 
 }}

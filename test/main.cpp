@@ -32,6 +32,8 @@ using namespace sempr::query;
 
 #include <sempr/entity/spatial/LocalCS.hpp>
 
+#include <RDFDocument_odb.h>
+
 #ifndef M_PI
 #   define M_PI 3.141592653589793
 #endif
@@ -82,6 +84,10 @@ public:
 
 int main(int argc, char** args)
 {
+
+    RDFDocument::FromFile("model.owl");
+
+
     // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
     ODBStorage::Ptr storage( new ODBStorage() );
 

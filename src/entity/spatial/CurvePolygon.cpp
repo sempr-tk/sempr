@@ -19,6 +19,22 @@ CurvePolygon::~CurvePolygon()
     OGRGeometryFactory::destroyGeometry(geometry_);
 }
 
+CurvePolygon::Ptr CurvePolygon::clone() const {
+    // raw clone is virtual! :)
+    return CurvePolygon::Ptr(raw_clone());
+}
+
+CurvePolygon* CurvePolygon::raw_clone() const
+{
+    CurvePolygon* newInstance = new CurvePolygon();
+    // set the same reference frame
+    newInstance->setCS(this->getCS());
+
+    // copy the geometry
+    *(newInstance->geometry_) = *geometry_; // use OGRGeometry copy ctor
+    return newInstance;
+}
+
 OGRCurvePolygon* CurvePolygon::geometry() {
     return geometry_;
 }

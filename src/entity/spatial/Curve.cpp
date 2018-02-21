@@ -17,6 +17,13 @@ Curve::~Curve()
 {
 }
 
+Curve::Ptr Curve::clone() const {
+    // raw clone is virtual! :)
+    return Curve::Ptr(raw_clone());
+}
+
+Curve* Curve::raw_clone() const { return NULL; }
+
 OGRCurve* Curve::geometry() {
     return NULL;
 }

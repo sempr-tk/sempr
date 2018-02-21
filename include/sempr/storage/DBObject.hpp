@@ -37,6 +37,17 @@ public:
     */
     DBObject(const core::IDGenBase* idgen, DBObject::Ptr parent = NULL);
 
+    /**
+        Copy constructors are too confusing, so I disabled them for all entities.
+        It would be possible to define them for DBObject, Entity and Geometries (which is where I
+        need them): New id using the same id-generator, same parent, no child-entities (shallow copy),
+        and so on. But for more complex entities? Think about anything with an RDFEntity! You would
+        need to create another RDFEntity, change its internals (subject!), and so on. No, instead:
+        Implement clone-methods where you need them, and know exactly what you are doing.
+    */
+    DBObject(const DBObject&) = delete;
+
+
     virtual ~DBObject(){}
 
     /*

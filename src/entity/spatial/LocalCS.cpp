@@ -4,17 +4,32 @@
 namespace sempr { namespace entity {
 
 LocalCS::LocalCS()
-    : SpatialReference(new core::IDGen<LocalCS>())
+    : LocalCS(new core::IDGen<LocalCS>())
+{
+}
+
+LocalCS::LocalCS(const core::IDGenBase* idgen)
+    : SpatialReference(idgen)
 {
     this->transform_.setIdentity();
     this->setDiscriminator<LocalCS>();
 }
+
 
 SpatialReference::Ptr LocalCS::getRoot()
 {
     if (parent_) return parent_->getRoot(); // recursive definition.
     // if there is no parent, this is the root.
     return this->shared_from_base<SpatialReference>();
+}
+
+bool LocalCS::isChildOf(SpatialReference::Ptr other) const
+{
+    // I'd generally prefer an iterative implementation, but SpatialReference has no "getParent",
+    // and I don't think there would be a noticable difference anyway. I don't expect the chain
+    // of LocalCS's to be too long.
+    if (!parent_) return false;
+    return (parent_ == other) || parent_->isChildOf(other);
 }
 
 Eigen::Affine3d LocalCS::transformationToRoot() const

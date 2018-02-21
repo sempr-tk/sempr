@@ -20,10 +20,18 @@ public:
 
     OGRCurve* geometry() override;
 
+    /**
+        Get a new entity with the same geometry (copy) referring to the same instance of
+        SpatialReference.
+    */
+    Curve::Ptr clone() const;
+
 private:
     friend class odb::access;
     // #pragma db type("TEXT")
     // OGRCurve* geometry_; // abstract!
+
+    Curve* raw_clone() const override;
 };
 
 }}
