@@ -33,96 +33,26 @@ using namespace sempr::query;
 #include <sempr/entity/spatial/LocalCS.hpp>
 
 #include <RDFDocument_odb.h>
+#include <Polygon_odb.h>
 
 #ifndef M_PI
 #   define M_PI 3.141592653589793
 #endif
 
-void print(OGRGeometry* p)
-{
-    char* str;
-    p->exportToWkt(&str, wkbVariantIso);
-    std::cout << str << '\n';
-    CPLFree(str);
-}
 
+#include <sempr/utility/Wrapper.hpp>
 
-// create a simple query
-class DummyQuery : public Query {
+class FooBar {
 public:
-    using Ptr = std::shared_ptr<DummyQuery>;
-    std::string type() const { return "DummyQuery"; }
-    int count;
-};
-
-// create a simple module that will just issue a sparql-query.
-class DummyModule : public Module {
-public:
-    using Ptr = std::shared_ptr<DummyModule>;
-    std::string type() const {
-        return "DummyModule";
-    }
-
-    DummyModule() {
-        addOverload<DummyQuery>(
-            [this] (DummyQuery::Ptr q) {
-                this->answerDummy(q);
-            }
-        );
-    }
-
-    void answerDummy(DummyQuery::Ptr query)
-    {
-        // just ask a sparql-query
-        SPARQLQuery::Ptr sparql(new SPARQLQuery());
-        sparql->query = "SELECT * WHERE { ?s ?p ?o . }";
-        this->ask(sparql);
-        // result of DummyQuery is the number of results of the sparql query
-        query->count = sparql->results.size();
-    }
+    FooBar() { std::cout << "Ctor of FooBar!" << '\n'; }
 };
 
 int main(int argc, char** args)
 {
-
-    RDFDocument::FromFile("model.owl");
-
-
-    // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
-    ODBStorage::Ptr storage( new ODBStorage() );
-
-    DebugModule::Ptr debug( new DebugModule() );
-    DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
-    ActiveObjectStore::Ptr active( new ActiveObjectStore() );
-    SopranoModule::Ptr semantic( new SopranoModule() );
-
-    sempr::core::IDGenerator::getInstance().setStrategy(
-        // std::unique_ptr<sempr::core::UUIDGeneration>( new sempr::core::UUIDGeneration(false) )
-        std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
-    );
-
-    sempr::core::Core c(storage);
-    c.addModule(active);
-    c.addModule(debug);
-    c.addModule(updater);
-    c.addModule(semantic);
-
-
-    /********************************
-        test query-within-query
-    **********************************/
-    DummyModule::Ptr module(new DummyModule());
-    c.addModule(module);
-
-    DummyQuery::Ptr query(new DummyQuery());
-    c.answerQuery(query);
-    std::cout << query->count << '\n';
-
-    // add some rdf-stuff
-    Person::Ptr p(new Person());
-    c.addEntity(p);
-
-    c.answerQuery(query);
-    std::cout << query->count << '\n';
-
+    std::cout << "Wrapper<Polygon>" << '\n';
+    Wrapper<Polygon> w1;
+    std::cout << "Wrapper<Polygon, FooBar>" << '\n';
+    Wrapper<Polygon, FooBar> w1foobar;
+    std::cout << "Wrapper<RDFPropertyMap>" << '\n';
+    Wrapper<RDFPropertyMap> w2;
 }
