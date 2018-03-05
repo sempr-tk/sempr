@@ -1,6 +1,7 @@
 #include <sempr/processing/SpatialIndex.hpp>
 #include <sempr/core/EntityEvent.hpp>
 #include <sempr/entity/spatial/LocalTransformation.hpp>
+#include <iterator>
 
 #include <gdal/ogr_core.h>
 
@@ -21,30 +22,55 @@ SpatialIndex::SpatialIndex()
             this->process(event);
         }
     );
+
+    // listen to spatial queries
+    this->addOverload<query::SpatialIndexQuery>(
+        [this](query::SpatialIndexQuery::Ptr query) {
+            this->lookup(query);
+        }
+    );
 }
+
 
 std::string SpatialIndex::type() const
 {
     return "SpatialIndex";
 }
 
-void SpatialIndex::test()
+void SpatialIndex::lookup(query::SpatialIndexQuery::Ptr query) const
 {
-    std::vector<bValue> results;
+    // TODO: transfer reference geometry into the frame of the spatial index
+    // (make a copy?)
+    // query->refGeo_
+
+    // create the AABB of the transformed query-volume.
+    OGREnvelope3D env;
+    query->refGeo()->geometry()->getEnvelope(&env);
+
     bBox region(
-        bPoint(0, 0, 0),
-        bPoint(5, 5, 5)
+        bPoint(env.MinX, env.MinY, env.MinZ),
+        bPoint(env.MaxX, env.MaxY, env.MaxZ)
     );
-    auto predicate = bgi::intersects(region);
-    // auto predicate = bgi::contains(region);
-    // auto predicate = bgi::within(region);
-    // auto predicate = !bgi::within(region);
-    rtree_.query( predicate, std::back_inserter(results));
-    for (auto r : results)
-    {
-        std::cout << "predicate matched: " << r.second->id() << std::endl;
+
+
+    std::vector<bValue> tmpResults;
+
+    typedef query::SpatialIndexQuery::QueryType QueryType;
+    switch (query->mode()) {
+        case QueryType::WITHIN:
+            rtree_.query(bgi::within(region), std::back_inserter(tmpResults));
+            break;
+
+        default:
+            std::cout << "SpatialIndex: Mode " << query->mode() << " not implemented." << '\n';
     }
+
+    std::transform( tmpResults.begin(), tmpResults.end(),
+                    std::inserter(query->results, query->results.end()),
+         [](bValue tmp) { return tmp.second; }
+    );
 }
+
 
 void SpatialIndex::process(core::EntityEvent<entity::Geometry>::Ptr geoEvent)
 {

@@ -9,6 +9,8 @@
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/index/rtree.hpp>
 
+#include <sempr/query/SpatialIndexQuery.hpp>
+
 #include <vector>
 #include <map>
 
@@ -38,10 +40,11 @@ public:
 
     SpatialIndex();
 
-    /// just for me to remember how querying works.
-    void test();
+    /**
+        Answer a SpatialIndexQuery
+    */
+    void lookup(query::SpatialIndexQuery::Ptr query) const;
 
-private:
     /**
         Specify what is stored in the R-Tree:
             boxes, made out of points, consisting of 3 floats, in cartesian space.
@@ -51,11 +54,13 @@ private:
     typedef bg::model::point<float, 3, bg::cs::cartesian> bPoint;
     typedef bg::model::box<bPoint> bBox;
     typedef std::pair<bBox, entity::Geometry::Ptr> bValue;
+    typedef bgi::rtree<bValue, bgi::quadratic<16> > RTree;
 
+private:
     /**
         The actual R-Tree.
     */
-    bgi::rtree<bValue, bgi::quadratic<16> > rtree_;
+    RTree rtree_;
 
     /**
         A mapping of Geometry-->bValue for easier updates of the RTree
