@@ -60,7 +60,25 @@ void SpatialIndex::lookup(query::SpatialIndexQuery::Ptr query) const
         case QueryType::WITHIN:
             rtree_.query(bgi::within(region), std::back_inserter(tmpResults));
             break;
-
+        case QueryType::NOTWITHIN:
+            rtree_.query(!bgi::within(region), std::back_inserter(tmpResults));
+            break;
+        /*
+        // TODO: contains is introduced in boost 1.55, but ros indigo needs 1.54.
+        // maybe its time for me to upgrade to 16.04 and kinetic...
+        case QueryType::CONTAINS:
+            rtree_.query(bgi::contains(region), std::back_inserter(tmpResults));
+            break;
+        case QueryType::NOTCONTAINS:
+            rtree_.query(!bgi::contains(region), std::back_inserter(tmpResults));
+            break;
+        */
+        case QueryType::INTERSECTS:
+            rtree_.query(bgi::intersects(region), std::back_inserter(tmpResults));
+            break;
+        case QueryType::NOTINTERSECTS:
+            rtree_.query(!bgi::intersects(region), std::back_inserter(tmpResults));
+            break;
         default:
             std::cout << "SpatialIndex: Mode " << query->mode() << " not implemented." << '\n';
     }

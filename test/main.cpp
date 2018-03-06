@@ -126,5 +126,13 @@ int main(int argc, char** args)
          std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
      }
 
+     std::cout << "and inverted?" << '\n';
+     q->invert();
+     q->results.clear();
+     c.answerQuery(q);
+     for (auto r : q->results) {
+         std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
+     }
+
 
 }
