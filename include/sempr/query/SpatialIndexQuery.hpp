@@ -46,10 +46,13 @@ public:
         INTERSECTS, NOTINTERSECTS
     };
 
+
     /** returns the mode of the query: WITHIN, NOT_WITHIN, ... */
     QueryType mode() const;
     /** set the mode of the query */
     void mode(QueryType m);
+    /** inverts the mode: WITHIN <-> NOTWITHIN etc. */
+    void invert();
 
     /** get hold of the reference geometry (the 8 cornerpoints of the bounding box) */
     entity::Geometry::Ptr refGeo();
@@ -59,14 +62,23 @@ public:
         the geometry to 'withinBox'.
     */
     static SpatialIndexQuery::Ptr withinBoxOf(entity::Geometry::Ptr geometry);
+    static SpatialIndexQuery::Ptr containsBoxOf(entity::Geometry::Ptr geometry);
+    static SpatialIndexQuery::Ptr intersectsBoxOf(entity::Geometry::Ptr geometry);
+
 
     /**
         Query for everything within the bbox specified. Explicit coordinate system.
         This creates a new GeometryCollection that is used for the query.
      */
-    static SpatialIndexQuery::Ptr withinBox(const Eigen::Vector3d& lower, const Eigen::Vector3d& upper,
+    static SpatialIndexQuery::Ptr withinBox(const Eigen::Vector3d& lower,
+                                            const Eigen::Vector3d& upper,
                                             entity::SpatialReference::Ptr cs);
-
+    static SpatialIndexQuery::Ptr containsBox(  const Eigen::Vector3d& lower,
+                                                const Eigen::Vector3d& upper,
+                                                entity::SpatialReference::Ptr cs);
+    static SpatialIndexQuery::Ptr intersectsBox(const Eigen::Vector3d& lower,
+                                                const Eigen::Vector3d& upper,
+                                                entity::SpatialReference::Ptr cs);
     /**
         TODO: how to say "not within?"
         This would be nice:
@@ -83,6 +95,14 @@ public:
     // TODO CONTAINS and INTERSECTS
 private:
     // helper: construct collection of bbox-corner-points from a geometry
+    void setupRefGeo(const Eigen::Vector3d& lower, const Eigen::Vector3d& upper,
+                entity::SpatialReference::Ptr cs);
+
+    // helper: create query from geo or upper/lower and a type
+    static SpatialIndexQuery::Ptr createQuery(entity::Geometry::Ptr geo, QueryType type);
+    static SpatialIndexQuery::Ptr createQuery(const Eigen::Vector3d& lower, const Eigen::Vector3d& upper,
+                                        entity::SpatialReference::Ptr cs, QueryType type);
+
 
     // use static methods to construct queries
     SpatialIndexQuery();

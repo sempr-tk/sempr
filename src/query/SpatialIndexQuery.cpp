@@ -26,13 +26,10 @@ entity::Geometry::Ptr SpatialIndexQuery::refGeo()
     return refGeo_;
 }
 
-SpatialIndexQuery::Ptr SpatialIndexQuery::withinBox( const Eigen::Vector3d& lower,
-                                        const Eigen::Vector3d& upper,
-                                        entity::SpatialReference::Ptr cs)
-{
-    if (!cs) return SpatialIndexQuery::Ptr();
 
-    /* -- this could/should be a helper function -- */
+void SpatialIndexQuery::setupRefGeo(const Eigen::Vector3d &lower, const Eigen::Vector3d &upper,
+                                    entity::SpatialReference::Ptr cs)
+{
     entity::GeometryCollection::Ptr corners(new entity::GeometryCollection());
     corners->setCS(cs);
 
@@ -45,17 +42,11 @@ SpatialIndexQuery::Ptr SpatialIndexQuery::withinBox( const Eigen::Vector3d& lowe
     p = new OGRPoint(upper.x(), lower.y(), upper.z()); corners->geometry()->addGeometryDirectly(p);
     p = new OGRPoint(upper.x(), upper.y(), lower.z()); corners->geometry()->addGeometryDirectly(p);
     p = new OGRPoint(upper.x(), upper.y(), upper.z()); corners->geometry()->addGeometryDirectly(p);
-    /* -- ---- -- */
-
-    SpatialIndexQuery::Ptr query(new SpatialIndexQuery());
-    query->mode(SpatialIndexQuery::WITHIN);
-    query->refGeo_ = corners;
-
-    return query;
+    this->refGeo_ = corners;
 }
 
-
-SpatialIndexQuery::Ptr SpatialIndexQuery::withinBoxOf(entity::Geometry::Ptr geometry)
+SpatialIndexQuery::Ptr SpatialIndexQuery::createQuery(
+    entity::Geometry::Ptr geometry, sempr::query::SpatialIndexQuery::QueryType type)
 {
     OGREnvelope3D env;
     geometry->geometry()->getEnvelope(&env);
@@ -67,7 +58,70 @@ SpatialIndexQuery::Ptr SpatialIndexQuery::withinBoxOf(entity::Geometry::Ptr geom
     upper.y() = env.MaxY;
     upper.z() = env.MaxZ;
 
-    return SpatialIndexQuery::withinBox(lower, upper, geometry->getCS());
+    return createQuery(lower, upper, geometry->getCS(), type);
+}
+
+SpatialIndexQuery::Ptr SpatialIndexQuery::createQuery(
+    const Eigen::Vector3d &lower, const Eigen::Vector3d &upper,
+    entity::SpatialReference::Ptr cs, sempr::query::SpatialIndexQuery::QueryType type)
+{
+    if (!cs) return SpatialIndexQuery::Ptr();
+
+    SpatialIndexQuery::Ptr query(new SpatialIndexQuery());
+    query->setupRefGeo(lower, upper, cs);
+    query->mode(type);
+    return query;
+}
+
+
+void SpatialIndexQuery::invert()
+{
+    /*
+        inversion of query type:
+        positive (WITHIN, CONTAINS, INTERSECTS) are even (0, 2, 4),
+        negative (NOT_WITHIN, ...) are odd (1, 3, 5).
+        Just increment even and decrement odd values.
+    */
+    if (qtype_ % 2 == 0) qtype_ = QueryType(qtype_+1);
+    else qtype_ = QueryType(qtype_-1);
+}
+
+
+SpatialIndexQuery::Ptr SpatialIndexQuery::withinBox( const Eigen::Vector3d& lower,
+                                        const Eigen::Vector3d& upper,
+                                        entity::SpatialReference::Ptr cs)
+{
+    return SpatialIndexQuery::createQuery(lower, upper, cs, SpatialIndexQuery::WITHIN);
+}
+
+SpatialIndexQuery::Ptr SpatialIndexQuery::containsBox( const Eigen::Vector3d& lower,
+                                        const Eigen::Vector3d& upper,
+                                        entity::SpatialReference::Ptr cs)
+{
+    return SpatialIndexQuery::createQuery(lower, upper, cs, SpatialIndexQuery::CONTAINS);
+}
+
+SpatialIndexQuery::Ptr SpatialIndexQuery::intersectsBox( const Eigen::Vector3d& lower,
+                                        const Eigen::Vector3d& upper,
+                                        entity::SpatialReference::Ptr cs)
+{
+    return SpatialIndexQuery::createQuery(lower, upper, cs, SpatialIndexQuery::INTERSECTS);
+}
+
+
+SpatialIndexQuery::Ptr SpatialIndexQuery::withinBoxOf(entity::Geometry::Ptr geometry)
+{
+    return SpatialIndexQuery::createQuery(geometry, SpatialIndexQuery::WITHIN);
+}
+
+SpatialIndexQuery::Ptr SpatialIndexQuery::containsBoxOf(entity::Geometry::Ptr geometry)
+{
+    return SpatialIndexQuery::createQuery(geometry, SpatialIndexQuery::CONTAINS);
+}
+
+SpatialIndexQuery::Ptr SpatialIndexQuery::intersectsBoxOf(entity::Geometry::Ptr geometry)
+{
+    return SpatialIndexQuery::createQuery(geometry, SpatialIndexQuery::INTERSECTS);
 }
 
 }}
