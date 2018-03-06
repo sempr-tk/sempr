@@ -197,7 +197,7 @@ void SpatialIndex::insertGeo(entity::Geometry::Ptr geo)
     rtree_.insert(entry);
 
 
-    std::cout << "inserted " << geo->id() << " into spatial index" << '\n';
+    // std::cout << "inserted " << geo->id() << " into spatial index. " << '\n';
 }
 
 void SpatialIndex::updateGeo(entity::Geometry::Ptr geo)
