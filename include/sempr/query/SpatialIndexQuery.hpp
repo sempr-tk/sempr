@@ -33,10 +33,17 @@ public:
     /** The set of geometries matching the criterium */
     std::set<entity::Geometry::Ptr> results;
 
+    /*
+        NOTE:   I'd prefer "NOT_WITHIN" etc instead of "NOTWITHIN", but sadly newer versions of
+                libsqlite3-dev (3.11) have a
+                    #define NOT_WITHIN 0
+                inside of sqlite3.h, which makes the preprocessor expand it here, and the compiler
+                throwing an error pointing at NOT_WITHIN...
+    */
     enum QueryType {
-        WITHIN = 0, NOT_WITHIN,
-        CONTAINS, NOT_CONTAINS,
-        INTERSECTS, NOT_INTERSECTS
+        WITHIN = 0, NOTWITHIN,
+        CONTAINS, NOTCONTAINS,
+        INTERSECTS, NOTINTERSECTS
     };
 
     /** returns the mode of the query: WITHIN, NOT_WITHIN, ... */
