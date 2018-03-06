@@ -3,7 +3,7 @@
 #include <sempr/entity/spatial/LocalTransformation.hpp>
 #include <iterator>
 
-#include <gdal/ogr_core.h>
+#include <ogr_core.h>
 
 namespace sempr { namespace processing {
 
