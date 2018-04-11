@@ -45,7 +45,7 @@ namespace rdfs {
 
 #   define RDFS(name) \
     const std::string& (name)() { \
-        static const std::string t = "<http://www.w3.org/2000/01/rdf-schema#(name)>"; \
+        static const std::string t = "<http://www.w3.org/2000/01/rdf-schema#" #name ">"; \
         return t; \
     }
     RDFS(Resource)
@@ -64,7 +64,7 @@ namespace owl {
     }
 #   define OWL(name) \
     const std::string& (name)() { \
-        static const std::string& t = "<http://www.w3.org/2002/07/owl#(name)>"; \
+        static const std::string& t = "<http://www.w3.org/2002/07/owl#" #name ">"; \
         return t; \
     }
     OWL(Class)
