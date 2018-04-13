@@ -387,6 +387,46 @@ core.addModule(semantic);
 }
 ```
 
+#### SpatialIndexQuery
+The `SpatialIndex` is a processing module which listens for changes in geometries and their coordiante systems, calculates their bounding boxes in the root coordinate system and uses them to maintain a spatial index in form of a boost RTree. 
+> **Note:** The SpatialIndex currently assumes that all geometries are referenced in a common root cordinate system and does not check if this assumption holds. We should extend it to work only on a concrete `SpatialReference` and it's children and disregard all other geometries. 
+
+This module answers `SpatialIndexQuery`s: You may specify a geometry in any coordinate system, from which the bounding box is created and passed to the processing module. It returns all geometries with bounding boxes which are fully within or intersect (depending on the query type) the box given in the query.
+> **Note:** There are multple points of approximation. For every geometry, the one given to the query as well as everything indexed in the module, its AABB is calculated first inside the geometries reference frame. It is then transformed into the root coordinate system, but may now be no longer axis aligned -- so again the AABB (within root) is calculated from the now oriented BB. All checks (intersects, within) are done with these AABBs within the root system.
+
+To use it you can specify a bounding box and reference frame directly:
+```c++
+SpatialIndex::Ptr index(new SpatialIndex());
+core.addModule(index);
+
+// [...] add / load geometries to fill the index
+
+// create a query from a bounding box
+Eigen::Vector3d lower, upper;	// TODO: set values
+LocalCS::Ptr cs;				// TODO: specify coordinate system
+auto query1 = SpatialIndexQuery::withinBox(lower, upper, cs);
+
+// get results
+core.answerQuery(query1);
+for (auto r : query1->results)
+{
+	std::cout << r->id() << std::endl;
+}
+```
+Or use an existing geometry:
+```c++
+// create a query from a geometry
+Geometry::Ptr geo; 	// TODO: specify geometry
+auto query2 = SpatialIndexQuery::withinBoxOf(geo);
+```
+You can also invert the mode or set it directly:
+```c++
+// invert the mode. "within" becomes "not within" and vice versa
+query2->invert();
+
+// explicitely set the mode
+query2->mode(SpatialIndexQuery::INTERSECTS);
+```
 
 ## Pitfalls
 ### Entity creation

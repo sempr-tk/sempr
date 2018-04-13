@@ -71,8 +71,10 @@ target_compile_definitions(sempr_core PUBLIC -D${CONFIG_DATABASE})
 # Define a list of headers to exclude from the pch. Use this while working on SEMPR to avoid
 # having to generate from scratch when adding a new function etc.
 file(GLOB_RECURSE EXCLUDE_FROM_PCH
-    #../include/sempr/processing/SopranoModule.hpp # e.g.
+    # ../include/sempr/processing/SpatialIndex.hpp
+    # ../include/sempr/query/SpatialIndexQuery.hpp
 )
+
 
 # check if clang exists
 find_program(CLANG clang++)

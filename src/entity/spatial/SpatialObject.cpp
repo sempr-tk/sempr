@@ -8,6 +8,8 @@ namespace sempr { namespace entity {
 SpatialObject::SpatialObject()
     : Entity(new core::IDGen<SpatialObject>())
 {
+    this->setDiscriminator<SpatialObject>();
+    
     geometry_.reset(new GeometryCollection());
     property_.reset(new RDFPropertyMap(*this));
 

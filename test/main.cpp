@@ -9,6 +9,7 @@ using namespace sempr::entity;
 #include <sempr/processing/DBUpdateModule.hpp>
 #include <sempr/processing/ActiveObjectStore.hpp>
 #include <sempr/processing/SopranoModule.hpp>
+#include <sempr/processing/SpatialIndex.hpp>
 using namespace sempr::processing;
 
 #include <sempr/query/ObjectQuery.hpp>
@@ -33,6 +34,9 @@ using namespace sempr::query;
 #include <sempr/entity/spatial/LocalCS.hpp>
 
 #include <RDFDocument_odb.h>
+#include <Polygon_odb.h>
+
+#include <array>
 
 #ifndef M_PI
 #   define M_PI 3.141592653589793
@@ -47,47 +51,33 @@ void print(OGRGeometry* p)
 }
 
 
-// create a simple query
-class DummyQuery : public Query {
-public:
-    using Ptr = std::shared_ptr<DummyQuery>;
-    std::string type() const { return "DummyQuery"; }
-    int count;
-};
 
-// create a simple module that will just issue a sparql-query.
-class DummyModule : public Module {
-public:
-    using Ptr = std::shared_ptr<DummyModule>;
-    std::string type() const {
-        return "DummyModule";
-    }
+void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const std::array<float, 3>& max)
+{
+    // OGRLineString* ls = (OGRLineString*) OGRGeometryFactory::createGeometry(wkbLineString);
+    OGRLinearRing* lr = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
+    lr->addPoint(min[0], min[1], max[2]);
+    lr->addPoint(min[0], max[1], min[2]);
+    lr->addPoint(min[0], max[1], max[2]);
+    lr->addPoint(min[0], min[1], min[2]);
+    lr->addPoint(min[0], min[1], max[2]);
+    lr->addPoint(min[0], max[1], min[2]);
+    lr->addPoint(min[0], max[1], max[2]);
+    lr->addPoint(max[0], min[1], min[2]);
+    lr->addPoint(max[0], min[1], max[2]);
+    lr->addPoint(max[0], max[1], min[2]);
+    lr->addPoint(max[0], max[1], max[2]);
+    lr->closeRings();
+    poly->addRingDirectly(lr);
+}
 
-    DummyModule() {
-        addOverload<DummyQuery>(
-            [this] (DummyQuery::Ptr q) {
-                this->answerDummy(q);
-            }
-        );
-    }
 
-    void answerDummy(DummyQuery::Ptr query)
-    {
-        // just ask a sparql-query
-        SPARQLQuery::Ptr sparql(new SPARQLQuery());
-        sparql->query = "SELECT * WHERE { ?s ?p ?o . }";
-        this->ask(sparql);
-        // result of DummyQuery is the number of results of the sparql query
-        query->count = sparql->results.size();
-    }
-};
 
 int main(int argc, char** args)
 {
-
-    RDFDocument::FromFile("model.owl");
-
-
+    /* ************* *
+     * SETUP
+     * ************** */
     // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
     ODBStorage::Ptr storage( new ODBStorage() );
 
@@ -95,6 +85,7 @@ int main(int argc, char** args)
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
     SopranoModule::Ptr semantic( new SopranoModule() );
+    SpatialIndex::Ptr spatial( new SpatialIndex() );
 
     sempr::core::IDGenerator::getInstance().setStrategy(
         // std::unique_ptr<sempr::core::UUIDGeneration>( new sempr::core::UUIDGeneration(false) )
@@ -106,23 +97,42 @@ int main(int argc, char** args)
     c.addModule(debug);
     c.addModule(updater);
     c.addModule(semantic);
+    c.addModule(spatial);
 
 
-    /********************************
-        test query-within-query
-    **********************************/
-    DummyModule::Ptr module(new DummyModule());
-    c.addModule(module);
+    /* ************* *
+     * TESTS
+     * ************** */
+     // add a spatial refernce
+     LocalCS::Ptr cs(new LocalCS());
+     c.addEntity(cs);
 
-    DummyQuery::Ptr query(new DummyQuery());
-    c.answerQuery(query);
-    std::cout << query->count << '\n';
+     // add a few geometries
+     for (float i = 0.1; i < 10; i++)
+     {
+         Polygon::Ptr p( new Polygon() );
+         setupQuadrangle(p->geometry(), {{i, 0, 0}}, {{i+1, 1, 1}});
+         p->setCS(cs);
+         c.addEntity(p);
+     }
 
-    // add some rdf-stuff
-    Person::Ptr p(new Person());
-    c.addEntity(p);
 
-    c.answerQuery(query);
-    std::cout << query->count << '\n';
+     // query for everything in a box.
+     Eigen::Vector3d lower{-0.1, -0.1, -0.1};
+     Eigen::Vector3d upper{5.2, 1.2, 1.2};
+     auto q = SpatialIndexQuery::withinBox(lower, upper, cs);
+     c.answerQuery(q);
+     for (auto r : q->results) {
+         std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
+     }
+
+     std::cout << "and inverted?" << '\n';
+     q->invert();
+     q->results.clear();
+     c.answerQuery(q);
+     for (auto r : q->results) {
+         std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
+     }
+
 
 }
