@@ -197,13 +197,13 @@ void SpatialIndex::insertGeo(entity::Geometry::Ptr geo)
     rtree_.insert(entry);
 
 
-    std::cout << "inserted " << geo->id() << " into spatial index. AABB: "
-        << "(" << entry.first.min_corner().get<0>() << ", " <<
-                  entry.first.min_corner().get<1>() << ", " <<
-                  entry.first.min_corner().get<2>() << ")  --  (" <<
-                  entry.first.max_corner().get<0>() << ", " <<
-                  entry.first.max_corner().get<1>() << ", " <<
-                  entry.first.max_corner().get<2>() << ")" << '\n';
+    // std::cout << "inserted " << geo->id() << " into spatial index. AABB: "
+    //     << "(" << entry.first.min_corner().get<0>() << ", " <<
+    //               entry.first.min_corner().get<1>() << ", " <<
+    //               entry.first.min_corner().get<2>() << ")  --  (" <<
+    //               entry.first.max_corner().get<0>() << ", " <<
+    //               entry.first.max_corner().get<1>() << ", " <<
+    //               entry.first.max_corner().get<2>() << ")" << '\n';
 }
 
 void SpatialIndex::updateGeo(entity::Geometry::Ptr geo)

@@ -52,7 +52,7 @@ void EventBroker::addObserver(Observer::Ptr observer) {
 
 void EventBroker::processEvent() {
     static int depth = 0;
-    std::cout << "EventBroker::processEvent depth: " << depth << '\n';
+    // std::cout << "EventBroker::processEvent depth: " << depth << '\n';
     depth++;
 
     if (!eventQueue.empty()) {
@@ -61,7 +61,7 @@ void EventBroker::processEvent() {
         // else the next event fired (depth!) will process the same event again, and again, ...
 
 
-        std::cout << "EventBroker::processEvent " << event.get() << " | " << typeid(*event).name() << '\n';
+        // std::cout << "EventBroker::processEvent " << event.get() << " | " << typeid(*event).name() << '\n';
 
         // notify all observers registered to the topic
         for (auto o : observers[event->topic()]) {
