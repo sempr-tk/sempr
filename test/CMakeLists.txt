@@ -5,6 +5,7 @@ include_directories(${Soprano_INCLUDE_DIRS})
 
 pkg_check_modules(GDAL REQUIRED gdal)
 include_directories(${GDAL_INCLUDE_DIRS})
+link_directories(${GDAL_LIBRARY_DIRS})
 
 pkg_check_modules(EIGEN REQUIRED eigen3)
 include_directories(${EIGEN_INCLUDE_DIRS})
