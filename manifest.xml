@@ -36,9 +36,9 @@
     <!-- <activity>pending</activity> -->
     <!-- <activity>discontinued</activity> -->
     
-<tags>
-    <tag>c++</tag>
-    <tag>ubuntu</tag>
-    <tag>odb</tag>
-</tags>
+<classifiers>
+    <classifier>c++</classifier>
+    <classifier>ubuntu</classifier>
+    <classifier>odb</classifier>
+</classifiers>
 </package>
