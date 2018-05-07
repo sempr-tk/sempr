@@ -14,7 +14,7 @@ public:
     DBUpdateModule(storage::Storage::Ptr storage);
     
     /** upon receiving a changed-event, update the database */
-    void process(entity::Entity::Event::Ptr e);
+    void process(core::EntityEventBase::Ptr e);
     
 private:
     storage::Storage::Ptr storage_;

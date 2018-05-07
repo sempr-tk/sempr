@@ -28,7 +28,7 @@ public:
         Keep a list of currently used objects -- add on "created" or "loaded",
         remove on "removed".
     */
-    void process(entity::Entity::Event::Ptr event);
+    void process(core::EntityEventBase::Ptr event);
 
 
     /**

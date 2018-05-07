@@ -3,8 +3,8 @@
 namespace sempr { namespace processing {
 
 ActiveObjectStore::ActiveObjectStore() {
-    addOverload<entity::Entity::Event>(
-        [this](entity::Entity::Event::Ptr e) { process(e); }
+    addOverload<core::EntityEventBase>(
+        [this](core::EntityEventBase::Ptr e) { process(e); }
     );
 }
 
@@ -16,7 +16,7 @@ std::string ActiveObjectStore::type() const {
     return "ActiveObjectStore";
 }
 
-void ActiveObjectStore::process(entity::Entity::Event::Ptr e)
+void ActiveObjectStore::process(core::EntityEventBase::Ptr e)
 {
     typedef core::EntityEventBase::EventType EventType;
 

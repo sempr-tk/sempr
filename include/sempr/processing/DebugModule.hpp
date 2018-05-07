@@ -15,7 +15,7 @@ public:
     virtual std::string type() const override;
 
     void process(core::Event::Ptr e);
-    void process(entity::Entity::Event::Ptr e);
+    void process(core::EntityEventBase::Ptr e);
 };
 
 } /* processing */

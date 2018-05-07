@@ -11,6 +11,9 @@
 
 #include <sempr/query/SpatialIndexQuery.hpp>
 
+#include <Geometry_odb.h>   // required for EntityEvent<Geometry>
+#include <SpatialReference_odb.h>   // required for EntityEvent<SpatialReference>
+
 #include <vector>
 #include <map>
 
@@ -66,6 +69,7 @@ private:
         A mapping of Geometry-->bValue for easier updates of the RTree
     */
     std::map<entity::Geometry::Ptr, bValue> geo2box_;
+
 
     /**
         Process changes of geometries: New are inserted into the RTree, changed are recomputed
