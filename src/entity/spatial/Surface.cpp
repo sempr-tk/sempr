@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(Surface)
+
 Surface::Surface() : Surface(new core::IDGen<Surface>())
 {
 }

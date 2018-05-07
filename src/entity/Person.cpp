@@ -5,6 +5,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(Person)
+
 Person::Person(const core::IDGenBase* idgen)
     : Entity(idgen)
 {

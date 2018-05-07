@@ -4,6 +4,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(CoffeeMug)
+
 CoffeeMug::CoffeeMug(const core::IDGenBase* idgen)
     : Entity(idgen)
 {

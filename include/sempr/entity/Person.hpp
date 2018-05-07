@@ -9,6 +9,7 @@ namespace sempr { namespace entity {
 
 #pragma db object
 class Person : public Entity {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<Person>;
     enum Gender { MALE, FEMALE, UNKNOWN };
@@ -31,9 +32,6 @@ public:
 
     float height() { return (*prop_)["height"]; }
     void height(float i) { (*prop_)["height"] = i; changed(); prop_->changed(); }
-
-    ENTITY_DEFAULT_EVENT_METHODS(Person, Entity);
-
 
     /** Another way is to use explicit member variables. */
 

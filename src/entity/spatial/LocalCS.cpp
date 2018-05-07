@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(LocalCS)
+
 LocalCS::LocalCS()
     : LocalCS(new core::IDGen<LocalCS>())
 {

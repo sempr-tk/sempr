@@ -10,6 +10,7 @@ namespace sempr { namespace entity {
 */
 #pragma db object
 class RDFDocument : public RDFEntity {
+    SEMPR_ENTITY
 private:
     friend class odb::access;
     std::string filename_;

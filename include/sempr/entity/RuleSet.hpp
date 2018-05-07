@@ -19,6 +19,7 @@ namespace sempr { namespace entity {
 */
 #pragma db object
 class RuleSet : public Entity {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<RuleSet>;
 
@@ -31,8 +32,6 @@ public:
     void add(const std::string& rule) {
         rules.push_back(rule);
     }
-
-    ENTITY_DEFAULT_EVENT_METHODS(RuleSet, Entity);
 };
 
 }}

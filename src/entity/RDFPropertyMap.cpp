@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(RDFPropertyMap)
+
 RDFPropertyMap::RDFPropertyMap(const core::IDGenBase* idgen,
     const std::string& subject, const std::string& baseURI)
     : RDFEntity(idgen), subject_(subject), baseURI_(baseURI)

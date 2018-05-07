@@ -10,9 +10,9 @@ namespace sempr { namespace entity {
 */
 #pragma db object
 class LineString : public SimpleCurve {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<LineString>;
-    ENTITY_DEFAULT_EVENT_METHODS(LineString, SimpleCurve);
 
     LineString();
     LineString(const core::IDGenBase*);

@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(Polygon)
+
 Polygon::Polygon() : Polygon(new core::IDGen<Polygon>())
 {
 }

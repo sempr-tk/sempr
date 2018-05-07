@@ -5,6 +5,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(Geometry)
+
 Geometry::Geometry() : Geometry(new core::IDGen<Geometry>())
 {
 }

@@ -19,6 +19,7 @@ namespace sempr { namespace entity {
 */
 #pragma db object
 class SpatialObject : public Entity {
+    SEMPR_ENTITY
 private:
     GeometryCollection::Ptr geometry_;
     RDFPropertyMap::Ptr property_;
@@ -58,9 +59,6 @@ public:
     /** get/set if the object has vanished, i.e., has not been seen at the place we thought it was. */
     bool vanished() const;
     void vanished(bool v);
-
-
-    ENTITY_DEFAULT_EVENT_METHODS(SpatialObject, Entity);
 };
 
 }}

@@ -2,6 +2,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(GlobalCS)
+
 GlobalCS::GlobalCS()
 {
     // nothing to do.

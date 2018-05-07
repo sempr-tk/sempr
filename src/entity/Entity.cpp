@@ -6,6 +6,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(Entity)
+
 Entity::Entity(const core::IDGenBase* idgen)
     : DBObject(idgen), announced_(false)
 {
@@ -41,11 +43,8 @@ void Entity::fireEvent(core::Event::Ptr e) {
 void Entity::changed() {
     if (!announced_) return;  // only publish changes if it has been announced (created() or loaded())
 
-    baseCalled_ = false;
-    changed_impl();
-    assert(baseCalled_ &&
-        "The base method Entity::changed_impl() "
-        "has not been called during Entity::changed()!");
+    auto e = this->createEntityEvent(core::EntityEventBase::CHANGED);
+    fireEvent(e);
 }
 
 void Entity::created() {
@@ -56,11 +55,8 @@ void Entity::created() {
         child->created();
     }
 
-    baseCalled_ = false;
-    created_impl();
-    assert(baseCalled_ &&
-        "The base method Entity::created_impl() "
-        "has not been called during Entity::created()!");
+    auto e = this->createEntityEvent(core::EntityEventBase::CREATED);
+    fireEvent(e);
     announced_ = true;
 }
 
@@ -72,53 +68,22 @@ void Entity::loaded() {
         child->loaded();
     }
 
-    baseCalled_ = false;
-    loaded_impl();
-    assert(baseCalled_ &&
-        "The base method Entity::loaded_impl() "
-        "has not been called during Entity::loaded()!");
+    auto e = this->createEntityEvent(core::EntityEventBase::LOADED);
+    fireEvent(e);
     announced_ = true;
 }
 
 void Entity::removed() {
     if (!announced_) return;
 
-    baseCalled_ = false;
-    removed_impl();
-    assert(baseCalled_ &&
-        "The base method Entity::removed_impl() "
-        "has not been called during Entity::removed()!");
+    auto e = this->createEntityEvent(core::EntityEventBase::REMOVED);
+    fireEvent(e);
 
     // in the end, announce all children
     for (auto child : children_) {
         child->removed();
     }
 }
-
-void Entity::changed_impl() {
-    Event::Ptr e = std::make_shared<Event>(shared_from_this(), Event::CHANGED);
-    fireEvent(e);
-    baseCalled_ = true;
-}
-
-void Entity::created_impl() {
-    Event::Ptr e = std::make_shared<Event>(shared_from_this(), Event::CREATED);
-    fireEvent(e);
-    baseCalled_ = true;
-}
-
-void Entity::loaded_impl() {
-    Event::Ptr e = std::make_shared<Event>(shared_from_this(), Event::LOADED);
-    fireEvent(e);
-    baseCalled_ = true;
-}
-
-void Entity::removed_impl() {
-    Event::Ptr e = std::make_shared<Event>(shared_from_this(), Event::REMOVED);
-    fireEvent(e);
-    baseCalled_ = true;
-}
-
 
 
 void Entity::registerChildEntity(Entity::Ptr child)

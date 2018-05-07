@@ -12,47 +12,52 @@
 #include <sempr/core/EntityEvent.hpp>
 
 
-#define ENTITY_DEFAULT_CHANGED(CLASS, BASE) \
-    virtual void changed_impl() override { \
-        BASE::changed_impl(); \
-        auto e = std::make_shared<sempr::core::EntityEvent<CLASS> >(  \
-            shared_from_base<CLASS>(), sempr::core::EntityEventBase::CHANGED  \
-        );  \
-        fireEvent(e);  \
+/**
+    The SEMPR_ENTITY macro declares a 'createEntityEvent' method. It is first introduced in Entity
+    and is used there in the changed(), created(), ... methods to throw an EntityEvent. By
+    overriding this method in subclasses we adjust the thrown event to the derived classes. So
+    when you call Polygon::changed() you will get a EntityEvent<Polygon> instead of
+    EntityEvent<Geometry> or EntityEvent<Entity>. Note: Modules listening for EntityEvent<Geometry>
+    will still be able to process an EntityEvent<Polygon>, since the EntityEvents follow the
+    inheritance chain of the entity-classes and register their types and the modules internally
+    use "bool Observable::isA<class T>()" and "T::Ptr as<class T>(Observable::Ptr)".
+
+    Insert this somewhere in your class declaration, e.g.:
+        // Foo.hpp
+        #pragma db object
+        class Foo : public Entity {
+            SEMPR_ENTITY
+        public:
+            // [...]
+        };
+*/
+#define SEMPR_ENTITY \
+    virtual sempr::core::EntityEventBase::Ptr createEntityEvent(sempr::core::EntityEventBase::EventType type) override;
+
+/**
+    The SEMPR_ENTITY_SOURCE(CLASS) macro implements the 'createEntityEvent' method declared by
+    SEMPR_ENTITY. This has to be used in the source file since it instantiates a template of
+    EntityEvent<CLASS>, which internally uses base_of<T> and therefore odb::object_traits<T>.
+    But since the odb::object_traits<T> specialization for this class is created by processing the
+    header file with the odb-compiler we can only access it in the source file.
+
+    Insert this somewhere in your class definition, source file, e.g.
+        // Foo.cpp
+        SEMPR_ENTITY_SOURCE(Foo)
+            [...]
+        Foo::Foo()
+        {
+            [...]
+        }
+*/
+#define SEMPR_ENTITY_SOURCE(CLASS) \
+    sempr::core::EntityEventBase::Ptr CLASS::createEntityEvent(sempr::core::EntityEventBase::EventType type) \
+    { \
+        return sempr::core::EntityEventBase::Ptr( \
+            new sempr::core::EntityEvent<CLASS>(shared_from_base<CLASS>(), type) \
+        ); \
     }
 
-#define ENTITY_DEFAULT_CREATED(CLASS, BASE) \
-    virtual void created_impl() override { \
-        BASE::created_impl(); \
-        auto e = std::make_shared<sempr::core::EntityEvent<CLASS> >(  \
-            shared_from_base<CLASS>(), sempr::core::EntityEventBase::CREATED  \
-        );  \
-        fireEvent(e);  \
-    }
-
-#define ENTITY_DEFAULT_LOADED(CLASS, BASE) \
-    virtual void loaded_impl() override { \
-        BASE::loaded_impl(); \
-        auto e = std::make_shared<sempr::core::EntityEvent<CLASS> >(  \
-            shared_from_base<CLASS>(), sempr::core::EntityEventBase::LOADED  \
-        );  \
-        fireEvent(e);  \
-    }
-
-#define ENTITY_DEFAULT_REMOVED(CLASS, BASE) \
-    virtual void removed_impl() override { \
-        BASE::removed_impl(); \
-        auto e = std::make_shared<sempr::core::EntityEvent<CLASS> >(  \
-            shared_from_base<CLASS>(), sempr::core::EntityEventBase::REMOVED  \
-        );  \
-        fireEvent(e);  \
-    }
-
-#define ENTITY_DEFAULT_EVENT_METHODS(class,base) \
-    ENTITY_DEFAULT_CREATED(class,base) \
-    ENTITY_DEFAULT_LOADED(class,base) \
-    ENTITY_DEFAULT_CHANGED(class,base) \
-    ENTITY_DEFAULT_REMOVED(class,base)
 
 
 namespace sempr {
@@ -76,7 +81,7 @@ public:
     virtual ~Entity(){}
 
     using Ptr = std::shared_ptr<Entity>;
-    using Event = core::EntityEvent<Entity>;
+    // using Event = core::EntityEvent<Entity>;
 
     /** Fires an event signalling that this entity changed (EntityEvent<Entity>).
         Derived classes need to override changed_impl() to also fire special
@@ -139,17 +144,6 @@ protected:
     */
     virtual void preLoad(odb::database& db) override;
 
-    /**
-        To make sure that a derived class does not forget to throw an
-        EntityEvent<Entity> on change/creation/load/removed, the methods
-        changed(), ... just call the _impl()-methods and check if
-        Entity::..._impl() has been called, failing an assertion if not.
-    */
-    virtual void changed_impl();
-    virtual void created_impl();
-    virtual void loaded_impl();
-    virtual void removed_impl();
-
 private:
     friend class odb::access;
     friend class core::Core;
@@ -157,6 +151,18 @@ private:
     /** used to fire events, set by the core */
     #pragma db transient
     std::weak_ptr<core::EventBroker> broker_;
+
+
+    /**
+        Creates an EntityEvent.
+        This has to be overridden by every subclass to return the correct EntityEvent-type
+        (e.g. EntityEvent<MySpecialEntity>). Make sure to implement it in the source only, since
+        "*_odb.h" *must* be included before using the EntityEvent-class. (It uses the odb object
+        traits).
+    */
+    virtual core::EntityEventBase::Ptr createEntityEvent(core::EntityEventBase::EventType type);
+    // SEMPR_ENTITY // same, but with "override"
+
 
     /**
         In order to allow entities within entities and a correct

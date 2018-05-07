@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(SpatialReference)
+
 SpatialReference::SpatialReference()
     : SpatialReference(new core::IDGen<SpatialReference>())
 {

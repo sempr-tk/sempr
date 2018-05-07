@@ -19,9 +19,9 @@ TODO geometry: methods to assign / change ref systems
 */
 #pragma db object
 class SpatialReference : public Entity {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<SpatialReference>;
-    ENTITY_DEFAULT_EVENT_METHODS(SpatialReference, Entity);
 
     /// get the root of this reference system (not the parent!)
     /// not const -- might return "shared_from_this()"...

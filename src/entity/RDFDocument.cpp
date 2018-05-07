@@ -6,6 +6,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(RDFDocument)
+
 RDFDocument::RDFDocument()
     : RDFEntity(new core::IDGen<RDFDocument>())
 {

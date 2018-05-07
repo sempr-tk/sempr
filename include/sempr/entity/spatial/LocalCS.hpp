@@ -13,9 +13,9 @@ namespace sempr { namespace entity {
 */
 #pragma db object
 class LocalCS : public SpatialReference {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<LocalCS>;
-    ENTITY_DEFAULT_EVENT_METHODS(LocalCS, SpatialReference);
 
     LocalCS();
     LocalCS(const core::IDGenBase*);

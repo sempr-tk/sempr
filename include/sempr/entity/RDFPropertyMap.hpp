@@ -19,6 +19,7 @@ class RDFValueProxy;
 */
 #pragma db object
 class RDFPropertyMap : public RDFEntity {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<RDFPropertyMap>;
     /** All elements are stored as (subject baseURI+key value) */
@@ -40,7 +41,7 @@ public:
     */
     RDFValueProxy operator[](const std::string& key);
     RDFValueProxy operator()(const std::string& key);
-    
+
     /**
         Allows to set a baseURI that differs from the default. To read/write the same variable
         again, you will always need to specify the baseURI, too.
@@ -51,8 +52,6 @@ public:
     */
     RDFValueProxy operator()(const std::string& key, const std::string& baseURI);
 
-
-    ENTITY_DEFAULT_EVENT_METHODS(RDFPropertyMap, RDFEntity);
 private:
     RDFPropertyMap(){}
     friend class odb::access;

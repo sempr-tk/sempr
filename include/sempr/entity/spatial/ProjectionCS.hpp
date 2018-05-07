@@ -16,9 +16,9 @@ class GeographicCS;
 */
 #pragma db object
 class ProjectionCS : public GlobalCS {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<ProjectionCS>;
-    ENTITY_DEFAULT_EVENT_METHODS(ProjectionCS, GlobalCS);
 
     SpatialReference::Ptr getRoot() override;
     Eigen::Affine3d transformationToRoot() const override;
