@@ -41,10 +41,15 @@ public:
     template <class T>
     T& as() { return static_cast<T>(*this); }
 
-    // TODO: Is there a way to define this cast for shared_ptr, too?
+    // TODO: Is there a way to define this cast for shared_ptr, too? Maybe like this: Usage: SomethingElse::Ptr something = Observable::as<SomethingElse>(observable);
+    template <class T>
+    static std::shared_ptr<T> as(Observable::Ptr observable)
+    {
+        return std::static_pointer_cast<T>(observable);
+    }
 };
 
-// NOTE: like this, maybe?
+// NOTE: or like this, maybe? Usage: ... = sempr::core::as<SomethingElse>(observable);
 template <class T>
 std::shared_ptr<T> as(Observable::Ptr observable)
 {
