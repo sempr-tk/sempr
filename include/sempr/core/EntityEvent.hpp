@@ -5,9 +5,15 @@
 #include <sempr/core/Utility.hpp>
 
 namespace sempr {
+
 namespace entity {
     class Entity;
 }
+
+namespace storage {
+    class DBObject;
+}
+
 namespace core {
 
 
@@ -17,6 +23,7 @@ namespace core {
 */
 class EntityEventBase : public Event {
 public:
+    using Ptr = std::shared_ptr<EntityEventBase>;
     enum EventType {
         CREATED,
         CHANGED,
@@ -98,6 +105,21 @@ protected:
         : EntityEventBase(eptr, type)
     {
     };
+};
+
+/**
+    Specialization for DBObject / alternative recursion anchor.
+    This one will be used most of the time, since currently all entities derive from DBObject --
+    which might change in the future.
+*/
+template <>
+class EntityEvent<storage::DBObject, void> : public EntityEventBase {
+protected:
+    using EntityPtr = std::shared_ptr<entity::Entity>;
+    EntityEvent(EntityPtr eptr, EventType type)
+        : EntityEventBase(eptr, type)
+    {
+    }
 };
 
 
