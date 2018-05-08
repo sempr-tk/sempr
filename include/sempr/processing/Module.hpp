@@ -8,6 +8,7 @@
 #include <sempr/core/Observer.hpp>
 #include <sempr/core/EntityEvent.hpp>
 #include <sempr/query/Query.hpp>
+#include <sempr/processing/ModuleBase.hpp>
 
 namespace sempr {
 
@@ -64,10 +65,12 @@ protected:
 };
 
 /**
-    Anchor: After adding all the ObservableTypes the last step is to derive from Observer.
+    Anchor: After adding all the ObservableTypes the last step is to derive from
+    ModuleBase.
 */
 template <>
-class Module<> : public core::Observer {
+class Module<> : public ModuleBase {
+protected:
     void process(); // unimplemented dummy function to allow using directive in templated class
 };
 
