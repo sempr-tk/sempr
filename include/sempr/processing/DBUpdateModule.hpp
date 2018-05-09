@@ -8,14 +8,14 @@
 
 namespace sempr { namespace processing {
 
-class DBUpdateModule : public Module {
+class DBUpdateModule : public Module<core::EntityEvent<entity::Entity>> {
 public:
     using Ptr = std::shared_ptr<DBUpdateModule>;
     DBUpdateModule(storage::Storage::Ptr storage);
-    
+
     /** upon receiving a changed-event, update the database */
-    void process(core::EntityEventBase::Ptr e);
-    
+    void process(core::EntityEvent<entity::Entity>::Ptr e) override;
+
 private:
     storage::Storage::Ptr storage_;
 };

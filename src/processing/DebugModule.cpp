@@ -5,9 +5,6 @@ namespace sempr { namespace processing {
 
 DebugModule::DebugModule()
 {
-    addOverload<core::EntityEventBase >(
-        [this](core::EntityEventBase::Ptr e) { process(e); }
-    );
 }
 
 DebugModule::~DebugModule()
@@ -22,7 +19,7 @@ void DebugModule::process(core::Event::Ptr e) {
     std::cout << "DebugModule - Event::Ptr " << e->topic() << " " << e.get() << '\n';
 }
 
-void DebugModule::process(core::EntityEventBase::Ptr e) {
+void DebugModule::process(core::EntityEvent<entity::Entity>::Ptr e) {
     switch(e->what()) {
         case core::EntityEventBase::CREATED:
             std::cout << "CREATED";
