@@ -4,6 +4,7 @@ namespace sempr { namespace core {
 
 Event::Event() : topic_(""), sender_("")
 {
+    this->registerType<Event>();
 }
 
 Event::~Event()
@@ -20,5 +21,5 @@ void Event::sender(const std::string& sender) { sender_ = sender; }
 
 
 } /* core */
-    
+
 } /* sempr */

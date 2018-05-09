@@ -6,6 +6,7 @@
 #include <set>
 #include <typeinfo>
 #include <typeindex>
+#include <iostream>
 
 namespace sempr { namespace core {
 
@@ -47,6 +48,9 @@ public:
     {
         return std::static_pointer_cast<T>(observable);
     }
+
+    /// print all registered classes of an Observable
+    friend std::ostream& operator << (std::ostream& os, const Observable& observable);
 };
 
 // NOTE: or like this, maybe? Usage: ... = sempr::core::as<SomethingElse>(observable);
@@ -57,6 +61,9 @@ std::shared_ptr<T> as(Observable::Ptr observable)
     return std::static_pointer_cast<T>(observable);
 }
 
+
+/// print all registered classes of an Observable
+std::ostream& operator << (std::ostream& os, const Observable& observable);
 
 
 /**
@@ -91,11 +98,11 @@ protected:
         //     "OType<T> can only be used with a sempr::core::Observable.");
 
         // so try again with decltype
-        static_assert(std::is_base_of<Observable, decltype(*this)>::value,
+        static_assert(std::is_base_of<Observable, T>::value,
             "OType<T> can only be used with a sempr::core::Observable.");
 
         // this is the magic: Register the type T at the Observable
-        static_cast<Observable*>(this)->template registerType<T>();
+        static_cast<T*>(this)->template registerType<T>();
     }
 };
 

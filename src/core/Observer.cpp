@@ -11,7 +11,6 @@ Observer::~Observer()
 {
 }
 
-
 // void Observer::notify(Observable::Ptr o)
 // {
 //     if (types_.find(typeid(*o)) != types_.end()) {
@@ -20,6 +19,8 @@ Observer::~Observer()
 //         // std::cout << typeid(*this).name() << " couldnt find " << typeid(*o).name() << '\n';
 //     }
 // }
+
+#include <iostream>
 
 void Observer::notify(Observable::Ptr o)
 {
@@ -53,7 +54,7 @@ void Observer::addProcessPair(ProcessPair::Check_f check, ProcessPair::Process_f
     ProcessPair p;
     p.checkFunction = check;
     p.processFunction = process;
-    
+
     addProcessPair(p);
 }
 

@@ -32,7 +32,11 @@ public:
     };
 
     using EntityPtr = std::shared_ptr<entity::Entity>;
-    EntityEventBase(EntityPtr eptr, EventType t) : type_(t), entity_(eptr) {}
+    EntityEventBase(EntityPtr eptr, EventType t) : type_(t), entity_(eptr)
+    {
+        this->registerType<EntityEventBase>();
+    }
+
     virtual ~EntityEventBase(){}
 
     /** returns the internal event type (created, changed, removed) */
