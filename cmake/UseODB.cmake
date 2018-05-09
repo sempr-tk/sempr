@@ -137,12 +137,12 @@ function(odb_compile outvar)
 	foreach(dir ${PARAM_INCLUDE} ${ODB_INCLUDE_DIRS})
 		list(APPEND ODB_ARGS "-I${dir}")
 	endforeach()
-	
+
 	if(PARAM_PROJECT_INCLUDE)
 		file(GLOB_RECURSE full_paths ${PARAM_PROJECT_INCLUDE}/*)
 		string(LENGTH ${PARAM_PROJECT_INCLUDE} prelen)
 		MATH(EXPR prelen "${prelen}+1")
-		
+
 		foreach(fp ${full_paths})
 			string(SUBSTRING ${fp} ${prelen} -1 trimmed)
 			# add a include "regex", to replace
@@ -184,6 +184,8 @@ function(odb_compile outvar)
 			WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 			VERBATIM)
 	endforeach()
+
+	add_custom_target(${outvar}_TARGET DEPENDS ${${outvar}})
 
 	set(${outvar} ${${outvar}} PARENT_SCOPE)
 endfunction()

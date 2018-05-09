@@ -2,7 +2,6 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <odb/core.hxx>
-#include <sempr/sempr.hpp>
 #include <sempr/entity/Person.hpp>
 #include <Person_odb.h>
 #include <iostream>
@@ -37,6 +36,7 @@
 #include <sempr/processing/SopranoModule.hpp>
 #include <sempr/processing/SpatialIndex.hpp>
 
+#include <sempr/sempr.hpp>
 using namespace sempr::core;
 using namespace sempr::storage;
 using namespace sempr::processing;

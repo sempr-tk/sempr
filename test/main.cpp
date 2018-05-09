@@ -1,12 +1,8 @@
-#include <sempr/sempr.hpp>
-using namespace sempr::storage;
-
 #include <sempr/entity/CoffeeMug.hpp>
 #include <sempr/entity/RDFPropertyMap.hpp>
 using namespace sempr::entity;
 
 
-using namespace sempr::processing;
 
 #include <sempr/query/ObjectQuery.hpp>
 using namespace sempr::query;
@@ -34,12 +30,17 @@ using namespace sempr::query;
 
 #include <array>
 
-
 #include <sempr/processing/DebugModule.hpp>
 #include <sempr/processing/DBUpdateModule.hpp>
 #include <sempr/processing/ActiveObjectStore.hpp>
 #include <sempr/processing/SopranoModule.hpp>
 #include <sempr/processing/SpatialIndex.hpp>
+using namespace sempr::processing;
+
+
+#include <sempr/sempr.hpp>
+using namespace sempr::storage;
+
 
 #ifndef M_PI
 #   define M_PI 3.141592653589793
