@@ -1,6 +1,9 @@
 #ifndef SEMPR_PROCESSING_SOPRANOMODULE_HPP_
 #define SEMPR_PROCESSING_SOPRANOMODULE_HPP_
 
+#include <RDFEntity_odb.h>
+#include <RuleSet_odb.h>
+
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/RDFEntity.hpp>
 #include <sempr/entity/RuleSet.hpp>

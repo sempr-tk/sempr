@@ -14,6 +14,7 @@
 #include <boost/filesystem.hpp>
 #undef BOOST_NO_CXX11_SCOPED_ENUMS
 
+#include <RDFPropertyMap_odb.h>
 #include <sempr/entity/RDFPropertyMap.hpp>
 
 #include <sempr/query/ObjectQuery.hpp>
@@ -355,10 +356,8 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         // equality. also, test some conversions.
         ODBStorage::Ptr storage = loadStorage(databaseFile);
         Core core(storage);
-        DBObject::Ptr tmp = storage->load(mapId);
 
-        // cast should succeed.
-        auto map = std::dynamic_pointer_cast<RDFPropertyMap>(tmp);
+        auto map = storage->load<RDFPropertyMap>(mapId);
         BOOST_CHECK(map);
 
         // check values:

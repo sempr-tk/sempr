@@ -1,6 +1,8 @@
 #ifndef SEMPR_PROCESSING_DBUPDATEMODULE_H_
 #define SEMPR_PROCESSING_DBUPDATEMODULE_H_
 
+#include <Entity_odb.h>
+
 #include <sempr/core/EntityEvent.hpp>
 #include <sempr/processing/Module.hpp>
 #include <sempr/storage/Storage.hpp>

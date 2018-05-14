@@ -1,6 +1,8 @@
 #ifndef SEMPR_PROCESSING_DEBUGMODULE_H_
 #define SEMPR_PROCESSING_DEBUGMODULE_H_
 
+#include <Entity_odb.h>
+
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/Entity.hpp>
 
