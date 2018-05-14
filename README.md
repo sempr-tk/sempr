@@ -285,44 +285,83 @@ enables serialization of `OGRPolygon*` in binary form (WKB). In your entities, u
 OGRPolygon* polygon_;
 ```
 
+## Events & Queries
 
-## Events
+As stated before, communication between `ProcessingModule `s in SEMPR is based on events and queries. In some cases, inheritance is a natural way to describe them: A `Geometry` is an `Entity`, and `Point`, `LineString`, `Polygon` etc. are all derived from `Geometry`. What happens when a polygon in sempr changed? We expect an `EntityEvent<Polygon>`, and we *also* expect a processing module that processes only `EntityEvent<Geometry>` to handle this one, too. On the query-side of things we have a similar situation in which we want to query on a C++ level for certain object types, and therefore have e.g. `ObjectQuery<Point>` and `ObjectQuery<Polygon>` which are both derived from a common `ObjectQueryBase`, which can be processed by our `ActiveObjectStore` (a processing module). Together with our wish be able to easily add new entities, events and queries, this leads us to a problem:
+
+### Multiple-dispatch-problem
+
+In the core of sempr we have two variables of "unknown" type: The processing modules used as well as the events and queries that are to be processed are both only known as their respective base types. So let's consider the following (simplified) example:
+
+```c++
+Module* m = new VerySpecialProcessingModule();
+Event* e = new SomeStrangeEvent();
+
+m->process(e);
+```
+
+Well, if the `VerySpecialProcessingModule` has an overloaded method `process(SomeStrangeEvent*);` it should handle everything correctly, right? **Wrong.** In C++, only single-dynamic-dispatching is possible, namely through the use of virtual methods. But the type of the argument is `Event*`, so the method `VerySpecialProcessingModule::process(Event*);` will be called. We can circumvent this problem by using the visitor-pattern -- but this leads us to very static, not well extensible code. Another way would be to use `dynamic_cast` (or rather `std::dynamic_pointer_cast`), but we've chosen a different approach: Events and queries share a common base class called `Observable` which provides the following methods:
+
+```c++
+template <class T> void registerType();
+template <class T> bool isA() const;
+```
+
+These are used to save the `std::type_index` of `T` in a set and check (at runtime) if a given type is registered in the observable before using a `static_cast`. But we still need to make use of these and distribute the observables to the correct methods of a processing module. Therefore, the processing modules are subclasses of `Observer` which allows us to store pairs of check- and process-functions that operate on observables. Whenever `Observer::doProcess(Observable::Ptr)` is called by the core, all check-functions are used to determine which corresponding process-methods to call. But all this is abstracted away by the `Module`-class you will be using when implementing your own [processing module](#processing-modules).
+
+When implementing your own events and queries, you can use the helper class `OType<class T>` to avoid having to call `registerType` in your constructors:
+
+```c++
+class MySpecialQuery : public Query, public OType<MySpecialQuery> {};
+```
+
+
+
+### EntityEvent
+
+Though you may specify and use your own events, the most used events are notifications on when an entity is created, loaded, changed or removed. These are all encapsulated in the class `EntityEvent<T>`, where `T` is the type of entity it is referring to. Since these events are so common and needed for all entities we ever care to define, its usage has been simplified through the use of some template magic: The ODB compiler already defines some traits for us, from which `odb::object_traits<T>::base_class` is especially interesting for us. Using this typedef, the `EntityEvent` class automatically constructs an inheritance chain in parallel to the inheritance chain of the entity type `T`. That means that `EntityEvent<Polygon>` automatically inherits `EntityEvent<Geometry>` (and so on...), registering the types and thus making them usable for the processing modules.
+
+But in order for this to work the `odb::object_traits` **must** have been defined. If `EntityEvent<T>` is instantiated for a `T` that is a subclass of `Entity`, but has no `odb::object_traits<T>::base_class` defined, a compiler error is generated that informs you that you've forgotten to `#include <[...]_odb.h>`.
+
+Moreover, all `object_traits` must be defined *before* the first instantiation, so you will need to include the odb-generated files first.
 
 ### EventBroker
 
 ## Processing Modules
-SEMPR can be extended by adding processing modules that react to events and accept queries as you need them. Every processing module manages a mapping of ``type_index`` to functions. Whenever an event needs to be processed, the ``type_index`` of the event is looked up in the map and the respective function is called. This mechanism allows a kind of type-safe way to handle events, while being able to easily add new processing modules and events. However, there is one major drawback: Derived events have a new  ``type_index`` and hence do not trigger the functions registered for their base types.
+SEMPR can be extended by adding processing modules that react to events and accept queries as you need them. To create a custom processing module you can inherit from `ModuleBase` and register your own check- and process-methods -- but **it is recommended to use the abstraction** provided by `template<class... ObservableTypes> Module`:
 
-To create a custom processing module you have to subclass from ``Module`` and register a function using ``addOverload``, as shown below:
+For every type specified in the template argument list of `Module` another method is declared that takes a shared pointer to the type as an input:
+
+```c++
+virtual void process(std::shared_ptr<ObservableType>) = 0;
+```
+
+This method is automatically called whenever an instance of `ObservableType` **or a subclass of it** is handed to the module. In order to create a processing module that, e.g., reacts to changes in `RDFEntity`s and also answers `SPARQLQuery`s, you would start with the following:
 
 ``` c++
-class CustomModule : public Module
+class CustomModule 
+    : public Module< EntityEvent<RDFEntity>,
+                     SPARQLQuery >
 {
-public:
-	CustomModule()
-	{
-		addOverload<SpecialEvent>(
-			[this](SpecialEvent::Ptr event)
-			{
-				myVerySpecialProcessingMethod(event);
-			}
-		);
-	}
-
-	void myVerySpecialProcessingMethod(SpecialEvent::Ptr event)
-	{
-		// ...
-	}
+protected:
+    void process(EntityEvent<RDFEntity>::Ptr event) override;
+    void process(SPARQLQuery::Ptr query) override;
 };
 ```
 
+If you forget to implement a process-method you will be greeted by a compiler error, as well as when you implement it but forgot to specify the type in Modules argument list. (Note: This relies on the `override` keyword, so make sure to add it. :slightly_smiling_face:)
+
 ### Query
-There are two ways of adding query-answering-capabilities to a module: The base class `Module` provides a default implementation of `virtual void Module::answer(Query::Ptr);` in which it simply calls `this->notify(query)`. This is possible because `Query`derives from `Observable` just like `Event`. Therefore you can use the `addOverload`-mechanism that has been described before to also register query-types.
+
+Queries are in many ways treated equal to events, except that events are not expected to return a result. While sempr is still single-threaded and every query and event is handled one by one, the difference between queries and events is more or less a naming convention.
+
+Since we cannot predict all kinds of query languages and return values, queries are simple objects that must contain their results. When a module is asked to answer a query it should append the generated results to the queries result list, which can be expanded by following modules. After a call to `Core::answerQuery` all modules will have had the chance to contribute to the answer.
 
 #### ObjectQuery
-There may be a need to handle things a bit differently: E.g., the `ActiveObjectStore` supports the `ObjectQueryBase`-type which is inherited by the templated `ObjectQuery<Entity>` - queries. Since the addOverload-mechanism only works for exact types and the ActiveObjectStore cannot know all types of entities in advance, it overrides the `answer`-method. This way it can implement the type-check using a dynamic cast and thus hande any query derived from `ObjectQueryBase`.
 
-**TODO: This is a different way to handle the same problem as we encountered with events. For events, we decided to fire one event of every inherited type explicitly. Can one method profit from the other? Is there a way to combine this, use one consistent strategy?**
+One basic functionality is to query for objects of a given type that fulfill certain criteria. This is implemented in the templated query `ObjectQuery<T>`. With `T` being an entity-type it can be given a function to decide whether an entity should be returned in the result or not. Basically, the `ActiveObjectStore` iterates over all known entities and calls this decision-function on them, including those entities in the result for which the function returned `true`. 
+
+> **Note**: The type-registry mechanism is only implemented for events and queries, yet. It is not available for the entities themselves, so the ObjectQuery will only return entities of the exact given type: ObjectQuery\<Geometry\> will *not* include points or polygons.
 
 Example: Return all "Person"s from the list of currently active (i.e. already loaded or newly created) entities:
 ```c++
@@ -342,7 +381,21 @@ for (auto p : q->results) {
 }
 ```
 
+And to return only those called "John Smith", pass a lambda expression to the query constructor:
+
+```c++
+auto q2 = std::make_shared<ObjectQuery<Person>>(
+    [](Person::Ptr person) {
+        return person->name() == "John Smith";
+    }
+);
+core.answerQuery(q2);
+```
+
+
+
 #### SPARQLQuery
+
 The `SopranoModule` keeps track of rdf triples and responds to SPARQL-queries. The `SPARQLQuery`-class uses a default list of prefixes to resolve `rdf`, `rdfs`, `owl`, `xsd` and (of course) `sempr` to their corresponding URIs.
 
 Excerpt from the test cases:
@@ -442,13 +495,11 @@ But: Version `1.` needs two heap allocations, version `2.` only one. But, as the
 
 ## TODO
 - Load subset from database
-	- Be aware of the session caching everything that's loaded!
+  - Be aware of the session caching everything that's loaded!
 - Add entities
-	- reference frame
-	- semantic object
-	- geometric object
-	- general object (to be wrapped by use-case-classes, plus factory, to avoid the odb compiler)
+  - semantic object
+  - geometric object
+  - general object (to be wrapped by use-case-classes, plus factory, to avoid the odb compiler)
 - Add processing modules
-	- symbolic reasoning (rdf)
-	- something tf-like (use envire)
-	- GeometryCache
+  - something tf-like (use envire)
+  - GeometryCache
