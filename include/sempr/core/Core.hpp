@@ -17,11 +17,10 @@ namespace sempr { namespace core {
 
 class Core {
 public:
-    Core(storage::Storage::Ptr backend);
+    Core();
 
     void addEntity(entity::Entity::Ptr entity);
     void removeEntity(entity::Entity::Ptr entity);
-    // void removeEntity(const std::string& entity_id);
 
 
     void addModule(processing::Module::Ptr module);
@@ -34,10 +33,6 @@ public:
     void answerQuery(query::Query::Ptr query);
 
 private:
-    /// map entity-id to entity
-    std::map<std::string, entity::Entity::Ptr> entities_;
-
-    storage::Storage::Ptr storage_;
     std::vector<processing::Module::Ptr> modules_;
     EventBroker::Ptr eventBroker_;
 };

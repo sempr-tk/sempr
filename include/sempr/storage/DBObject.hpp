@@ -27,7 +27,7 @@ public:
 
         Default ctor: Implicitely set the IDGenBase to IDGen<DBObject>().
     */
-    DBObject(DBObject::Ptr parent = NULL);
+    DBObject();
 
     /**
         Takes an IDGenBase& to allow derived classes to specify
@@ -35,7 +35,7 @@ public:
         strategy for the most derived type.
         (--> Chair_1 instead of DBObject_37)
     */
-    DBObject(const core::IDGenBase* idgen, DBObject::Ptr parent = NULL);
+    DBObject(const core::IDGenBase* idgen);
 
     /**
         Copy constructors are too confusing, so I disabled them for all entities.
@@ -87,14 +87,6 @@ protected:
         discriminator_ = odb::object_traits_impl<T, odb::id_common>::info.discriminator;
     }
 
-    /**
-        Set the parent of this object. If the parent is deleted from the database,
-        its children are deleted, too.
-    */
-    void setParent(std::shared_ptr<const DBObject> parent) {
-        parent_ = parent;
-    }
-
 private:
     friend class odb::access;
     friend class storage::Storage;
@@ -126,8 +118,6 @@ private:
     // test: does this collide with the discriminator?
     // std::string typeid_; // yes.
 
-    #pragma db on_delete(cascade)
-    std::weak_ptr<const DBObject> parent_;
 };
 
 #pragma db view object(DBObject)

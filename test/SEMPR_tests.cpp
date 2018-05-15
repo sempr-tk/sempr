@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_SUITE(general_tests)
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
 
-    Core core(storage);
+    Core core;
     core.addModule(active);
     core.addModule(updater);
 
@@ -161,7 +161,9 @@ BOOST_AUTO_TEST_CASE(insertion)
   // insertion
     // setup. database will be reset (true)
     ODBStorage::Ptr storage = setUpStorage(db_path, true);
-    Core core(storage);
+    Core core;
+    DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+    core.addModule(updater);
 
     // load all entites, check if there are exactly 0 (person and its RDF)
     // checkEntitiesInStorage(storage, 0);
@@ -173,6 +175,9 @@ BOOST_AUTO_TEST_CASE(insertion)
     // save --> persist the person. check 1: we should not get a foreign-key-
     // constraint-violation if the rdf-entity is persisted before the person.
     core.addEntity(p1);
+
+    // explicitly save the current state.
+    updater->updateDatabase();
 
     // this doesn't hold anymore: the IncrementalIDGeneration adds some
     // entities, too!
@@ -194,7 +199,9 @@ BOOST_AUTO_TEST_CASE(retrieval){
 
   {
     ODBStorage::Ptr storage = setUpStorage(db_path, true);
-    Core core(storage);
+    Core core;
+    DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+    core.addModule(updater);
 
     // create  a person, which creates an rdf-entity within
     Person::Ptr person(new Person());
@@ -206,6 +213,7 @@ BOOST_AUTO_TEST_CASE(retrieval){
     person->setGender(gender);
 
     core.addEntity(person);
+    updater->updateDatabase();
 
     id = person->id();
   }
@@ -213,7 +221,7 @@ BOOST_AUTO_TEST_CASE(retrieval){
   {
     //core created anew to force a new session, retrieve entity"
     ODBStorage::Ptr storage = loadStorage(db_path);
-    Core core(storage);
+    Core core;
 
     DBObject::Ptr p1 = storage->load(id);
     Person::Ptr p2 = storage->load<Person>(id);
@@ -240,9 +248,13 @@ BOOST_AUTO_TEST_CASE(deletion) {
 
 
   ODBStorage::Ptr storage = setUpStorage(db_path, true);
-  Core core(storage);
+  Core core;
+  DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+  core.addModule(updater);
+
   Person::Ptr person(new Person());
   core.addEntity(person);
+  updater->updateDatabase();
   id = person->id();
 
   // load all entites, check if there are exactly one person and its RDF.
@@ -250,6 +262,7 @@ BOOST_AUTO_TEST_CASE(deletion) {
   checkEntitiesInStorage<RDFPropertyMap>(storage, 1);
 
   core.removeEntity(person);
+  updater->updateDatabase();
 
   checkEntitiesInStorage<Person>(storage, 0);
   checkEntitiesInStorage<RDFPropertyMap>(storage, 0);
@@ -271,15 +284,19 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
 
         {
             ODBStorage::Ptr storage = setUpStorage(db_path, true);
-            Core core(storage);
+            Core core;
+            DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+            core.addModule(updater);
+
             Person::Ptr person(new Person());
             core.addEntity(person);
+            updater->updateDatabase();
             personId = person->id();
         }
 
         {
             ODBStorage::Ptr storage = loadStorage(db_path);
-            Core core(storage);
+            Core core;
 
             // load: creates an RDFPropertyMap in the ctor
             Person::Ptr person = storage->load<Person>(personId);
@@ -297,7 +314,7 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
         }
         {
             ODBStorage::Ptr storage = loadStorage(db_path);
-            Core core(storage);
+            Core core;
 
             std::vector<RDFPropertyMap::Ptr> all;
             storage->loadAll<RDFPropertyMap>(all);
@@ -326,7 +343,7 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         ODBStorage::Ptr storage = setUpStorage(databaseFile, true);
         DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
 
-        Core core(storage);
+        Core core;
         core.addModule(updater);
 
         // create an entity and assign different values
@@ -346,6 +363,8 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         personId = person->id();
 
         m["person"] = person;
+
+        updater->updateDatabase();
     }
 
 
@@ -354,7 +373,7 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         // load the values that were stored in the previous test and check for
         // equality. also, test some conversions.
         ODBStorage::Ptr storage = loadStorage(databaseFile);
-        Core core(storage);
+        Core core;
         DBObject::Ptr tmp = storage->load(mapId);
 
         // cast should succeed.
@@ -386,13 +405,12 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
     }
 BOOST_AUTO_TEST_SUITE_END()
 
-
 BOOST_AUTO_TEST_SUITE(queries)
     std::string dbfile = "test_sqlite.db";
     BOOST_AUTO_TEST_CASE(SPARQLQuery_test)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
-        Core core(storage);
+        Core core;
 
         ActiveObjectStore::Ptr active(new ActiveObjectStore());
         SopranoModule::Ptr semantic(new SopranoModule());
@@ -451,7 +469,7 @@ BOOST_AUTO_TEST_SUITE(queries)
     BOOST_AUTO_TEST_CASE(SPARQLQuery_test_inference)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
-        Core core(storage);
+        Core core;
 
         ActiveObjectStore::Ptr active(new ActiveObjectStore());
         SopranoModule::Ptr semantic(new SopranoModule());
@@ -513,7 +531,7 @@ BOOST_AUTO_TEST_SUITE(queries)
     BOOST_AUTO_TEST_CASE(ObjectQuery_test)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
-        Core core(storage);
+        Core core;
 
         ActiveObjectStore::Ptr active(new ActiveObjectStore());
         core.addModule(active);
@@ -617,7 +635,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
     BOOST_AUTO_TEST_CASE(geometries_insertion)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
-        Core core(storage);
+        Core core;
 
         ActiveObjectStore::Ptr active(new ActiveObjectStore());
         core.addModule(active);
@@ -988,7 +1006,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
     BOOST_AUTO_TEST_CASE(spatial_index_1)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
-        Core core(storage);
+        Core core;
 
         SpatialIndex::Ptr index(new SpatialIndex());
         core.addModule(index);

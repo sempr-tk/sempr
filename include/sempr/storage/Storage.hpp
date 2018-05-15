@@ -19,10 +19,14 @@ namespace sempr {
 class Storage {
 public:
     using Ptr = std::shared_ptr<Storage>;
+    using WPtr = std::weak_ptr<Storage>;
     virtual ~Storage(){};
 
     /** save data */
     virtual void save( DBObject::Ptr data ) = 0;
+
+    /** save bulk data */
+    virtual void save( std::vector<DBObject::Ptr>& data ) = 0;
 
     /** load a single object **/
     virtual DBObject::Ptr load( const std::string& id ) = 0;
@@ -32,6 +36,9 @@ public:
 
     /** remove an object **/
     virtual void remove( DBObject::Ptr data ) = 0;
+
+    /** remove a bunch of objects */
+    virtual void remove( std::vector<DBObject::Ptr>& data ) = 0;
 
 protected:
     void setID( DBObject::Ptr object, const std::string& id ) {

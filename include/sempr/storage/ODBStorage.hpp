@@ -24,22 +24,26 @@ public:
     ODBStorage(const std::string& dbName = "sempr_sqlite.db", bool clearDatabase = false);
     ~ODBStorage();
 
+    /** save bulk data */
+    void save( std::vector<DBObject::Ptr>& data ) override;
+
     /** save data */
     void save( DBObject::Ptr data ) override;
 
     /** load a single object **/
     DBObject::Ptr load( const std::string& id ) override;
 
-    template <typename T> std::shared_ptr<T> load( const std::string& id ) {
-
+    /**
+        load the object with the given id of type T.
+    */
+    template <typename T>
+    std::shared_ptr<T> load( const std::string& id ) {
         static_assert(std::is_base_of<DBObject, T>::value,"Classes that are to be loaded from ODBStorage must inherit from DBObject");
-
         odb::transaction t( db_->begin() );
         std::shared_ptr<T> o( db_->load<T>(id) );
         t.commit();
         return o;
     }
-
 
     /**
         Load all instances of a given type.
@@ -60,6 +64,9 @@ public:
 
     /** remove an object **/
     void remove( DBObject::Ptr data ) override;
+
+    /** remove a bunch of objects */
+    void remove( std::vector<DBObject::Ptr>& data ) override;
 
 private:
     std::unique_ptr<odb::database> db_;

@@ -4,6 +4,7 @@
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/Entity.hpp>
 #include <sempr/query/ObjectQuery.hpp>
+#include <sempr/storage/Storage.hpp>
 
 #include <iostream>
 
@@ -20,8 +21,10 @@ namespace sempr { namespace processing {
 class ActiveObjectStore : public Module {
 public:
     using Ptr = std::shared_ptr<ActiveObjectStore>;
+
     ActiveObjectStore();
     virtual ~ActiveObjectStore();
+
     virtual std::string type() const override;
 
     /**
@@ -30,19 +33,16 @@ public:
     */
     void process(entity::Entity::Event::Ptr event);
 
-
     /**
         Override the default answer-method to allow handling of queries that
         are derived from ObjectQueryBase.
     */
     void answer(query::Query::Ptr query) override;
 
-
     /**
         Answer an ObjectQuery.
     */
     void answer(query::ObjectQueryBase::Ptr query);
-
 
     void printStats(bool showEntities = false) const {
         // gather #objects per class
@@ -52,8 +52,8 @@ public:
         }
 
         std::cout << "--- ActiveObjectStore ---" << '\n';
-        std::cout << "# total entities: " << entities_.size() << '\n';
-        std::cout << "# classes:        " << perClass.size() << '\n';
+        std::cout << "# total entities:\t" << entities_.size() << '\n';
+        std::cout << "# classes:       \t" << perClass.size() << '\n';
         std::cout << "classes:" << '\n';
         for (auto p : perClass) {
             std::cout << "  # " << p.first << ":    " << p.second << '\n';
@@ -64,8 +64,9 @@ public:
                 std::cout << "  " << p.first << '\n';
             }
         }
-        std::cout << "-------------------------" << '\n';
+        std::cout << "-------------------------" << std::endl;
     }
+
 
 private:
     // map entity-id to entity
