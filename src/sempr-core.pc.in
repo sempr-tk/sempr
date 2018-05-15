@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${prefix}/lib/sempr
+includedir=${prefix}/include
+database=@DATABASE@
+
+Name: sempr-core
+Description: Core library of SEMPR (Semantic Environment Mapping, Processing and Reasoning)
+Version: 0.0.1
+Requires: gdal >= 2.1 libodb libodb-boost libodb-sqlite eigen3 soprano
+Libs: -L${libdir} -lsempr_core
+Cflags: -D@CONFIG_DATABASE@ -I${includedir} -I${includedir}/sempr/odb_gen

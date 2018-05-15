@@ -32,26 +32,40 @@ RDFPropertyMap::RDFPropertyMap(const storage::DBObject& obj, const std::string& 
 
 RDFValueProxy RDFPropertyMap::operator[](const std::string& key)
 {
-    auto it = keyValueMap_.find(key);
+    return (*this)(key, baseURI_);
+}
+
+RDFValueProxy RDFPropertyMap::operator()(const std::string& key)
+{
+    return (*this)(key, baseURI_);
+}
+
+RDFValueProxy RDFPropertyMap::operator()(const std::string& key, const std::string& baseURI)
+{
+    // create a unique key to allow the same property under different namespaces.
+    // rdf:type, foo:type, bar:type, won't overwrite each other.
+    std::string fullKey = baseURI + key;
+
+    auto it = keyValueMap_.find(fullKey);
     if (it == keyValueMap_.end()) {
         // not found, need a new entry.
         RDFPropertyMap::Container entry;
         entry.vectorIndex_ = this->size();
 
         // a triple of the property map always looks like this:
-        // ()<subject> baseURI+?key> ?value propertyMapId)
+        // (<subject> <baseURI+?key> ?value propertyMapId)
         Triple t;
         t.subject = subject_;
-        t.predicate = "<" + baseURI_ + key + ">";
+        t.predicate = "<" + fullKey + ">";
         t.object = ""; // will be set
         this->addTriple(t);
 
-        this->keyValueMap_[key] = entry;
+        this->keyValueMap_[fullKey] = entry;
     }
 
     // return a proxy pointing at the element. It will update the triple
     // when a new value is assigned.
-    return RDFValueProxy(this, key);
+    return RDFValueProxy(this, fullKey);
 }
 
 

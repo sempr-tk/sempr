@@ -8,6 +8,8 @@ using namespace sempr::entity;
 #include <sempr/processing/DebugModule.hpp>
 #include <sempr/processing/DBUpdateModule.hpp>
 #include <sempr/processing/ActiveObjectStore.hpp>
+#include <sempr/processing/SopranoModule.hpp>
+#include <sempr/processing/SpatialIndex.hpp>
 using namespace sempr::processing;
 
 #include <sempr/query/ObjectQuery.hpp>
@@ -19,47 +21,73 @@ using namespace sempr::query;
 #include <odb/database.hxx>
 #include <Person_odb.h>
 
+#include <sempr/entity/spatial/Point.hpp>
+#include <Point_odb.h>
+
+#include <sempr/entity/spatial/GeometryCollection.hpp>
+#include <RuleSet_odb.h>
+
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
+#include <cpl_conv.h> // CPLFree for kml export of geometries
+
+#include <sempr/entity/spatial/LocalCS.hpp>
 #include <chrono>
+
+#include <RDFDocument_odb.h>
+#include <Polygon_odb.h>
+
+
+#include <array>
+
+#ifndef M_PI
+#   define M_PI 3.141592653589793
+#endif
+
+void print(OGRGeometry* p)
+{
+    char* str;
+    p->exportToWkt(&str, wkbVariantIso);
+    std::cout << str << '\n';
+    CPLFree(str);
+}
+
+
+
+void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const std::array<float, 3>& max)
+{
+    // OGRLineString* ls = (OGRLineString*) OGRGeometryFactory::createGeometry(wkbLineString);
+    OGRLinearRing* lr = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
+    lr->addPoint(min[0], min[1], max[2]);
+    lr->addPoint(min[0], max[1], min[2]);
+    lr->addPoint(min[0], max[1], max[2]);
+    lr->addPoint(min[0], min[1], min[2]);
+    lr->addPoint(min[0], min[1], max[2]);
+    lr->addPoint(min[0], max[1], min[2]);
+    lr->addPoint(min[0], max[1], max[2]);
+    lr->addPoint(max[0], min[1], min[2]);
+    lr->addPoint(max[0], min[1], max[2]);
+    lr->addPoint(max[0], max[1], min[2]);
+    lr->addPoint(max[0], max[1], max[2]);
+    lr->closeRings();
+    poly->addRingDirectly(lr);
+}
+
 
 
 int main(int argc, char** args)
 {
-  int numInsert = 1;
-  bool inmemory = true;
-
-  switch(argc){
-  case 2:{
-      numInsert = atoi(args[1]);
-    }
-    break;
-  case 3:{
-      numInsert = atoi(args[2]);
-      inmemory = boost::lexical_cast<bool>(std::atoi(args[1]));
-    }
-    break;
-  default:
-    {
-      std::cout << "usage: " << std::string(args[0]) << " <inMemory 1|0>  <numInsert>" << std::endl;
-      return -1;
-    }
-    break;
-  }
-
-
-  {
-    ODBStorage::Ptr storage;
-    if (inmemory){
-      storage = std::make_shared<ODBStorage>(":memory:",true);
-    }
-    else {
-      storage = std::make_shared<ODBStorage>();
-    }
-
+    /* ************* *
+     * SETUP
+     * ************** */
+    // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
+    ODBStorage::Ptr storage( new ODBStorage() );
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
+
     DebugModule::Ptr debug(new DebugModule());
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
+    SopranoModule::Ptr semantic( new SopranoModule() );
+    SpatialIndex::Ptr spatial( new SpatialIndex() );
 
     sempr::core::IDGenerator::getInstance().setStrategy(
         std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
@@ -67,64 +95,43 @@ int main(int argc, char** args)
 
     sempr::core::Core c;
     c.addModule(active);
-    //c.addModule(debug);
+    c.addModule(debug);
     c.addModule(updater);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    auto finish = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed;
-
-    // INSERT ONE BY ONE
-    {
-      std::cout << "insert "<< numInsert << " objects (one-by-one) ... " << std::flush;;
-      start = std::chrono::high_resolution_clock::now();
-      {
-        //INSERT
-        for (int i = 0; i < numInsert; i++) {
-            Person::Ptr p(new Person());
-            p->age(0);
-            c.addEntity(p);
-        }
-      }
-      finish = std::chrono::high_resolution_clock::now();
-      elapsed = finish - start;
-      std::cout << "done in:\t" << elapsed.count() << " s\n";
-    }
-
-    // TODO: insert in bulk. not supported yet
-    {
-
-    }
-
-    // TODO: update all in bulk
-    {
-        std::cout << "load all persons ..." << std::flush;
-        std::vector<Person::Ptr> persons;
-        storage->loadAll(persons);
-        for (auto p : persons) { p->loaded(); }
-        std::cout << " " << persons.size() << " loaded." << '\n';
-
-        std::cout << "increment every persons age ... " << std::flush;
-        start = std::chrono::high_resolution_clock::now();
-        for (auto p : persons)
-        {
-            p->age(p->age() + 1);
-            p->changed();
-        }
-        finish = std::chrono::high_resolution_clock::now();
-        elapsed = finish-start;
-        std::cout << "done in " << elapsed.count() << " s" << '\n';
-
-        std::cout << "save the changes ... " << std::flush;
-        start = std::chrono::high_resolution_clock::now();
-        updater->updateDatabase();
-        finish = std::chrono::high_resolution_clock::now();
-        elapsed = finish-start;
-        std::cout << "done in " << elapsed.count() << " s" << '\n';
-    }
+    c.addModule(semantic);
+    c.addModule(spatial);
 
 
-  }
+    /* ************* *
+     * TESTS
+     * ************** */
+     // add a spatial refernce
+     LocalCS::Ptr cs(new LocalCS());
+     c.addEntity(cs);
 
-  return 0;
+     // add a few geometries
+     for (float i = 0.1; i < 10; i++)
+     {
+         Polygon::Ptr p( new Polygon() );
+         setupQuadrangle(p->geometry(), {{i, 0, 0}}, {{i+1, 1, 1}});
+         p->setCS(cs);
+         c.addEntity(p);
+     }
+
+
+     // query for everything in a box.
+     Eigen::Vector3d lower{-0.1, -0.1, -0.1};
+     Eigen::Vector3d upper{5.2, 1.2, 1.2};
+     auto q = SpatialIndexQuery::withinBox(lower, upper, cs);
+     c.answerQuery(q);
+     for (auto r : q->results) {
+         std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
+     }
+
+     std::cout << "and inverted?" << '\n';
+     q->invert();
+     q->results.clear();
+     c.answerQuery(q);
+     for (auto r : q->results) {
+         std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
+     }
 }

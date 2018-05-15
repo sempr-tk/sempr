@@ -40,6 +40,18 @@ namespace {
 }
 
 /**
+    To allow resource-nodes in RDFPropertyMaps that are *not* pointers we need to differ between
+    literals and resources, but a string is a string...
+    This is what this class is for: It simply marks a string to be interpreted as a resource node.
+*/
+class RDFResource {
+public:
+    std::string value_;
+    RDFResource(const std::string& val) { value_ = val; }
+};
+
+
+/**
     A container type to take either a literal value, a pointer to another
     Entity or a resource URI. It allows implicit conversions and assignment
     of values. It is used to represent the object part of an RDF-Triple in
@@ -168,6 +180,8 @@ template <> std::string RDFValue::to(void*) const;
 // same for assignment of string. QStrings work, but std::string is not supported
 // (compiler error), and const char* is mapped to boolean!
 template <> RDFValue& RDFValue::operator = (const std::string& value);
+template <> RDFValue& RDFValue::operator = (const RDFResource& other);
+
 // need to overwrite the const char* variant, too! else map["name"] = "Max" still
 // results in "true"^^<xsd:boolean>
 // template <> RDFValue& RDFValue::operator = (const char& value);

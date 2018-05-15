@@ -1,8 +1,9 @@
 #ifndef SEMPR_TRAITS
 #define SEMPR_TRAITS
 
+
 #if defined(DATABASE_SQLITE)
-#  include <sempr/storage/traits-sqlite.hxx>
+#  include <sempr/storage/traits/traits-sqlite.hxx>
 #elif defined(DATABASE_MYSQL)
 #   error no traits for DATABASE_MYSQL
 #elif defined(DATABASE_PGSQL)
