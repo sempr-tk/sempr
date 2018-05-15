@@ -65,7 +65,7 @@ int main(int argc, char** args)
         std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
     );
 
-    sempr::core::Core c(storage);
+    sempr::core::Core c;
     c.addModule(active);
     //c.addModule(debug);
     c.addModule(updater);

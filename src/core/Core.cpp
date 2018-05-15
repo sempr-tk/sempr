@@ -3,8 +3,7 @@
 
 namespace sempr { namespace core {
 
-Core::Core(storage::Storage::Ptr backend)
-    : storage_(backend)
+Core::Core()
 {
     eventBroker_ = EventBroker::getInstance();
 }

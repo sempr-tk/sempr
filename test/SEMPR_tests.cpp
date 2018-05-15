@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_SUITE(general_tests)
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
 
-    Core core(storage);
+    Core core;
     core.addModule(active);
     core.addModule(updater);
 
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(insertion)
   // insertion
     // setup. database will be reset (true)
     ODBStorage::Ptr storage = setUpStorage(db_path, true);
-    Core core(storage);
+    Core core;
     DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
     core.addModule(updater);
 
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(retrieval){
 
   {
     ODBStorage::Ptr storage = setUpStorage(db_path, true);
-    Core core(storage);
+    Core core;
     DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
     core.addModule(updater);
 
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(retrieval){
   {
     //core created anew to force a new session, retrieve entity"
     ODBStorage::Ptr storage = loadStorage(db_path);
-    Core core(storage);
+    Core core;
 
     DBObject::Ptr p1 = storage->load(id);
     Person::Ptr p2 = storage->load<Person>(id);
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(deletion) {
 
 
   ODBStorage::Ptr storage = setUpStorage(db_path, true);
-  Core core(storage);
+  Core core;
   DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
   core.addModule(updater);
 
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
 
         {
             ODBStorage::Ptr storage = setUpStorage(db_path, true);
-            Core core(storage);
+            Core core;
             DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
             core.addModule(updater);
 
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
 
         {
             ODBStorage::Ptr storage = loadStorage(db_path);
-            Core core(storage);
+            Core core;
 
             // load: creates an RDFPropertyMap in the ctor
             Person::Ptr person = storage->load<Person>(personId);
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
         }
         {
             ODBStorage::Ptr storage = loadStorage(db_path);
-            Core core(storage);
+            Core core;
 
             std::vector<RDFPropertyMap::Ptr> all;
             storage->loadAll<RDFPropertyMap>(all);
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         ODBStorage::Ptr storage = setUpStorage(databaseFile, true);
         DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
 
-        Core core(storage);
+        Core core;
         core.addModule(updater);
 
         // create an entity and assign different values
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         // load the values that were stored in the previous test and check for
         // equality. also, test some conversions.
         ODBStorage::Ptr storage = loadStorage(databaseFile);
-        Core core(storage);
+        Core core;
         DBObject::Ptr tmp = storage->load(mapId);
 
         // cast should succeed.
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_SUITE(queries)
     BOOST_AUTO_TEST_CASE(ObjectQuery_test)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);
-        Core core(storage);
+        Core core;
 
         ActiveObjectStore::Ptr active(new ActiveObjectStore());
         core.addModule(active);
