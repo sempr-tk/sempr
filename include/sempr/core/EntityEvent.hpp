@@ -7,7 +7,7 @@ namespace sempr { namespace core {
 
 class EntityEventBase : public Event {
 public:
-    enum EventType { CREATED, CHANGED, REMOVED, LOADED, ADDED };
+    enum EventType { CREATED, CHANGED, REMOVED, LOADED };
     EntityEventBase(EventType t) : type_(t) {}
     virtual ~EntityEventBase(){}
 
