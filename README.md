@@ -172,20 +172,78 @@ first: 0
 Entities are logical sets of data in SEMPR. You may use the one we've already provided or create new ones for your own special use-case.
 There are a few things that need to be remembered when creating a new entity-class:
 
-1. ODB needs to be able to access your data members. Add a `friend clas odb::access`
-2. Set the discriminator. ODB auto-generates a string to identify derived classes of DBObject, but only sets it as a class-trait and saves it in a special column in your database tables. SEMPR loads the discriminator from the databse automatically, but to have it available for newly created instances, you need to call `setDiscriminator<MyClass>();`in the constructor of `MyClass`.
-3. Enable specific ID generation. If you dont want all your objects to be called `DBObject_%i`, you will want to pass on a customized ID-generator. The DBObject-class accepts an instance of `IDGenBase`, so you may give it an `IDGen<MyClass>`-object. In turn, you may want to accept a generator yourself to allow derived classes to specify their own specific IDs. However, the following attempt will lead to some problems:
-```c++
-MyClass(const core::IDGenBase& gen = core::IDGen<MyClass>())  // error!
-	: Entity(gen)
-{
- 	// ctor stuff
- }
-```
-Since some strategies may want to use the type-traits defined by odb we cannot use `core::IDGen<MyClass>` in the header file of `MyClass` -- odb must compile the header first and create a `MyClass_odb.h` which can be included in `MyClass.cpp` and provides the type traits we need. Therefore, the following approach is to be used (also, since the DBObject-class needs access to the generation-object later on to free its own id on removal, we pass it a pointer. DBObject takes care of deletion):
+1. **Declare your class as a database object.** Use `#pragma db object`.
+
+2. ODB needs to be able to access your data members. **Add a `friend class odb::access`**
+
+3. **Set the discriminator.** ODB auto-generates a string to identify derived classes of DBObject, but only sets it as a class-trait and saves it in a special column in your database tables. SEMPR loads the discriminator from the databse automatically, but to have it available for newly created instances, you need to call `setDiscriminator<MyClass>();`in the constructor of `MyClass`.
+
+   > **Todo:** If we ever extend the type-registry from events and queries to entities as well, we could do this in something similar to OType\<T\>.
+
+4. **Enable specific ID generation.** If you dont want all your objects to be called `DBObject_%i`, you will want to pass on a customized ID-generator. The DBObject-class accepts an instance of `IDGenBase`, so you may give it an `IDGen<MyClass>`-object. In turn, you may want to accept a generator yourself to allow derived classes to specify their own specific IDs. However, the following attempt will lead to some problems:
+
+   ```c++
+   /* MyClass.hpp */
+   MyClass(const core::IDGenBase& gen = core::IDGen<MyClass>())  // error!
+   	: Entity(gen)
+   {
+    	// ctor stuff
+   }
+   ```
+
+   Since some strategies may want to use the type-traits defined by odb we cannot use `core::IDGen<MyClass>` in the header file of `MyClass` -- odb must compile the header first and create a `MyClass_odb.h` which can be included in `MyClass.cpp` and provides the type traits we need. Therefore, the following approach is to be used (also, since the DBObject-class needs access to the generation-object later on to free its own id on removal, we pass it a pointer. DBObject takes care of deletion):
+
+   ```c++
+   /* MyClass.hpp */
+   class MyClass : public Entity {
+   	/// default ctor will use IDGen<MyClass>
+   	MyClass();
+   
+   	/// alternative to allow derived classes to pass their own IDGen<DerivedClass>
+   	MyClass(const core::IDGenBase* gen);
+   };
+   
+   /* MyClass.cpp */
+   MyClass::MyClass()
+   	: MyClass(new core::IDGen<MyClass>())
+   {
+   	// empty. ctor delegation
+   }
+   
+   MyClass::MyClass(const core::IDGenBase* gen)
+   	: Entity(gen)
+   {
+   	// ctor stuff
+   }
+   ```
+
+   The DBObject takes care of freeing IDs, so that they can be reused later on. This is only relevant for the `IncrementalIDGeneration`: If you create Object\_1 to 10 and remove Object\_3, "Object\_3" joins the pool of revoked ids and can be assigned to the next object to be created.
+
+5. **Use the `SEMPR_ENTITY` macro.** It declares a method that overrides `Entity::createEntityEvent` and is used to generate correct events for your entities. If you miss adding this, your `Polygon`-Entity derived from `Geometry` will only emit `EntityEvent<Geometry>` when its created, loaded, changed or removed. Due to a dependency on the odb-generated type-traits, the actual implementation can only happen in the source file by adding **`SEMPR_ENTITY_SOURCE(classname)`**. It does not matter where you put these macros -- the private scope of the class is just fine:
+
+   ```c++
+   /* MyClass.hpp */
+   class MyClass : public Entity {
+       SEMPR_ENTITY
+       // [...]
+   };
+   
+   /* MyClass.cpp */
+   SEMPR_ENTITY_SOURCE(Polygon)
+   ```
+
+
+So, all in all the basic structure for your custom entity looks like this:
+
 ```c++
 /* MyClass.hpp */
+#include <sempr/entity/Entity.hpp>
+
+#pragma db object
 class MyClass : public Entity {
+    SEMPR_ENTITY;
+    friend class odb::access; // if you have private/protected members
+public:
 	/// default ctor will use IDGen<MyClass>
 	MyClass();
 
@@ -193,21 +251,29 @@ class MyClass : public Entity {
 	MyClass(const core::IDGenBase* gen);
 };
 
+
+
 /* MyClass.cpp */
+#include <MyClass.hpp>
+#include <MyClass_odb.h> // generated by odb. Actually includes MyClass.hpp
+
+SEMPR_ENTITY_SOURCE(MyClass)
+
 MyClass::MyClass()
-	: Entity(new core::IDGen<MyClass>())
+	: MyClass(new core::IDGen<MyClass>())
 {
-	// ctor stuff
+	// empty. ctor delegation
 }
 
 MyClass::MyClass(const core::IDGenBase* gen)
 	: Entity(gen)
 {
 	// ctor stuff
+    this->setDiscriminator<MyClass>();
 }
 ```
 
-The DBObject takes care of freeing IDs, so that they can be reused later on. This is only relevant for the `IncrementalIDGeneration`: If you create Object\_1 to 10 and remove Object\_3, "Object\_3" joins the pool of revoked ids and can be assigned to the next object to be created.
+
 
 ### RDFPropertyMap
 The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, a triple exists for every key-value-pair. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
