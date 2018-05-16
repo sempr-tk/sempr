@@ -19,6 +19,9 @@
 
     <depend package="external/gdal-with-geos"/>
     <depend package="soprano" />
+    <depend package="odb" />
+    <depend package="boost-uuid" />
+
 
     <keywords>
         <keyword>environment</keyword>
