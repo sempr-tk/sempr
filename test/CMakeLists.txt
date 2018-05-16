@@ -13,7 +13,13 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 add_executable(manual_test main.cpp)
 target_link_libraries(manual_test sempr_core)
 
-add_executable(sempr_test_bin SEMPR_tests.cpp)
+add_executable(sempr_test_bin SEMPR_tests.cpp
+                              storage_tests.cpp
+                              RDFPropertymap_tests.cpp
+                              queries_tests.cpp
+                              geometries_tests.cpp
+                              spatial_index_tests.cpp)
+
 target_link_libraries(sempr_test_bin sempr_core )
 
 if(Boost_FOUND)
