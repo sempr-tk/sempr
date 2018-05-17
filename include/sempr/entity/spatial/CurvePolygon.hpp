@@ -11,9 +11,9 @@ namespace sempr { namespace entity {
 */
 #pragma db object
 class CurvePolygon : public Geometry {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<CurvePolygon>;
-    ENTITY_DEFAULT_EVENT_METHODS(CurvePolygon, Geometry);
 
     CurvePolygon();
     CurvePolygon(const core::IDGenBase*);

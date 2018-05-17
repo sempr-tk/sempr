@@ -1,5 +1,5 @@
-#include <sempr/core/IncrementalIDGeneration.hpp>
 #include <PrefixAssignedIDs_odb.h>
+#include <sempr/core/IncrementalIDGeneration.hpp>
 
 #include <iostream>
 #include <sstream>

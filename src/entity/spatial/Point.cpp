@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(Point)
+
 Point::Point() : Point(new core::IDGen<Point>())
 {
 }

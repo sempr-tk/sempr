@@ -46,13 +46,15 @@ if (${DATABASE} MATCHES sqlite)
 endif()
 
 
-odb_compile(SRC_FILES
+odb_compile(ODB_GENERATED
     FILES ${ODB_FILES}
     INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
     # PROFILE boost/uuid
     PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/include
     HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
     DB ${DATABASE} GENERATE_QUERY GENERATE_SESSION GENERATE_SCHEMA STANDARD c++11)
+
+list(APPEND SRC_FILES ${ODB_GENERATED})
 
 include_directories(${ODB_COMPILE_OUTPUT_DIR})
 # message("SOURCE FILES: ${SRC_FILES}")
@@ -84,12 +86,16 @@ if (NOT CLANG)
 else()
     message("FOUND CLANG: ${CLANG}")
     file(GLOB_RECURSE ALL_HEADERS ../include/*)
+    string(REPLACE ".cpp" ".h" ODB_GENERATED_HPP "${ODB_GENERATED}")
+    list(INSERT ALL_HEADERS ${ODB_GENERATED_HPP})
+
     if (EXCLUDE_FROM_PCH)
         list(REMOVE_ITEM ALL_HEADERS ${EXCLUDE_FROM_PCH})
     endif()
 
     include(${PROJECT_SOURCE_DIR}/cmake/PCH.cmake)
     add_precompiled_header(sempr-core.pch ALL_HEADERS "-D${CONFIG_DATABASE}")
+    add_dependencies(sempr-core.pch_pch_target ODB_GENERATED_TARGET)
 
     install(
         FILES ${CMAKE_CURRENT_BINARY_DIR}/sempr-core.pch

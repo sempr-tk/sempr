@@ -2,10 +2,9 @@
 
 namespace sempr { namespace processing {
 
-ActiveObjectStore::ActiveObjectStore() {
-    addOverload<entity::Entity::Event>(
-        [this](entity::Entity::Event::Ptr e) { process(e); }
-    );
+ActiveObjectStore::ActiveObjectStore()
+{
+    // nothing to do.
 }
 
 ActiveObjectStore::~ActiveObjectStore()
@@ -16,7 +15,7 @@ std::string ActiveObjectStore::type() const {
     return "ActiveObjectStore";
 }
 
-void ActiveObjectStore::process(entity::Entity::Event::Ptr e)
+void ActiveObjectStore::process(core::EntityEvent<entity::Entity>::Ptr e)
 {
     typedef core::EntityEventBase::EventType EventType;
 
@@ -35,15 +34,8 @@ void ActiveObjectStore::process(entity::Entity::Event::Ptr e)
 }
 
 
-void ActiveObjectStore::answer(query::Query::Ptr query)
-{
-    auto q = std::dynamic_pointer_cast<query::ObjectQueryBase>(query);
-    if (q) {
-        answer(q);
-    }
-}
 
-void ActiveObjectStore::answer(query::ObjectQueryBase::Ptr query)
+void ActiveObjectStore::process(query::ObjectQueryBase::Ptr query)
 {
     // since we don't have any indexing right now (besides the id->ptr map)
     // we just need to traverse all items and apply the user-defined criteria.

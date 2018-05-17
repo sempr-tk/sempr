@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(LineString)
+
 LineString::LineString() : LineString(new core::IDGen<LineString>())
 {
 }

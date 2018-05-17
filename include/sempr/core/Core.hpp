@@ -8,7 +8,7 @@
 #include <sempr/entity/Entity.hpp>
 
 #include <sempr/storage/Storage.hpp>
-#include <sempr/processing/Module.hpp>
+#include <sempr/processing/ModuleBase.hpp>
 #include <string>
 #include <map>
 #include <memory>
@@ -23,7 +23,7 @@ public:
     void removeEntity(entity::Entity::Ptr entity);
 
 
-    void addModule(processing::Module::Ptr module);
+    void addModule(processing::ModuleBase::Ptr module);
 
     /**
         Let the core handle a query: Forwards the query to every module.
@@ -33,7 +33,7 @@ public:
     void answerQuery(query::Query::Ptr query);
 
 private:
-    std::vector<processing::Module::Ptr> modules_;
+    std::vector<processing::ModuleBase::Ptr> modules_;
     EventBroker::Ptr eventBroker_;
 };
 

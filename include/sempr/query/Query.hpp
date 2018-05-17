@@ -8,7 +8,7 @@
 
 namespace sempr { namespace query {
 
-    class Query : public core::Observable {
+    class Query : public core::Observable, public core::OType<Query> {
     public:
         virtual std::string type() const = 0;
         virtual ~Query(){}

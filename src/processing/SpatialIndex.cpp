@@ -9,26 +9,7 @@ namespace sempr { namespace processing {
 
 SpatialIndex::SpatialIndex()
 {
-    // listen to geometries
-    this->addOverload<core::EntityEvent<entity::Geometry> >(
-        [this](core::EntityEvent<entity::Geometry>::Ptr event) {
-            this->process(event);
-        }
-    );
-
-    // listen to spatial references
-    this->addOverload<core::EntityEvent<entity::SpatialReference> >(
-        [this](core::EntityEvent<entity::SpatialReference>::Ptr event) {
-            this->process(event);
-        }
-    );
-
-    // listen to spatial queries
-    this->addOverload<query::SpatialIndexQuery>(
-        [this](query::SpatialIndexQuery::Ptr query) {
-            this->lookup(query);
-        }
-    );
+    // nothing to do
 }
 
 
@@ -37,7 +18,7 @@ std::string SpatialIndex::type() const
     return "SpatialIndex";
 }
 
-void SpatialIndex::lookup(query::SpatialIndexQuery::Ptr query) const
+void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
 {
     // TODO: transfer reference geometry into the frame of the spatial index
     // (make a copy?)

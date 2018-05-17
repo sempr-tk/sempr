@@ -9,27 +9,6 @@ SopranoModule::SopranoModule()
 {
     model_ = Soprano::createModel();
     infmodel_ = new Soprano::Inference::InferenceModel(model_);
-
-    // for processing rdf entities
-    addOverload<core::EntityEvent<entity::RDFEntity> >(
-        [this](core::EntityEvent<entity::RDFEntity>::Ptr e) {
-            this->process(e);
-        }
-    );
-
-    // for processing rules
-    addOverload<core::EntityEvent<entity::RuleSet> >(
-        [this](core::EntityEvent<entity::RuleSet>::Ptr e) {
-            this->process(e);
-        }
-    );
-
-    // for answering sparql queries
-    addOverload<query::SPARQLQuery>(
-        [this](query::SPARQLQuery::Ptr q) {
-            this->answerSPARQL(q);
-        }
-    );
 }
 
 SopranoModule::~SopranoModule()
@@ -106,7 +85,7 @@ void SopranoModule::process(core::EntityEvent<entity::RuleSet>::Ptr event)
 
 
 
-void SopranoModule::answerSPARQL(query::SPARQLQuery::Ptr query)
+void SopranoModule::process(query::SPARQLQuery::Ptr query)
 {
     if (dirty_) {
         infmodel_->performInference();

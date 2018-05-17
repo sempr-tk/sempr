@@ -15,9 +15,10 @@ namespace sempr { namespace entity {
 
 #pragma db object
 class RDFEntity : public Entity {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<RDFEntity>;
-    using Event = core::EntityEvent<RDFEntity>;
+    // using Event = core::EntityEvent<RDFEntity>;
     RDFEntity();
     RDFEntity(const core::IDGenBase*);
     virtual ~RDFEntity(){}
@@ -31,9 +32,6 @@ public:
     size_t size() const;
     std::vector<Triple>::const_iterator begin() const;
     std::vector<Triple>::const_iterator end() const;
-
-
-    ENTITY_DEFAULT_EVENT_METHODS(RDFEntity, Entity);
 
 protected:
     friend class odb::access;

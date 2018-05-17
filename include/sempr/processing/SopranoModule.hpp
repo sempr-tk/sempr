@@ -1,6 +1,9 @@
 #ifndef SEMPR_PROCESSING_SOPRANOMODULE_HPP_
 #define SEMPR_PROCESSING_SOPRANOMODULE_HPP_
 
+#include <RDFEntity_odb.h>
+#include <RuleSet_odb.h>
+
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/RDFEntity.hpp>
 #include <sempr/entity/RuleSet.hpp>
@@ -15,7 +18,10 @@ namespace sempr { namespace processing {
         "RDFEntity"s and adds them to a soprano-model in order to answer
         SPARQL-queries.
     */
-    class SopranoModule : public Module {
+    class SopranoModule
+        : public Module< core::EntityEvent<entity::RDFEntity>,
+                         core::EntityEvent<entity::RuleSet>,
+                         query::SPARQLQuery > {
     public:
         using Ptr = std::shared_ptr<SopranoModule>;
         SopranoModule();
@@ -26,17 +32,17 @@ namespace sempr { namespace processing {
         /**
             add / remove triples belonging to the event to the soprano module
         */
-        void process(core::EntityEvent<entity::RDFEntity>::Ptr event);
+        void process(core::EntityEvent<entity::RDFEntity>::Ptr event) override;
 
         /**
             add / remove rules
         */
-        void process(core::EntityEvent<entity::RuleSet>::Ptr event);
+        void process(core::EntityEvent<entity::RuleSet>::Ptr event) override;
 
         /**
             answer a SPARQLQuery
         */
-        void answerSPARQL(query::SPARQLQuery::Ptr query);
+        void process(query::SPARQLQuery::Ptr query) override;
 
     private:
         /// all updates take place inside the base model

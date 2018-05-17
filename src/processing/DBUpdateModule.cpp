@@ -7,14 +7,9 @@ namespace sempr { namespace processing {
 DBUpdateModule::DBUpdateModule(storage::Storage::Ptr storage)
     : storage_(storage)
 {
-    addOverload<entity::Entity::Event>(
-        [this](entity::Entity::Event::Ptr e) {
-            process(e);
-        }
-    );
 }
 
-void DBUpdateModule::process(entity::Entity::Event::Ptr e)
+void DBUpdateModule::process(core::EntityEvent<entity::Entity>::Ptr e)
 {
   typedef core::EntityEventBase::EventType EventType;
 

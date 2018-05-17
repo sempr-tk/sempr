@@ -1,6 +1,9 @@
+#include <GlobalCS_odb.h>
 #include <sempr/entity/spatial/GlobalCS.hpp>
 
 namespace sempr { namespace entity {
+
+SEMPR_ENTITY_SOURCE(GlobalCS)
 
 GlobalCS::GlobalCS()
 {

@@ -11,6 +11,9 @@
 
 #include <sempr/query/SpatialIndexQuery.hpp>
 
+#include <Geometry_odb.h>   // required for EntityEvent<Geometry>
+#include <SpatialReference_odb.h>   // required for EntityEvent<SpatialReference>
+
 #include <vector>
 #include <map>
 
@@ -33,7 +36,11 @@ namespace bgi = boost::geometry::index;
     The bridge between ProjectionCS and GeographicCS could be a bit more difficult as we will need
     coordinate transformations done by GDAL in the process.
 */
-class SpatialIndex : public Module {
+class SpatialIndex
+    : public Module< core::EntityEvent<entity::Geometry>,
+                     core::EntityEvent<entity::SpatialReference>,
+                     query::SpatialIndexQuery >
+{
 public:
     using Ptr = std::shared_ptr<SpatialIndex>;
     std::string type() const override;
@@ -43,7 +50,7 @@ public:
     /**
         Answer a SpatialIndexQuery
     */
-    void lookup(query::SpatialIndexQuery::Ptr query) const;
+    void process(query::SpatialIndexQuery::Ptr query) override;
 
     /**
         Specify what is stored in the R-Tree:
@@ -67,11 +74,12 @@ private:
     */
     std::map<entity::Geometry::Ptr, bValue> geo2box_;
 
+
     /**
         Process changes of geometries: New are inserted into the RTree, changed are recomputed
     */
-    void process(core::EntityEvent<entity::Geometry>::Ptr geoEvent);
-    void process(core::EntityEvent<entity::SpatialReference>::Ptr refEvent);
+    void process(core::EntityEvent<entity::Geometry>::Ptr geoEvent) override;
+    void process(core::EntityEvent<entity::SpatialReference>::Ptr refEvent) override;
     void processChangedCS(entity::SpatialReference::Ptr cs);
 
     // the actual processing:

@@ -10,9 +10,9 @@ namespace sempr { namespace entity {
 */
 #pragma db object
 class Curve : public Geometry {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<Curve>;
-    ENTITY_DEFAULT_EVENT_METHODS(Curve, Geometry);
 
     Curve();
     Curve(const core::IDGenBase*);

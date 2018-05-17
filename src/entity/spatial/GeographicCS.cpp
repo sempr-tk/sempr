@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(GeographicCS)
+
 GeographicCS::GeographicCS()
 {
     // do nothing. this is just for odb to load from the database...

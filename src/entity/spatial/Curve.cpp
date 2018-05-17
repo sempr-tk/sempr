@@ -3,6 +3,9 @@
 
 namespace sempr { namespace entity {
 
+
+SEMPR_ENTITY_SOURCE(Curve)
+
 Curve::Curve() : Curve(new core::IDGen<Curve>())
 {
 }

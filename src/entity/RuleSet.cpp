@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(RuleSet)
+
 RuleSet::RuleSet(const core::IDGenBase* idgen)
     : Entity(idgen)
 {

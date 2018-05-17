@@ -26,7 +26,7 @@ namespace sempr { namespace query {
         in another way. Be aware that a 'View' in odb is _not_ a database-view,
         but a (pre-compiled?) sql-query.
     */
-    class ObjectQueryBase : public Query {
+    class ObjectQueryBase : public Query, public core::OType<ObjectQueryBase> {
     public:
         using Ptr = std::shared_ptr<ObjectQueryBase>;
         virtual ~ObjectQueryBase(){}
@@ -61,7 +61,7 @@ namespace sempr { namespace query {
         );
     */
     template <class T>
-    class ObjectQuery : public ObjectQueryBase {
+    class ObjectQuery : public ObjectQueryBase, public core::OType<ObjectQuery<T>> {
     private:
         typedef std::function<bool(std::shared_ptr<T>)> DecisionFunction_t;
         DecisionFunction_t decision_;

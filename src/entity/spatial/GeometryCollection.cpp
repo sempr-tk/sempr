@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(GeometryCollection)
+
 GeometryCollection::GeometryCollection() : GeometryCollection(new core::IDGen<GeometryCollection>())
 {
 }

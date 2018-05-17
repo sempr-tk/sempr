@@ -1,6 +1,8 @@
 #ifndef SEMPR_PROCESSING_ACTIVEOBJECTSTORE_H_
 #define SEMPR_PROCESSING_ACTIVEOBJECTSTORE_H_
 
+#include <Entity_odb.h>
+
 #include <sempr/processing/Module.hpp>
 #include <sempr/entity/Entity.hpp>
 #include <sempr/query/ObjectQuery.hpp>
@@ -18,7 +20,9 @@ namespace sempr { namespace processing {
     list (something like an "unload"). When implementing this: Remember to also
     remove the object from the current odb::session!
 */
-class ActiveObjectStore : public Module {
+class ActiveObjectStore
+    : public Module< core::EntityEvent<entity::Entity>,
+                     query::ObjectQueryBase > {
 public:
     using Ptr = std::shared_ptr<ActiveObjectStore>;
 
@@ -31,18 +35,19 @@ public:
         Keep a list of currently used objects -- add on "created" or "loaded",
         remove on "removed".
     */
-    void process(entity::Entity::Event::Ptr event);
+    void process(core::EntityEvent<entity::Entity>::Ptr event) override;
 
     /**
         Override the default answer-method to allow handling of queries that
         are derived from ObjectQueryBase.
     */
-    void answer(query::Query::Ptr query) override;
+    // void answer(query::Query::Ptr query) override;
 
     /**
         Answer an ObjectQuery.
     */
-    void answer(query::ObjectQueryBase::Ptr query);
+    void process(query::ObjectQueryBase::Ptr query) override;
+    // void answer(query::ObjectQueryBase::Ptr query);
 
     void printStats(bool showEntities = false) const {
         // gather #objects per class

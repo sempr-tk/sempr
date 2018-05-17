@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(CurvePolygon)
+
 CurvePolygon::CurvePolygon() : CurvePolygon(new core::IDGen<CurvePolygon>())
 {
 }

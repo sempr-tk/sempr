@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(RDFEntity)
+
 RDFEntity::RDFEntity(const core::IDGenBase* idgen)
     : Entity(idgen)
 {

@@ -3,6 +3,8 @@
 
 namespace sempr { namespace entity {
 
+SEMPR_ENTITY_SOURCE(ProjectionCS)
+
 ProjectionCS::ProjectionCS() : GlobalCS(new core::IDGen<ProjectionCS>())
 {
     this->setDiscriminator<ProjectionCS>();

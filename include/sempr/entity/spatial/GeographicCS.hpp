@@ -13,9 +13,9 @@ namespace sempr { namespace entity {
 */
 #pragma db object
 class GeographicCS : public GlobalCS {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<GeographicCS>;
-    ENTITY_DEFAULT_EVENT_METHODS(GeographicCS, GlobalCS);
 
     SpatialReference::Ptr getRoot() override;
     Eigen::Affine3d transformationToRoot() const override;

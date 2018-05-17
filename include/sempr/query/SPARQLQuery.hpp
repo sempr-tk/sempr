@@ -7,7 +7,7 @@
 
 namespace sempr { namespace query {
 
-    class SPARQLQuery : public Query {
+    class SPARQLQuery : public Query, public core::OType<SPARQLQuery> {
     public:
         using Ptr = std::shared_ptr<SPARQLQuery>;
         SPARQLQuery();

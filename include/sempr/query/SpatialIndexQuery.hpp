@@ -23,7 +23,7 @@ namespace sempr { namespace query {
     beyond the comparison of bounding boxes. Any work/checks on concrete geometries must be done
     by the user or a specialized processing module.
 */
-class SpatialIndexQuery : public Query {
+class SpatialIndexQuery : public Query, public core::OType<SpatialIndexQuery> {
 public:
     using Ptr = std::shared_ptr<SpatialIndexQuery>;
     ~SpatialIndexQuery();

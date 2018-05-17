@@ -11,6 +11,7 @@ namespace sempr { namespace entity {
 
 #pragma db object
 class CoffeeMug : public Entity {
+    SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<CoffeeMug>;
 
