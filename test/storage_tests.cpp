@@ -27,6 +27,14 @@ BOOST_AUTO_TEST_SUITE(general_tests)
     core.addModule(active);
     core.addModule(updater);
 
+    auto module = core.getModule<DBUpdateModule>();
+    BOOST_CHECK_EQUAL(module, updater);
+
+    std::vector<ActiveObjectStore::Ptr> mlist;
+    core.listModules(mlist);
+    BOOST_CHECK_EQUAL(mlist.size(), 1);
+    BOOST_CHECK_EQUAL(mlist[0], active);
+
     removeStorage(db_path);
   }
 
