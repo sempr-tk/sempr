@@ -21,6 +21,7 @@
     <depend package="soprano" />
     <depend package="odb" />
     <depend package="boost-uuid" />
+    <depend package="sqlite3" />
 
 
     <keywords>
