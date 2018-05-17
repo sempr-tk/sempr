@@ -1,4 +1,5 @@
 #include "test_utils.hpp"
+#include <SpatialObject_odb.h>
 using namespace testing;
 
 BOOST_AUTO_TEST_SUITE(general_tests)
