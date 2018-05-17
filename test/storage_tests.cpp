@@ -1,5 +1,7 @@
+#include <sempr/query/LoadingQuery.hpp>
 #include "test_utils.hpp"
 using namespace testing;
+
 
 BOOST_AUTO_TEST_SUITE(general_tests)
 
@@ -124,6 +126,41 @@ BOOST_AUTO_TEST_CASE(retrieval){
     removeStorage(db_path);
   }
 }
+
+
+BOOST_AUTO_TEST_CASE(loading_query){
+    // add some entities
+    {
+        ODBStorage::Ptr storage = setUpStorage(db_path, true);
+        DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+        Core core;
+        core.addModule(updater);
+
+        for (int i = 0; i < 10; i++)
+        {
+            Person::Ptr person(new Person());
+            core.addEntity(person);
+        }
+
+        updater->updateDatabase();
+    }
+
+    // test the query
+    {
+        //core created anew to force a new session, retrieve entity"
+        ODBStorage::Ptr storage = loadStorage(db_path);
+        DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+        Core core;
+        core.addModule(updater);
+
+        auto q = std::make_shared<LoadingQuery<Person>>();
+        core.answerQuery(q);
+        BOOST_CHECK_EQUAL(q->results.size(), 10);   // 10 persons
+
+        removeStorage(db_path);
+    }
+}
+
 
 BOOST_AUTO_TEST_CASE(update) {
   //DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );

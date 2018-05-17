@@ -7,6 +7,7 @@
 #include <sempr/processing/Module.hpp>
 #include <sempr/storage/Storage.hpp>
 #include <sempr/entity/Entity.hpp>
+#include <sempr/query/LoadingQuery.hpp>
 #include <vector>
 
 namespace sempr { namespace processing {
@@ -35,7 +36,8 @@ namespace sempr { namespace processing {
 
     TODO: Add functionality to allow the user bulk-creation of entities, on his own risk. Something like "DBUpdateModule::enableBulkCreation(bool)".
 */
-class DBUpdateModule : public Module<core::EntityEvent<entity::Entity>> {
+class DBUpdateModule : public Module<core::EntityEvent<entity::Entity>,
+                                     query::LoadingQueryBase> {
 public:
     using Ptr = std::shared_ptr<DBUpdateModule>;
     DBUpdateModule(storage::Storage::Ptr storage);
@@ -43,6 +45,8 @@ public:
     /** upon receiving a changed-event, update the database */
     void process(core::EntityEvent<entity::Entity>::Ptr e) override;
 
+    /** loads entities from the database */
+    void process(query::LoadingQueryBase::Ptr query) override;
 
     /** save the changed and erase the entities flagged for removal */
     void updateDatabase();
