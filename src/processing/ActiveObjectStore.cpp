@@ -20,8 +20,8 @@ void ActiveObjectStore::process(core::EntityEvent<entity::Entity>::Ptr e)
     typedef core::EntityEventBase::EventType EventType;
 
     switch(e->what()) {
-        case EventType::LOADED:
         case EventType::CREATED:
+        case EventType::LOADED:
             addEntity(e->getEntity());
             break;
         case EventType::REMOVED:
@@ -53,8 +53,6 @@ void ActiveObjectStore::process(query::ObjectQueryBase::Ptr query)
     }
 }
 
-
-
 void ActiveObjectStore::addEntity(entity::Entity::Ptr e)
 {
     if (e.get()) {
@@ -65,6 +63,8 @@ void ActiveObjectStore::addEntity(entity::Entity::Ptr e)
 void ActiveObjectStore::removeEntity(entity::Entity::Ptr e)
 {
     if (e.get()) {
+
+        // remove from entities
         auto it = entities_.find(e->id());
         if (it != entities_.end()) {
             entities_.erase(it);

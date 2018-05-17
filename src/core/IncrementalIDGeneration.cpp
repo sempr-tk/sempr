@@ -26,6 +26,13 @@ IncrementalIDGeneration::IncrementalIDGeneration(storage::ODBStorage::Ptr st)
 
 IncrementalIDGeneration::~IncrementalIDGeneration()
 {
+    // explicitly save every entry, as we don't rely on any event-mechanism here.
+    // the id-generation is singleton and thus the last light to go out...
+    for (auto e : *prefixInfo_)
+    {
+        storage->save(e.second);
+    }
+
     storage->save(prefixInfo_);
 }
 

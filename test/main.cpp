@@ -24,9 +24,11 @@ using namespace sempr::query;
 #include <cpl_conv.h> // CPLFree for kml export of geometries
 
 #include <sempr/entity/spatial/LocalCS.hpp>
+#include <chrono>
 
 #include <RDFDocument_odb.h>
 #include <Polygon_odb.h>
+
 
 #include <array>
 
@@ -83,19 +85,18 @@ int main(int argc, char** args)
      * ************** */
     // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
     ODBStorage::Ptr storage( new ODBStorage() );
-
-    DebugModule::Ptr debug( new DebugModule() );
     DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
+
+    DebugModule::Ptr debug(new DebugModule());
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
     SopranoModule::Ptr semantic( new SopranoModule() );
     SpatialIndex::Ptr spatial( new SpatialIndex() );
 
     sempr::core::IDGenerator::getInstance().setStrategy(
-        // std::unique_ptr<sempr::core::UUIDGeneration>( new sempr::core::UUIDGeneration(false) )
         std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
     );
 
-    sempr::core::Core c(storage);
+    sempr::core::Core c;
     c.addModule(active);
     c.addModule(debug);
     c.addModule(updater);
@@ -136,6 +137,4 @@ int main(int argc, char** args)
      for (auto r : q->results) {
          std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
      }
-
-
 }

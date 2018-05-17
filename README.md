@@ -3,33 +3,93 @@
 As the development of SEMPR just started recently, please do not expect a fully featured system. We are working on it. :)
 
 ## Installation
-One main dependency of SEMPR is the object relational mapping framework [ODB](http://www.codesynthesis.com/products/odb/download.xhtml), which uses a special compiler to create the necessary database code.
 
-You will need:
+SEMPR currently relies on a few other libraries: ODB for the object relational mapping, sqlite3 for a database connection, boost for uuids, soprano for SPARQL queries, qt4 for soprano, and a recent version of gdal with geos support for more geometric operations.
 
-- ODB Compiler (odb-2.4.0)
-- Common Runtime LIbrary (libodb-2.4.0)
-- Database Runtime Libraries
-	- libodb-sqlite-2.4.0
-	- ... more as soon as different database backends are implemented.
-- Profile Libraries
-	- libodb-boost-2.4.0
+### ODB, soprano, boost
+For a start, install the odb compiler and the required odb-libraries. If you are on Ubuntu 16.04 you can install them easily:
+```bash
+sudo apt-get install odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libodb-dev
+```
+Else please follow the instructions [here](https://www.codesynthesis.com/products/odb/download.xhtml).
 
-Under Ubuntu (>=16.04) you can install those as prepackaged version.
+Soprano and boost can be retrieved just as easily:
+```bash
+sudo apt-get install libsoprano-dev
+sudo apt-get install libboost-all-dev
+```
+The boost-part is a bit overkill, but I don't really know which part of boost is needed. You could try `libboost-dev`...
+
+### GDAL with GEOS
+Since we need a recent version of GDAL with GEOS support you will need to compile it from source.  But first, make sure you have GEOS installed as well as proj4 (for coordinate system transformations):
+
+```bash
+sudo apt-get install libgeos-dev
+sudo apt-get install libproj-dev
+```
+
+Now, to install GDAL (feel free to adjust the paths to your liking):
+
+```bash
+cd ~
+git clone https://github.com/OSGeo/gdal.git
+cd ~/gdal
+git checkout release/2.3
+mkdir install
+cd ~/gdal/gdal
+```
+Compilation may take a while, feel free to grab a cup of tea in the mean time:
+```bash
+./configure --with-geos=yes --prefix=$HOME/gdal/install
+make -j8
+make install
+```
+To finish the installation make sure that the gdal includes and libraries can actually be *found*. Therefore, adjust your `PKG_CONFIG_PATH` (e.g. in your `.bashrc`):
+```bash
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:~/gdal/install/lib/pkgconfig
+```
+
+### SEMPR
+Now, to actually compile (and install) SEMPR (libsempr-core):
+```bash
+cd ~
+git clone http://github.com/sempr-tk/sempr
+mkdir sempr_install
+cd ~/sempr
+mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=~/sempr_install
+make -j8
+make install
+```
+Again, to be able to find SEMPR in your other projects, update your `PKG_CONFIG_PATH`:
+```bash
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:~/sempr_install/lib/pkgconfig
+```
+You can now use
+```cmake
+pkg_check_modules(SEMPR REQUIRED sempr-core)
+include_directories(${SEMPR_INCLUDE_DIRS})
+link_directories(${SEMPR_LIBRARY_DIRS})
+target_link_libraries(foo ${SEMPR_LIBRARIES})
+add_definitions(${SEMPR_CFLAGS_OTHER})
+```
+in your own cmake-project.
+
+> **Note:** *Maybe you noticed the '*add_definitions(...)*' line above. The used database backend is currently fixed at compile-time, and some header files that describe how to serialize the used datatypes for different databases make use of a `-DDATABASE_xxx` flag to select the correct implementation.  This flag is exported in the pkg-config file 'sempr-core.pc'*
+
+
+
+### IDE setup
+
+When using this library you may experience very slow autocompletion (at least when using something clang-based with a `.clang_complete`). There are a lot of includes, only few forward declarations, and some template magic (a lot of it introduced by odb to support persistence of entities). To speed things up (***a lot***) you can use the precompiled header file that is automatically created and installed together with the rest of the sempr-core library. Add to your `.clang_complete`:
 
 ```
-sudo apt-get install odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4
+-include-pch
+<your-sempr_install-path>/include/sempr/sempr-core.pch
 ```
 
-Follow the respecting installation instructions. Afterwards, compile SEMPR using``cmake``:
+> **Note:** *A bug (in clang?) it is required to specify* `-include-pch` *and the actual path in two separate lines or else clang may try to directly include a file called "-pch", and issue an error due to not finding it.*
 
-
-``` bash
-mkdir build
-cd build
-cmake ..
-make
-```
 
 ## License
 SEMPR itself is released under a 3-clause BSD license. However, it relies heavily on [ODB](http://www.codesynthesis.com/products/odb/download.xhtml) which is licensed under GPL. Please take a look at the [license exception](LICENSE_ODB) granted by Code Synthesis (copied from [here](https://git.codesynthesis.com/cgit/odb/odb-etc/tree/license-exceptions/sempr-tk-odb-license-exception.txt)) which allows the use of SEMPR (everything belonging to the sempr-tk family) in other projects without imposing additional constraints to the BSD-3-license -- as long as you don't modify the persistent object model for which ODB is used.
