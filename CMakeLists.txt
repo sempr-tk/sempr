@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(sempr)
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
 add_definitions(-Wall -Wno-unknown-pragmas)
 
 # since odb is used in both src and test, find it here for a consistent

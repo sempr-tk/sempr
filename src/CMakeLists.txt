@@ -1,5 +1,6 @@
 pkg_check_modules(Soprano REQUIRED soprano)
 include_directories(${Soprano_INCLUDE_DIRS})
+link_directories(${Soprano_LIBRARY_DIRS})
 # message("SOPRANO: ${Soprano_INCLUDE_DIRS}")
 
 pkg_check_modules(GDAL REQUIRED gdal)
@@ -45,13 +46,18 @@ if (${DATABASE} MATCHES sqlite)
 # elseif()
 endif()
 
-
+# ODB_GENERATED = list of _odb.h files
+# ODB needs the include dirs, too
+# in addition to the projects include dir
+# header prologue: dataype serialization definitions
+# X_CPP_OPTION (passed to underlying c++ compiler): -fPIC for Qt5-support!
 odb_compile(ODB_GENERATED
     FILES ${ODB_FILES}
     INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
     # PROFILE boost/uuid
     PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/include
     HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
+    X_CPP_OPTION -fPIC
     DB ${DATABASE} GENERATE_QUERY GENERATE_SESSION GENERATE_SCHEMA STANDARD c++11)
 
 list(APPEND SRC_FILES ${ODB_GENERATED})
