@@ -7,12 +7,8 @@ namespace sempr { namespace processing {
 
 SopranoModule::SopranoModule()
 {
-    std::cout << "creating model ..." << std::endl;
     model_ = Soprano::createModel();
-    std::cout << "wrapping in inference model ..." << std::endl;
     infmodel_ = new Soprano::Inference::InferenceModel(model_);
-    std::cout << "created model: " << model_ << std::endl;
-
 }
 
 SopranoModule::~SopranoModule()
@@ -104,7 +100,6 @@ void SopranoModule::process(query::SPARQLQuery::Ptr query)
 
     QString sparql = QString::fromStdString(query->toString());
     // std::cout << sparql.toStdString() << '\n';
-    std::cout << "this->model_: " << this->model_ << std::endl;
     auto results = this->model_->executeQuery(sparql, Soprano::Query::QueryLanguageSparql);
 
     while (results.next())
