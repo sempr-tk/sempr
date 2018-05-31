@@ -2,6 +2,7 @@ find_package(Boost REQUIRED system filesystem)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Soprano REQUIRED soprano)
 include_directories(${Soprano_INCLUDE_DIRS})
+link_directories(${Soprano_LIBRARY_DIRS})
 
 pkg_check_modules(GDAL REQUIRED gdal)
 include_directories(${GDAL_INCLUDE_DIRS})

@@ -13,12 +13,14 @@ sudo apt-get install odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libod
 ```
 Else please follow the instructions [here](https://www.codesynthesis.com/products/odb/download.xhtml).
 
-Soprano and boost can be retrieved just as easily:
+Soprano and boost can be retrieved just as easily, **if you are okay with using qt4**:
 ```bash
 sudo apt-get install libsoprano-dev
 sudo apt-get install libboost-all-dev
 ```
 The boost-part is a bit overkill, but I don't really know which part of boost is needed. You could try `libboost-dev`...
+
+**If you need qt5** instead, you will need a customized build of soprano: SEMPR uses Soprano, and qt to work with it. Whatever version of qt is used by soprano will also be used by SEMPR, as it is propagated through pkg-config. Compiling soprano with qt5-support can be a bit tricky, especially if you are simultaneously using `libcurl4-openssl-dev`, e.g. if you have ROS installed. But don't worry, everything is explained in detail at the wiki page on [how to enable qt5 support](https://github.com/sempr-tk/sempr/wiki/soprano_qt5).
 
 ### GDAL with GEOS
 Since we need a recent version of GDAL with GEOS support you will need to compile it from source.  But first, make sure you have GEOS installed as well as proj4 (for coordinate system transformations):
