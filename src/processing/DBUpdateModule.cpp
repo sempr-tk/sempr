@@ -2,6 +2,8 @@
 #include <sempr/core/Exception.hpp>
 #include <iostream>
 
+#include <sempr/storage/ODBStorage.hpp>
+
 namespace sempr { namespace processing {
 
 DBUpdateModule::DBUpdateModule(storage::Storage::Ptr storage)
@@ -29,6 +31,17 @@ void DBUpdateModule::process(core::EntityEvent<entity::Entity>::Ptr e)
   }
 }
 
+
+void DBUpdateModule::process(query::LoadingQueryBase::Ptr query)
+{
+    // its simple: just use it on the storage.
+    // but it *must be* an ODB storage. oh man... :-/
+    // TODO: remove the "storage" interface and just make ODBStorage a key component of sempr?
+    auto odb = std::dynamic_pointer_cast<storage::ODBStorage>(storage_);
+    if (odb) {
+        query->loadFrom(odb);
+    }
+}
 
 void DBUpdateModule::registerAdded(storage::DBObject::Ptr obj)
 {
