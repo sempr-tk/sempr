@@ -1,4 +1,5 @@
 #include "test_utils.hpp"
+#include <SpatialObject_odb.h>
 using namespace testing;
 
 BOOST_AUTO_TEST_SUITE(general_tests)
@@ -201,5 +202,83 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
         }
 
         removeStorage(db_path);
+    }
+BOOST_AUTO_TEST_SUITE_END()
+
+
+/**
+    Issue #20:
+    Without loading all entities before creating new ones, the IncrementalIDGeneration seems to
+    falsely reuse ids that were already assigned. This shouldn't happen. This is a test-case for
+    this issue.
+*/
+BOOST_AUTO_TEST_SUITE(inc_id_without_loading)
+    std::string dbfile = "test_sqlite.db";
+    std::string id1, id2;
+    BOOST_AUTO_TEST_CASE(inc_id_without_loading_1)
+    {
+        {
+            ODBStorage::Ptr storage = setUpStorage(dbfile, true);
+            DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+            Core core;
+            core.addModule(updater);
+
+            // insert a new entity
+            // Entity::Ptr entity(new Entity());
+            // try a more complex entity:
+            SpatialObject::Ptr entity(new SpatialObject());
+
+            // try adding a LocalCS to it
+            LocalCS::Ptr cs(new LocalCS());
+            core.addEntity(cs);
+
+            entity->geometry()->setCS(cs);
+            core.addEntity(entity);
+
+
+            id1 = entity->id();
+
+            updater->updateDatabase();
+        }
+        // let storage etc run out of scope.
+
+        // force idgen reset to really let storage run out of scope.
+        IDGenerator::getInstance().setStrategy(
+            std::unique_ptr<IDGenerationStrategy>(
+                new UUIDGeneration()
+            )
+        );
+
+        {
+            // simply repeat everything.
+            // we just add a new entity without loading the old one.
+            ODBStorage::Ptr storage = loadStorage(dbfile);
+            DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+            Core core;
+            core.addModule(updater);
+
+            // insert a new entity
+            // Entity::Ptr entity(new Entity());
+            SpatialObject::Ptr entity(new SpatialObject());
+
+            // try adding a LocalCS to it
+            LocalCS::Ptr cs(new LocalCS());
+            core.addEntity(cs);
+
+            entity->geometry()->setCS(cs);
+            core.addEntity(entity);
+
+            id2 = entity->id();
+            BOOST_CHECK(id1 != id2);
+
+            std::cout << id1 << " != " << id2 << std::endl;
+
+            updater->updateDatabase();
+        }
+    }
+
+    BOOST_AUTO_TEST_CASE(inc_id_without_loading_cleanup)
+    {
+        removeStorage(dbfile);
     }
 BOOST_AUTO_TEST_SUITE_END()
