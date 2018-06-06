@@ -71,6 +71,17 @@ RDFValueProxy RDFPropertyMap::operator()(const std::string& key, const std::stri
 }
 
 
+bool RDFPropertyMap::hasProperty(const std::string &key, const std::string &baseURI)
+{
+    std::string fullKey = baseURI + key;
+    return (keyValueMap_.find(fullKey) != keyValueMap_.end());
+}
+
+bool RDFPropertyMap::hasProperty(const std::string &key)
+{
+    return hasProperty(key, baseURI_);
+}
+
 
 } /* entity */
 } /* sempr */

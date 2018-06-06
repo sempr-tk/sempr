@@ -28,7 +28,9 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
 
         RDFPropertyMap& m = *map;
         m["int"] = 42;
+        BOOST_CHECK( !m.hasProperty("float") );
         m["float"] = 1.234f;
+        BOOST_CHECK( m.hasProperty("float") );
         m["string"] = "Hello, World!";
 
         // create another entity and point to it.

@@ -35,9 +35,15 @@ public:
 
     virtual ~RDFPropertyMap(){}
 
+
+    /// checks if an entry for a given key exists, without creating one
+    bool hasProperty(const std::string& key);
+    bool hasProperty(const std::string& key, const std::string& baseURI);
+
     /**
         Returns a proxy object that can be assigned a new value, or be casted to the type
-        that has been stored at the given key.
+        that has been stored at the given key. As this accesses an internal map it automatically
+        creates a new entry if necessary.
     */
     RDFValueProxy operator[](const std::string& key);
     RDFValueProxy operator()(const std::string& key);
