@@ -40,6 +40,10 @@ public:
     bool hasProperty(const std::string& key);
     bool hasProperty(const std::string& key, const std::string& baseURI);
 
+    /// removes a propetry
+    void removeProperty(const std::string& key);
+    void removeProperty(const std::string& key, const std::string baseURI);
+
     /**
         Returns a proxy object that can be assigned a new value, or be casted to the type
         that has been stored at the given key. As this accesses an internal map it automatically

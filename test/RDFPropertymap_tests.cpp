@@ -67,6 +67,11 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         Person::Ptr person = m["person"];
         BOOST_CHECK_EQUAL(personId, person->id());
 
+        // test removal of properties
+        BOOST_CHECK( m.hasProperty("float") );
+        m.removeProperty("float");
+        BOOST_CHECK( !m.hasProperty("float") );
+
         // test invalid accesses
         BOOST_CHECK_THROW(
             RDFPropertyMap::Ptr foo = m["person"], // person != RDFPropertyMap
