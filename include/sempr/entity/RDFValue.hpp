@@ -7,6 +7,7 @@
 #include <odb/core.hxx>
 #include <sempr/entity/Entity.hpp>
 
+#include <sempr/core/RDF.hpp>
 
 
 namespace sempr { namespace entity {
@@ -142,7 +143,7 @@ public:
         // TODO: need a central point of namespace definitions
         // stringRepresentation_ = ("<" + std::string("sempr://") + pointer_->id() + ">");
         Soprano::Node tmp = Soprano::Node::createResourceNode(
-            QUrl(QString("sempr://") + QString::fromStdString(pointer_->id()))
+            QUrl(QString::fromStdString(sempr::baseURI() + pointer_->id()))
         );
         stringRepresentation_ = tmp.toN3().toStdString();
         return *this;

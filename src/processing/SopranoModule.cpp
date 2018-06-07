@@ -47,7 +47,18 @@ void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
             QUrl( (sempr::baseURI() + entity->id()).c_str() )
         );
 
-        model_->addStatement(s, p, o, d);
+        Soprano::Statement st(s, p, o, d);
+        if (!st.isValid())
+        {
+            std::cout << "SopranoModule: Cannot add invalid statement ("
+                      << st.subject().toString().toStdString() << ","
+                      << st.predicate().toString().toStdString() << ","
+                      << st.object().toString().toStdString() << ") from "
+                      << entity->id() << std::endl;
+        } else {
+            model_->addStatement(st);
+            // model_->addStatement(s, p, o, d);
+        }
     }
 }
 
