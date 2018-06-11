@@ -59,6 +59,8 @@ public:
 
     // get the transformation to the parent
     Eigen::Affine3d getTransform() const;
+    // set the transformation to the parent
+    void setTransform(const Eigen::Affine3d& tf);
 private:
     friend class odb::access;
     SpatialReference::Ptr parent_;

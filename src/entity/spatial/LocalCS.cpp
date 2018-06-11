@@ -126,5 +126,15 @@ void LocalCS::setParent(ProjectionCS::Ptr other)
     parent_ = other;
 }
 
+Eigen::Affine3d LocalCS::getTransform() const
+{
+    return transform_;
+}
+
+
+void LocalCS::setTransform(const Eigen::Affine3d& tf)
+{
+    transform_ = tf;
+}
 
 }}
