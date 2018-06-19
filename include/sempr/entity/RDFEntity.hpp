@@ -25,7 +25,7 @@ public:
 
     void getTriples(std::vector<Triple>& triples) const;
     Triple& getTripleAt(const size_t& index);
-    void addTriple(const Triple& triple);
+    bool addTriple(const Triple& triple);
     void removeTriple(const Triple& triple);
     void removeTripleAt(const size_t& index);
     void clear();

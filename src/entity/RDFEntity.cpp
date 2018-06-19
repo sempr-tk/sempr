@@ -1,5 +1,6 @@
 #include <sempr/entity/RDFEntity.hpp>
 #include <RDFEntity_odb.h>
+#include <Soprano/Soprano>
 
 namespace sempr { namespace entity {
 
@@ -37,10 +38,20 @@ Triple& RDFEntity::getTripleAt(const size_t &index)
     return triples_[index];
 }
 
-void RDFEntity::addTriple(const sempr::entity::Triple &triple)
+bool RDFEntity::addTriple(const sempr::entity::Triple &triple)
 {
+    // check if the triple is valid!
+    auto sub = Soprano::Node::fromN3(QString::fromStdString(triple.subject));
+    auto pred = Soprano::Node::fromN3(QString::fromStdString(triple.predicate));
+    auto obj = Soprano::Node::fromN3(QString::fromStdString(triple.object));
+
+    Soprano::Statement st(sub, pred, obj);
+
+    // but add anyway, necessary for RDFPropertyMap etc
     triples_.push_back(triple);
     this->changed();
+
+    return st.isValid();
 }
 
 void RDFEntity::removeTriple(const sempr::entity::Triple &triple)
