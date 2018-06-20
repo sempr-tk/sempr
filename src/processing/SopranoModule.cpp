@@ -100,6 +100,7 @@ void SopranoModule::process(query::SPARQLQuery::Ptr query)
 {
     if (dirty_) {
         infmodel_->performInference();
+        dirty_ = false;
         // TODO: this always performs inference on the whole model, which is not the best idea.
         // pro: easy to implement
         // pro: only performs inference when a sparql query is to be answered
