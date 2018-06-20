@@ -54,11 +54,14 @@ bool RDFEntity::addTriple(const sempr::entity::Triple &triple)
     return st.isValid();
 }
 
-void RDFEntity::removeTriple(const sempr::entity::Triple &triple)
+bool RDFEntity::removeTriple(const sempr::entity::Triple &triple)
 {
     auto newEnd = std::remove(triples_.begin(), triples_.end(), triple);
-    triples_.erase(newEnd);
+    if (newEnd == triples_.end()) return false;
+
+    triples_.erase(newEnd, triples_.end());
     this->changed();
+    return true;
 }
 
 void RDFEntity::removeTripleAt(const size_t& index) {
