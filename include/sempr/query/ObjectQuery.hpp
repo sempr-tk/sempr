@@ -65,12 +65,13 @@ namespace sempr { namespace query {
     private:
         typedef std::function<bool(std::shared_ptr<T>)> DecisionFunction_t;
         DecisionFunction_t decision_;
+        bool useDynamicCast_;
     public:
         using Ptr = std::shared_ptr<ObjectQuery<T> >;
         std::vector<std::shared_ptr<T> > results;
 
-        ObjectQuery(DecisionFunction_t decisionFunction = nullptr)
-            : decision_(decisionFunction)
+        ObjectQuery(DecisionFunction_t decisionFunction = nullptr, bool useDynamicCast = false)
+            : decision_(decisionFunction), useDynamicCast_(useDynamicCast)
         {
         }
 
@@ -84,26 +85,28 @@ namespace sempr { namespace query {
 
         void consider(storage::DBObject::Ptr object) override
         {
-            /** v1: dynamic cast */
-            // std::shared_ptr<T> derived = std::dynamic_pointer_cast<T>(object);
-            // if (derived) {
-            //     results.push_back(derived);
-            // }
+            std::shared_ptr<T> derived;
 
-            /** v2: static cast + simplified check on discriminator */
-            if (odb::object_traits_impl<T, odb::id_common>::info.discriminator
-                == object->discriminator())
+            /** v1: dynamic cast */
+            if (useDynamicCast_)
             {
-                std::shared_ptr<T> o = std::static_pointer_cast<T>(object);
-                // add it to the result if there is no further criterion or the given decision
-                // function returns true
-                if (!decision_ || decision_(o))
+                derived = std::dynamic_pointer_cast<T>(object);
+            } else {
+                /** v2: static cast + simplified check on discriminator */
+                if (odb::object_traits_impl<T, odb::id_common>::info.discriminator
+                == object->discriminator())
                 {
-                    results.push_back(o);
+                    derived = std::static_pointer_cast<T>(object);
                 }
             }
-        }
 
+            // add it to the result if there is no further criterion or the given decision
+            // function returns true
+            if (derived && (!decision_ || decision_(derived)))
+            {
+                results.push_back(derived);
+            }
+        }
     };
 
 }}
