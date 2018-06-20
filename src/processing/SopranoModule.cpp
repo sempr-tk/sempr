@@ -20,10 +20,10 @@ SopranoModule::~SopranoModule()
 
 void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
 {
-    dirty_ = true;
+    // dirty#_ = true;
 
     // remove all triples in the model that are associated with this entity
-    model_->removeAllStatements(
+    infmodel_->removeAllStatements(
         Soprano::Node(), Soprano::Node(), Soprano::Node(),
         Soprano::Node::createResourceNode(
             QUrl(
@@ -56,7 +56,7 @@ void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
                       << st.object().toString().toStdString() << ") from "
                       << entity->id() << std::endl;
         } else {
-            model_->addStatement(st);
+            infmodel_->addStatement(st);
             // model_->addStatement(s, p, o, d);
         }
     }
