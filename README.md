@@ -34,9 +34,8 @@ Now, to install GDAL (feel free to adjust the paths to your liking):
 
 ```bash
 cd ~
-git clone https://github.com/OSGeo/gdal.git
+git clone -b release/2.3 --depth 1 https://github.com/OSGeo/gdal.git
 cd ~/gdal
-git checkout release/2.3
 mkdir install
 cd ~/gdal/gdal
 ```
