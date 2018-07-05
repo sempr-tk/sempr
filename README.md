@@ -1,4 +1,4 @@
-# Semantic Mapping, Processing and Reasoning (SEMPR)
+# Semantic Environment Mapping, Processing and Reasoning (SEMPR)
 ## Status
 As the development of SEMPR just started recently, please do not expect a fully featured system. We are working on it. :)
 
