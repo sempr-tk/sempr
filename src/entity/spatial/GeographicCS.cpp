@@ -19,13 +19,15 @@ GeographicCS::GeographicCS(const std::string& name, const core::IDGenBase* idgen
     : GlobalCS(idgen)
 {
     this->setDiscriminator<GeographicCS>();
-    this->frame_.SetWellKnownGeogCS(name.c_str());
+    //this->frame_.SetWellKnownGeogCS(name.c_str());
 }
 
+/*
 SpatialReference::Ptr GeographicCS::getRoot()
 {
     return this->shared_from_base<SpatialReference>();
 }
+*/
 
 Eigen::Affine3d GeographicCS::transformationToRoot() const
 {

@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_GLOBALCS_HPP_
 
 #include <sempr/entity/spatial/SpatialReference.hpp>
-#include <ogr_spatialref.h>
+//#include <ogr_spatialref.h>
 
 namespace sempr { namespace entity {
 
@@ -28,15 +28,15 @@ public:
         Create an OGRCoordinateTransformation from this to other. Only available for global
         coordinate systems that use a OGRSpatialReference, as this task is simply delegated to GDAL.
     */
-    std::shared_ptr<OGRCoordinateTransformation> to(GlobalCS::Ptr other);
+    //std::shared_ptr<OGRCoordinateTransformation> to(GlobalCS::Ptr other);
 protected:
     GlobalCS();
     GlobalCS(const core::IDGenBase*);
     friend class odb::access;
 
     /// used by both projection and geographic coordinate systems.
-    #pragma db type("TEXT")
-    OGRSpatialReference frame_;
+    //#pragma db type("TEXT")
+    //OGRSpatialReference frame_;
 };
 
 }}

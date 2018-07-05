@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_SPATIAL_LOCALTRANSFORMATION_HPP_
 #define SEMPR_ENTITY_SPATIAL_LOCALTRANSFORMATION_HPP_
 
-#include <ogr_spatialref.h>
+//#include <ogr_spatialref.h>
 #include <Eigen/Geometry>
 
 // weeeeeell... it's not an entity. more like... util?
@@ -16,7 +16,7 @@ namespace sempr {
         another, just for local coordinate systems that are not part of
         GDAL.
     */
-    class LocalTransformation : public OGRCoordinateTransformation {
+    class LocalTransformation {
     public:
         /**
             Create a transformation defined by the Affine3d matrix.
@@ -26,8 +26,10 @@ namespace sempr {
         /**
             Get[Source|Target]CS both return NULL, as we don't transform between two OGRSpatialReferences, but our own LocalCS.
         */
-        OGRSpatialReference* GetSourceCS() override;
-        OGRSpatialReference* GetTargetCS() override;
+        //OGRSpatialReference* GetSourceCS() override;
+        //OGRSpatialReference* GetTargetCS() override;
+
+        /// Eige could be used to calculate this transformation it has optimized operations to handle it
 
         /**
             Apply transformation to the given points.
@@ -37,7 +39,7 @@ namespace sempr {
             \param z array of nCount Z values, modified in place
             \return TRUE on success, FALSE if some points fail to transform -- but to be honest, it's a matrix multiplication, what can go wrong?
         */
-        int Transform(int nCount, double* x, double* y, double* z = nullptr) override;
+        int Transform(int nCount, double* x, double* y, double* z = nullptr);  //was override OGRCoordinateTransformation
 
         /**
             Apply transformation to the given point, extended version.
@@ -48,7 +50,7 @@ namespace sempr {
             \param pabSuccess array of per-point-success-flags.
             \return TRUE on success, FALSE if some points fail to transform -- but to be honest, it's a matrix multiplication, what can go wrong?
         */
-        int TransformEx(int nCount, double* x, double* y, double* z = nullptr, int* pabSuccess = nullptr) override;
+        int TransformEx(int nCount, double* x, double* y, double* z = nullptr, int* pabSuccess = nullptr) ; //was override OGRCoordinateTransformation
 
     private:
         /// ref to const transform given on initialization

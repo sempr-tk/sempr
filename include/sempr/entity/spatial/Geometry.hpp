@@ -3,11 +3,13 @@
 
 #include <sempr/entity/Entity.hpp>
 #include <sempr/entity/spatial/SpatialReference.hpp>
-#include <ogr_geometry.h>
+#include <geos/geom/Geometry.h>
 
 #include <type_traits>
 
 namespace sempr { namespace entity {
+
+namespace geom = geos::geom;
 
 /**
     A base class for all geometry entities. Contains methods to manage spatial reference systems
@@ -28,7 +30,7 @@ public:
     // Note: I'd like this to be a pure virtual, but in that case ODB does not create a
     // discriminator for the class (why should it, if no instances of it can be created?),
     // which again leads to compiler errors.
-    virtual OGRGeometry* geometry() { return NULL; };
+    virtual geom::Geometry* geometry() { return NULL; };
 
     /**
         Assigns this geometry to the given reference frame. No transformations will be done.
@@ -47,7 +49,7 @@ public:
                 - different root CS that are not global
                 - transform between two global frames not known to GDAL/proj4
     */
-    void transformToCS(SpatialReference::Ptr cs);
+    //void transformToCS(SpatialReference::Ptr cs); // replacement needed without the gdal dependency!
 
     /** Exception that may be thrown during transformToCS. */
     class TransformException : public std::exception {

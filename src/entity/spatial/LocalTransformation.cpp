@@ -7,15 +7,19 @@ LocalTransformation::LocalTransformation(const Eigen::Affine3d& aff)
 {
 }
 
+/*
 OGRSpatialReference* LocalTransformation::GetSourceCS()
 {
     return NULL;
 }
+*/
 
+/*
 OGRSpatialReference* LocalTransformation::GetTargetCS()
 {
     return NULL;
 }
+*/
 
 int LocalTransformation::Transform(int nCount, double *x, double *y, double *z)
 {

@@ -1,6 +1,8 @@
 #include <sempr/query/SpatialIndexQuery.hpp>
 #include <sempr/entity/spatial/GeometryCollection.hpp>
 
+#include <geos/geom/Envelope.h>
+
 namespace sempr { namespace query {
 
 SpatialIndexQuery::SpatialIndexQuery()
@@ -31,6 +33,7 @@ void SpatialIndexQuery::setupRefGeo(const Eigen::Vector3d &lower, const Eigen::V
                                     entity::SpatialReference::Ptr cs)
 {
     entity::GeometryCollection::Ptr corners(new entity::GeometryCollection());
+    /*
     corners->setCS(cs);
 
     OGRPoint* p;
@@ -43,20 +46,26 @@ void SpatialIndexQuery::setupRefGeo(const Eigen::Vector3d &lower, const Eigen::V
     p = new OGRPoint(upper.x(), upper.y(), lower.z()); corners->geometry()->addGeometryDirectly(p);
     p = new OGRPoint(upper.x(), upper.y(), upper.z()); corners->geometry()->addGeometryDirectly(p);
     this->refGeo_ = corners;
+     */
 }
 
 SpatialIndexQuery::Ptr SpatialIndexQuery::createQuery(
     entity::Geometry::Ptr geometry, sempr::query::SpatialIndexQuery::QueryType type)
 {
+    /* todo
     OGREnvelope3D env;
     geometry->geometry()->getEnvelope(&env);
+    */
+
     Eigen::Vector3d lower, upper;
+    /* todo
     lower.x() = env.MinX;
     lower.y() = env.MinY;
     lower.z() = env.MinZ;
     upper.x() = env.MaxX;
     upper.y() = env.MaxY;
     upper.z() = env.MaxZ;
+     */
 
     return createQuery(lower, upper, geometry->getCS(), type);
 }

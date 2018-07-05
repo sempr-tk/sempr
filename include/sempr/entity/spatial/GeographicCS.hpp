@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_GEOGRAPHICCS_HPP_
 
 #include <sempr/entity/spatial/GlobalCS.hpp>
-#include <ogr_spatialref.h>
+//#include <ogr_spatialref.h>
 
 namespace sempr { namespace entity {
 
@@ -17,7 +17,7 @@ class GeographicCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<GeographicCS>;
 
-    SpatialReference::Ptr getRoot() override;
+    //SpatialReference::Ptr getRoot() override;
     Eigen::Affine3d transformationToRoot() const override;
     Eigen::Affine3d transformationFromRoot() const override;
 

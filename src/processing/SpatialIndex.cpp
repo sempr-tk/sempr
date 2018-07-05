@@ -3,7 +3,7 @@
 #include <sempr/entity/spatial/LocalTransformation.hpp>
 #include <iterator>
 
-#include <ogr_core.h>
+//#include <ogr_core.h>
 
 namespace sempr { namespace processing {
 
@@ -25,6 +25,9 @@ void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
     // query->refGeo_
 
     // create the AABB of the transformed query-volume.
+
+    //todo
+    /*
     OGREnvelope3D env;
     query->refGeo()->geometry()->getEnvelope(&env);
 
@@ -32,18 +35,20 @@ void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
         bPoint(env.MinX, env.MinY, env.MinZ),
         bPoint(env.MaxX, env.MaxY, env.MaxZ)
     );
-
+    */
 
     std::vector<bValue> tmpResults;
 
     typedef query::SpatialIndexQuery::QueryType QueryType;
     switch (query->mode()) {
+        /* todo
         case QueryType::WITHIN:
             rtree_.query(bgi::within(region), std::back_inserter(tmpResults));
             break;
         case QueryType::NOTWITHIN:
             rtree_.query(!bgi::within(region), std::back_inserter(tmpResults));
             break;
+        */
         /*
         // TODO: contains is introduced in boost 1.55, but ros indigo needs 1.54.
         // maybe its time for me to upgrade to 16.04 and kinetic...
@@ -54,12 +59,14 @@ void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
             rtree_.query(!bgi::contains(region), std::back_inserter(tmpResults));
             break;
         */
+        /* todo
         case QueryType::INTERSECTS:
             rtree_.query(bgi::intersects(region), std::back_inserter(tmpResults));
             break;
         case QueryType::NOTINTERSECTS:
             rtree_.query(!bgi::intersects(region), std::back_inserter(tmpResults));
             break;
+        */
         default:
             std::cout << "SpatialIndex: Mode " << query->mode() << " not implemented." << '\n';
     }
@@ -127,6 +134,7 @@ void SpatialIndex::processChangedCS(entity::SpatialReference::Ptr cs)
 
 SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo)
 {
+    /*
     // get the 3d envelope of the geometry.
     OGREnvelope3D envelope;
     geo->geometry()->getEnvelope(&envelope);
@@ -160,7 +168,11 @@ SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo)
         bPoint(envelope.MinX, envelope.MinY, envelope.MinZ),
         bPoint(envelope.MaxX, envelope.MaxY, envelope.MaxZ)
     );
+*/
 
+    //todo
+    bBox box(bPoint(0, 0, 0),
+             bPoint(1, 1, 1));
     return bValue(box, geo);
 }
 

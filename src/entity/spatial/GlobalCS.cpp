@@ -19,13 +19,14 @@ GlobalCS::~GlobalCS()
 {
 }
 
-
+/*
 std::shared_ptr<OGRCoordinateTransformation> GlobalCS::to(GlobalCS::Ptr other)
 {
     auto raw = OGRCreateCoordinateTransformation(&frame_, &(other->frame_));
     auto t = std::shared_ptr<OGRCoordinateTransformation>(raw, OGRCoordinateTransformation::DestroyCT);
     return t;
 }
+ */
 
 
 SpatialReference::Ptr GlobalCS::getRoot()

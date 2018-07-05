@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_PROJECTIONCS_HPP_
 
 #include <sempr/entity/spatial/GlobalCS.hpp>
-#include <ogr_spatialref.h>
+//#include <ogr_spatialref.h>
 
 namespace sempr { namespace entity {
 

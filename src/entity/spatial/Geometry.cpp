@@ -30,21 +30,32 @@ Geometry* Geometry::raw_clone() const {
     return NULL;
 }
 
+
 void Geometry::setCS(SpatialReference::Ptr cs)
 {
     referenceFrame_ = cs;
 }
+
+
 
 SpatialReference::Ptr Geometry::getCS() const
 {
     return referenceFrame_;
 }
 
+
+/*
 void Geometry::transformToCS(SpatialReference::Ptr cs)
 {
-    if (!this->geometry()) throw TransformException("no geometry to transform");
-    if (!this->referenceFrame_) throw TransformException("source reference frame invalid");
-    if (!cs) throw TransformException("target reference frame invalid");
+    if (!this->geometry())
+        throw TransformException("no geometry to transform");
+
+    if (!this->referenceFrame_)
+        throw TransformException("source reference frame invalid");
+
+    if (!cs)
+        throw TransformException("target reference frame invalid");
+
 
     auto rootThis = referenceFrame_->getRoot();
     auto rootOther = cs->getRoot();
@@ -60,14 +71,14 @@ void Geometry::transformToCS(SpatialReference::Ptr cs)
         LocalTransformation tf(toOther * fromThis);
         this->geometry()->transform(&tf);
     }
+
     // 2. the geometries have different roots (e.g., one is on WGS84,
     //    and the other in a local coordinate system relative to UTM 32N)
     else {
         GlobalCS::Ptr globalThis = std::dynamic_pointer_cast<GlobalCS>(rootThis);
         GlobalCS::Ptr globalOther = std::dynamic_pointer_cast<GlobalCS>(rootOther);
 
-        if (!globalThis || !globalOther)
-        {
+        if (!globalThis || !globalOther) {
             // we have two different roots that are not both of type
             // GlobalCS? no way to transform between them.
             std::cout << globalThis.get() << '\n';
@@ -97,6 +108,6 @@ void Geometry::transformToCS(SpatialReference::Ptr cs)
     // set new reference frame
     referenceFrame_ = cs;
 }
-
+*/
 
 }}

@@ -1,4 +1,4 @@
-#include <sempr/entity/CoffeeMug.hpp>
+#include <sempr/entity/example/CoffeeMug.hpp>
 #include <sempr/entity/RDFPropertyMap.hpp>
 using namespace sempr::entity;
 
@@ -16,19 +16,20 @@ using namespace sempr::query;
 #include <sempr/entity/spatial/Point.hpp>
 #include <Point_odb.h>
 
+#include <sempr/entity/spatial/Polygon.hpp>
+#include <Polygon_odb.h>
+
 #include <sempr/entity/spatial/GeometryCollection.hpp>
 #include <RuleSet_odb.h>
 
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
-#include <cpl_conv.h> // CPLFree for kml export of geometries
+//#include <cpl_conv.h> // CPLFree for kml export of geometries
 
 #include <sempr/entity/spatial/LocalCS.hpp>
 #include <chrono>
 
 #include <RDFDocument_odb.h>
-#include <Polygon_odb.h>
-
 
 #include <array>
 
@@ -47,7 +48,7 @@ using namespace sempr::storage;
 #ifndef M_PI
 #   define M_PI 3.141592653589793
 #endif
-
+/*
 void print(OGRGeometry* p)
 {
     char* str;
@@ -55,8 +56,9 @@ void print(OGRGeometry* p)
     std::cout << str << '\n';
     CPLFree(str);
 }
+*/
 
-
+/*
 void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const std::array<float, 3>& max)
 {
     // OGRLineString* ls = (OGRLineString*) OGRGeometryFactory::createGeometry(wkbLineString);
@@ -75,7 +77,7 @@ void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const st
     lr->closeRings();
     poly->addRingDirectly(lr);
 }
-
+*/
 
 
 int main(int argc, char** args)
@@ -111,6 +113,7 @@ int main(int argc, char** args)
      LocalCS::Ptr cs(new LocalCS());
      c.addEntity(cs);
 
+     /*
      // add a few geometries
      for (float i = 0.1; i < 10; i++)
      {
@@ -119,7 +122,7 @@ int main(int argc, char** args)
          p->setCS(cs);
          c.addEntity(p);
      }
-
+*/
 
      // query for everything in a box.
      Eigen::Vector3d lower{-0.1, -0.1, -0.1};

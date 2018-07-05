@@ -1,4 +1,4 @@
-# Semantic Environment Mapping, Processing and Reasoning (SEMPR)
+# Semantic Mapping, Processing and Reasoning (SEMPR)
 ## Status
 As the development of SEMPR just started recently, please do not expect a fully featured system. We are working on it. :)
 
@@ -26,7 +26,7 @@ The boost-part is a bit overkill, but I don't really know which part of boost is
 Since we need a recent version of GDAL with GEOS support you will need to compile it from source.  But first, make sure you have GEOS installed as well as proj4 (for coordinate system transformations):
 
 ```bash
-sudo apt-get install libgeos-dev
+sudo apt-get install libgeos-dev libgeos++-dev
 sudo apt-get install libproj-dev
 ```
 
