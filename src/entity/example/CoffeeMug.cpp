@@ -1,4 +1,4 @@
-#include <sempr/entity/CoffeeMug.hpp>
+#include <sempr/entity/example/CoffeeMug.hpp>
 #include <CoffeeMug_odb.h>
 
 

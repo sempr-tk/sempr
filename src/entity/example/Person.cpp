@@ -1,4 +1,4 @@
-#include <sempr/entity/Person.hpp>
+#include <sempr/entity/example/Person.hpp>
 #include <sempr/entity/Triple.hpp>
 #include <Person_odb.h>
 #include <sempr/core/RDF.hpp>

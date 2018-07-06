@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_COFFEEMUG_H_
 
 #include <sempr/entity/Entity.hpp>
-#include <sempr/entity/Person.hpp>
+#include <sempr/entity/example/Person.hpp>
 #include <sempr/storage/History.hpp>
 #include <odb/core.hxx>
 
