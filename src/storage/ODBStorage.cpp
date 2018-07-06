@@ -32,31 +32,39 @@ void ODBStorage::save( std::vector<DBObject::Ptr>& in ) {
 //    std::cout << "got bulk data: " << in.size() << " entries" << std::endl;
     odb::transaction t(db_->begin());
     for(auto o : in){
-        // std::cout << "save " << o->id() << '\n';
-      if (!o->persisted()) {
-          //std::cout << "persist: " << o->id() << std::endl;
-          db_->persist(o);
-      } else {
-          //std::cout << "update: " << o->id() << std::endl;
-          db_->update(o);
-      }
+        try {
+            // std::cout << "save " << o->id() << '\n';
+            if (!o->persisted()) {
+                //std::cout << "persist: " << o->id() << std::endl;
+                db_->persist(o);
+            } else {
+                //std::cout << "update: " << o->id() << std::endl;
+                db_->update(o);
+            }
+        } catch (odb::object_already_persistent& ex) {
+            std::cout << "ODBStorage::save: object " << o->id() << " already persistent. (batch!)" << "\n";
+            throw ex;
+        }
     }
-
     t.commit();
 }
 
 void ODBStorage::save( DBObject::Ptr o ) {
     // std::cout << "single-save: " << o->id() << '\n';
-    odb::transaction t(db_->begin());
-    if (!o->persisted()) {
-        // std::cout << "persist: " << o->id() << std::endl;
-        db_->persist(o);
-    } else {
-        // std::cout << "update: " << o->id() << std::endl;
-        db_->update(o);
+    try {
+        odb::transaction t(db_->begin());
+        if (!o->persisted()) {
+            // std::cout << "persist: " << o->id() << std::endl;
+            db_->persist(o);
+        } else {
+            // std::cout << "update: " << o->id() << std::endl;
+            db_->update(o);
+        }
+        t.commit();
+    } catch (odb::object_already_persistent& ex) {
+        std::cout << "ODBStorage::save: object " << o->id() << " already persistent. (single save) " << std::endl;
+        throw ex;
     }
-
-    t.commit();
 }
 
 
