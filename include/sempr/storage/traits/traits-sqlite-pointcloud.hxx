@@ -22,7 +22,7 @@ namespace odb { namespace sqlite {
 using sempr::entity::PointCloud;
 
 template <>
-class value_traits<PointCloud*, id_blob>     // id_blob is the SQLite type for binary blobs ...
+class value_traits<PointCloud, id_blob>     // id_blob is the SQLite type for binary blobs ...
 {
 public:
     typedef PointCloud value_type;
@@ -34,28 +34,30 @@ public:
     {
         if (!is_null)
         {
-            /*
-            uint64_t num;//, c_ptr;
+            uint64_t num, c_ptr;
 
             std::cout << "loading the pc traits" << std::endl;
 
             num = n / (sizeof(unsigned char) + sizeof(double) * 3);         // this should be the correct number of points?
+
+            std::shared_ptr<char> tmp(new char[n], std::default_delete<char[]>());
+            std::memcpy (tmp.get(), b.data(), n);
+
             std::shared_ptr<double> tmpPts(new double[num * 3], std::default_delete<double[]>());
             std::shared_ptr<unsigned char> tmpCol(new unsigned char[num * 3], std::default_delete<unsigned char[]>());
-            //c_ptr = num * sizeof(double) * 3;                       // skip the points?
-            //std::memcpy (tmpPts.get(), b.data(), c_ptr);
-            std::fill(tmpPts.get(), tmpPts.get() + (num * 3), b.data());
+            c_ptr = num * sizeof(double) * 3;                       // skip the points?
+            std::memcpy (tmpPts.get(), tmp.get(), c_ptr);
+            //std::fill(tmpPts.get(), tmpPts.get() + (num * 3), b.data());
             //std::fill_n(tmpPts.get(), (num * 3), &b.data());
             std::cout << "got points" << std::endl;
 
 
-            //std::memcpy (tmpCol.get(), (b.data())[c_ptr], num * 3);
-            std::fill_n(tmpCol.get(), tmpCol.get() + (num * 3), b.data());
+            std::memcpy (tmpCol.get(), (tmp.get() + c_ptr), num * 3);
+            //std::fill_n(tmpCol.get(), tmpCol.get() + (num * 3), b.data());
             //std::fill_n(tmpCol.get(), (num * 3), &b.data()[c_ptr]);
             std::cout << "got colors" << std::endl;
 
-            pc->setPointsWithColor(tmpPts, tmpCol, num);
-            */
+            pc.setPointsWithColor(tmpPts, tmpCol, num);
         }
         else
         {
