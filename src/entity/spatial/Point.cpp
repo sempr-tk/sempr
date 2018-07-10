@@ -27,13 +27,14 @@ Point::Point(const core::IDGenBase* idgen)
                 the context of the GDAL/OGR heap.
         Is a possible heap-corruption just a windows-problem? I've never heard of that before now.
     */
-    //geometry_ = static_cast<OGRPoint*>(OGRGeometryFactory::createGeometry(wkbPoint));
+    geometry_ = factory_->createPoint();
 }
 
 
 Point::~Point()
 {
-    //OGRGeometryFactory::destroyGeometry(geometry_);
+    factory_->destroyGeometry(geometry_);
+    geometry_ = nullptr;
 }
 
 

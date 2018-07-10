@@ -74,6 +74,9 @@ public:
     static geom::Geometry* importFromWKT(const std::string& text);
     static std::string exportToWKT(const geom::Geometry* geom);
 
+protected:
+    static const geom::GeometryFactory* factory_;
+
 private:
     friend class odb::access;
 

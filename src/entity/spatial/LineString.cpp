@@ -13,12 +13,13 @@ LineString::LineString(const core::IDGenBase* idgen)
     : Geometry(idgen)
 {
     this->setDiscriminator<LineString>();
-    //geometry_ = static_cast<OGRLineString*>(OGRGeometryFactory::createGeometry(wkbLineString));
+    geometry_ = factory_->createLineString();
 }
 
 LineString::~LineString()
 {
-    //OGRGeometryFactory::destroyGeometry(geometry_);
+    factory_->destroyGeometry(geometry_);
+    geometry_ = nullptr;
 }
 
 geom::LineString* LineString::geometry() {

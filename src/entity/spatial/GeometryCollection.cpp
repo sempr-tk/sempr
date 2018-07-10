@@ -13,12 +13,13 @@ GeometryCollection::GeometryCollection(const core::IDGenBase* idgen)
     : Geometry(idgen)
 {
     this->setDiscriminator<GeometryCollection>();
-    //geometry_ = static_cast<OGRGeometryCollection*>(OGRGeometryFactory::createGeometry(wkbGeometryCollection));
+    geometry_ = factory_->createGeometryCollection();
 }
 
 GeometryCollection::~GeometryCollection()
 {
-    //OGRGeometryFactory::destroyGeometry(geometry_);
+    factory_->destroyGeometry(geometry_);
+    geometry_ = nullptr;
 }
 
 geom::GeometryCollection* GeometryCollection::geometry() {

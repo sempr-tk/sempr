@@ -14,6 +14,8 @@ namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(Geometry)
 
+const geom::GeometryFactory* Geometry::factory_ = geom::GeometryFactory::getDefaultInstance();
+
 Geometry::Geometry() : Geometry(new core::IDGen<Geometry>())
 {
 }

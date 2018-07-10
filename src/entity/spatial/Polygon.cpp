@@ -13,12 +13,14 @@ Polygon::Polygon(const core::IDGenBase* idgen)
     : Geometry(idgen)
 {
     this->setDiscriminator<Polygon>();
-    //geometry_ = static_cast<OGRPolygon*>(OGRGeometryFactory::createGeometry(wkbPolygon));
+
+    geometry_ = factory_->createPolygon();
 }
 
 Polygon::~Polygon()
 {
-    //OGRGeometryFactory::destroyGeometry(geometry_);
+    factory_->destroyGeometry(geometry_);
+    geometry_ = nullptr;
 }
 
 geom::Polygon* Polygon::geometry() {
