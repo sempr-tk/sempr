@@ -1,9 +1,11 @@
-#ifndef SEMPR_TRAITS_SQLITE_GEOMETRY_HXX
-#define SEMPR_TRAITS_SQLITE_GEOMETRY_HXX
+#ifndef SEMPR_TRAITS_SQLITE_GEOM_GEOMETRY_HXX
+#define SEMPR_TRAITS_SQLITE_GEOM_GEOMETRY_HXX
 
 #include <odb/sqlite/traits.hxx>
 
-#include <geos/geom.h>
+#include <sempr/entity/spatial/Geometry.hpp>
+
+#include <geos/geom/GeometryFactory.h>
 
 #include <cstddef> // std::size_t
 #include <cstring> // std::strncmp, std::memcpy
@@ -17,9 +19,8 @@ namespace odb { namespace sqlite {
 namespace geom = geos::geom;
 
 /**
-    These are the traits for storing OGRGeometry-*pointer* in the database. The geometry will be
-    saved as WKB and loaded through the OGRGeometryFactory. (This requires to be freed by using
-    OGRGeometryFactory::destroyGeometry()!)
+    These are the traits for storing GEOM geometry in the database. The geometry will be
+    saved as WKB and loaded through the GeometryFactory.
 
     This version is to save geometries as binary blobs (wkb)
 */
@@ -35,7 +36,7 @@ public:
         geometry from image,
         templated for different geometry-subclasses:
             enable_if --> the function only exists for G that fullfill the criterion:
-                OGRGeometry is_base_of G
+                geom::Geometry is_base_of G
     */
     template <class G, typename = typename std::enable_if<std::is_base_of<geom::Geometry, G>::value, G>::type>
     static void
@@ -48,18 +49,14 @@ public:
             // But this is wrong!
             // a Polygon* may also point to a Triangle, a Curve* also to a CompoundCurve, SimpleCurve,
             // LineString, LinearRing, ...
-            // So, we really need to use the OGRGeometryFactory to create the correct object type
+            // So, we really need to use the Factory to create the correct object type
             // for us. We can still cast the resulting Geometry-ptr to the specific type as given
             // though the template parameter: We know that the geometry is of this or a derived type
             // since thats the type of pointer that is persisted for the class it's stored in.
 
             // parse the geometry from wkb
-
-            //todo
-            /*
-            OGRGeometry* tmpGeo;
-            OGRGeometryFactory::createFromWkb((unsigned char*)(b.data()), NULL, &tmpGeo, n, wkbVariantIso);
-             */
+            std::basic_string<char> buffer((char*)(b.data()));
+            auto tmpGeom = sempr::entity::Geometry::importFromWKB(buffer);
 
             // (Let's assume that the entities create an empty geometry in their ctor and assign
             // it to the pointer we are currently trying to "load".)
@@ -69,22 +66,19 @@ public:
             // cross-heap-problems!)
             // else: free the old geometry, assign the new.
 
-            //todo
-            /*
-            if (tmpGeo) {
-                OGRGeometryFactory::destroyGeometry(geometry);
-                geometry = static_cast<G*>(tmpGeo);
+            if (tmpGeom) {
+                auto factory = geom::GeometryFactory::getDefaultInstance();
+                factory->destroyGeometry(geometry);
+                geometry = dynamic_cast<G*>(tmpGeom);
             }
-             */
 
         } else {
             // assume that the geometry-ptr has already been set, either to NULL (in which case
             // a delete does nothing) or to previously in OGRGeometryFactory created geometry.
             // Since an explicit "NULL" is stored in the database, load a null, too.
 
-            /*
-            OGRGeometryFactory::destroyGeometry(geometry);
-             */
+            auto factory = geom::GeometryFactory::getDefaultInstance();
+            factory->destroyGeometry(geometry);
 
             geometry = NULL;
         }
@@ -102,16 +96,16 @@ public:
         }
 
         is_null = false;
-        n = 0; //geometry->WkbSize(); //todo
+
+        auto wkb = sempr::entity::Geometry::exportToWKB(geometry);
+        n = wkb.size();
 
         if (b.capacity() < n) {
             b.capacity(n);
         }
 
-        //todo
-        /*
-        geometry->exportToWkb(wkbXDR, (unsigned char*)(b.data()), wkbVariantIso);
-         */
+        //copy data to image
+        std::memcpy(b.data(), wkb.data(), n);
     }
 };
 
@@ -133,13 +127,6 @@ public:
     set_value(G*& geometry, const image_type& b, std::size_t n, bool is_null)
     {
         if (!is_null) {
-            // std::string tmp(b.data(), n);
-            char* tmp = const_cast<char*>(b.data());
-            /*
-            OGRGeometry* tmpGeo;
-            OGRGeometryFactory::createFromWkt(&tmp, NULL, &tmpGeo);
-
-
             // (Let's assume that the entities create an empty geometry in their ctor and assign
             // it to the pointer we are currently trying to "load".)
             // The factory might return null if the geometry is "EMPTY" (e.g. "POINT EMPTY").
@@ -147,18 +134,24 @@ public:
             // (Which should be created through the GeometryFactory inside the entity to avoid
             // cross-heap-problems!)
             // else: free the old geometry, assign the new.
-            if (tmpGeo) {
-                /*
-                OGRGeometryFactory::destroyGeometry(geometry);
-                geometry = static_cast<G*>(tmpGeo);
+
+            char* buffer = const_cast<char*>(b.data());
+
+            auto tmpGeom = sempr::entity::Geometry::importFromWKT(std::string(buffer));
+
+            if (tmpGeom) {
+                auto factory = geom::GeometryFactory::getDefaultInstance();
+                factory->destroyGeometry(geometry);
+                geometry = dynamic_cast<G*>(tmpGeom);
 
             }
-                 */
+
         } else {
             // there was really a null-ptr stored. well then...
-            /*
-            OGRGeometryFactory::destroyGeometry(geometry);
-             */
+
+            auto factory = geom::GeometryFactory::getDefaultInstance();
+            factory->destroyGeometry(geometry);
+
             geometry = NULL;
         }
 
@@ -175,21 +168,17 @@ public:
         }
 
         is_null = false;
-        // n = geometry->WkbSize();
-        char* wkt;
-        /*
-        geometry->exportToWkt(&wkt, wkbVariantIso);
 
-        {
-            std::string tmp(wkt);
-            n = tmp.size();
-            if (b.capacity() < n) {
-                b.capacity(n);
-            }
-            std::memcpy(b.data(), tmp.data(), n);
+        auto wkt = sempr::entity::Geometry::exportToWKT(geometry);
+
+        n = wkt.size();
+
+        if (b.capacity() < n) {
+            b.capacity(n);
         }
-        CPLFree(wkt);
-         */
+
+        std::memcpy(b.data(), wkt.data(), n);
+
     }
 };
 
@@ -197,11 +186,13 @@ public:
 template <> class value_traits<geom::Point*, id_text> : public value_traits<geom::Geometry*, id_text> {};
 template <> class value_traits<geom::GeometryCollection*, id_text> : public value_traits<geom::Geometry*, id_text> {};
 template <> class value_traits<geom::Polygon*, id_text> : public value_traits<geom::Geometry*, id_text> {};
+template <> class value_traits<geom::LineString*, id_text> : public value_traits<geom::Geometry*, id_text> {};
 
 // geometry-to-binary-blob
 template <> class value_traits<geom::Point*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 template <> class value_traits<geom::GeometryCollection*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 template <> class value_traits<geom::Polygon*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
+template <> class value_traits<geom::LineString*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 
 
 } /* sqlite */
@@ -209,4 +200,4 @@ template <> class value_traits<geom::Polygon*, id_blob> : public value_traits<ge
 } /* odb */
 
 
-#endif /* end of include guard: SEMPR_TRAITS_SQLITE_GEOMETRY_HXX */
+#endif /* end of include guard: SEMPR_TRAITS_SQLITE_GEOM_GEOMETRY_HXX */

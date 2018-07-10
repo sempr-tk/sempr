@@ -19,9 +19,7 @@ jobs:
       - run: apt-get install -y -qq git
       - run: apt-get install -y -qq libproj-dev
       - run: mkdir build
-      - run: echo $LD_LIBRARY_PATH
       - run: cd build && cmake .. && make -j2
-      - run: ldd build/test/sempr_test_bin | grep gdal
       - run: cd build && ./test/sempr_test_bin
 
 

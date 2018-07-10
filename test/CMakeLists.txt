@@ -13,7 +13,7 @@ link_directories(${Soprano_LIBRARY_DIRS})
 
 
 add_executable(manual_test main.cpp)
-target_link_libraries(manual_test sempr_core)
+target_link_libraries(manual_test sempr_core ${PROJ4_LIBRARIES} ${GEOS_LIBRARY})
 
 add_executable(sempr_test_bin SEMPR_tests.cpp
                               storage_tests.cpp
@@ -22,10 +22,11 @@ add_executable(sempr_test_bin SEMPR_tests.cpp
                               geometries_tests.cpp
                               spatial_index_tests.cpp)
 
-target_link_libraries(sempr_test_bin sempr_core )
+MESSAGE("DBG GEOS_LIB ${GEOS_LIBRARY}")
+target_link_libraries(sempr_test_bin sempr_core ${PROJ4_LIBRARIES} ${GEOS_LIBRARY})
 
 if(Boost_FOUND)
   message("found boost")
   include_directories(${Boost_INCLUDE_DIRS})
-  target_link_libraries(sempr_test_bin ${Boost_LIBRARIES})
+  target_link_libraries(sempr_test_bin ${Boost_LIBRARIES} ${PROJ4_LIBRARIES} ${GEOS_LIBRARY})
 endif()

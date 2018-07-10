@@ -5,7 +5,7 @@
 
 #include <odb/core.hxx>
 #include <sempr/sempr.hpp>
-#include <sempr/entity/Person.hpp>
+#include <sempr/entity/example/Person.hpp>
 #include <Person_odb.h>
 #include <iostream>
 
@@ -24,9 +24,17 @@
 
 // geometries
 #include <Geometry_odb.h>
+
+#include <sempr/entity/spatial/GeometryCollection.hpp>
 #include <GeometryCollection_odb.h>
+
+#include <sempr/entity/spatial/Point.hpp>
 #include <Point_odb.h>
+
+#include <sempr/entity/spatial/LineString.hpp>
 #include <LineString_odb.h>
+
+#include <sempr/entity/spatial/Polygon.hpp>
 #include <Polygon_odb.h>
 
 // reference systems
@@ -47,16 +55,12 @@ namespace testing {
 
   #define DISCRIMINATOR(T) (odb::object_traits_impl<T, odb::id_common>::info.discriminator)
 
-  inline std::string toString(OGRGeometry* p)
+  inline std::string toString(Geometry& p)
   {
-      char* str;
-      p->exportToWkt(&str, wkbVariantIso);
-      std::string s(str);
-      CPLFree(str);
-      return s;
+      return Geometry::exportToWKT(p.geometry());
   }
 
-  inline void print(OGRGeometry* p)
+  inline void print(Geometry& p)
   {
       std::cout << toString(p) << '\n';
   }

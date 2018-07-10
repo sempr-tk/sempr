@@ -68,7 +68,15 @@ public:
     */
     Geometry::Ptr clone() const;
 
+    static geom::Geometry* importFromWKB(const std::basic_string<char>& buffer);
+    static std::basic_string<char> exportToWKB(const geom::Geometry* geom);
+
+    static geom::Geometry* importFromWKT(const std::string& text);
+    static std::string exportToWKT(const geom::Geometry* geom);
+
 private:
+    friend class odb::access;
+
     /**
         Return a pointer to a clone of this. Uses the copy-constructor. To be implemented by derived
         classes to copy the geometry and use the same SpatialReference (instance!).
@@ -76,7 +84,6 @@ private:
     */
     virtual Geometry* raw_clone() const;
 
-    friend class odb::access;
     SpatialReference::Ptr referenceFrame_;
 };
 

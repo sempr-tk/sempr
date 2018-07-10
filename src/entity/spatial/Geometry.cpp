@@ -3,6 +3,13 @@
 #include <sempr/entity/spatial/LocalTransformation.hpp>
 #include <Geometry_odb.h>
 
+#include <geos/geom/GeometryFactory.h>
+#include <geos/io/WKBReader.h>
+#include <geos/io/WKBWriter.h>
+#include <geos/io/WKTReader.h>
+#include <geos/io/WKTWriter.h>
+
+
 namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(Geometry)
@@ -109,5 +116,75 @@ void Geometry::transformToCS(SpatialReference::Ptr cs)
     referenceFrame_ = cs;
 }
 */
+
+geom::Geometry* Geometry::importFromWKB(const std::basic_string<char>& buffer)
+{
+    const geom::GeometryFactory& factory = *geom::GeometryFactory::getDefaultInstance();
+
+    geos::io::WKBReader wkbReader(factory);
+
+    std::istringstream iss(buffer);
+
+    geom::Geometry* geom = NULL;
+    try {
+        geom = wkbReader.read(iss);
+    }
+    catch (const std::exception& e) {
+        //todo handle the exception
+    }
+
+    return geom;
+}
+
+std::basic_string<char> Geometry::exportToWKB(const geom::Geometry* geom)
+{
+    auto wkbWriter = geos::io::WKBWriter();
+
+    std::basic_ostringstream<char> oss;
+
+    try {
+        wkbWriter.write(*geom, oss);
+    }
+    catch (const std::exception& e) {
+        //todo handle the exception
+    }
+
+    return oss.str();
+}
+
+geom::Geometry* Geometry::importFromWKT(const std::string& text)
+{
+    const geom::GeometryFactory& factory = *geom::GeometryFactory::getDefaultInstance();
+
+    geos::io::WKTReader wktReader(factory);
+
+    geom::Geometry* geom = NULL;
+    try {
+        geom = wktReader.read(text);
+    }
+    catch (const std::exception& e) {
+        //todo handle the exception
+    }
+
+    return geom;
+}
+
+std::string Geometry::exportToWKT(const geom::Geometry* geom)
+{
+    auto wktWriter = geos::io::WKTWriter();
+
+    std::string wkt;
+
+    try {
+        wkt = wktWriter.write(geom);
+    }
+    catch (const std::exception& e) {
+        //todo handle the exception
+    }
+
+    return wkt;
+}
+
+
 
 }}

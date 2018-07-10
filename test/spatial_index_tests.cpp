@@ -1,6 +1,7 @@
 #include "test_utils.hpp"
 using namespace testing;
 
+/*
 void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const std::array<float, 3>& max)
 {
     // OGRLineString* ls = (OGRLineString*) OGRGeometryFactory::createGeometry(wkbLineString);
@@ -19,6 +20,7 @@ void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const st
     lr->closeRings();
     poly->addRingDirectly(lr);
 }
+*/
 
 BOOST_AUTO_TEST_SUITE(spatial_index)
     std::string dbfile = "test_sqlite.db";
@@ -40,7 +42,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         for (int i = 0; i < 10; i++)
         {
             Polygon::Ptr p( new Polygon(new PredefinedID("p" + std::to_string(i))) );
-            setupQuadrangle(p->geometry(), {{float(i), 0, 0}}, {{float(i+1), 1, 1}});
+            //setupQuadrangle(p->geometry(), {{float(i), 0, 0}}, {{float(i+1), 1, 1}});
             p->setCS(cs);
             core.addEntity(p);
         }
@@ -50,7 +52,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         for (int i = 10; i < 20; i++)
         {
             Polygon::Ptr p( new Polygon(new PredefinedID("p" + std::to_string(i))) );
-            setupQuadrangle(p->geometry(), {{float(9), 0, 0}}, {{float(10), 1, 1}});   // always the same
+            //setupQuadrangle(p->geometry(), {{float(9), 0, 0}}, {{float(10), 1, 1}});   // always the same
 
             LocalCS::Ptr child(new LocalCS());  // with a new coordinate system
             child->setParent(previous);         // attached to the previous
