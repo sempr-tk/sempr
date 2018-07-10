@@ -22,7 +22,6 @@ add_executable(sempr_test_bin SEMPR_tests.cpp
                               geometries_tests.cpp
                               spatial_index_tests.cpp)
 
-MESSAGE("DBG GEOS_LIB ${GEOS_LIBRARY}")
 target_link_libraries(sempr_test_bin sempr_core ${PROJ4_LIBRARIES} ${GEOS_LIBRARY})
 
 if(Boost_FOUND)
@@ -30,3 +29,5 @@ if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
   target_link_libraries(sempr_test_bin ${Boost_LIBRARIES} ${PROJ4_LIBRARIES} ${GEOS_LIBRARY})
 endif()
+
+add_test(NAME sempr_test COMMAND sempr_test_bin)

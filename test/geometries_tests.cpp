@@ -31,10 +31,10 @@ BOOST_AUTO_TEST_SUITE(geometries)
         auto polygonGeom = polygon->geometry();
         polygonGeom = poly;
 
-        geom::GeometryFactory::getDefaultInstance()->destroyGeometry(poly);
-
         // get the expected wkt output for comparisons.
-        std::string expectedWkt = toString(*polygon);
+        //std::string expectedWkt = toString(*polygon); //seg fault
+
+        geom::GeometryFactory::getDefaultInstance()->destroyGeometry(poly);
 
 /*  todo test clone!
         // now, create different pointer to the same thing.
