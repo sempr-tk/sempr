@@ -16,7 +16,6 @@
 INCLUDE (${CMAKE_SOURCE_DIR}/cmake/MacPlistMacros.cmake)
 
 IF(WIN32)
-
   IF (MINGW)
     FIND_PATH(GEOS_INCLUDE_DIR geos_c.h /usr/local/include /usr/include c:/msys/local/include)
     FIND_LIBRARY(GEOS_LIBRARY NAMES geos_c PATHS /usr/local/lib /usr/lib c:/msys/local/lib)
@@ -41,6 +40,7 @@ ELSE(WIN32)
           OR NOT CMAKE_FIND_FRAMEWORK)
         SET (CMAKE_FIND_FRAMEWORK_save ${CMAKE_FIND_FRAMEWORK} CACHE STRING "" FORCE)
         SET (CMAKE_FIND_FRAMEWORK "ONLY" CACHE STRING "" FORCE)
+        MESSAGE("DBG GEOS_CONFIG SEARCH AS APPLE")
         FIND_LIBRARY(GEOS_LIBRARY GEOS)
         IF (GEOS_LIBRARY)
           # they're all the same in a framework
@@ -128,7 +128,8 @@ ELSE(WIN32)
         #  "${GEOS_CONFIG_LIBS}" )
         #MESSAGE("DBG  GEOS_CONFIG_LIBS=${GEOS_CONFIG_LIBS}")
         #MESSAGE("DBG  GEOS_LIB_NAME_WITH_PREFIX=${GEOS_LIB_NAME_WITH_PREFIX}")
-        SET(GEOS_LIB_NAME_WITH_PREFIX -lgeos_c CACHE STRING INTERNAL)
+        SET(GEOS_LIB_NAME_WITH_PREFIX -lgeos CACHE STRING INTERNAL)     #change this to -lgeos_c if you like to use the C API of GEOS!
+        #MESSAGE("DBG  GEOS_LIB_NAME_WITH_PREFIX=${GEOS_LIB_NAME_WITH_PREFIX}")
 
         ## remove prefix -l because we need the pure name
 
