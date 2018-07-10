@@ -22,11 +22,18 @@ LineString::~LineString()
     geometry_ = nullptr;
 }
 
-geom::LineString* LineString::geometry() {
-    return geometry_;
+const geom::LineString* LineString::geometry() 
+{
+    return dynamic_cast<geom::LineString*>(geometry_);
 }
 
-LineString::Ptr LineString::clone() const {
+void LineString::setGeometry(geom::LineString* lineString)
+{
+    geometry_ = lineString;
+}
+
+LineString::Ptr LineString::clone() const 
+{
     // raw clone is virtual! :)
     return LineString::Ptr(raw_clone());
 }
@@ -35,10 +42,11 @@ LineString* LineString::raw_clone() const
 {
     LineString* newInstance = new LineString();
     // set the same reference frame
-    //newInstance->setCS(this->getCS());
+    newInstance->setCS(this->getCS());
 
     // copy the geometry
-    //*(newInstance->geometry_) = *geometry_; // use OGRGeometry copy ctor
+    newInstance->geometry_ = geometry_->clone(); 
+    
     return newInstance;
 }
 

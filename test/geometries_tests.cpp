@@ -6,6 +6,13 @@ using namespace testing;
 BOOST_AUTO_TEST_SUITE(geometries)
     std::string dbfile = "test_sqlite.db";
 
+    BOOST_AUTO_TEST_CASE(geometries_coordinates)
+    {
+        geom::Coordinate dummyPosition;
+
+        BOOST_CHECK(dummyPosition.isNull());
+    }
+
     BOOST_AUTO_TEST_CASE(geometries_cloneable)
     {
         // test if our CRTP "CloneableGeometry<class T>" works as expected.
@@ -21,40 +28,37 @@ BOOST_AUTO_TEST_SUITE(geometries)
             points.push_back(p);
         }
 
-        auto collectionGeom = collection->geometry();
-        collectionGeom = geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(&points);
+        auto collectionGeom = collection->geometry();   
+        collectionGeom = geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(&points);    //this will overwrite the old (empty) default collection geometry. Memory Leak! TODO
 
         auto poly = dynamic_cast<geom::Polygon*>(collectionGeom->convexHull());
 
         // use it in a polygon:
         Polygon::Ptr polygon(new Polygon());
-        auto polygonGeom = polygon->geometry();
-        polygonGeom = poly;
+        polygon->setGeometry(poly);
 
         // get the expected wkt output for comparisons.
-        //std::string expectedWkt = toString(*polygon); //seg fault
+        std::string expectedWkt = toString(polygon->geometry()); //seg fault
+        print(polygon->geometry());
 
         geom::GeometryFactory::getDefaultInstance()->destroyGeometry(poly);
 
-/*  todo test clone!
         // now, create different pointer to the same thing.
-        CurvePolygon::Ptr curve_polygon = polygon;
         Geometry::Ptr geometry = polygon;
 
         // clone them!
         auto pclone = polygon->clone();   // Polygon::Ptr
-        auto gclone = geometry->clone(); // Geometry::Ptr
+        auto gclone = geometry->clone();  // Geometry::Ptr
 
         // change the original
-        polygon->geometry()->empty();
-*/
+        polygon->setGeometry(geom::GeometryFactory::getDefaultInstance()->createPolygon());
+        
         // print the clones
         // print(pclone->geometry());
         // print(cpclone->geometry());
         // print(gclone->geometry());
-        /*BOOST_CHECK_EQUAL(expectedWkt, toString(pclone));
-        BOOST_CHECK_EQUAL(expectedWkt, toString(cpclone));
-        BOOST_CHECK_EQUAL(expectedWkt, toString(gclone));*/
+        BOOST_CHECK_EQUAL(expectedWkt, toString(pclone->geometry()));
+        BOOST_CHECK_EQUAL(expectedWkt, toString(gclone->geometry()));
 
     }
 

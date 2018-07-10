@@ -24,38 +24,48 @@ Geometry::Geometry(const core::IDGenBase* idgen)
     : Entity(idgen)
 {
     this->setDiscriminator<Geometry>();
+
+    //factory geometry creation by sub classes!
 }
 
-Geometry::~Geometry()
+Geometry::~Geometry() 
 {
+    //factory geometry delete by sub classes!
 }
 
-Geometry::Ptr Geometry::clone() const {
+const geom::Geometry* Geometry::geometry() 
+{ 
+    return geometry_; 
+}
+
+void Geometry::setGeometry(geom::Geometry* geometry) 
+{ 
+    geometry_ = geometry; 
+}
+
+Geometry::Ptr Geometry::clone() const 
+{
     // raw clone is virtual! :)
     return Geometry::Ptr(raw_clone());
 }
 
-Geometry* Geometry::raw_clone() const {
+Geometry* Geometry::raw_clone() const 
+{
     return NULL;
 }
 
-
-void Geometry::setCS(SpatialReference::Ptr cs)
+void Geometry::setCS(SpatialReference::Ptr cs) 
 {
     referenceFrame_ = cs;
 }
 
-
-
-SpatialReference::Ptr Geometry::getCS() const
+SpatialReference::Ptr Geometry::getCS() const 
 {
     return referenceFrame_;
 }
 
-
 /*
-void Geometry::transformToCS(SpatialReference::Ptr cs)
-{
+void Geometry::transformToCS(SpatialReference::Ptr cs) {
     if (!this->geometry())
         throw TransformException("no geometry to transform");
 

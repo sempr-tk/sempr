@@ -23,7 +23,10 @@ public:
     Point(const core::IDGenBase*);
     virtual ~Point();
 
-    geom::Point* geometry() override;
+    const geom::Point* geometry() override;
+    
+    void setGeometry(geom::Point* point);
+
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
@@ -33,9 +36,6 @@ public:
 
 private:
     friend class odb::access;
-
-    #pragma db type("TEXT")
-    geom::Point* geometry_;
 
     virtual Point* raw_clone() const override;
 };

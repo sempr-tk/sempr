@@ -35,10 +35,10 @@ GeometryCollection* GeometryCollection::raw_clone() const
 {
     GeometryCollection* newInstance = new GeometryCollection();
     // set the same reference frame
-    //newInstance->setCS(this->getCS());
+    newInstance->setCS(this->getCS());
 
     // copy the geometry
-    //newInstance->geometry_ = std::static_cast<GeometryCollection*>(geometry_->clone()); // use OGRGeometry copy ctor
+    newInstance->geometry_ = dynamic_cast<geom::GeometryCollection*>(geometry_->clone()); 
 
     return newInstance;
 }

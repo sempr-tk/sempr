@@ -21,7 +21,9 @@ public:
     LineString(const core::IDGenBase*);
     virtual ~LineString();
 
-    geom::LineString* geometry() override;
+    const geom::LineString* geometry() override;
+
+    void setGeometry(geom::LineString* lineString);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
@@ -31,9 +33,6 @@ public:
 
 private:
     friend class odb::access;
-
-    #pragma db type("TEXT")
-    geom::LineString* geometry_;
 
     virtual LineString* raw_clone() const override;
 };

@@ -55,12 +55,12 @@ namespace testing {
 
   #define DISCRIMINATOR(T) (odb::object_traits_impl<T, odb::id_common>::info.discriminator)
 
-  inline std::string toString(Geometry& p)
+  inline std::string toString(const geom::Geometry* p)
   {
-      return Geometry::exportToWKT(p.geometry());
+      return Geometry::exportToWKT(p);
   }
 
-  inline void print(Geometry& p)
+  inline void print(const geom::Geometry* p)
   {
       std::cout << toString(p) << '\n';
   }

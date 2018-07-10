@@ -21,7 +21,9 @@ public:
     Polygon(const core::IDGenBase*);
     virtual ~Polygon();
 
-    geom::Polygon* geometry() override;
+    const geom::Polygon* geometry() override;
+
+    void setGeometry(geom::Polygon* polygon);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
@@ -31,9 +33,6 @@ public:
 
 private:
     friend class odb::access;
-
-    #pragma db type("TEXT")
-    geom::Polygon* geometry_;
 
     virtual Polygon* raw_clone() const override;
 };

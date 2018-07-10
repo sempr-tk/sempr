@@ -23,11 +23,18 @@ Polygon::~Polygon()
     geometry_ = nullptr;
 }
 
-geom::Polygon* Polygon::geometry() {
-    return geometry_;
+const geom::Polygon* Polygon::geometry() 
+{
+    return dynamic_cast<geom::Polygon*>(geometry_);
 }
 
-Polygon::Ptr Polygon::clone() const {
+void Polygon::setGeometry(geom::Polygon* polygon)
+{
+    geometry_ = polygon;
+}
+
+Polygon::Ptr Polygon::clone() const 
+{
     // raw clone is virtual! :)
     return Polygon::Ptr(raw_clone());
 }
@@ -36,10 +43,10 @@ Polygon* Polygon::raw_clone() const
 {
     Polygon* newInstance = new Polygon();
     // set the same reference frame
-    //newInstance->setCS(this->getCS());
+    newInstance->setCS(this->getCS());
 
     // copy the geometry
-//    newInstance->geometry_ = std::static_cast<geom::Polygon*>(geometry_->clone()); // use OGRGeometry copy ctor
+    newInstance->geometry_ = geometry_->clone(); // use OGRGeometry copy ctor
     return newInstance;
 }
 
