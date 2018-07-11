@@ -24,7 +24,7 @@ namespace sempr { namespace entity {
         
         PointCloud();
         PointCloud(const sempr::core::IDGenBase*);
-        
+
         /**
          * @brief Points stored in a struct
          */
@@ -39,11 +39,11 @@ namespace sempr { namespace entity {
         std::shared_ptr<double> bounds() const;
         
         // what should we return? Templating?
-        std::vector<double> points() { return m_points->points; }
+        std::vector<double> points() { return m_points.get()->points; }
         //std::shared_ptr<double> points() const { return std::shared_ptr<double>(m_points.get()->points.data(), std::default_delete<double[]>()); }
         //double* points() const { return points().data(); }
         
-        std::vector<unsigned char> colors() { return m_points->colors; }
+        std::vector<unsigned char> colors() { return m_points.get()->colors; }
         //std::shared_ptr<unsigned char> colors() const { return std::shared_ptr<unsigned char>(m_points.get()->colors.data(), std::default_delete<unsigned char[]>()); }
         //unsigned char* colors() const { return points().data(); }
         

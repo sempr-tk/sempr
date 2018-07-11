@@ -81,20 +81,30 @@ void PointCloud::bounds(std::shared_ptr<double> b)
     prop_->changed();
 }
 
-void PointCloud::setPointsWithColor(std::shared_ptr<double>& points,
-                                    std::shared_ptr<unsigned char>& colors,
+void PointCloud::setPointsWithColor(std::vector<double>& points,
+                                    std::vector<unsigned char>& colors,
                                     uint64_t n)
-{    
-    if(!this->m_points)
+{
+    std::cout << "in" << std::endl;
+    if(this->m_points == NULL)
     {
-        this->m_points = PointCloud::Points::Ptr(new PointCloud::Points(n, this));
+        //this->m_points = new Points();
+        this->m_points = std::shared_ptr<Points>(new Points);
+        this->m_points.get()->points.reserve(n * 3);
+        this->m_points.get()->colors.reserve(n * 3);
+        std::cout << "reserved space" << std::endl;
     }
 
     // we need to trust the input? :(
     // maybe think about some saver method to get the points (and the number)
+    this->number(n);
     this->points(points);
     this->colors(colors);
     this->color(0);
+
+    std::cout << "process finished" << std::endl;
+    std::cout << "Testpoint: " << this->m_points->points[n/3] << std::endl;
+
 }
 
 }}
