@@ -38,7 +38,7 @@ Point::~Point()
 }
 
 
-const geom::Point* Point::geometry() 
+geom::Point* Point::geometry() 
 {
     return dynamic_cast<geom::Point*>(geometry_);
 }
@@ -46,6 +46,12 @@ const geom::Point* Point::geometry()
 void Point::setGeometry(geom::Point* point)
 {
     geometry_ = point;
+}
+
+void Point::setCoordinate(const geom::Coordinate& coordinate)
+{
+    factory_->destroyGeometry(geometry_);
+    geometry_ = factory_->createPoint(coordinate);
 }
 
 Point::Ptr Point::clone() const 

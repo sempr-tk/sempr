@@ -35,8 +35,14 @@ class Geometry : public Entity
     // discriminator for the class (why should it, if no instances of it can be created?),
     // which again leads to compiler errors.
     // unable to override if method is const.
-    virtual const geom::Geometry* geometry();
+    virtual geom::Geometry* geometry();
 
+    /**
+     * @brief Set the GEOS GEOM geometry object.
+     * The new object have to be created by the GeometryFactory!
+     * 
+     * @param geometry The new geometry object to set.
+     */
     void setGeometry(geom::Geometry* geometry);
 
     /**

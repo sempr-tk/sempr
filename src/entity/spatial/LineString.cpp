@@ -22,7 +22,7 @@ LineString::~LineString()
     geometry_ = nullptr;
 }
 
-const geom::LineString* LineString::geometry() 
+geom::LineString* LineString::geometry() 
 {
     return dynamic_cast<geom::LineString*>(geometry_);
 }

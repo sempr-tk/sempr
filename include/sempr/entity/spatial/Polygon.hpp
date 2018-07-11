@@ -21,7 +21,7 @@ public:
     Polygon(const core::IDGenBase*);
     virtual ~Polygon();
 
-    const geom::Polygon* geometry() override;
+    geom::Polygon* geometry() override;
 
     void setGeometry(geom::Polygon* polygon);
 

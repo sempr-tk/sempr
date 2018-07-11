@@ -23,10 +23,11 @@ public:
     Point(const core::IDGenBase*);
     virtual ~Point();
 
-    const geom::Point* geometry() override;
+    geom::Point* geometry() override;
     
     void setGeometry(geom::Point* point);
 
+    void setCoordinate(const geom::Coordinate& coordinate);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of

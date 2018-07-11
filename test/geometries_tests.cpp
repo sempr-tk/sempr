@@ -10,6 +10,9 @@ BOOST_AUTO_TEST_SUITE(geometries)
     {
         geom::Coordinate dummyPosition;
 
+        //default constructor dont set NULL!
+        dummyPosition.setNull();
+
         BOOST_CHECK(dummyPosition.isNull());
     }
 
@@ -17,8 +20,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
     {
         // test if our CRTP "CloneableGeometry<class T>" works as expected.
 
-        // construct a OGRPolygon:
-        GeometryCollection::Ptr collection(new GeometryCollection());
+        // construct a GEOM Polygon by a Collection:
 
         std::vector<geom::Geometry*> points;
         float x[] = {0, 0, 1, 1};
@@ -28,20 +30,19 @@ BOOST_AUTO_TEST_SUITE(geometries)
             points.push_back(p);
         }
 
-        auto collectionGeom = collection->geometry();   
-        collectionGeom = geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(&points);    //this will overwrite the old (empty) default collection geometry. Memory Leak! TODO
+        auto collectionGeom = geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(&points);    //this will overwrite the old (empty) default collection geometry. Memory Leak! TODO
 
         auto poly = dynamic_cast<geom::Polygon*>(collectionGeom->convexHull());
+
+        //geom::GeometryFactory::getDefaultInstance()->destroyGeometry(collectionGeom); //will also destroy the polygon points. - crashed!
 
         // use it in a polygon:
         Polygon::Ptr polygon(new Polygon());
         polygon->setGeometry(poly);
 
         // get the expected wkt output for comparisons.
-        std::string expectedWkt = toString(polygon->geometry()); //seg fault
-        print(polygon->geometry());
-
-        geom::GeometryFactory::getDefaultInstance()->destroyGeometry(poly);
+        std::string expectedWkt = toString(polygon->geometry());
+        //print(polygon->geometry());
 
         // now, create different pointer to the same thing.
         Geometry::Ptr geometry = polygon;
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
         auto pclone = polygon->clone();   // Polygon::Ptr
         auto gclone = geometry->clone();  // Geometry::Ptr
 
-        // change the original
+        // change the original (this will also destroy the source polygon)
         polygon->setGeometry(geom::GeometryFactory::getDefaultInstance()->createPolygon());
         
         // print the clones
@@ -59,7 +60,6 @@ BOOST_AUTO_TEST_SUITE(geometries)
         // print(gclone->geometry());
         BOOST_CHECK_EQUAL(expectedWkt, toString(pclone->geometry()));
         BOOST_CHECK_EQUAL(expectedWkt, toString(gclone->geometry()));
-
     }
 
 
@@ -77,12 +77,13 @@ BOOST_AUTO_TEST_SUITE(geometries)
         Point::Ptr point(new Point());
         LineString::Ptr linestring(new LineString());
         Polygon::Ptr polygon(new Polygon());
+
+        point->setCoordinate(geom::Coordinate(1, 1));
 /*
         //           B
         //         /   \ .
         //  ls ---/- m  \ .
         //      A ------ C
-        point->geometry()->setX(0); point->geometry()->setY(0);
 
         auto ring = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
         ring->addPoint(-1, -1);
@@ -95,10 +96,21 @@ BOOST_AUTO_TEST_SUITE(geometries)
         linestring->geometry()->addPoint(-5, 0);
         linestring->geometry()->addPoint(0, 0);
 */
+        std::vector<geom::Geometry*> geoms;
+        geoms.push_back(point->geometry());
+        geoms.push_back(linestring->geometry());
+        geoms.push_back(polygon->geometry());
+
+        auto geomCollection = geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(geoms);
+
+        GeometryCollection::Ptr collection(new GeometryCollection());
+        collection->setGeometry(geomCollection);
+
         // insert.
         core.addEntity(point);
         core.addEntity(linestring);
         core.addEntity(polygon);
+        core.addEntity(collection);
     }
 
     BOOST_AUTO_TEST_CASE(geometries_operations)

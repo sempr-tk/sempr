@@ -33,14 +33,18 @@ Geometry::~Geometry()
     //factory geometry delete by sub classes!
 }
 
-const geom::Geometry* Geometry::geometry() 
+geom::Geometry* Geometry::geometry() 
 { 
-    return geometry_; 
+    return geometry_;
 }
 
 void Geometry::setGeometry(geom::Geometry* geometry) 
 { 
-    geometry_ = geometry; 
+    if (geometry != NULL)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = geometry;
+    }
 }
 
 Geometry::Ptr Geometry::clone() const 
