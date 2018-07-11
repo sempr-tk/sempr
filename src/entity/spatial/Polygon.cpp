@@ -23,7 +23,7 @@ Polygon::~Polygon()
     geometry_ = nullptr;
 }
 
-geom::Polygon* Polygon::geometry() 
+const geom::Polygon* Polygon::geometry() 
 {
     return dynamic_cast<geom::Polygon*>(geometry_);
 }

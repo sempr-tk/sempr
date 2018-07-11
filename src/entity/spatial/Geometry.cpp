@@ -33,7 +33,7 @@ Geometry::~Geometry()
     //factory geometry delete by sub classes!
 }
 
-geom::Geometry* Geometry::geometry() 
+const geom::Geometry* Geometry::geometry() 
 { 
     return geometry_;
 }

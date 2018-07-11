@@ -23,7 +23,7 @@ MultiPoint::~MultiPoint()
     geometry_ = nullptr;
 }
 
-geom::MultiPoint* MultiPoint::geometry() 
+const geom::MultiPoint* MultiPoint::geometry() 
 {
     return dynamic_cast<geom::MultiPoint*>(geometry_);
 }

@@ -21,7 +21,7 @@ public:
     Polygon(const core::IDGenBase*);
     virtual ~Polygon();
 
-    geom::Polygon* geometry() override;
+    const geom::Polygon* geometry() override;
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of

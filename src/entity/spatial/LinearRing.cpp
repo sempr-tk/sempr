@@ -11,7 +11,7 @@ LinearRing::LinearRing() : LinearRing(new core::IDGen<LinearRing>())
 }
 
 LinearRing::LinearRing(const core::IDGenBase* idgen)
-    : Geometry(idgen)
+    : LineString(idgen)
 {
     this->setDiscriminator<LinearRing>();
     geometry_ = factory_->createLinearRing();
@@ -19,11 +19,11 @@ LinearRing::LinearRing(const core::IDGenBase* idgen)
 
 LinearRing::~LinearRing()
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = nullptr;
+    //factory_->destroyGeometry(geometry_);
+    //geometry_ = nullptr;
 }
 
-geom::LinearRing* LinearRing::geometry() 
+const geom::LinearRing* LinearRing::geometry() 
 {
     return dynamic_cast<geom::LinearRing*>(geometry_);
 }
@@ -31,8 +31,12 @@ geom::LinearRing* LinearRing::geometry()
 void LinearRing::setCoordinates(std::vector<geom::Coordinate>& coordinates)
 {
     auto sequence = geom::CoordinateArraySequenceFactory::instance()->create(&coordinates);
+    dynamic_cast<geom::LinearRing*>(geometry_)->setPoints(sequence);
+    /*
+    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create(&coordinates);
     auto linearRing = factory_->createLinearRing(sequence);
     setGeometry(linearRing);
+    */
 }
 
 LinearRing::Ptr LinearRing::clone() const 

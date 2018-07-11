@@ -22,7 +22,7 @@ GeometryCollection::~GeometryCollection()
     geometry_ = nullptr;
 }
 
-geom::GeometryCollection* GeometryCollection::geometry() 
+const geom::GeometryCollection* GeometryCollection::geometry() 
 {
     return geometry_;
 }

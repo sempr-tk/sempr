@@ -23,7 +23,7 @@ public:
     Point(const core::IDGenBase*);
     virtual ~Point();
 
-    geom::Point* geometry() override;
+    const geom::Point* geometry() override;
 
     void setCoordinate(const geom::Coordinate& coordinate);
 

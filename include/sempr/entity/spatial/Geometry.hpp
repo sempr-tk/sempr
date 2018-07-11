@@ -35,7 +35,9 @@ class Geometry : public Entity
     // discriminator for the class (why should it, if no instances of it can be created?),
     // which again leads to compiler errors.
     // unable to override if method is const.
-    virtual geom::Geometry* geometry();
+    // its not allow to use this geometry in another geometry (e.g. collection). Otherwise you will get multiple ownerships to this object!
+    // To use a collection build a clone of this geometry or construct a new one.
+    virtual const geom::Geometry* geometry();
 
     /**
      * @brief Set the GEOS GEOM geometry object.

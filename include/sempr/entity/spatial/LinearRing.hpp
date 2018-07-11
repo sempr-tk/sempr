@@ -2,6 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_LINEARRING_HPP_
 
 #include <sempr/entity/spatial/Geometry.hpp>
+#include <sempr/entity/spatial/LineString.hpp>
 #include <geos/geom/LinearRing.h>
 
 namespace sempr { namespace entity {
@@ -12,7 +13,7 @@ namespace geom = geos::geom;
     Container class for GEOM LineRing
 */
 #pragma db object
-class LinearRing : public Geometry {
+class LinearRing : public LineString {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<LinearRing>;
@@ -21,7 +22,7 @@ public:
     LinearRing(const core::IDGenBase*);
     virtual ~LinearRing();
 
-    geom::LinearRing* geometry() override;
+    const geom::LinearRing* geometry() override;
 
     void setCoordinates(std::vector<geom::Coordinate>& coordinates);
 

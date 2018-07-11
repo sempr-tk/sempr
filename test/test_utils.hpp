@@ -34,8 +34,14 @@
 #include <sempr/entity/spatial/LineString.hpp>
 #include <LineString_odb.h>
 
+#include <sempr/entity/spatial/LinearRing.hpp>
+#include <LinearRing_odb.h>
+
 #include <sempr/entity/spatial/Polygon.hpp>
 #include <Polygon_odb.h>
+
+#include <sempr/entity/spatial/MultiPoint.hpp>
+#include <MultiPoint_odb.h>
 
 // reference systems
 #include <sempr/entity/spatial/LocalCS.hpp>

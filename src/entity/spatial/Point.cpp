@@ -38,7 +38,7 @@ Point::~Point()
 }
 
 
-geom::Point* Point::geometry() 
+const geom::Point* Point::geometry() 
 {
     return dynamic_cast<geom::Point*>(geometry_);
 }

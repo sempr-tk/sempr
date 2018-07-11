@@ -74,37 +74,47 @@ BOOST_AUTO_TEST_SUITE(geometries)
         core.addModule(updater);
 
         // create a bunch of geometries
-        Point::Ptr point(new Point());
-        LineString::Ptr linestring(new LineString());
-        Polygon::Ptr polygon(new Polygon());
-
+        
         // set up the point
-        point->setCoordinate(geom::Coordinate(1, 1));
-/*
+        Point::Ptr point(new Point());
+        point->setCoordinate(geom::Coordinate(0, 0));
+
+
+        // set up ring
+        //
         //           B
         //         /   \ .
         //  ls ---/- m  \ .
         //      A ------ C
+        LinearRing::Ptr linearRing(new LinearRing());
+        std::vector<geom::Coordinate> ring;
+        ring.push_back(geom::Coordinate(-1, -1));
+        ring.push_back(geom::Coordinate(+0, +1));
+        ring.push_back(geom::Coordinate(+1, -1));
+        ring.push_back(geom::Coordinate(-1, -1));   //needed to close the ring!
+        linearRing->setCoordinates(ring);
 
-        auto ring = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
-        ring->addPoint(-1, -1);
-        ring->addPoint(0, 1);
-        ring->addPoint(1, -1);
-        ring->closeRings();
+        // set up polygon from ring
+        Polygon::Ptr polygon(new Polygon());
+        std::vector<geom::Geometry*> holes;
+        auto polygonGeometry = geom::GeometryFactory::getDefaultInstance()->createPolygon(*linearRing->geometry(), holes);  //linear Ring as DeepCopy
+        polygon->setGeometry(polygonGeometry);
 
-        polygon->geometry()->addRingDirectly(ring);
-*/
+        MultiPoint::Ptr multiPoint(new MultiPoint());
+
         // set up the linestring
-        std::vector<geom::Coordinate> coords;
-        coords.push_back(geom::Coordinate(-5, 0));
-        coords.push_back(geom::Coordinate(+0, 0));
-        linestring->setCoordinates(coords);
+        LineString::Ptr linestring(new LineString());
+        std::vector<geom::Coordinate> string;
+        string.push_back(geom::Coordinate(-5, 0));
+        string.push_back(geom::Coordinate(+0, 0));
+        linestring->setCoordinates(string);
 
         // build a geometry collection with the point, linestring and polygon
         std::vector<geom::Geometry*> geoms;
-        geoms.push_back(point->geometry());
-        geoms.push_back(linestring->geometry());
-        geoms.push_back(polygon->geometry());
+        geoms.push_back(point->geometry()->clone());
+        geoms.push_back(linestring->geometry()->clone());
+        geoms.push_back(linearRing->geometry()->clone());
+        geoms.push_back(polygon->geometry()->clone());
 
         GeometryCollection::Ptr collection(new GeometryCollection());
         collection->setCollection(geoms);
@@ -112,6 +122,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
         // insert 
         core.addEntity(point);
         core.addEntity(linestring);
+        core.addEntity(linearRing);
         core.addEntity(polygon);
         core.addEntity(collection);
     }
@@ -122,19 +133,25 @@ BOOST_AUTO_TEST_SUITE(geometries)
 
         std::vector<Point::Ptr> points;
         std::vector<LineString::Ptr> lstrings;
+        std::vector<LinearRing::Ptr> lrings;
         std::vector<Polygon::Ptr> polygons;
+        std::vector<GeometryCollection::Ptr> collection;
 
         storage->loadAll(points);
         storage->loadAll(lstrings);
+        storage->loadAll(lrings);
         storage->loadAll(polygons);
+        storage->loadAll(collection);
 
         BOOST_CHECK_EQUAL(points.size(), 1);
-        BOOST_CHECK_EQUAL(lstrings.size(), 1);
+        BOOST_CHECK_EQUAL(lstrings.size(), 2);  //there is one LinearRing that is also a LineString!
+        BOOST_CHECK_EQUAL(lrings.size(), 1);
         BOOST_CHECK_EQUAL(polygons.size(), 1);
-/*
-        BOOST_CHECK(points[0]->geometry()->Within(polygons[0]->geometry()));
-        BOOST_CHECK(lstrings[0]->geometry()->Intersects(polygons[0]->geometry()));
-        */
+        BOOST_CHECK_EQUAL(collection.size(), 1);
+
+        BOOST_CHECK(points[0]->geometry()->within(polygons[0]->geometry()));
+        BOOST_CHECK(lstrings[0]->geometry()->intersects(polygons[0]->geometry()));
+        
     }
 
     BOOST_AUTO_TEST_CASE(geometries_cleanup)

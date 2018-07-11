@@ -21,7 +21,7 @@ public:
     LineString(const core::IDGenBase*);
     virtual ~LineString();
 
-    geom::LineString* geometry() override;
+    const geom::LineString* geometry() override;
 
     void setCoordinates(std::vector<geom::Coordinate>& coordinates);
 

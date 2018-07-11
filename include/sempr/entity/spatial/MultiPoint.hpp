@@ -21,7 +21,7 @@ public:
     MultiPoint(const core::IDGenBase*);
     virtual ~MultiPoint();
 
-    geom::MultiPoint* geometry() override;
+    const geom::MultiPoint* geometry() override;
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of

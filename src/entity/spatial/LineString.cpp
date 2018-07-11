@@ -19,11 +19,12 @@ LineString::LineString(const core::IDGenBase* idgen)
 
 LineString::~LineString()
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = nullptr;
+    //TODO this rais a seg vault and i currently dont know why!
+    //factory_->destroyGeometry(geometry_);
+    //geometry_ = nullptr;
 }
 
-geom::LineString* LineString::geometry() 
+const geom::LineString* LineString::geometry() 
 {
     return dynamic_cast<geom::LineString*>(geometry_);
 }

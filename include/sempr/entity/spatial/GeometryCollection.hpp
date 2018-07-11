@@ -21,7 +21,7 @@ public:
     GeometryCollection(const core::IDGenBase*);
     virtual ~GeometryCollection();
 
-    geom::GeometryCollection* geometry() override;
+    const geom::GeometryCollection* geometry() override;
 
     void setCollection(const std::vector<geom::Geometry*> geoms);
 
