@@ -4,7 +4,7 @@
 using namespace testing;
 
 BOOST_AUTO_TEST_SUITE(geometries)
-    std::string dbfile = "test_sqlite.db";
+    std::string dbfile = "test_sqlite.db";  //todo seg. fault after renameing
 
     BOOST_AUTO_TEST_CASE(geometries_coordinates)
     {

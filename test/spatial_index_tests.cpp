@@ -32,7 +32,7 @@ geom::Polygon* setupQuadrangle(const std::array<float, 3>& min, const std::array
 
 
 BOOST_AUTO_TEST_SUITE(spatial_index)
-    std::string dbfile = "test_sqlite.db";
+    std::string dbfile = "test_spatial_index_sqlite.db";
     BOOST_AUTO_TEST_CASE(spatial_index_1)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);

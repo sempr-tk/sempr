@@ -5,7 +5,7 @@ using namespace testing;
 
 BOOST_AUTO_TEST_SUITE(general_tests)
 
-  std::string db_path = "test_sqlite.db";
+  std::string db_path = "test_storage_sqlite.db";
 
   BOOST_AUTO_TEST_CASE(create_db)
   {
