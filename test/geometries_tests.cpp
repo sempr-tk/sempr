@@ -432,13 +432,19 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         */
         Point::Ptr p(new Point());
         std::string latlon = "POINT (8 52)"; // lon, lat
-      /*  char* tmp = (char*)latlon.c_str();
-        p->geometry()->importFromWkt(&tmp);
 
+        p->setGeometry(Geometry::importFromWKT(latlon));
+
+        BOOST_CHECK_CLOSE(p->geometry()->getX(),  8, 0.0000001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), 52, 0.0000001);
+
+      /*
         p->setCS(wgs84);
-        p->transformToCS(localTrans);*/
+        p->transformToCS(localTrans);
+
         BOOST_CHECK_CLOSE(p->geometry()->getX(),  200, 0.0000001);
         BOOST_CHECK_CLOSE(p->geometry()->getY(), -100, 0.0000001);
+        */
     }
 
 BOOST_AUTO_TEST_SUITE_END()
