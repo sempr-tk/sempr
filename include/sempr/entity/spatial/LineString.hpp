@@ -3,6 +3,7 @@
 
 #include <sempr/entity/spatial/Geometry.hpp>
 #include <geos/geom/LineString.h>
+#include <geos/geom/CoordinateArraySequenceFactory.h>
 
 namespace sempr { namespace entity {
 

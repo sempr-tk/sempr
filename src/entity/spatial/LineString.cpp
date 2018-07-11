@@ -1,5 +1,4 @@
 #include <sempr/entity/spatial/LineString.hpp>
-#include <geos/geom/CoordinateArraySequenceFactory.h>
 #include <LineString_odb.h>
 
 namespace sempr { namespace entity {

@@ -5,6 +5,8 @@
 #include <sempr/entity/spatial/LineString.hpp>
 #include <geos/geom/LinearRing.h>
 
+#include <geos/geom/CoordinateArraySequenceFactory.h>
+
 namespace sempr { namespace entity {
 
 namespace geom = geos::geom;

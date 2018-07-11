@@ -1,26 +1,35 @@
 #include "test_utils.hpp"
 using namespace testing;
 
-/*
-void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const std::array<float, 3>& max)
+
+geom::Polygon* setupQuadrangle(const std::array<float, 3>& min, const std::array<float, 3>& max)
 {
-    // OGRLineString* ls = (OGRLineString*) OGRGeometryFactory::createGeometry(wkbLineString);
-    OGRLinearRing* lr = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
-    lr->addPoint(min[0], min[1], max[2]);
-    lr->addPoint(min[0], max[1], min[2]);
-    lr->addPoint(min[0], max[1], max[2]);
-    lr->addPoint(min[0], min[1], min[2]);
-    lr->addPoint(min[0], min[1], max[2]);
-    lr->addPoint(min[0], max[1], min[2]);
-    lr->addPoint(min[0], max[1], max[2]);
-    lr->addPoint(max[0], min[1], min[2]);
-    lr->addPoint(max[0], min[1], max[2]);
-    lr->addPoint(max[0], max[1], min[2]);
-    lr->addPoint(max[0], max[1], max[2]);
-    lr->closeRings();
-    poly->addRingDirectly(lr);
+    
+    std::vector<geom::Coordinate> ring;
+
+    ring.push_back(geom::Coordinate(min[0], min[1], max[2]));
+    ring.push_back(geom::Coordinate(min[0], max[1], min[2]));
+    ring.push_back(geom::Coordinate(min[0], max[1], max[2]));
+    ring.push_back(geom::Coordinate(min[0], min[1], min[2]));
+    ring.push_back(geom::Coordinate(min[0], min[1], max[2]));
+    ring.push_back(geom::Coordinate(min[0], max[1], min[2]));
+    ring.push_back(geom::Coordinate(min[0], max[1], max[2]));
+    ring.push_back(geom::Coordinate(max[0], min[1], min[2]));
+    ring.push_back(geom::Coordinate(max[0], min[1], max[2]));
+    ring.push_back(geom::Coordinate(max[0], max[1], min[2]));
+    ring.push_back(geom::Coordinate(max[0], max[1], max[2]));
+
+    ring.push_back(geom::Coordinate(min[0], min[1], max[2]));     //close the ring
+
+    auto sequence =  geom::CoordinateArraySequenceFactory::instance()->create(&ring);
+    auto linearRing = geom::GeometryFactory::getDefaultInstance()->createLinearRing(sequence);
+
+    std::vector<geom::Geometry*> holes;
+    auto polygon = geom::GeometryFactory::getDefaultInstance()->createPolygon(*linearRing, holes);
+
+    return polygon;
 }
-*/
+
 
 BOOST_AUTO_TEST_SUITE(spatial_index)
     std::string dbfile = "test_sqlite.db";
@@ -41,18 +50,18 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         // |p0|p1|p2|p3|p4|p5|p6|p7|p8|p9|
         for (int i = 0; i < 10; i++)
         {
-            Polygon::Ptr p( new Polygon(new PredefinedID("p" + std::to_string(i))) );
-            //setupQuadrangle(p->geometry(), {{float(i), 0, 0}}, {{float(i+1), 1, 1}});
-            p->setCS(cs);
-            core.addEntity(p);
+            Polygon::Ptr poly( new Polygon(new PredefinedID("p" + std::to_string(i))) );
+            poly->setGeometry(setupQuadrangle({{float(i), 0, 0}}, {{float(i+1), 1, 1}}));
+            poly->setCS(cs);
+            core.addEntity(poly);
         }
 
         // add more geometries, with different coordinate systems!
         LocalCS::Ptr previous = cs;
         for (int i = 10; i < 20; i++)
         {
-            Polygon::Ptr p( new Polygon(new PredefinedID("p" + std::to_string(i))) );
-            //setupQuadrangle(p->geometry(), {{float(9), 0, 0}}, {{float(10), 1, 1}});   // always the same
+            Polygon::Ptr poly( new Polygon(new PredefinedID("p" + std::to_string(i))) );
+            poly->setGeometry(setupQuadrangle({{float(9), 0, 0}}, {{float(10), 1, 1}}));
 
             LocalCS::Ptr child(new LocalCS());  // with a new coordinate system
             child->setParent(previous);         // attached to the previous
@@ -60,8 +69,8 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
             core.addEntity(child);
             previous = child;
 
-            p->setCS(child);
-            core.addEntity(p);
+            poly->setCS(child);
+            core.addEntity(poly);
         }
 
         /** now we have 20 polygons side by side along the x axis, with the first 10 in the same

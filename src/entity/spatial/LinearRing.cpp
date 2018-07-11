@@ -1,5 +1,4 @@
 #include <sempr/entity/spatial/LinearRing.hpp>
-#include <geos/geom/CoordinateArraySequenceFactory.h>
 #include <LinearRing_odb.h>
 
 namespace sempr { namespace entity {
