@@ -3,11 +3,57 @@
 
 namespace sempr { namespace entity {
 
+// triple iterator for rdfpropertymap
+
+RDFPropertyMapIterator_impl::RDFPropertyMapIterator_impl(
+    const RDFPropertyMap* pmap, std::map<std::string, RDFValue>::const_iterator it)
+    : it_(it), pmap_(pmap)
+{
+}
+
+const Triple& RDFPropertyMapIterator_impl::operator*() const
+{
+    static Triple t;
+    t.subject = pmap_->subject_;
+    t.predicate = "<" + it_->first + ">";
+    t.object = it_->second.toString();
+    t.document = "<" + sempr::baseURI() + pmap_->id() + ">";
+
+    return t;
+}
+
+const Triple* RDFPropertyMapIterator_impl::operator->() const
+{
+    return &(**this);
+}
+
+void RDFPropertyMapIterator_impl::operator++()
+{
+    ++it_;
+}
+
+bool RDFPropertyMapIterator_impl::operator==(const TripleIterator_impl &other) const
+{
+    auto o = dynamic_cast<const RDFPropertyMapIterator_impl*>(&other);
+    if (!o) return false;
+    return o->it_ == this->it_;
+}
+
+// ----
+
+
+
 SEMPR_ENTITY_SOURCE(RDFPropertyMap)
+
+RDFPropertyMap::RDFPropertyMap()
+    : RDFEntity(new core::IDGen<RDFPropertyMap>())
+{
+}
+
 
 RDFPropertyMap::RDFPropertyMap(const core::IDGenBase* idgen,
     const std::string& subject, const std::string& baseURI)
-    : RDFVector(idgen), subject_(subject), baseURI_(baseURI)
+    : RDFEntity(idgen), subject_(subject), baseURI_(baseURI)
 {
     setDiscriminator<RDFPropertyMap>();
 }
@@ -20,7 +66,7 @@ RDFPropertyMap::RDFPropertyMap(const std::string& subject, const std::string& ba
 
 RDFPropertyMap::RDFPropertyMap(const core::IDGenBase* idgen,
     const storage::DBObject& obj, const std::string& baseURI)
-    :   RDFVector(idgen),
+    :   RDFEntity(idgen),
         subject_("<" + baseURI + obj.id() + ">"),
         baseURI_(baseURI)
 {
@@ -32,42 +78,22 @@ RDFPropertyMap::RDFPropertyMap(const storage::DBObject& obj, const std::string& 
 {
 }
 
-RDFValueProxy RDFPropertyMap::operator[](const std::string& key)
+RDFValue& RDFPropertyMap::operator[](const std::string& key)
 {
     return (*this)(key, baseURI_);
 }
 
-RDFValueProxy RDFPropertyMap::operator()(const std::string& key)
+RDFValue& RDFPropertyMap::operator()(const std::string& key)
 {
     return (*this)(key, baseURI_);
 }
 
-RDFValueProxy RDFPropertyMap::operator()(const std::string& key, const std::string& baseURI)
+RDFValue& RDFPropertyMap::operator()(const std::string& key, const std::string& baseURI)
 {
     // create a unique key to allow the same property under different namespaces.
     // rdf:type, foo:type, bar:type, won't overwrite each other.
     std::string fullKey = baseURI + key;
-
-    auto it = keyValueMap_.find(fullKey);
-    if (it == keyValueMap_.end()) {
-        // not found, need a new entry.
-        RDFPropertyMap::Container entry;
-        entry.vectorIndex_ = this->size();
-
-        // a triple of the property map always looks like this:
-        // (<subject> <baseURI+?key> ?value propertyMapId)
-        Triple t;
-        t.subject = subject_;
-        t.predicate = "<" + fullKey + ">";
-        t.object = ""; // will be set
-        this->addTriple(t);
-
-        this->keyValueMap_[fullKey] = entry;
-    }
-
-    // return a proxy pointing at the element. It will update the triple
-    // when a new value is assigned.
-    return RDFValueProxy(this, fullKey);
+    return keyValueMap_[fullKey];
 }
 
 
@@ -93,16 +119,17 @@ void RDFPropertyMap::removeProperty(const std::string &key, const std::string ba
     auto it = keyValueMap_.find(fullKey);
     if (it == keyValueMap_.end()) return; // nothing there to delete.
 
-    // well. how to remove this entry?
-    // problem is: the entries in the map store indices into the actual triple-vector!
-    // delete one triple? everything needs to shift!
-    // instead, as a workaround before fixing this, just clear the triple (s=p=d="") and remove the
-    // entry from the key-value-map, but not from the RDFEntity. That way, there will be a lot of
-    // empty triples... but well, workaround.
-    this->getTripleAt(it->second.vectorIndex_).subject = "";
-    this->getTripleAt(it->second.vectorIndex_).predicate = "";
-    this->getTripleAt(it->second.vectorIndex_).object = "";
     keyValueMap_.erase(fullKey);
+}
+
+TripleIterator RDFPropertyMap::begin() const
+{
+    return TripleIterator(new RDFPropertyMapIterator_impl(this, this->keyValueMap_.begin()));
+}
+
+TripleIterator RDFPropertyMap::end() const
+{
+    return TripleIterator(new RDFPropertyMapIterator_impl(this, this->keyValueMap_.end()));
 }
 
 } /* entity */
