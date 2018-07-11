@@ -84,13 +84,16 @@ void PointCloud::bounds(std::shared_ptr<double> b)
 void PointCloud::setPointsWithColor(std::shared_ptr<double>& points,
                                     std::shared_ptr<unsigned char>& colors,
                                     uint64_t n)
-{
-    this->number(n);
+{    
+    if(!this->m_points)
+    {
+        this->m_points = PointCloud::Points::Ptr(new PointCloud::Points(n, this));
+    }
 
     // we need to trust the input? :(
     // maybe think about some saver method to get the points (and the number)
-    m_points = points;
-    m_colors = colors;
+    this->points(points);
+    this->colors(colors);
     this->color(0);
 }
 

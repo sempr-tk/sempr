@@ -22,15 +22,15 @@ namespace odb { namespace sqlite {
 using sempr::entity::PointCloud;
 
 template <>
-class value_traits<PointCloud, id_blob>     // id_blob is the SQLite type for binary blobs ...
+class value_traits<PointCloud::Points, id_blob>     // id_blob is the SQLite type for binary blobs ...
 {
 public:
-    typedef PointCloud value_type;
-    typedef PointCloud query_type;
+    typedef PointCloud::Points value_type;
+    typedef PointCloud::Points query_type;
     typedef details::buffer image_type;
 
     // Make the value from the image (from SQL)
-    static void set_value (PointCloud& pc, const details::buffer& b, std::size_t n, bool is_null)
+    static void set_value (PointCloud::Points& p, const details::buffer& b, std::size_t n, bool is_null)
     {
         if (!is_null)
         {
@@ -43,17 +43,17 @@ public:
             std::shared_ptr<char> tmp(new char[n], std::default_delete<char[]>());
             std::memcpy (tmp.get(), b.data(), n);
 
-            std::shared_ptr<double> tmpPts(new double[num * 3], std::default_delete<double[]>());
-            std::shared_ptr<unsigned char> tmpCol(new unsigned char[num * 3], std::default_delete<unsigned char[]>());
+            std::vector<double> tmpPts(num);
+            std::vector<unsigned char> tmpCol(num);
             c_ptr = num * sizeof(double) * 3;                       // skip the points?
-            std::memcpy (tmpPts.get(), tmp.get(), c_ptr);
-            //std::fill(tmpPts.get(), tmpPts.get() + (num * 3), b.data());
+            //std::memcpy (tmpPts.get(), tmp.get(), c_ptr);
+            std::fill(tmpPts.begin(), tmpPts.end(), b.data());
             //std::fill_n(tmpPts.get(), (num * 3), &b.data());
             std::cout << "got points" << std::endl;
 
 
-            std::memcpy (tmpCol.get(), (tmp.get() + c_ptr), num * 3);
-            //std::fill_n(tmpCol.get(), tmpCol.get() + (num * 3), b.data());
+            //std::memcpy (tmpCol.get(), (tmp.get() + c_ptr), num * 3);
+            std::fill(tmpCol.begin(), tmpCol.end(), b.data()[c_ptr]);
             //std::fill_n(tmpCol.get(), (num * 3), &b.data()[c_ptr]);
             std::cout << "got colors" << std::endl;
 
@@ -65,7 +65,7 @@ public:
     }
 
     // Make the image from the value (to SQL)
-    static void set_image (details::buffer& b, std::size_t& n, bool& is_null,  const PointCloud& pc)
+    static void set_image (details::buffer& b, std::size_t& n, bool& is_null,  const PointCloud::Points& p)
     {
         /*
         if (pc == NULL) {
@@ -78,8 +78,8 @@ public:
         is_null = false;
         uint64_t c_ptr, num;
 
-        num = pc.number();
-        n = num * (1 + sizeof(double) * 3);      // get the numbers of points, so we can store them
+        num = p.m_pc->number();
+        n = 3 * num * (1 + sizeof(double));      // get the numbers of points, so we can store them
 
 
         // store the points ((x, y, z), ...), ((r, g, b), ...)
@@ -88,11 +88,11 @@ public:
         //THIS IS TODO !
         c_ptr = num * sizeof(double) * 3;
 
-        std::shared_ptr<double> points = pc.points();
-        std::shared_ptr<unsigned char> colors = pc.colors();
+        std::vector<double> points = p.mm_points;
+        std::vector<unsigned char> colors = p.mm_colors;
         std::shared_ptr<char> tmp(new char[n], std::default_delete<char[]>());
-        std::memcpy(tmp.get(), points.get(), c_ptr);
-        std::memcpy((tmp.get() + c_ptr), colors.get(), (num * 3));
+        std::memcpy(tmp.get(), points.data(), c_ptr);
+        std::memcpy((tmp.get() + c_ptr), colors.data(), (num * 3));
 
         //std::fill(b.data(), pc.points().get()[0] + (num * 3), pc.points().get()[0]);
         //std::fill_n(b.data(), n, tmp.get());
