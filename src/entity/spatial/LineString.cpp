@@ -1,4 +1,5 @@
 #include <sempr/entity/spatial/LineString.hpp>
+#include <geos/geom/CoordinateArraySequenceFactory.h>
 #include <LineString_odb.h>
 
 namespace sempr { namespace entity {
@@ -27,9 +28,11 @@ geom::LineString* LineString::geometry()
     return dynamic_cast<geom::LineString*>(geometry_);
 }
 
-void LineString::setGeometry(geom::LineString* lineString)
+void LineString::setCoordinates(std::vector<geom::Coordinate>& coordinates)
 {
-    geometry_ = lineString;
+    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create(&coordinates);
+    auto lineString = factory_->createLineString(sequence);
+    setGeometry(lineString);
 }
 
 LineString::Ptr LineString::clone() const 

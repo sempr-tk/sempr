@@ -9,7 +9,7 @@ namespace sempr { namespace entity {
 namespace geom = geos::geom;
 
 /**
-    Container class for GEOM LineStrin
+    Container class for GEOM LineString
 */
 #pragma db object
 class LineString : public Geometry {
@@ -23,7 +23,7 @@ public:
 
     geom::LineString* geometry() override;
 
-    void setGeometry(geom::LineString* lineString);
+    void setCoordinates(std::vector<geom::Coordinate>& coordinates);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of

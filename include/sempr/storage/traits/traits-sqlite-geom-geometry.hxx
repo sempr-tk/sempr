@@ -187,12 +187,18 @@ template <> class value_traits<geom::Point*, id_text> : public value_traits<geom
 template <> class value_traits<geom::GeometryCollection*, id_text> : public value_traits<geom::Geometry*, id_text> {};
 template <> class value_traits<geom::Polygon*, id_text> : public value_traits<geom::Geometry*, id_text> {};
 template <> class value_traits<geom::LineString*, id_text> : public value_traits<geom::Geometry*, id_text> {};
+template <> class value_traits<geom::LinearRing*, id_text> : public value_traits<geom::Geometry*, id_text> {};
+template <> class value_traits<geom::MultiPoint*, id_text> : public value_traits<geom::Geometry*, id_text> {};
 
 // geometry-to-binary-blob
 template <> class value_traits<geom::Point*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 template <> class value_traits<geom::GeometryCollection*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 template <> class value_traits<geom::Polygon*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 template <> class value_traits<geom::LineString*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
+
+template <> class value_traits<geom::LinearRing*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
+
+template <> class value_traits<geom::MultiPoint*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 
 
 } /* sqlite */

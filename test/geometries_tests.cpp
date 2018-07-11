@@ -78,6 +78,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
         LineString::Ptr linestring(new LineString());
         Polygon::Ptr polygon(new Polygon());
 
+        // set up the point
         point->setCoordinate(geom::Coordinate(1, 1));
 /*
         //           B
@@ -92,21 +93,23 @@ BOOST_AUTO_TEST_SUITE(geometries)
         ring->closeRings();
 
         polygon->geometry()->addRingDirectly(ring);
-
-        linestring->geometry()->addPoint(-5, 0);
-        linestring->geometry()->addPoint(0, 0);
 */
+        // set up the linestring
+        std::vector<geom::Coordinate> coords;
+        coords.push_back(geom::Coordinate(-5, 0));
+        coords.push_back(geom::Coordinate(+0, 0));
+        linestring->setCoordinates(coords);
+
+        // build a geometry collection with the point, linestring and polygon
         std::vector<geom::Geometry*> geoms;
         geoms.push_back(point->geometry());
         geoms.push_back(linestring->geometry());
         geoms.push_back(polygon->geometry());
 
-        auto geomCollection = geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(geoms);
-
         GeometryCollection::Ptr collection(new GeometryCollection());
-        collection->setGeometry(geomCollection);
+        collection->setCollection(geoms);
 
-        // insert.
+        // insert 
         core.addEntity(point);
         core.addEntity(linestring);
         core.addEntity(polygon);

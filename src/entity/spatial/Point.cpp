@@ -43,11 +43,6 @@ geom::Point* Point::geometry()
     return dynamic_cast<geom::Point*>(geometry_);
 }
 
-void Point::setGeometry(geom::Point* point)
-{
-    geometry_ = point;
-}
-
 void Point::setCoordinate(const geom::Coordinate& coordinate)
 {
     factory_->destroyGeometry(geometry_);

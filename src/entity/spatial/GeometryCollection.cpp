@@ -22,11 +22,18 @@ GeometryCollection::~GeometryCollection()
     geometry_ = nullptr;
 }
 
-geom::GeometryCollection* GeometryCollection::geometry() {
+geom::GeometryCollection* GeometryCollection::geometry() 
+{
     return geometry_;
 }
 
-GeometryCollection::Ptr GeometryCollection::clone() const {
+void GeometryCollection::setCollection(const std::vector<geom::Geometry*> geoms)
+{
+    setGeometry(factory_->createGeometryCollection(geoms));
+}
+
+GeometryCollection::Ptr GeometryCollection::clone() const 
+{
     // raw clone is virtual! :)
     return GeometryCollection::Ptr(raw_clone());
 }

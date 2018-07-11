@@ -24,8 +24,6 @@ public:
     virtual ~Point();
 
     geom::Point* geometry() override;
-    
-    void setGeometry(geom::Point* point);
 
     void setCoordinate(const geom::Coordinate& coordinate);
 

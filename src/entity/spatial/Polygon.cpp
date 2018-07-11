@@ -28,11 +28,6 @@ geom::Polygon* Polygon::geometry()
     return dynamic_cast<geom::Polygon*>(geometry_);
 }
 
-void Polygon::setGeometry(geom::Polygon* polygon)
-{
-    geometry_ = polygon;
-}
-
 Polygon::Ptr Polygon::clone() const 
 {
     // raw clone is virtual! :)

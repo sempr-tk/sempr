@@ -23,8 +23,6 @@ public:
 
     geom::Polygon* geometry() override;
 
-    void setGeometry(geom::Polygon* polygon);
-
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
         SpatialReference.

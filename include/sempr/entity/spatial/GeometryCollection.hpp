@@ -23,6 +23,8 @@ public:
 
     geom::GeometryCollection* geometry() override;
 
+    void setCollection(const std::vector<geom::Geometry*> geoms);
+
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
         SpatialReference.
