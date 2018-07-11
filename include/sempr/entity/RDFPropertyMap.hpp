@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_RDFPROPERTYMAP_HPP_
 #define SEMPR_ENTITY_RDFPROPERTYMAP_HPP_
 
-#include <sempr/entity/RDFEntity.hpp>
+#include <sempr/entity/RDFVector.hpp>
 #include <sempr/entity/RDFValue.hpp>
 #include <Soprano/Soprano> // for conversion to rdf-literals.
 
@@ -18,7 +18,7 @@ class RDFValueProxy;
     "value" is either a literal-value or a reference to another entity.
 */
 #pragma db object
-class RDFPropertyMap : public RDFEntity {
+class RDFPropertyMap : public RDFVector {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<RDFPropertyMap>;

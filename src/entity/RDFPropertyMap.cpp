@@ -7,7 +7,7 @@ SEMPR_ENTITY_SOURCE(RDFPropertyMap)
 
 RDFPropertyMap::RDFPropertyMap(const core::IDGenBase* idgen,
     const std::string& subject, const std::string& baseURI)
-    : RDFEntity(idgen), subject_(subject), baseURI_(baseURI)
+    : RDFVector(idgen), subject_(subject), baseURI_(baseURI)
 {
     setDiscriminator<RDFPropertyMap>();
 }
@@ -20,7 +20,7 @@ RDFPropertyMap::RDFPropertyMap(const std::string& subject, const std::string& ba
 
 RDFPropertyMap::RDFPropertyMap(const core::IDGenBase* idgen,
     const storage::DBObject& obj, const std::string& baseURI)
-    :   RDFEntity(idgen),
+    :   RDFVector(idgen),
         subject_("<" + baseURI + obj.id() + ">"),
         baseURI_(baseURI)
 {
