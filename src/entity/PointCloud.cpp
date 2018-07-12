@@ -9,50 +9,19 @@ SEMPR_ENTITY_SOURCE(PointCloud)
 
 PointCloud::PointCloud() : PointCloud(new sempr::core::IDGen<PointCloud>())
 {
-
 }
 
 PointCloud::PointCloud(const sempr::core::IDGenBase* idgen) : sempr::entity::Entity(idgen)
 {
-    prop_ = RDFPropertyMap::Ptr(new RDFPropertyMap(*this));
-    std::cout << id() << " created an RDFPropertyMap (in PC), namely " << prop_->id() << '\n';
-
-    // Just like in the Person class
-    registerChildEntity(prop_);
-    
-    RDFPropertyMap& m = *prop_;
-
-    m["xmin"] = 0.0;
-    m["xmax"] = 0.0;
-    m["ymin"] = 0.0;
-    m["ymax"] = 0.0;
-    m["zmin"] = 0.0;
-    m["zmax"] = 0.0;
-
-    uint64_t n = 0;
-    m["size"] = (qulonglong)n;
-
-    m["color"] = true;
-
-    m("type", core::rdf::baseURI()) = RDFResource("<" + sempr::baseURI() + "PointCloud" + ">");
+    m_bounds.minX = 0.0;
+    m_bounds.maxX = 0.0;
+    m_bounds.minY = 0.0;
+    m_bounds.maxY = 0.0;
+    m_bounds.minZ = 0.0;
+    m_bounds.maxZ = 0.0;
 }
 
-std::vector<double> PointCloud::bounds() const
-{
-    RDFPropertyMap& m = *prop_;
-
-    std::vector<double> b(6);
-
-    b[0] = m["xmin"];
-    b[1] = m["xmax"];
-    b[2] = m["ymin"];
-    b[3] = m["ymax"];
-    b[4] = m["zmin"];
-    b[5] = m["zmax"];
-
-    return b;
-}
-
+/*
 int PointCloud::p(uint64_t i, std::vector<double>& p)
 {
     if (p.size() != 3) // hmm ...
@@ -92,42 +61,56 @@ int PointCloud::a(uint64_t i, unsigned char& a, uint64_t j)
     }
     return -1;
 }
+*/
 
-
-void PointCloud::bounds(std::vector<double> b)
+void PointCloud::calculateBounds()
 {
-    RDFPropertyMap& m = *prop_;
-
-    m["xmin"] = b[0];
-    m["xmax"] = b[1];
-    m["ymin"] = b[2];
-    m["ymax"] = b[3];
-    m["zmin"] = b[4];
-    m["zmax"] = b[5];
-    changed();
-    prop_->changed();
+    for(auto const& point : m_points)
+    {
+        if(point.x < m_bounds.minX) m_bounds.minX = point.x;
+        if(point.x > m_bounds.maxX) m_bounds.maxX = point.x;
+        if(point.y < m_bounds.minY) m_bounds.minY = point.y;
+        if(point.y > m_bounds.maxY) m_bounds.maxY = point.y;
+        if(point.z < m_bounds.minZ) m_bounds.minZ = point.z;
+        if(point.z > m_bounds.maxZ) m_bounds.maxZ = point.z;
+    }
 }
 
-void PointCloud::setPointsWithColor(std::vector<double>& points,
-                                    std::vector<unsigned char>& colors,
+void PointCloud::setPointsWithColor(std::vector<double> const& points,
+                                    std::vector<unsigned char> const& colors,
                                     uint64_t n)
 {
+    uint64_t k = 0;
     std::cout << "in" << std::endl;
-    if(this->m_points == NULL)
+
+    //static_assert(points.size() == (3 * n), "Too much or not enough point values");
+    //static_assert(colors.size() == (3 * n), "Too much or not enough color values");
+
+    // does it make sence to check if there are allready points?
+    this->m_points = std::vector<Point>(n);
+
+    //for(std::vector<Point>::iterator it = m_points.begin(); it != )
+    for(auto & point : m_points)
     {
-        //this->m_points = new Points();
-        this->m_points = std::shared_ptr<Points>(new Points);
+        // calculate the points here?!
+        point.x = points[k];
+        point.r = colors[k++];
+        point.y = points[k];
+        point.g = colors[k++];
+        point.z = points[k];
+        point.b = colors[k++];
     }
 
     // we need to trust the input? :(
     // maybe think about some saver method to get the points (and the number)
-    this->size(n);
-    this->points(points);
-    this->colors(colors);
-    this->color(0);
+    //this->points(points);
+    //this->colors(colors);
+    calculateBounds();
+
+    changed();
 
     std::cout << "process finished" << std::endl;
-    std::cout << "Testpoint: " << this->m_points->points[n/3] << std::endl;
+    std::cout << "Testpoint: " << this->m_points[n/3].x << std::endl;
 
 }
 
