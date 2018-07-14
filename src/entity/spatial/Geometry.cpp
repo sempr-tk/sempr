@@ -1,6 +1,6 @@
 #include <sempr/entity/spatial/Geometry.hpp>
 #include <sempr/entity/spatial/GlobalCS.hpp>
-#include <sempr/entity/spatial/LocalTransformation.hpp>
+#include <sempr/entity/spatial/LocalTransformationFilter.hpp>
 #include <Geometry_odb.h>
 
 #include <geos/geom/GeometryFactory.h>
@@ -68,12 +68,12 @@ SpatialReference::Ptr Geometry::getCS() const
     return referenceFrame_;
 }
 
-/*
+
 void Geometry::transformToCS(SpatialReference::Ptr cs) {
-    if (!this->geometry())
+    if (!geometry_)
         throw TransformException("no geometry to transform");
 
-    if (!this->referenceFrame_)
+    if (!referenceFrame_)
         throw TransformException("source reference frame invalid");
 
     if (!cs)
@@ -92,7 +92,7 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
         auto toOther = cs->transformationFromRoot();
         // geometry = toOther * fromThis * geometry
         LocalTransformation tf(toOther * fromThis);
-        this->geometry()->transform(&tf);
+        geometry_->apply_rw(&tf);
     }
 
     // 2. the geometries have different roots (e.g., one is on WGS84,
@@ -110,28 +110,33 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
         }
 
         // both are global!
+        /* //todo
         auto transform = globalThis->to(globalOther);
         if (!transform) {
             // transformation unknown to GDAL / proj4?!
             throw TransformException("transform unknown to GDAL/proj4");
         }
+        */
         // 3 steps:
+
         // 1: this from ref to this->getRoot()
         auto thisToRoot = referenceFrame_->transformationToRoot();
         LocalTransformation tfToRoot(thisToRoot);
-        this->geometry()->transform(&tfToRoot);
+        geometry_->apply_rw(&tfToRoot);
+
         // 2: from this->getRoot() to cs->getRoot()
-        this->geometry()->transform(transform.get());
+        //this->geometry()->transform(transform.get()); //todo
+
         // 3: from cs->getRoot() to cs
         auto rootToCS = cs->transformationFromRoot();
         LocalTransformation tfToCS(rootToCS);
-        this->geometry()->transform(&tfToCS);
+        geometry_->apply_rw(&tfToCS);
     }
 
     // set new reference frame
     referenceFrame_ = cs;
 }
-*/
+
 
 geom::Geometry* Geometry::importFromWKB(const std::basic_string<char>& buffer)
 {
@@ -188,6 +193,9 @@ geom::Geometry* Geometry::importFromWKT(const std::string& text)
 std::string Geometry::exportToWKT(const geom::Geometry* geom)
 {
     auto wktWriter = geos::io::WKTWriter();
+
+    auto dim = geom->getCoordinateDimension(); //why isnt this done in the WKTWriter?
+    wktWriter.setOutputDimension(dim);
 
     std::string wkt;
 

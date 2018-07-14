@@ -64,21 +64,9 @@ class Geometry : public Entity
                 - different root CS that are not global
                 - transform between two global frames not known to GDAL/proj4
     */
-    //void transformToCS(SpatialReference::Ptr cs); // replacement needed without the gdal dependency!
+    void transformToCS(SpatialReference::Ptr cs); // replacement needed without the gdal dependency!
 
-    /** Exception that may be thrown during transformToCS. */
-    class TransformException : public std::exception
-    {
-      private:
-        std::string message_;
-
-      public:
-        explicit TransformException(const std::string &m) : message_(m) {}
-        virtual const char *what() const throw()
-        {
-            return message_.c_str();
-        }
-    };
+    
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of

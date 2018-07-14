@@ -154,6 +154,34 @@ BOOST_AUTO_TEST_SUITE(geometries)
         
     }
 
+    BOOST_AUTO_TEST_CASE(geometries_transformation)
+    {
+        LocalCS::Ptr identity(new LocalCS());
+
+        Point::Ptr point2D(new Point());
+        point2D->setCoordinate(geom::Coordinate(1, 2));
+        point2D->setCS(identity);
+
+        Point::Ptr point3D(new Point());
+        point3D->setCoordinate(geom::Coordinate(1, 2, 3));
+        point3D->setCS(identity);
+
+        LocalCS::Ptr transformation(new LocalCS());
+        transformation->setRotation(0, 0, 1, M_PI/2);
+        transformation->setTranslation(2, 2, 0);
+        transformation->setParent(identity);
+
+        point2D->transformToCS(transformation);
+        point3D->transformToCS(transformation);
+
+        Point::Ptr pointExpected(new Point());
+        pointExpected->setCoordinate(geom::Coordinate(0, 1));
+
+        BOOST_CHECK(pointExpected->geometry()->equalsExact(point2D->geometry(), 0.0001));
+        BOOST_CHECK(pointExpected->geometry()->equalsExact(point3D->geometry(), 0.0001));   //Note this will only compare 2 dimension!
+    }
+
+
     BOOST_AUTO_TEST_CASE(geometries_cleanup)
     {
         removeStorage(dbfile);
