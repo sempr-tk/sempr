@@ -34,12 +34,13 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 #find package geos
 find_package(GEOS)
 include_directories(${GEOS_INCLUDE_DIR})
-#link_directories(${GEOS_LIBRARY})
+#link_directories(${GEOS_LIBRARY})  
 
-#find pacakge proj4
-find_package(PROJ4)
-include_directories(${PROJ4_INCLUDE_DIR})
-#link_directories(${PROJ4_LIBRARY})
+#find pacakge GeographicLib
+set(GeographicLib_USE_STATIC_LIBS ON) 
+find_package (GeographicLib)
+include_directories (${GeographicLib_INCLUDE_DIRS})
+add_definitions (${GeographicLib_DEFINITIONS})
 
 include_directories(include)
 

@@ -32,7 +32,7 @@ std::shared_ptr<OGRCoordinateTransformation> GlobalCS::to(GlobalCS::Ptr other)
 SpatialReference::Ptr GlobalCS::getRoot()
 {
     // GlobalCS is always a root
-    return this->shared_from_base<GlobalCS>();
+    return this->shared_from_base<SpatialReference>();
 }
 
 Eigen::Affine3d GlobalCS::transformationToRoot() const

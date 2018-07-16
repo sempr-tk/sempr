@@ -3,12 +3,12 @@
 
 namespace sempr {
 
-LocalTransformation::LocalTransformation(const Eigen::Affine3d& aff)
+LocalTransformationFilter::LocalTransformationFilter(const Eigen::Affine3d& aff)
     : mat_(aff)
 {
 }
 
-void LocalTransformation::filter_rw(geom::Coordinate* coordinate) const
+void LocalTransformationFilter::filter_rw(geom::Coordinate* coordinate) const
 {
     //check if coordinate is 3D or 2D
     if(!std::isnan(coordinate->z))
@@ -36,7 +36,7 @@ void LocalTransformation::filter_rw(geom::Coordinate* coordinate) const
     }
 }
 
-void LocalTransformation::filter_ro(const geom::Coordinate* coordinate)
+void LocalTransformationFilter::filter_ro(const geom::Coordinate* coordinate)
 {
     // do nothing
     throw TransformException("No read-only filter for a local transformation!");

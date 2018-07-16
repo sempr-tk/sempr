@@ -86,51 +86,57 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
     // two cases to consider:
     // 1. both geometries are in the same "tree", have the same root
     // (e.g. UTM 32N, or a common LocalCS)
-    if (rootThis == rootOther) {
+    if (rootThis == rootOther) 
+    {
         // same root reference frame, can focus on LocalCS only
         auto fromThis = referenceFrame_->transformationToRoot();
         auto toOther = cs->transformationFromRoot();
         // geometry = toOther * fromThis * geometry
-        LocalTransformation tf(toOther * fromThis);
+        LocalTransformationFilter tf(toOther * fromThis);
         geometry_->apply_rw(&tf);
     }
 
-    // 2. the geometries have different roots (e.g., one is on WGS84,
+    // 2. the geometries have different roots but both a global (e.g., one is on WGS84,
     //    and the other in a local coordinate system relative to UTM 32N)
-    else {
-        GlobalCS::Ptr globalThis = std::dynamic_pointer_cast<GlobalCS>(rootThis);
-        GlobalCS::Ptr globalOther = std::dynamic_pointer_cast<GlobalCS>(rootOther);
+    else 
+    {
+        GlobalCS::Ptr globalSrc = std::dynamic_pointer_cast<GlobalCS>(rootThis);
+        GlobalCS::Ptr globalDst = std::dynamic_pointer_cast<GlobalCS>(rootOther);
 
-        if (!globalThis || !globalOther) {
+        if(globalSrc && globalDst)
+        {
+            // both are global!
+            /* //todo
+            auto transform = globalThis->to(globalDst);
+            if (!transform) {
+                // transformation unknown to GDAL / proj4?!
+                throw TransformException("transform unknown to GDAL/proj4");
+            }
+            */
+            // 3 steps:
+
+            // 1: this from ref to this->getRoot()
+            auto thisToRoot = referenceFrame_->transformationToRoot();
+            LocalTransformationFilter tfToRoot(thisToRoot);
+            geometry_->apply_rw(&tfToRoot);
+
+            // 2: from this->getRoot() to cs->getRoot()
+            //this->geometry()->transform(transform.get()); //todo
+
+            // 3: from cs->getRoot() to cs
+            auto rootToCS = cs->transformationFromRoot();
+            LocalTransformationFilter tfToCS(rootToCS);
+            geometry_->apply_rw(&tfToCS);
+        }
+        else
+        {
             // we have two different roots that are not both of type
             // GlobalCS? no way to transform between them.
-            std::cout << globalThis.get() << '\n';
-            std::cout << globalOther.get() << '\n';
+            std::cout << globalSrc.get() << '\n';
+            std::cout << globalDst.get() << '\n';
             throw TransformException("different root systems that are not global");
         }
 
-        // both are global!
-        /* //todo
-        auto transform = globalThis->to(globalOther);
-        if (!transform) {
-            // transformation unknown to GDAL / proj4?!
-            throw TransformException("transform unknown to GDAL/proj4");
-        }
-        */
-        // 3 steps:
-
-        // 1: this from ref to this->getRoot()
-        auto thisToRoot = referenceFrame_->transformationToRoot();
-        LocalTransformation tfToRoot(thisToRoot);
-        geometry_->apply_rw(&tfToRoot);
-
-        // 2: from this->getRoot() to cs->getRoot()
-        //this->geometry()->transform(transform.get()); //todo
-
-        // 3: from cs->getRoot() to cs
-        auto rootToCS = cs->transformationFromRoot();
-        LocalTransformation tfToCS(rootToCS);
-        geometry_->apply_rw(&tfToCS);
     }
 
     // set new reference frame

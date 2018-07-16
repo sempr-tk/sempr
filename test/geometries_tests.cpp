@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
     BOOST_AUTO_TEST_CASE(global_references)
     {
         // ProjectionCS::Ptr projCC = ProjectionCS::CreateEquirect(0, 0);
-        GeographicCS::Ptr wgs84(new GeographicCS("WGS84"));
+        GeodeticCS::Ptr wgs84(new GeodeticCS("WGS84"));
         ProjectionCS::Ptr utm = ProjectionCS::CreateUTM(32, true, "WGS84");
         //auto wgs2utm = wgs84->to(utm);
         // auto wgs2utm = utm->to(wgs84);
@@ -412,16 +412,17 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         frame->setParent(root);
         frame->setRotation(0, 0, 1, M_PI/2.); // 90 deg round Z-axis
         frame->setTranslation(1, 0, 0); // shift 1 along X
-/*
+
         Point::Ptr p(new Point());
-        p->geometry()->setX(1);
-        p->geometry()->setY(0);
+        p->setCoordinate(geom::Coordinate(1, 0));
+
         // apply rotation
         p->setCS(frame);
         p->transformToCS(root);
+
         // expect (1 1)
         BOOST_CHECK_CLOSE(p->geometry()->getX(), 1, 0.000001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), 1, 0.000001);*/
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), 1, 0.000001);
     }
 
     BOOST_AUTO_TEST_CASE(geometry_transformation_global_local_combined)
@@ -441,7 +442,7 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
             is (-100, -200) in (4)
             is (200, -100) in (5)
         */
-        GeographicCS::Ptr wgs84(new GeographicCS("WGS84"));
+        GeodeticCS::Ptr wgs84(new GeodeticCS("WGS84"));
         ProjectionCS::Ptr equi = ProjectionCS::CreateEquirect(52., 8., "WGS84");
 
         LocalCS::Ptr localRot(new LocalCS());
@@ -466,13 +467,12 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         BOOST_CHECK_CLOSE(p->geometry()->getX(),  8, 0.0000001);
         BOOST_CHECK_CLOSE(p->geometry()->getY(), 52, 0.0000001);
 
-      /*
         p->setCS(wgs84);
         p->transformToCS(localTrans);
 
-        BOOST_CHECK_CLOSE(p->geometry()->getX(),  200, 0.0000001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), -100, 0.0000001);
-        */
+        //BOOST_CHECK_CLOSE(p->geometry()->getX(),  200, 0.0000001);
+        //BOOST_CHECK_CLOSE(p->geometry()->getY(), -100, 0.0000001);
+        
     }
 
 BOOST_AUTO_TEST_SUITE_END()

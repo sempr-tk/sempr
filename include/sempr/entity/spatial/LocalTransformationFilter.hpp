@@ -1,5 +1,5 @@
-#ifndef SEMPR_ENTITY_SPATIAL_LOCALTRANSFORMATION_HPP_
-#define SEMPR_ENTITY_SPATIAL_LOCALTRANSFORMATION_HPP_
+#ifndef SEMPR_ENTITY_SPATIAL_LOCALTRANSFORMATIONFILTER_HPP_
+#define SEMPR_ENTITY_SPATIAL_LOCALTRANSFORMATIONFILTER_HPP_
 
 //#include <ogr_spatialref.h>
 #include <Eigen/Geometry>
@@ -38,12 +38,12 @@ namespace sempr {
 
         Note: I think it could also be done by a CoordinateSequenceFilter in a bit more effective Way. (have to try it!)
     */
-    class LocalTransformation : public geom::CoordinateFilter {
+    class LocalTransformationFilter : public geom::CoordinateFilter {
     public:
         /**
             Create a transformation defined by the Affine3d matrix.
         */
-        LocalTransformation(const Eigen::Affine3d& aff);
+        LocalTransformationFilter(const Eigen::Affine3d& aff);
 
         void filter_rw(geom::Coordinate* coordinate) const;
 
@@ -57,4 +57,4 @@ namespace sempr {
 } /* sempr */
 
 
-#endif /* end of include guard SEMPR_ENTITY_SPATIAL_LOCALTRANSFORMATION_HPP_ */
+#endif /* end of include guard SEMPR_ENTITY_SPATIAL_LOCALTRANSFORMATIONFILTER_HPP_ */

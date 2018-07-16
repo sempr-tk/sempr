@@ -65,7 +65,7 @@ list(APPEND SRC_FILES ${ODB_GENERATED})
 include_directories(${ODB_COMPILE_OUTPUT_DIR})
 # message("SOURCE FILES: ${SRC_FILES}")
 add_library(sempr_core SHARED ${SRC_FILES})
-target_link_libraries(sempr_core ${ODB_LIBRARIES} ${Soprano_LIBRARIES} ${PROJ4_LIBRARIES} ${GEOS_LIBRARY})
+target_link_libraries(sempr_core ${ODB_LIBRARIES} ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 target_compile_definitions(sempr_core PUBLIC -D${CONFIG_DATABASE})
 # target_include_directories(sempr_core
     # PRIVATE ${ODB_COMPILE_OUTPUT_DIR} )

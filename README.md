@@ -6,7 +6,7 @@ As the development of SEMPR just started recently, please do not expect a fully 
 
 SEMPR currently relies on a few other libraries: ODB for the object relational mapping, sqlite3 for a database connection, boost for uuids, soprano for SPARQL queries, qt4 for soprano, and a recent version of gdal with geos support for more geometric operations.
 
-### ODB, soprano, boost
+### ODB, soprano, boost, geos proj.4
 For a start, install the odb compiler and the required odb-libraries. If you are on Ubuntu 16.04 you can install them easily:
 ```bash
 sudo apt-get install odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libodb-dev
@@ -22,33 +22,11 @@ The boost-part is a bit overkill, but I don't really know which part of boost is
 
 **If you need qt5** instead, you will need a customized build of soprano: SEMPR uses Soprano, and qt to work with it. Whatever version of qt is used by soprano will also be used by SEMPR, as it is propagated through pkg-config. Compiling soprano with qt5-support can be a bit tricky, especially if you are simultaneously using `libcurl4-openssl-dev`, e.g. if you have ROS installed. But don't worry, everything is explained in detail at the wiki page on [how to enable qt5 support](https://github.com/sempr-tk/sempr/wiki/soprano_qt5).
 
-### GDAL with GEOS
-Since we need a recent version of GDAL with GEOS support you will need to compile it from source.  But first, make sure you have GEOS installed as well as proj4 (for coordinate system transformations):
+For the spatial geometries you also need GEOS and the GeographicLib to transform from and to global coordinate systems:
 
 ```bash
 sudo apt-get install libgeos-dev libgeos++-dev
-sudo apt-get install libproj-dev
-```
-
-Now, to install GDAL (feel free to adjust the paths to your liking):
-
-```bash
-cd ~
-git clone https://github.com/OSGeo/gdal.git
-cd ~/gdal
-git checkout release/2.3
-mkdir install
-cd ~/gdal/gdal
-```
-Compilation may take a while, feel free to grab a cup of tea in the mean time:
-```bash
-./configure --with-geos=yes --prefix=$HOME/gdal/install
-make -j8
-make install
-```
-To finish the installation make sure that the gdal includes and libraries can actually be *found*. Therefore, adjust your `PKG_CONFIG_PATH` (e.g. in your `.bashrc`):
-```bash
-export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:~/gdal/install/lib/pkgconfig
+sudo apt-get install libgeographic-dev
 ```
 
 ### SEMPR
@@ -192,9 +170,9 @@ Upon persisting or updating the parent entity, the following steps are executed:
 	1. get a pointer to the event-broker
 	2. get persisted in the database (which might trigger this mechanism again, recursively)
 2. After persisting/updating the parent, all newly registered children
-	1. are given a pointer to the parent with `on delete cascade` enabled
-	2. are updated (to apply the parent-pointer)
-	3. are announced to the system through invocation of `child->created()`
+	3. are given a pointer to the parent with `on delete cascade` enabled
+	4. are updated (to apply the parent-pointer)
+	5. are announced to the system through invocation of `child->created()`
 
 The `on-delete-cascade` mechanic is database-internal: Whenever an entity has a valid parent-pointer and the parent is removed from the database, the child-entity is removed, too. This ensures that no orphans remain in the database, but it does not trigger any events on the code-side of things. Hence we need to trigger those events ourselves, which forces us to keep a list of all children. This list is managed inside `Entity`. Whenever the `Entiy::created()`, `Entiy::loaded()` or `Entiy::removed()` is called, the Entity also calls the same method of all of its children, thus firing the respective events for all of them. The parents `created() / removed()` are called when adding/removing it to/from the system (`Core::[add/remove]Entity`).
 

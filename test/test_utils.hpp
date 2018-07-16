@@ -45,7 +45,8 @@
 
 // reference systems
 #include <sempr/entity/spatial/LocalCS.hpp>
-#include <sempr/entity/spatial/GeographicCS.hpp>
+#include <sempr/entity/spatial/GeodeticCS.hpp>
+#include <sempr/entity/spatial/GeocentricCS.hpp>
 #include <sempr/entity/spatial/ProjectionCS.hpp>
 
 #include <sempr/processing/SopranoModule.hpp>

@@ -13,12 +13,12 @@ link_directories(${Soprano_LIBRARY_DIRS})
 
 
 add_executable(manual_test main.cpp)
-target_link_libraries(manual_test sempr_core ${PROJ4_LIBRARIES} ${GEOS_LIBRARY})
+target_link_libraries(manual_test sempr_core ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 
-  set(DEPENDENCIES sempr_core ${Boost_LIBRARIES} ${PROJ4_LIBRARIES} ${GEOS_LIBRARY})
+  set(DEPENDENCIES sempr_core ${Boost_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
   add_executable(sempr_storage_test SEMPR_tests.cpp storage_tests.cpp)
   target_link_libraries(sempr_storage_test ${DEPENDENCIES})

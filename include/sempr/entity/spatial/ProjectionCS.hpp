@@ -20,10 +20,6 @@ class ProjectionCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<ProjectionCS>;
 
-    SpatialReference::Ptr getRoot() override;
-    Eigen::Affine3d transformationToRoot() const override;
-    Eigen::Affine3d transformationFromRoot() const override;
-
     /**
         Create a ProjectionCS for a given UTM zone and a base geographic system.
         NOTE: This is not the UTM you know. This is bare UTM, i.e. the world sliced in 6° longitude and split in north / south. What you might know as e.g. UTM zone 32U is an extension to that, called MGRS (military grade reference system), sometimes known as UTMREF, which introduces finer grained zones. This is not supported right now -- BUT: GDAL has an undocumented feature for MGRS, take a look at frmts/nitf/mgrs.c, maybe you can use that in some way.

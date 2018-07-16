@@ -39,20 +39,4 @@ ProjectionCS::Ptr ProjectionCS::CreateEquirect(double lat, double lon, const std
     return cs;
 }
 
-
-SpatialReference::Ptr ProjectionCS::getRoot()
-{
-    return this->shared_from_base<SpatialReference>();
-}
-
-Eigen::Affine3d ProjectionCS::transformationToRoot() const
-{
-    return Eigen::Affine3d::Identity();
-}
-
-Eigen::Affine3d ProjectionCS::transformationFromRoot() const
-{
-    return Eigen::Affine3d::Identity();
-}
-
 }}
