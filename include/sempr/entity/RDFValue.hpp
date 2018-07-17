@@ -8,7 +8,7 @@
 #include <sempr/entity/Entity.hpp>
 
 #include <sempr/core/RDF.hpp>
-
+#include <sempr/core/Utility.hpp>
 
 namespace sempr { namespace entity {
 // custom type traits needed in the implementation of RDFValue to differ
@@ -19,25 +19,7 @@ namespace sempr { namespace entity {
 //         [...]
 //      access::composite_value_traits< ..., ... > 1, should be 2
 namespace {
-    template <typename T>
-    struct remove_shared_ptr {
-        typedef T type;
-    };
 
-    template <typename T>
-    struct remove_shared_ptr<std::shared_ptr<T> > {
-        typedef T type;
-    };
-
-    template <typename T>
-    struct is_shared_ptr {
-        static constexpr bool value = false;
-    };
-
-    template <typename T>
-    struct is_shared_ptr<std::shared_ptr<T> > {
-        static constexpr bool value = true;
-    };
 }
 
 /**
@@ -93,7 +75,7 @@ private:
     // if we don't cast to a shared_ptr it must be a literal.
     /** Cast to literal (int, float, ...) */
     template <typename T>
-    T to(typename std::enable_if<not is_shared_ptr<T>::value, void*>::type = 0) const {
+    T to(typename std::enable_if<not core::is_shared_ptr<T>::value, void*>::type = 0) const {
         if (type_ == Type::LITERAL) {
             return literal_.variant().value<T>();
         }
@@ -103,10 +85,10 @@ private:
 
     /** Cast to shared-ptr */
     template <typename T>
-    T to(typename std::enable_if<is_shared_ptr<T>::value, void*>::type = 0) const {
+    T to(typename std::enable_if<core::is_shared_ptr<T>::value, void*>::type = 0) const {
         if (type_ == Type::POINTER) {
             // return std::static_pointer_cast<typename remove_shared_ptr<T>::type>(pointer_);
-            T tmp = std::dynamic_pointer_cast<typename remove_shared_ptr<T>::type>(pointer_);
+            T tmp = std::dynamic_pointer_cast<typename core::remove_shared_ptr<T>::type>(pointer_);
             if (tmp.get() == 0) {
                 // invalid type or nullptr. how could there be a nullptr?
                 // why would anyone store a nullptr?!
