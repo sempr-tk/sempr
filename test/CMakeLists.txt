@@ -19,7 +19,9 @@ add_executable(sempr_test_bin SEMPR_tests.cpp
                               RDFPropertymap_tests.cpp
                               queries_tests.cpp
                               geometries_tests.cpp
-                              spatial_index_tests.cpp)
+                              spatial_index_tests.cpp
+                              SemanticEntity_tests.cpp
+                          )
 
 target_link_libraries(sempr_test_bin sempr_core )
 
