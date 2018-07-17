@@ -10,17 +10,17 @@ GeodeticCS::GeodeticCS()
     // do nothing. this is just for odb to load from the database...
 }
 
-GeodeticCS::GeodeticCS(const std::string& name)
-    : GeodeticCS(name, new core::IDGen<GeodeticCS>())
+GeodeticCS::GeodeticCS(GeodeticReference reference)
+    : GeodeticCS(reference, new core::IDGen<GeodeticCS>())
 {
 }
 
-GeodeticCS::GeodeticCS(const std::string& name, const core::IDGenBase* idgen)
+GeodeticCS::GeodeticCS(GeodeticReference reference, const core::IDGenBase* idgen)
     : GlobalCS(idgen)
 {
     this->setDiscriminator<GeodeticCS>();
-    //this->frame_.SetWellKnownGeogCS(name.c_str());
 }
+
 
 
 }}

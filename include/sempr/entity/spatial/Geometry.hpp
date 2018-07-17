@@ -29,7 +29,7 @@ class Geometry : public Entity
     using Ptr = std::shared_ptr<Geometry>;
 
     Geometry();
-    Geometry(const core::IDGenBase *);
+    Geometry(const core::IDGenBase*);
 
     virtual ~Geometry();
 
@@ -76,17 +76,20 @@ class Geometry : public Entity
     */
     Geometry::Ptr clone() const;
 
-    static geom::Geometry *importFromWKB(const std::basic_string<char> &buffer);
+    static geom::Geometry* importFromWKB(const std::basic_string<char> &buffer);
     static std::basic_string<char> exportToWKB(const geom::Geometry *geom);
 
-    static geom::Geometry *importFromWKT(const std::string &text);
+    static geom::Geometry* importFromWKT(const std::string &text);
     static std::string exportToWKT(const geom::Geometry *geom);
 
   protected:
-    static const geom::GeometryFactory *factory_;
+    static const geom::GeometryFactory* factory_;
 
     #pragma db type("TEXT")
     geom::Geometry* geometry_;
+
+    void apply(const geom::CoordinateFilter& filter);
+    void apply(const FilterList& filterList);
 
   private:
     friend class odb::access;    
@@ -96,7 +99,7 @@ class Geometry : public Entity
         classes to copy the geometry and use the same SpatialReference (instance!).
         \return nullptr "Geometry" is just an abstract concept, no need to copy this.
     */
-    virtual Geometry *raw_clone() const;
+    virtual Geometry* raw_clone() const;
 
     SpatialReference::Ptr referenceFrame_;
 };

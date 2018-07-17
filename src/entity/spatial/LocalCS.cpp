@@ -126,6 +126,8 @@ void LocalCS::setParent(ProjectionCS::Ptr other)
     parent_ = other;
 }
 
+void setParent(GeocentricCS::Ptr);
+
 Eigen::Affine3d LocalCS::getTransform() const
 {
     return transform_;

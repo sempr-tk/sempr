@@ -376,8 +376,8 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
     BOOST_AUTO_TEST_CASE(global_references)
     {
         // ProjectionCS::Ptr projCC = ProjectionCS::CreateEquirect(0, 0);
-        GeodeticCS::Ptr wgs84(new GeodeticCS("WGS84"));
-        ProjectionCS::Ptr utm = ProjectionCS::CreateUTM(32, true, "WGS84");
+        GeodeticCS::Ptr wgs84(new GeodeticCS(GeodeticReference::WGS84));
+        ProjectionCS::Ptr utm = ProjectionCS::CreateUTM(32, GeodeticReference::WGS84);
         //auto wgs2utm = wgs84->to(utm);
         // auto wgs2utm = utm->to(wgs84);
 
@@ -442,8 +442,9 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
             is (-100, -200) in (4)
             is (200, -100) in (5)
         */
-        GeodeticCS::Ptr wgs84(new GeodeticCS("WGS84"));
-        ProjectionCS::Ptr equi = ProjectionCS::CreateEquirect(52., 8., "WGS84");
+        GeodeticCS::Ptr wgs84(new GeodeticCS(GeodeticReference::WGS84));
+        ProjectionCS::Ptr equi = ProjectionCS::CreateUPS();
+        equi->setRegion(52, 8);
 
         LocalCS::Ptr localRot(new LocalCS());
         localRot->setParent(equi);

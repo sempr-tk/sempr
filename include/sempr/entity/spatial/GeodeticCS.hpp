@@ -6,8 +6,6 @@
 
 namespace sempr { namespace entity {
 
-
-
 /**
     A geodetic reference system, e.g. WGS84 or GRS80.
     It is also a root of transformations.
@@ -20,18 +18,17 @@ public:
 
     /**
         Create a geographic coordinate system based on a well known text,
-        e.g. "WGS84", "WGS72", "NAD27", "NAD83" or any "EPSG:n" that points to a geographic
-        reference frame.
+        e.g. "WGS84" or "GRS80" as points to a geographic reference frame.
     */
-    GeodeticCS(const std::string& name);
-    GeodeticCS(const std::string& name, const core::IDGenBase*);
+    GeodeticCS(GeodeticReference reference);
+    GeodeticCS(GeodeticReference reference, const core::IDGenBase*);
 
 private:
     friend class odb::access;
 
     GeodeticCS(); // just for ODB.
-    
 
+    void initParameter(GeodeticReference reference);
 };
 
 

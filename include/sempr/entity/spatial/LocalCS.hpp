@@ -3,6 +3,7 @@
 
 #include <sempr/entity/spatial/SpatialReference.hpp>
 #include <sempr/entity/spatial/ProjectionCS.hpp>
+#include <sempr/entity/spatial/GeocentricCS.hpp>
 
 
 namespace sempr { namespace entity {
@@ -38,6 +39,7 @@ public:
     SpatialReference::Ptr getParent() const;
     void setParent(LocalCS::Ptr);
     void setParent(ProjectionCS::Ptr);
+    void setParent(GeocentricCS::Ptr);
 
 
     /**

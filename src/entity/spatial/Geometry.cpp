@@ -68,6 +68,22 @@ SpatialReference::Ptr Geometry::getCS() const
     return referenceFrame_;
 }
 
+void Geometry::apply(const geom::CoordinateFilter& filter)
+{
+    if (!geometry_)
+        throw TransformException("no geometry to transform");
+
+    geometry_->apply_rw(&filter);
+}
+
+void Geometry::apply(const FilterList& filterList)
+{
+    for (auto filter : filterList)
+    {
+        apply(*filter);
+    }
+}
+
 
 void Geometry::transformToCS(SpatialReference::Ptr cs) {
     if (!geometry_)
@@ -93,7 +109,7 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
         auto toOther = cs->transformationFromRoot();
         // geometry = toOther * fromThis * geometry
         LocalTransformationFilter tf(toOther * fromThis);
-        geometry_->apply_rw(&tf);
+        apply(tf);
     }
 
     // 2. the geometries have different roots but both a global (e.g., one is on WGS84,
@@ -107,7 +123,7 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
         {
             // both are global!
             /* //todo
-            auto transform = globalThis->to(globalDst);
+            auto transform = globalSrc->to(globalDst);
             if (!transform) {
                 // transformation unknown to GDAL / proj4?!
                 throw TransformException("transform unknown to GDAL/proj4");
@@ -118,7 +134,7 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
             // 1: this from ref to this->getRoot()
             auto thisToRoot = referenceFrame_->transformationToRoot();
             LocalTransformationFilter tfToRoot(thisToRoot);
-            geometry_->apply_rw(&tfToRoot);
+            apply(tfToRoot);
 
             // 2: from this->getRoot() to cs->getRoot()
             //this->geometry()->transform(transform.get()); //todo
@@ -126,7 +142,7 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
             // 3: from cs->getRoot() to cs
             auto rootToCS = cs->transformationFromRoot();
             LocalTransformationFilter tfToCS(rootToCS);
-            geometry_->apply_rw(&tfToCS);
+            apply(tfToCS);
         }
         else
         {

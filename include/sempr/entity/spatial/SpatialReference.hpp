@@ -4,7 +4,11 @@
 #include <Eigen/Geometry>
 #include <sempr/entity/Entity.hpp>
 
+#include <geos/geom/CoordinateFilter.h>
+
 namespace sempr { namespace entity {
+
+typedef std::vector< std::shared_ptr<geos::geom::CoordinateFilter> > FilterList;
 
 /**
 TODO geometry: methods to assign / change ref systems
