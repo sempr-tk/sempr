@@ -10,6 +10,7 @@ SEMPR_ENTITY_SOURCE(PropertyTestEntity);
 PropertyTestEntity::PropertyTestEntity()
     : SemanticEntity(new core::IDGen<PropertyTestEntity>())
 {
+    this->setDiscriminator<PropertyTestEntity>();
 
     // register member variables
 
@@ -17,7 +18,7 @@ PropertyTestEntity::PropertyTestEntity()
     this->registerProperty("<http://foo.bar/someFloat>", floatValue_);
     this->registerProperty("<http://foo.bar/someDouble>", doubleValue_);
     this->registerProperty("<http://foo.bar/someString>", stringValue_);
-    this->registerProperty<Person::Ptr>("<http://foo.bar/someEntity>", entityValue_);
+    this->registerProperty("<http://foo.bar/someEntity>", entityValue_);
 
     // register multiple times! but now as plain_string
     this->registerPropertyPlain("<http://foo.bar/somePlainInt>", intValue_);
