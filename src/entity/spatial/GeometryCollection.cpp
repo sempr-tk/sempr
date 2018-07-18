@@ -24,7 +24,7 @@ GeometryCollection::~GeometryCollection()
 
 const geom::GeometryCollection* GeometryCollection::geometry() 
 {
-    return geometry_;
+    return dynamic_cast<geom::GeometryCollection*>(geometry_);
 }
 
 void GeometryCollection::setCollection(const std::vector<geom::Geometry*> geoms)

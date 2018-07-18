@@ -72,7 +72,7 @@ namespace testing {
       std::cout << toString(p) << '\n';
   }
 
-  inline ODBStorage::Ptr setUpStorage(std::string db_path, bool reset){
+  inline ODBStorage::Ptr setUpStorage(const std::string& db_path, bool reset){
 
     BOOST_CHECK(!boost::filesystem::exists(db_path) );
     ODBStorage::Ptr storage( new ODBStorage(db_path, reset) );
@@ -88,7 +88,7 @@ namespace testing {
     return storage;
   }
 
-  inline ODBStorage::Ptr loadStorage(std::string db_path){
+  inline ODBStorage::Ptr loadStorage(const std::string& db_path){
 
     BOOST_CHECK(boost::filesystem::exists(db_path));
 
@@ -108,7 +108,7 @@ namespace testing {
     return storage;
   }
 
-  inline void removeStorage(std::string db_path){
+  inline void removeStorage(const std::string& db_path){
     IDGenerator::getInstance().reset(); // free the current strategy
     // (which keeps a pointer to ODBStorage)
 

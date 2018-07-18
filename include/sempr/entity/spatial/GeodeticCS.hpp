@@ -7,7 +7,7 @@
 namespace sempr { namespace entity {
 
 /**
-    A geodetic reference system, e.g. WGS84 or GRS80.
+    A geodetic reference system in WGS84.
     It is also a root of transformations.
 */
 #pragma db object
@@ -16,10 +16,6 @@ class GeodeticCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<GeodeticCS>;
 
-    /**
-        Create a geographic coordinate system based on a well known text,
-        e.g. "WGS84" or "GRS80" as points to a geographic reference frame.
-    */
     GeodeticCS();
     GeodeticCS(const core::IDGenBase*);
 

@@ -4,7 +4,7 @@
 using namespace testing;
 
 BOOST_AUTO_TEST_SUITE(geometries)
-    std::string dbfile = "test_sqlite.db";  //todo seg. fault after renameing
+    const std::string db_path = "test_geometry_sqlite.db";  //todo seg. fault after renameing
 
     BOOST_AUTO_TEST_CASE(geometries_coordinates)
     {
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
 
     BOOST_AUTO_TEST_CASE(geometries_insertion)
     {
-        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
+        ODBStorage::Ptr storage = setUpStorage(db_path, true);
         Core core;
 
         ActiveObjectStore::Ptr active(new ActiveObjectStore());
@@ -100,14 +100,21 @@ BOOST_AUTO_TEST_SUITE(geometries)
         auto polygonGeometry = geom::GeometryFactory::getDefaultInstance()->createPolygon(*linearRing->geometry(), holes);  //linear Ring as DeepCopy
         polygon->setGeometry(polygonGeometry);
 
-        MultiPoint::Ptr multiPoint(new MultiPoint());
-
         // set up the linestring
         LineString::Ptr linestring(new LineString());
         std::vector<geom::Coordinate> string;
         string.push_back(geom::Coordinate(-5, 0));
         string.push_back(geom::Coordinate(+0, 0));
         linestring->setCoordinates(string);
+
+        // set up a multi point
+        MultiPoint::Ptr multiPoint(new MultiPoint());
+        std::vector<geom::Geometry*> points;
+        for (auto coord : ring)
+        {
+            points.push_back(geom::GeometryFactory::getDefaultInstance()->createPoint(coord));
+        }
+        multiPoint->setCollection(points);
 
         // build a geometry collection with the point, linestring and polygon
         std::vector<geom::Geometry*> geoms;
@@ -125,29 +132,33 @@ BOOST_AUTO_TEST_SUITE(geometries)
         core.addEntity(linearRing);
         core.addEntity(polygon);
         core.addEntity(collection);
+        core.addEntity(multiPoint);
     }
 
     BOOST_AUTO_TEST_CASE(geometries_operations)
     {
-        ODBStorage::Ptr storage = loadStorage(dbfile);
+        ODBStorage::Ptr storage = loadStorage(db_path);
 
         std::vector<Point::Ptr> points;
         std::vector<LineString::Ptr> lstrings;
         std::vector<LinearRing::Ptr> lrings;
         std::vector<Polygon::Ptr> polygons;
-        std::vector<GeometryCollection::Ptr> collection;
+        std::vector<GeometryCollection::Ptr> collections;
+        std::vector<MultiPoint::Ptr> multiPoints;
 
         storage->loadAll(points);
         storage->loadAll(lstrings);
         storage->loadAll(lrings);
         storage->loadAll(polygons);
-        storage->loadAll(collection);
+        storage->loadAll(collections);     // it seems that there a loading issues with the collection
+        storage->loadAll(multiPoints);
 
         BOOST_CHECK_EQUAL(points.size(), 1);
-        BOOST_CHECK_EQUAL(lstrings.size(), 2);  //there is one LinearRing that is also a LineString!
+        BOOST_CHECK_EQUAL(lstrings.size(), 2);  // there is one LinearRing that is also a LineString!
         BOOST_CHECK_EQUAL(lrings.size(), 1);
         BOOST_CHECK_EQUAL(polygons.size(), 1);
-        BOOST_CHECK_EQUAL(collection.size(), 1);
+        BOOST_CHECK_EQUAL(collections.size(), 2);   // ther is one MultiPoint that is also a GeometryCollection!
+        BOOST_CHECK_EQUAL(multiPoints.size(), 1);
 
         BOOST_CHECK(points[0]->geometry()->within(polygons[0]->geometry()));
         BOOST_CHECK(lstrings[0]->geometry()->intersects(polygons[0]->geometry()));
@@ -184,7 +195,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
 
     BOOST_AUTO_TEST_CASE(geometries_cleanup)
     {
-        removeStorage(dbfile);
+        removeStorage(db_path);
     }
 
     BOOST_AUTO_TEST_SUITE_END()

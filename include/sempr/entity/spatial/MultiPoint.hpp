@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_SPATIAL_MULTIPOINT_HPP_
 #define SEMPR_ENTITY_SPATIAL_MULTIPOINT_HPP_
 
-#include <sempr/entity/spatial/Geometry.hpp>
+#include <sempr/entity/spatial/GeometryCollection.hpp>
 #include <geos/geom/MultiPoint.h>
 
 namespace sempr { namespace entity {
@@ -12,7 +12,7 @@ namespace geom = geos::geom;
     Container class for GEOM MultiPoint
 */
 #pragma db object
-class MultiPoint : public Geometry {
+class MultiPoint : public GeometryCollection {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<MultiPoint>;

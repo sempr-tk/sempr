@@ -34,9 +34,6 @@ public:
 private:
     friend class odb::access;
 
-    #pragma db type("TEXT")
-    geom::GeometryCollection* geometry_;
-
     virtual GeometryCollection* raw_clone() const override;
 };
 
