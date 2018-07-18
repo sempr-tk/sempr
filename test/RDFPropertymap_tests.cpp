@@ -33,6 +33,28 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         BOOST_CHECK( m.hasProperty("float") );
         m["string"] = "Hello, World!";
 
+        // conversions from/to strings are sometimes a bit buggy, at a compiler level.
+        // these are a few tests added for issue #30
+        std::string foo = m["string"]; // was no problem. copy constructor of string is used
+        std::string bar;
+        // bar = m["string"]; // this won't compile, the assignment operator is ambiguous here
+        bar = m["string"].get<std::string>(); // but this works as the desired type is stated explicitely
+        BOOST_CHECK_EQUAL(bar, "Hello, World!");
+        // another problem was the fact that the operator == wasn't implemented. This should be okay now, too. The comments describe the error before implementing the operator.
+        bool ok;
+        ok = m["string"] == std::string("Hello, World!");  // invalid operands to binary expression
+        BOOST_CHECK(ok);
+
+        ok = m["string"] == "Hello, World!"; // interestingly, this was only a warning but seems to work!
+        BOOST_CHECK(ok);
+        ok = m["string"] == "Something wrong.";
+        BOOST_CHECK(!ok);
+        ok = m["int"] == 42; // invalid operands to binary expression
+        BOOST_CHECK(ok);
+        ok = m["float"] == 1.234f;
+        BOOST_CHECK(ok);
+        // ----------------
+
         // create another entity and point to it.
         Person::Ptr person(new Person());
         core.addEntity(person);
