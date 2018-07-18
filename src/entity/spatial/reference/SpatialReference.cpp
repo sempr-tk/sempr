@@ -1,4 +1,4 @@
-#include <sempr/entity/spatial/SpatialReference.hpp>
+#include <sempr/entity/spatial/reference/SpatialReference.hpp>
 #include <SpatialReference_odb.h>
 
 namespace sempr { namespace entity {

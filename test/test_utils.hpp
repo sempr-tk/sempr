@@ -23,6 +23,7 @@
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
 // geometries
+#include <sempr/entity/spatial/Geometry.hpp>
 #include <Geometry_odb.h>
 
 #include <sempr/entity/spatial/GeometryCollection.hpp>
@@ -44,10 +45,10 @@
 #include <MultiPoint_odb.h>
 
 // reference systems
-#include <sempr/entity/spatial/LocalCS.hpp>
-#include <sempr/entity/spatial/GeodeticCS.hpp>
-#include <sempr/entity/spatial/GeocentricCS.hpp>
-#include <sempr/entity/spatial/ProjectionCS.hpp>
+#include <sempr/entity/spatial/reference/LocalCS.hpp>
+#include <sempr/entity/spatial/reference/GeodeticCS.hpp>
+#include <sempr/entity/spatial/reference/GeocentricCS.hpp>
+#include <sempr/entity/spatial/reference/ProjectionCS.hpp>
 
 #include <sempr/processing/SopranoModule.hpp>
 #include <sempr/processing/SpatialIndex.hpp>

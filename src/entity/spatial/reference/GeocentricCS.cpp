@@ -1,4 +1,4 @@
-#include <sempr/entity/spatial/GeocentricCS.hpp>
+#include <sempr/entity/spatial/reference/GeocentricCS.hpp>
 #include <GeocentricCS_odb.h>
 
 namespace sempr { namespace entity {

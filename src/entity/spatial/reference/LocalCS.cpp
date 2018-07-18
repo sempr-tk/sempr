@@ -1,4 +1,4 @@
-#include <sempr/entity/spatial/LocalCS.hpp>
+#include <sempr/entity/spatial/reference/LocalCS.hpp>
 #include <LocalCS_odb.h>
 
 namespace sempr { namespace entity {

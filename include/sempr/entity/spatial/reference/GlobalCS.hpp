@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_SPATIAL_GLOBALCS_HPP_
 #define SEMPR_ENTITY_SPATIAL_GLOBALCS_HPP_
 
-#include <sempr/entity/spatial/SpatialReference.hpp>
+#include <sempr/entity/spatial/reference/SpatialReference.hpp>
 #include <geos/geom/CoordinateFilter.h>
 //#include <ogr_spatialref.h>
 
@@ -31,12 +31,26 @@ public:
     //std::shared_ptr<OGRCoordinateTransformation> to(GlobalCS::Ptr other);
 
     //from this to other
-    std::shared_ptr<geos::geom::CoordinateFilter> to(const GlobalCS::Ptr other);
+    virtual FilterList to(const GlobalCS::Ptr other);
 
 
 protected:
     GlobalCS();
     GlobalCS(const core::IDGenBase*);
+
+    /**
+     * @brief Forword transformation from geodetic CS (WGS84) to specific CS like projection or geocentric
+     * 
+     * @return std::shared_ptr<geos::geom::CoordinateFilter> 
+     */
+    virtual std::shared_ptr<geos::geom::CoordinateFilter> froward();
+
+    /**
+     * @brief Reverse transformation from a specific CS like projection or geocentric to the general geodetic CS (WGS84)
+     * 
+     * @return std::shared_ptr<geos::geom::CoordinateFilter> 
+     */
+    virtual std::shared_ptr<geos::geom::CoordinateFilter> reverse();
 
     /// used by both projection and geographic coordinate systems.
     //#pragma db type("TEXT")

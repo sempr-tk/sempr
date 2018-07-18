@@ -26,7 +26,7 @@ using namespace sempr::query;
 
 //#include <cpl_conv.h> // CPLFree for kml export of geometries
 
-#include <sempr/entity/spatial/LocalCS.hpp>
+#include <sempr/entity/spatial/reference/LocalCS.hpp>
 #include <chrono>
 
 #include <RDFDocument_odb.h>

@@ -1,14 +1,14 @@
 #include <sempr/entity/spatial/Geometry.hpp>
-#include <sempr/entity/spatial/GlobalCS.hpp>
-#include <sempr/entity/spatial/LocalTransformationFilter.hpp>
 #include <Geometry_odb.h>
+
+#include <sempr/entity/spatial/reference/GlobalCS.hpp>
+#include <sempr/entity/spatial/filter/LocalTransformationFilter.hpp>
 
 #include <geos/geom/GeometryFactory.h>
 #include <geos/io/WKBReader.h>
 #include <geos/io/WKBWriter.h>
 #include <geos/io/WKTReader.h>
 #include <geos/io/WKTWriter.h>
-
 
 namespace sempr { namespace entity {
 

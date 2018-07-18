@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_SPATIAL_GEOCENTRICCS_HPP_
 #define SEMPR_ENTITY_SPATIAL_GEOCENTRICCS_HPP_
 
-#include <sempr/entity/spatial/GlobalCS.hpp>
+#include <sempr/entity/spatial/reference/GlobalCS.hpp>
 //#include <ogr_spatialref.h>
 
 namespace sempr { namespace entity {

@@ -1,4 +1,4 @@
-#include <sempr/entity/spatial/LocalTransformationFilter.hpp>
+#include <sempr/entity/spatial/filter/LocalTransformationFilter.hpp>
 #include <cmath>
 
 namespace sempr {

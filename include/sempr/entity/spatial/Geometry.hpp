@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_GEOMETRY_HPP_
 
 #include <sempr/entity/Entity.hpp>
-#include <sempr/entity/spatial/SpatialReference.hpp>
+#include <sempr/entity/spatial/reference/SpatialReference.hpp>
 #include <geos/geom/Geometry.h>
 
 #include <type_traits>

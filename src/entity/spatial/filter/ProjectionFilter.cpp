@@ -1,4 +1,4 @@
-#include <sempr/entity/spatial/ProjectionFilter.hpp>
+#include <sempr/entity/spatial/filter/ProjectionFilter.hpp>
 #include <cmath>
 
 namespace sempr {

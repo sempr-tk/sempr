@@ -1,9 +1,9 @@
 #ifndef SEMPR_ENTITY_SPATIAL_LOCALCS_HPP_
 #define SEMPR_ENTITY_SPATIAL_LOCALCS_HPP_
 
-#include <sempr/entity/spatial/SpatialReference.hpp>
-#include <sempr/entity/spatial/ProjectionCS.hpp>
-#include <sempr/entity/spatial/GeocentricCS.hpp>
+#include <sempr/entity/spatial/reference/SpatialReference.hpp>
+#include <sempr/entity/spatial/reference/ProjectionCS.hpp>
+#include <sempr/entity/spatial/reference/GeocentricCS.hpp>
 
 
 namespace sempr { namespace entity {

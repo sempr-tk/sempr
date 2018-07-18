@@ -1,4 +1,4 @@
-#include <sempr/entity/spatial/ProjectionCS.hpp>
+#include <sempr/entity/spatial/reference/ProjectionCS.hpp>
 #include <ProjectionCS_odb.h>
 
 namespace sempr { namespace entity {

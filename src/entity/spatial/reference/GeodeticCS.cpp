@@ -1,4 +1,4 @@
-#include <sempr/entity/spatial/GeodeticCS.hpp>
+#include <sempr/entity/spatial/reference/GeodeticCS.hpp>
 #include <GeodeticCS_odb.h>
 
 namespace sempr { namespace entity {

@@ -1,6 +1,6 @@
 #include <sempr/processing/SpatialIndex.hpp>
 #include <sempr/core/EntityEvent.hpp>
-#include <sempr/entity/spatial/LocalTransformationFilter.hpp>
+#include <sempr/entity/spatial/filter/LocalTransformationFilter.hpp>
 #include <iterator>
 
 //#include <ogr_core.h>
