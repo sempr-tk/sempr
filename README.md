@@ -6,7 +6,7 @@ As the development of SEMPR just started recently, please do not expect a fully 
 
 SEMPR currently relies on a few other libraries: ODB for the object relational mapping, sqlite3 for a database connection, boost for uuids, soprano for SPARQL queries, qt4 for soprano, and a recent version of gdal with geos support for more geometric operations.
 
-### ODB, soprano, boost, geos proj.4
+### ODB, GeographicLib, soprano, boost, geos 
 For a start, install the odb compiler and the required odb-libraries. If you are on Ubuntu 16.04 you can install them easily:
 ```bash
 sudo apt-get install odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libodb-dev

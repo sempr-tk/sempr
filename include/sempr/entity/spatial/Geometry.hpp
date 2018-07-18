@@ -5,8 +5,6 @@
 #include <sempr/entity/spatial/SpatialReference.hpp>
 #include <geos/geom/Geometry.h>
 
-#include <proj_api.h>
-
 #include <type_traits>
 
 namespace sempr

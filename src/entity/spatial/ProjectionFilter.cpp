@@ -74,7 +74,7 @@ void UPSFilter::filter_rw(geom::Coordinate* coordinate) const
 
 
 UPSForwardFilter::UPSForwardFilter(double a, double f, double k0, bool north) :
-    UTMFilter(a, f, k0, north)
+    UPSFilter(a, f, k0, north)
 {
 }
 
@@ -85,7 +85,7 @@ void UPSForwardFilter::filter_rw(geom::Coordinate* coordinate) const
 
 
 UPSReversFilter::UPSReversFilter(double a, double f, double k0, bool north) :
-    UTMFilter(a, f, k0, north)
+    UPSFilter(a, f, k0, north)
 {
 }
 
