@@ -48,7 +48,7 @@ public:
         \param base geographic system to use, e.g. WGS84
         \return empty ptr (NULL) on error, else a new ProjectionCS-entity.
     */
-    static ProjectionCS::Ptr CreateUTM(int zone = AUTO_ZONE, GeodeticReference reference = GeodeticReference::WGS84);
+    static ProjectionCS::Ptr CreateUTM(int zone = AUTO_ZONE);
 
     /**
      * @brief 
@@ -57,7 +57,7 @@ public:
      * @param reference 
      * @return ProjectionCS::Ptr 
      */
-    static ProjectionCS::Ptr CreateUPS(bool north = true, GeodeticReference reference = GeodeticReference::WGS84);
+    static ProjectionCS::Ptr CreateUPS(bool north = true);
 
     /**
      * @brief Create a MGRS Projection for a given zone
@@ -71,8 +71,8 @@ public:
     static ProjectionCS::Ptr CreateMGRS(const std::string& zone);
 
 protected:
-    ProjectionCS(double k0, const std::string& zone, bool north, GeodeticReference reference);
-    ProjectionCS(double k0, const std::string& zone, bool north, GeodeticReference reference, const core::IDGenBase*);
+    ProjectionCS(double k0, const std::string& zone, bool north);
+    ProjectionCS(double k0, const std::string& zone, bool north, const core::IDGenBase*);
 
 private:
     friend class odb::access;

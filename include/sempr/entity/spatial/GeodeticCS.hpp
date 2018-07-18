@@ -20,15 +20,11 @@ public:
         Create a geographic coordinate system based on a well known text,
         e.g. "WGS84" or "GRS80" as points to a geographic reference frame.
     */
-    GeodeticCS(GeodeticReference reference);
-    GeodeticCS(GeodeticReference reference, const core::IDGenBase*);
+    GeodeticCS();
+    GeodeticCS(const core::IDGenBase*);
 
 private:
     friend class odb::access;
-
-    GeodeticCS(); // just for ODB.
-
-    void initParameter(GeodeticReference reference);
 };
 
 

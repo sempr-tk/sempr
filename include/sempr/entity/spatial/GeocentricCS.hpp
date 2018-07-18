@@ -22,13 +22,11 @@ public:
         e.g. "WGS84", "WGS72", "NAD27", "NAD83" or any "EPSG:n" that points to a geographic
         reference frame.
     */
-    GeocentricCS(const std::string& name);
-    GeocentricCS(const std::string& name, const core::IDGenBase*);
+    GeocentricCS();
+    GeocentricCS(const core::IDGenBase*);
 
 private:
     friend class odb::access;
-
-    GeocentricCS(); // just for ODB.
 
 };
 

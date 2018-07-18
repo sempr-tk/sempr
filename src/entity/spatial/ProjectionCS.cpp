@@ -11,13 +11,13 @@ ProjectionCS::ProjectionCS()
     
 }
 
-ProjectionCS::ProjectionCS(double k0, const std::string& zone, bool north, GeodeticReference reference) 
-    : ProjectionCS(k0, zone, north, reference, new core::IDGen<ProjectionCS>())
+ProjectionCS::ProjectionCS(double k0, const std::string& zone, bool north) 
+    : ProjectionCS(k0, zone, north, new core::IDGen<ProjectionCS>())
 {
 }
 
-ProjectionCS::ProjectionCS(double k0, const std::string& zone, bool north, GeodeticReference reference, const core::IDGenBase* idgen) : 
-    GlobalCS(idgen, reference),
+ProjectionCS::ProjectionCS(double k0, const std::string& zone, bool north, const core::IDGenBase* idgen) : 
+    GlobalCS(idgen),
     k0_(k0),
     zone_(zone),
     north_(north)
@@ -54,23 +54,23 @@ void ProjectionCS::setNorth(bool north)
 }
 
 
-ProjectionCS::Ptr ProjectionCS::CreateUTM(int zone, GeodeticReference reference)
+ProjectionCS::Ptr ProjectionCS::CreateUTM(int zone)
 {
-    ProjectionCS::Ptr cs(new ProjectionCS(0.9996, std::to_string(zone), true, reference));
+    ProjectionCS::Ptr cs(new ProjectionCS(0.9996, std::to_string(zone), true));
 
     return cs;
 }
 
-ProjectionCS::Ptr ProjectionCS::CreateUPS(bool north, GeodeticReference reference)
+ProjectionCS::Ptr ProjectionCS::CreateUPS(bool north)
 {
-    ProjectionCS::Ptr cs(new ProjectionCS(0.994, std::to_string(GeographicLib::UTMUPS::UPS), north, reference));
+    ProjectionCS::Ptr cs(new ProjectionCS(0.994, std::to_string(GeographicLib::UTMUPS::UPS), north));
 
     return cs;
 }
 
 ProjectionCS::Ptr ProjectionCS::CreateMGRS(const std::string& zone)
 {
-    ProjectionCS::Ptr cs(new ProjectionCS(1, zone, true, GeodeticReference::WGS84));
+    ProjectionCS::Ptr cs(new ProjectionCS(1, zone, true));
 
     return cs;
 }
