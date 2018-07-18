@@ -16,4 +16,22 @@ GeocentricCS::GeocentricCS(const core::IDGenBase* idgen) :
     this->setDiscriminator<GeocentricCS>();
 }
 
+FilterList GeocentricCS::to(const GlobalCS::Ptr other)
+{
+    //only for ODB support - not abstract
+    return FilterList();
+}
+/*
+std::shared_ptr<geos::geom::CoordinateFilter> GeocentricCS::froward() const
+{
+    //only for ODB support - not abstract
+    throw GeocentricException();
+}
+
+std::shared_ptr<geos::geom::CoordinateFilter> GeocentricCS::reverse() const
+{
+    //only for ODB support - not abstract
+    throw GeocentricException();
+}
+*/
 }}

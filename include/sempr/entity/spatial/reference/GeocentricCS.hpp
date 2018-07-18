@@ -2,6 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_GEOCENTRICCS_HPP_
 
 #include <sempr/entity/spatial/reference/GlobalCS.hpp>
+#include <sempr/entity/spatial/filter/GeocentricFilter.hpp>
 //#include <ogr_spatialref.h>
 
 namespace sempr { namespace entity {
@@ -17,11 +18,15 @@ class GeocentricCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<GeocentricCS>;
 
-    /**
-        Create a geographic coordinate system based on a well known text,
-        e.g. "WGS84", "WGS72", "NAD27", "NAD83" or any "EPSG:n" that points to a geographic
-        reference frame.
-    */
+    virtual FilterList to(const GlobalCS::Ptr other);
+
+protected:
+/*
+    virtual std::shared_ptr<geos::geom::CoordinateFilter> froward() const;
+
+    virtual std::shared_ptr<geos::geom::CoordinateFilter> reverse() const;
+*/
+
     GeocentricCS();
     GeocentricCS(const core::IDGenBase*);
 

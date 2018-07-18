@@ -3,6 +3,7 @@
 
 #include <sempr/entity/spatial/reference/SpatialReference.hpp>
 #include <geos/geom/CoordinateFilter.h>
+
 //#include <ogr_spatialref.h>
 
 namespace sempr { namespace entity {
@@ -43,14 +44,17 @@ protected:
      * 
      * @return std::shared_ptr<geos::geom::CoordinateFilter> 
      */
-    virtual std::shared_ptr<geos::geom::CoordinateFilter> froward();
+    virtual std::shared_ptr<geos::geom::CoordinateFilter> froward() const;      //todo rename it forward!!
+
+    //Allow forward call from childs
+    std::shared_ptr<geos::geom::CoordinateFilter> froward(const GlobalCS::Ptr other) const { return other->froward(); }     //todo rename it forward!!
 
     /**
      * @brief Reverse transformation from a specific CS like projection or geocentric to the general geodetic CS (WGS84)
      * 
      * @return std::shared_ptr<geos::geom::CoordinateFilter> 
      */
-    virtual std::shared_ptr<geos::geom::CoordinateFilter> reverse();
+    virtual std::shared_ptr<geos::geom::CoordinateFilter> reverse() const;
 
     /// used by both projection and geographic coordinate systems.
     //#pragma db type("TEXT")

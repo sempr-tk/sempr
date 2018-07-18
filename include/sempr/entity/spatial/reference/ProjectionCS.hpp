@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_PROJECTIONCS_HPP_
 
 #include <sempr/entity/spatial/reference/GlobalCS.hpp>
-//#include <ogr_spatialref.h>
+#include <sempr/entity/spatial/filter/ProjectionFilter.hpp>
 #include <GeographicLib/UTMUPS.hpp>
 #include <string>
 
@@ -73,6 +73,10 @@ public:
 protected:
     ProjectionCS(double k0, const std::string& zone, bool north);
     ProjectionCS(double k0, const std::string& zone, bool north, const core::IDGenBase*);
+
+//    virtual std::shared_ptr<geos::geom::CoordinateFilter> froward() const;
+
+//    virtual std::shared_ptr<geos::geom::CoordinateFilter> reverse() const;
 
 private:
     friend class odb::access;

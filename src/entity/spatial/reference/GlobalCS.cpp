@@ -50,19 +50,22 @@ Eigen::Affine3d GlobalCS::transformationFromRoot() const
 
 FilterList GlobalCS::to(const GlobalCS::Ptr other)
 {
-    //only for ODB support
+    //only for ODB support - not abstract
+    assert(1);
     return FilterList();
 }
 
-std::shared_ptr<geos::geom::CoordinateFilter> GlobalCS::froward()
+std::shared_ptr<geos::geom::CoordinateFilter> GlobalCS::froward() const
 {
-    //only for ODB support
+    //only for ODB support - not abstract
+    assert(1);
     return std::shared_ptr<geos::geom::CoordinateFilter>(nullptr);
 }
 
-std::shared_ptr<geos::geom::CoordinateFilter> GlobalCS::reverse()
+std::shared_ptr<geos::geom::CoordinateFilter> GlobalCS::reverse() const
 {
-    //only for ODB support
+    //only for ODB support - not abstract
+    assert(1);
     return std::shared_ptr<geos::geom::CoordinateFilter>(nullptr);
 }
 
