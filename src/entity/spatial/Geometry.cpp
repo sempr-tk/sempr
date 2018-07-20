@@ -68,15 +68,15 @@ SpatialReference::Ptr Geometry::getCS() const
     return referenceFrame_;
 }
 
-void Geometry::apply(const geom::CoordinateFilter& filter)
+void Geometry::apply(Filter& filter)
 {
     if (!geometry_)
         throw TransformException("no geometry to transform");
 
-    geometry_->apply_rw(&filter);
+    geometry_->apply_rw(filter);
 }
 
-void Geometry::apply(const FilterList& filterList)
+void Geometry::apply(FilterList& filterList)
 {
     for (auto filter : filterList)
     {

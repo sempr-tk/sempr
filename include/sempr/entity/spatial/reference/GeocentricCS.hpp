@@ -21,11 +21,11 @@ public:
     virtual FilterList to(const GlobalCS::Ptr other);
 
 protected:
-/*
-    virtual std::shared_ptr<geos::geom::CoordinateFilter> froward() const;
 
-    virtual std::shared_ptr<geos::geom::CoordinateFilter> reverse() const;
-*/
+    virtual FilterPtr forward() const;
+
+    virtual FilterPtr reverse() const;
+
 
     GeocentricCS();
     GeocentricCS(const core::IDGenBase*);

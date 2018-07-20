@@ -34,6 +34,12 @@ public:
     //from this to other
     virtual FilterList to(const GlobalCS::Ptr other);
 
+    /**
+     * Check if this and the other global cs are equal.
+     * Note: This have to be override by derived class with attributes!
+     */
+    virtual bool isEqual(const GlobalCS::Ptr other);
+
 
 protected:
     GlobalCS();
@@ -44,17 +50,20 @@ protected:
      * 
      * @return std::shared_ptr<geos::geom::CoordinateFilter> 
      */
-    virtual std::shared_ptr<geos::geom::CoordinateFilter> froward() const;      //todo rename it forward!!
+    virtual FilterPtr forward() const;
 
-    //Allow forward call from childs
-    std::shared_ptr<geos::geom::CoordinateFilter> froward(const GlobalCS::Ptr other) const { return other->froward(); }     //todo rename it forward!!
+    // Allow forward call from childs
+    inline FilterPtr forward(const GlobalCS::Ptr other) const { return other->forward(); }
 
     /**
      * @brief Reverse transformation from a specific CS like projection or geocentric to the general geodetic CS (WGS84)
      * 
      * @return std::shared_ptr<geos::geom::CoordinateFilter> 
      */
-    virtual std::shared_ptr<geos::geom::CoordinateFilter> reverse() const;
+    virtual FilterPtr reverse() const;
+
+    // Allow reverse call from childs
+    inline FilterPtr reverse(const GlobalCS::Ptr other) const { return other->reverse(); }
 
     /// used by both projection and geographic coordinate systems.
     //#pragma db type("TEXT")

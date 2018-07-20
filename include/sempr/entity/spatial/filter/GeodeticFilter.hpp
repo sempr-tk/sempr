@@ -1,10 +1,9 @@
-#ifndef SEMPR_ENTITY_SPATIAL_CEOCENTRICFILTER_HPP_
-#define SEMPR_ENTITY_SPATIAL_CEOCENTRICFILTER_HPP_
+#ifndef SEMPR_ENTITY_SPATIAL_GEODETICFILTER_HPP_
+#define SEMPR_ENTITY_SPATIAL_GEODETICFILTER_HPP_
 
 //#include <ogr_spatialref.h>
-#include <geos/geom/CoordinateFilter.h>
+#include <geos/geom/CoordinateSequenceFilter.h>
 #include <geos/geom/Coordinate.h>
-#include <GeographicLib/Geocentric.hpp> 
 
 // weeeeeell... it's not an entity. more like... util?
 namespace sempr {
@@ -26,7 +25,27 @@ class GeodeticException : public std::exception
 };
 
 
+class EmptyFilter : public geom::CoordinateSequenceFilter 
+{
+public:
+    /**
+        Create a transformation defined by the Affine3d matrix.
+    */
+    EmptyFilter() {};
+
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override {};
+
+    void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override {};
+
+    bool isDone() const override {return true;};
+
+    bool isGeometryChanged() const override {return false;};
+
+};
+
+
+
 } /* sempr */
 
 
-#endif /* end of include guard SEMPR_ENTITY_SPATIAL_CEOCENTRICFILTER_HPP_ */
+#endif /* end of include guard SEMPR_ENTITY_SPATIAL_GEODETICFILTER_HPP_ */

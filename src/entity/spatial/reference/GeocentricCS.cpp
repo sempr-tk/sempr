@@ -1,5 +1,8 @@
 #include <sempr/entity/spatial/reference/GeocentricCS.hpp>
+#include <sempr/entity/spatial/reference/GeodeticCS.hpp>
 #include <GeocentricCS_odb.h>
+
+#include <memory>
 
 namespace sempr { namespace entity {
 
@@ -18,20 +21,46 @@ GeocentricCS::GeocentricCS(const core::IDGenBase* idgen) :
 
 FilterList GeocentricCS::to(const GlobalCS::Ptr other)
 {
-    //only for ODB support - not abstract
+    //transform from this (Geodetic)
+    auto otherGeodetic = std::dynamic_pointer_cast<GeodeticCS>(other);
+
+    //ToDo: In the case of a local tangent plane not only the type can identify if there coordinate systems are the same
+    if (typeid(*other) == typeid(*this))
+    {
+        // same cs - nothing to do
+        return FilterList();
+    }
+    else if (otherGeodetic)
+    {
+        FilterList list;
+        list.push_back(reverse());
+        return list;
+    }
+    else
+    {
+        //the other CS is another geocentric system or a projection
+        FilterList list;
+        list.push_back(reverse());
+        list.push_back(GlobalCS::forward(other));
+        return list;
+    }
+
     return FilterList();
 }
-/*
-std::shared_ptr<geos::geom::CoordinateFilter> GeocentricCS::froward() const
+
+FilterPtr GeocentricCS::forward() const
 {
     //only for ODB support - not abstract
-    throw GeocentricException();
+    throw GeocentricException("There is no forward for a general geocentric cs!");
+    return FilterPtr(nullptr);
 }
 
-std::shared_ptr<geos::geom::CoordinateFilter> GeocentricCS::reverse() const
+FilterPtr GeocentricCS::reverse() const
 {
     //only for ODB support - not abstract
-    throw GeocentricException();
+    throw GeocentricException("There is no reverse for a general geocentric cs!");
+    return FilterPtr(nullptr);
 }
-*/
+
+
 }}

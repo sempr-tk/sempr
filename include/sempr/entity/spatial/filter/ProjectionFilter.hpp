@@ -9,12 +9,14 @@
 #include <GeographicLib/TransverseMercator.hpp> //UTM
 #include <GeographicLib/PolarStereographic.hpp> //UPS
 
+#include <exception>
+#include <string>
+
 // weeeeeell... it's not an entity. more like... util?
 namespace sempr {
 
 namespace geom = geos::geom;
 
-    /** Exception that may be thrown during transformToCS. */
 class ProjectionException : public std::exception
 {
     private:
@@ -28,18 +30,31 @@ class ProjectionException : public std::exception
     }
 };
 
+class ProjectionZoneMissmatch : public std::exception
+{
+    private:
+    std::string message_;
+
+    public:
+    explicit ProjectionZoneMissmatch(const std::string &m) : message_(m) {}
+    virtual const char *what() const throw()
+    {
+        return message_.c_str();
+    }
+};
+
     
 /// UTM Projection Filter
 class UTMFilter : public geom::CoordinateFilter
 {
 public:
-    UTMFilter(double a, double f, double k0, int zone);
-
     virtual void filter_rw(geom::Coordinate* coordinate) const;
 
     void filter_ro(const geom::Coordinate* coordinate);
 
 protected:
+    UTMFilter(double a, double f, double k0, int zone);
+
     /// ref to const transform given on initialization
     const GeographicLib::TransverseMercator tm_;
     const int zone_;
@@ -71,13 +86,13 @@ public:
 class UPSFilter : public geom::CoordinateFilter
 {
 public:
-    UPSFilter(double a, double f, double k0, bool north);
-
     virtual void filter_rw(geom::Coordinate* coordinate) const;
 
     void filter_ro(const geom::Coordinate* coordinate);
 
 protected:
+    UPSFilter(double a, double f, double k0, bool north);
+
     /// ref to const transform given on initialization
     const GeographicLib::PolarStereographic ps_;
     const bool north_;

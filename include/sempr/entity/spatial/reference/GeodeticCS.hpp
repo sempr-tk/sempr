@@ -21,11 +21,11 @@ public:
     GeodeticCS(const core::IDGenBase*);
 
     FilterList to(const GlobalCS::Ptr other) override;
-/*
+
 protected:
-    std::shared_ptr<geos::geom::CoordinateFilter> froward() const override;
-    std::shared_ptr<geos::geom::CoordinateFilter> reverse() const override;
-*/
+    FilterPtr forward() const override;
+    FilterPtr reverse() const override;
+
 private:
     friend class odb::access;
 };

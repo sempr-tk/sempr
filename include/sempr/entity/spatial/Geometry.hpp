@@ -66,8 +66,6 @@ class Geometry : public Entity
     */
     void transformToCS(SpatialReference::Ptr cs); // replacement needed without the gdal dependency!
 
-    
-
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
         SpatialReference. (implemented by raw_clone)
@@ -86,8 +84,8 @@ class Geometry : public Entity
     #pragma db type("TEXT")
     geom::Geometry* geometry_;
 
-    void apply(const geom::CoordinateFilter& filter);
-    void apply(const FilterList& filterList);
+    void apply(Filter& filter);
+    void apply(FilterList& filterList);
 
   private:
     friend class odb::access;    

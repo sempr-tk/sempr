@@ -5,10 +5,13 @@
 #include <sempr/entity/Entity.hpp>
 
 #include <geos/geom/CoordinateFilter.h>
+#include <geos/geom/CoordinateSequenceFilter.h>
 
 namespace sempr { namespace entity {
 
-typedef std::vector< std::shared_ptr<geos::geom::CoordinateFilter> > FilterList;
+typedef geos::geom::CoordinateSequenceFilter Filter;
+typedef std::shared_ptr<Filter> FilterPtr;
+typedef std::vector<FilterPtr> FilterList;
 
 /**
 TODO geometry: methods to assign / change ref systems

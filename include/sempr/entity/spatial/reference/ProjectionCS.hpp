@@ -70,11 +70,18 @@ public:
      */
     static ProjectionCS::Ptr CreateMGRS(const std::string& zone);
 
+    virtual FilterList to(const GlobalCS::Ptr other);
+
 protected:
+
+    virtual FilterPtr forward() const;
+
+    virtual FilterPtr reverse() const;
+
     ProjectionCS(double k0, const std::string& zone, bool north);
     ProjectionCS(double k0, const std::string& zone, bool north, const core::IDGenBase*);
 
-//    virtual std::shared_ptr<geos::geom::CoordinateFilter> froward() const;
+//    virtual std::shared_ptr<geos::geom::CoordinateFilter> forward() const;
 
 //    virtual std::shared_ptr<geos::geom::CoordinateFilter> reverse() const;
 

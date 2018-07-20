@@ -1,6 +1,8 @@
 #include <sempr/entity/spatial/reference/GeodeticCS.hpp>
 #include <GeodeticCS_odb.h>
 
+#include <sempr/entity/spatial/filter/GeodeticFilter.hpp>
+
 namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(GeodeticCS)
@@ -18,34 +20,38 @@ GeodeticCS::GeodeticCS(const core::IDGenBase* idgen)
 
 FilterList GeodeticCS::to(const GlobalCS::Ptr other)
 {
-    //this is geodetic so its easy to get forward to other
-    FilterList list;
-    std::shared_ptr<geos::geom::CoordinateFilter> forwardToOther = froward(other); //todo
-    list.push_back(forwardToOther);
 
-    return list;
+    if (isEqual(other))
+    {
+        // same cs - nothing to do
+        return FilterList();
+    }
+    else
+    {
+        //this is geodetic so its easy to get forward to other
+        FilterList list;
+        FilterPtr forwardToOther = GlobalCS::forward(other);
+        list.push_back(forwardToOther);
+
+        return list;
+    }
+
 }
-/*
-std::shared_ptr<geos::geom::CoordinateFilter> GeodeticCS::froward() const
+
+FilterPtr GeodeticCS::forward() const
 {
     //nothing to do - still in geodectic
-
-    //ToDo: return a empty filter
-
-    //only for ODB support
-    throw GeodeticException("There is no forward transformation from geodetic to geodetic!");
+    throw GeodeticException("There is no forward for a geodetic cs to a geodetic cs!");
+    return FilterPtr(nullptr);
 }
 
-std::shared_ptr<geos::geom::CoordinateFilter> GeodeticCS::reverse() const
+FilterPtr GeodeticCS::reverse() const
 {
     //nothing to do - still in geodectic
-
-    //ToDo: return a empty filter
-
-    //only for ODB support
-    throw GeodeticException("There is no reverse transformation from geodetic to geodetic!");
+    throw GeodeticException("There is no reverse for a geodetic cs to a geodetic cs!");
+    return FilterPtr(nullptr);
 }
-*/
+
 
 
 

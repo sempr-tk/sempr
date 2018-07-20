@@ -22,15 +22,10 @@ GlobalCS::~GlobalCS()
 {
 }
 
-/*
-std::shared_ptr<OGRCoordinateTransformation> GlobalCS::to(GlobalCS::Ptr other)
+bool GlobalCS::isEqual(const GlobalCS::Ptr other)
 {
-    auto raw = OGRCreateCoordinateTransformation(&frame_, &(other->frame_));
-    auto t = std::shared_ptr<OGRCoordinateTransformation>(raw, OGRCoordinateTransformation::DestroyCT);
-    return t;
+    return typeid(*other) == typeid(*this);
 }
- */
-
 
 SpatialReference::Ptr GlobalCS::getRoot()
 {
@@ -55,18 +50,18 @@ FilterList GlobalCS::to(const GlobalCS::Ptr other)
     return FilterList();
 }
 
-std::shared_ptr<geos::geom::CoordinateFilter> GlobalCS::froward() const
+FilterPtr GlobalCS::forward() const
 {
     //only for ODB support - not abstract
     assert(1);
-    return std::shared_ptr<geos::geom::CoordinateFilter>(nullptr);
+    return FilterPtr(nullptr);
 }
 
-std::shared_ptr<geos::geom::CoordinateFilter> GlobalCS::reverse() const
+FilterPtr GlobalCS::reverse() const
 {
     //only for ODB support - not abstract
     assert(1);
-    return std::shared_ptr<geos::geom::CoordinateFilter>(nullptr);
+    return FilterPtr(nullptr);
 }
 
 

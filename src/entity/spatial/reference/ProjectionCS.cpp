@@ -1,4 +1,5 @@
 #include <sempr/entity/spatial/reference/ProjectionCS.hpp>
+#include <sempr/entity/spatial/reference/GeodeticCS.hpp>
 #include <ProjectionCS_odb.h>
 
 namespace sempr { namespace entity {
@@ -74,5 +75,51 @@ ProjectionCS::Ptr ProjectionCS::CreateMGRS(const std::string& zone)
 
     return cs;
 }
+
+
+FilterList ProjectionCS::to(const GlobalCS::Ptr other)
+{
+    //transform from this (Geodetic)
+    auto otherGeodetic = std::dynamic_pointer_cast<GeodeticCS>(other);
+
+    if (typeid(*other) == typeid(*this))
+    {
+        // same cs - nothing to do
+        return FilterList();
+    }
+    else if (otherGeodetic)
+    {
+        FilterList list;
+        list.push_back(reverse());
+        return list;
+    }
+    else
+    {
+        //the other CS is another projection system or a geocentric
+        FilterList list;
+        list.push_back(reverse());
+        list.push_back(GlobalCS::forward(other));
+        return list;
+    }
+
+    return FilterList();
+}
+
+FilterPtr ProjectionCS::forward() const
+{
+    //only for ODB support - not abstract
+    throw ProjectionException("There is no forward for a general projection cs!");
+    return FilterPtr(nullptr);
+}
+
+FilterPtr ProjectionCS::reverse() const
+{
+    //only for ODB support - not abstract
+    throw ProjectionException("There is no reverse for a general projection cs!");
+    return FilterPtr(nullptr);
+}
+
+
+
 
 }}
