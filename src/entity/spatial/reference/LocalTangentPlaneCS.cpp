@@ -9,18 +9,30 @@ namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(LocalTangentPlaneCS)
 
-LocalTangentPlaneCS::LocalTangentPlaneCS(const geom::Coordinate& origin) : 
-    GeocentricCS(origin, new core::IDGen<LocalTangentPlaneCS>())
+LocalTangentPlaneCS::LocalTangentPlaneCS() :
+    lat0_(0),
+    lon0_(0),
+    h0_(0)
 {
-    if (std::isnan(origin.z))
-        throw GeodeticException("No valid z component of the LTP origin (dont use the Coordinate default constructor!)");
+}
+
+LocalTangentPlaneCS::LocalTangentPlaneCS(const geom::Coordinate& origin) : 
+    LocalTangentPlaneCS(origin, new core::IDGen<LocalTangentPlaneCS>())
+{
 }
 
 LocalTangentPlaneCS::LocalTangentPlaneCS(const geom::Coordinate& origin, const core::IDGenBase* idgen) : 
     GeocentricCS(idgen),
-    origin_(origin)
+    lat0_(origin.x),
+    lon0_(origin.y),
+    h0_(origin.z)
 {
     this->setDiscriminator<LocalTangentPlaneCS>();
+
+
+    if (std::isnan(origin.z))
+        throw GeocentricException("No valid z component of the LTP origin (dont use the Coordinate default constructor!)");
+
 }
 
 bool LocalTangentPlaneCS::isEqual(const GlobalCS::Ptr other)
@@ -29,7 +41,7 @@ bool LocalTangentPlaneCS::isEqual(const GlobalCS::Ptr other)
 
     if(otherLTG)
     {
-        return origin_.equals3D(otherLTG->origin_);
+        return geom::Coordinate(lat0_, lon0_, h0_).equals3D(geom::Coordinate(otherLTG->lat0_, otherLTG->lon0_, otherLTG->h0_));
     }
     else
     {
@@ -39,12 +51,12 @@ bool LocalTangentPlaneCS::isEqual(const GlobalCS::Ptr other)
 
 FilterPtr LocalTangentPlaneCS::forward() const
 {
-    return FilterPtr(new LTGForwardFilter(origin_.x, origin_.y, origin_.z, GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f());
+    return FilterPtr(new LTGForwardFilter(lat0_, lon0_, h0_, GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f()));
 }
 
 FilterPtr LocalTangentPlaneCS::reverse() const
 {
-    return FilterPtr(new LTGReverseFilter(origin_.x, origin_.y, origin_.z, GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f());
+    return FilterPtr(new LTGReverseFilter(lat0_, lon0_, h0_, GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f()));
 }
 
 

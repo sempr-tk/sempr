@@ -21,12 +21,12 @@ EarthCenteredCS::EarthCenteredCS(const core::IDGenBase* idgen) :
 
 FilterPtr EarthCenteredCS::forward() const
 {
-    return FilterPtr(new ECEFForwardFilter(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f());
+    return FilterPtr(new ECEFForwardFilter(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f()));
 }
 
 FilterPtr EarthCenteredCS::reverse() const
 {
-    return FilterPtr(new ECEFReverseFilter(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f());
+    return FilterPtr(new ECEFReverseFilter(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f()));
 }
 
 

@@ -24,8 +24,7 @@ FilterList GeocentricCS::to(const GlobalCS::Ptr other)
     //transform from this (Geodetic)
     auto otherGeodetic = std::dynamic_pointer_cast<GeodeticCS>(other);
 
-    //ToDo: In the case of a local tangent plane not only the type can identify if there coordinate systems are the same
-    if (typeid(*other) == typeid(*this))
+    if (isEqual(other))
     {
         // same cs - nothing to do
         return FilterList();

@@ -1,14 +1,16 @@
 #ifndef SEMPR_ENTITY_SPATIAL_GEOCENTRICFILTER_HPP_
 #define SEMPR_ENTITY_SPATIAL_GEOCENTRICFILTER_HPP_
 
-//#include <ogr_spatialref.h>
+#include <cstddef>
+#include <exception>
+#include <string>
+
 #include <geos/geom/CoordinateSequenceFilter.h>
 #include <geos/geom/CoordinateSequence.h>
+
 #include <GeographicLib/Geocentric.hpp>
 #include <GeographicLib/LocalCartesian.hpp>
 
-#include <exception>
-#include <string>
 
 // weeeeeell... it's not an entity. more like... util?
 namespace sempr {
@@ -28,12 +30,7 @@ class GeocentricException : public std::exception
     }
 };
 
-/**
- * Coordinate Mapping:
- * x - lat
- * y - lon
- * z - h 
- */
+
 class ECEFFilter : public geos::geom::CoordinateSequenceFilter
 {
 public:

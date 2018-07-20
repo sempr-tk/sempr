@@ -82,7 +82,7 @@ FilterList ProjectionCS::to(const GlobalCS::Ptr other)
     //transform from this (Geodetic)
     auto otherGeodetic = std::dynamic_pointer_cast<GeodeticCS>(other);
 
-    if (typeid(*other) == typeid(*this))
+    if (isEqual(other))
     {
         // same cs - nothing to do
         return FilterList();

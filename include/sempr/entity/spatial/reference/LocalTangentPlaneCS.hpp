@@ -23,6 +23,7 @@ public:
     bool isEqual(const GlobalCS::Ptr other) override;
 
 protected:
+    LocalTangentPlaneCS();
 
     virtual FilterPtr forward() const;
 
@@ -31,7 +32,7 @@ protected:
 private:
     friend class odb::access;
 
-    const geom::Coordinate origin_;
+    const double lat0_, lon0_, h0_;     //the origin of the coordinate system
 };
 
 
