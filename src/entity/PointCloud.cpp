@@ -22,6 +22,15 @@ PointCloud::PointCloud(const sempr::core::IDGenBase* idgen) : sempr::entity::Ent
     m_bounds.maxZ = 0.0;
 }
 
+inline void PointCloud::checkBounds(const Point &point) {
+    if(point.x < m_bounds.minX) m_bounds.minX = point.x;
+    if(point.x > m_bounds.maxX) m_bounds.maxX = point.x;
+    if(point.y < m_bounds.minY) m_bounds.minY = point.y;
+    if(point.y > m_bounds.maxY) m_bounds.maxY = point.y;
+    if(point.z < m_bounds.minZ) m_bounds.minZ = point.z;
+    if(point.z > m_bounds.maxZ) m_bounds.maxZ = point.z;
+}
+
 void PointCloud::calculateBounds()
 {
     // make sure, that we get the right bounds
@@ -33,15 +42,6 @@ void PointCloud::calculateBounds()
     {
         checkBounds(point);
     }
-}
-
-inline void PointCloud::checkBounds(const Point &point) {
-    if(point.x < m_bounds.minX) m_bounds.minX = point.x;
-    if(point.x > m_bounds.maxX) m_bounds.maxX = point.x;
-    if(point.y < m_bounds.minY) m_bounds.minY = point.y;
-    if(point.y > m_bounds.maxY) m_bounds.maxY = point.y;
-    if(point.z < m_bounds.minZ) m_bounds.minZ = point.z;
-    if(point.z > m_bounds.maxZ) m_bounds.maxZ = point.z;
 }
 
 void PointCloud::removePoint(uint64_t i)
