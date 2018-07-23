@@ -122,13 +122,11 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
         if(globalSrc && globalDst)
         {
             // both are global!
-            /* //todo
-            auto transform = globalSrc->to(globalDst);
-            if (!transform) {
-                // transformation unknown to GDAL / proj4?!
-                throw TransformException("transform unknown to GDAL/proj4");
+            auto globalTransform = globalSrc->to(globalDst);
+            if (globalTransform.empty()) {
+                // transformation unknown
+                throw TransformException("global transform unknown");
             }
-            */
             // 3 steps:
 
             // 1: this from ref to this->getRoot()
@@ -137,7 +135,7 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
             apply(tfToRoot);
 
             // 2: from this->getRoot() to cs->getRoot()
-            //this->geometry()->transform(transform.get()); //todo
+            apply(globalTransform);
 
             // 3: from cs->getRoot() to cs
             auto rootToCS = cs->transformationFromRoot();

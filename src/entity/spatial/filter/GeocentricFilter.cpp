@@ -22,12 +22,12 @@ bool ECEFFilter::isGeometryChanged () const
     return changed_;
 }
 
-void ECEFFilter::filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i)
+void ECEFFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
     assert(0); //like geos geom will do!
 }
 
-void ECEFFilter::filter_ro(const geos::geom::CoordinateSequence& seq, std::size_t i)
+void ECEFFilter::filter_ro(const geom::CoordinateSequence& seq, std::size_t i)
 {
     throw GeocentricException("No read-only filter for a ecef transformation!");
 }
@@ -38,13 +38,17 @@ ECEFForwardFilter::ECEFForwardFilter(double a, double f) :
 {
 }
 
-void ECEFForwardFilter::filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i)
+void ECEFForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
     for(; i < seq.getSize(); i++)
     {
-        geos::geom::Coordinate ecefCoord;
+        geom::Coordinate ecefCoord;
         
         auto wgsCoord = seq.getAt(i); // x = lat; y = lon; z = h
+
+        if (std::isnan(wgsCoord.z))
+            wgsCoord.z = 0;
+
         ecef_.Forward(wgsCoord.x, wgsCoord.y, wgsCoord.z, ecefCoord.x, ecefCoord.y, ecefCoord.z);
 
         seq.setAt(ecefCoord, i);
@@ -59,13 +63,17 @@ ECEFReverseFilter::ECEFReverseFilter(double a, double f) :
 {
 }
 
-void ECEFReverseFilter::filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i)
+void ECEFReverseFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
     for(; i < seq.getSize(); i++)
     {
-        geos::geom::Coordinate wgsCoord;
+        geom::Coordinate wgsCoord;
         
         auto ecefCoord = seq.getAt(i); // x = lat; y = lon; z = h
+
+        if (std::isnan(ecefCoord.z))
+            ecefCoord.z = 0;
+
         ecef_.Reverse(ecefCoord.x, ecefCoord.y, ecefCoord.z, wgsCoord.x, wgsCoord.y, wgsCoord.z);
 
         seq.setAt(wgsCoord, i);
@@ -96,12 +104,12 @@ bool LTGFilter::isGeometryChanged () const
     return changed_;
 }
 
-void LTGFilter::filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i)
+void LTGFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
     assert(0); //like geos geom will do!
 }
 
-void LTGFilter::filter_ro(const geos::geom::CoordinateSequence& seq, std::size_t i)
+void LTGFilter::filter_ro(const geom::CoordinateSequence& seq, std::size_t i)
 {
     throw GeocentricException("No read-only filter for a ltg transformation!");
 }
@@ -111,13 +119,17 @@ LTGForwardFilter::LTGForwardFilter(double lat0, double lon0, double h0, double a
 {
 }
 
-void LTGForwardFilter::filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i)
+void LTGForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
     for(; i < seq.getSize(); i++)
     {
-        geos::geom::Coordinate ltgCoord;
+        geom::Coordinate ltgCoord;
         
         auto wgsCoord = seq.getAt(i);   // x = lat; y = lon; z = h
+
+        if (std::isnan(wgsCoord.z))
+            wgsCoord.z = 0;
+
         ltg_.Forward(wgsCoord.x, wgsCoord.y, wgsCoord.z, ltgCoord.x, ltgCoord.y, ltgCoord.z);
 
         seq.setAt(ltgCoord, i);
@@ -132,13 +144,17 @@ LTGReverseFilter::LTGReverseFilter(double lat0, double lon0, double h0, double a
 {
 }
 
-void LTGReverseFilter::filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i)
+void LTGReverseFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
     for(; i < seq.getSize(); i++)
     {
-        geos::geom::Coordinate wgsCoord;
+        geom::Coordinate wgsCoord;
         
         auto ltgCoord = seq.getAt(i); // x = lat; y = lon; z = h
+
+        if (std::isnan(ltgCoord.z))
+            ltgCoord.z = 0;
+
         ltg_.Reverse(ltgCoord.x, ltgCoord.y, ltgCoord.z, wgsCoord.x, wgsCoord.y, wgsCoord.z);
 
         seq.setAt(wgsCoord, i);

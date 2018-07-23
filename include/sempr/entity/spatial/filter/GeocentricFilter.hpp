@@ -31,12 +31,12 @@ class GeocentricException : public std::exception
 };
 
 
-class ECEFFilter : public geos::geom::CoordinateSequenceFilter
+class ECEFFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i);
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
 
-    void filter_ro(const geos::geom::CoordinateSequence& seq, std::size_t i) override;
+    void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
 
     bool isDone() const;
 
@@ -55,7 +55,7 @@ class ECEFForwardFilter : public ECEFFilter
 public:
     ECEFForwardFilter(double a, double f);
 
-    void filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i) override;
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 };
 
 class ECEFReverseFilter : public ECEFFilter
@@ -63,16 +63,16 @@ class ECEFReverseFilter : public ECEFFilter
 public:
     ECEFReverseFilter(double a, double f);
 
-    void filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i) override;
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 };
 
 
-class LTGFilter : public geos::geom::CoordinateSequenceFilter
+class LTGFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i);
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
 
-    void filter_ro(const geos::geom::CoordinateSequence& seq, std::size_t i) override;
+    void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
 
     bool isDone() const;
 
@@ -91,7 +91,7 @@ class LTGForwardFilter : public LTGFilter
 public:
     LTGForwardFilter(double lat0, double lon0, double h0, double a, double f);
 
-    void filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i) override;
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 };
 
 class LTGReverseFilter : public LTGFilter
@@ -99,7 +99,7 @@ class LTGReverseFilter : public LTGFilter
 public:
     LTGReverseFilter(double lat0, double lon0, double h0, double a, double f);
 
-    void filter_rw(geos::geom::CoordinateSequence& seq, std::size_t i) override;
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 };
 
 

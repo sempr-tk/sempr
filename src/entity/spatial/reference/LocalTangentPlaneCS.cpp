@@ -17,20 +17,25 @@ LocalTangentPlaneCS::LocalTangentPlaneCS() :
 }
 
 LocalTangentPlaneCS::LocalTangentPlaneCS(const geom::Coordinate& origin) : 
-    LocalTangentPlaneCS(origin, new core::IDGen<LocalTangentPlaneCS>())
+    LocalTangentPlaneCS(origin.x, origin.y, origin.z, new core::IDGen<LocalTangentPlaneCS>())
 {
 }
 
-LocalTangentPlaneCS::LocalTangentPlaneCS(const geom::Coordinate& origin, const core::IDGenBase* idgen) : 
+LocalTangentPlaneCS::LocalTangentPlaneCS(double lat0, double lon0, double h0) :
+    LocalTangentPlaneCS(lat0, lon0, h0, new core::IDGen<LocalTangentPlaneCS>())
+{
+}
+
+LocalTangentPlaneCS::LocalTangentPlaneCS(double lat0, double lon0, double h0, const core::IDGenBase* idgen) : 
     GeocentricCS(idgen),
-    lat0_(origin.x),
-    lon0_(origin.y),
-    h0_(origin.z)
+    lat0_(lat0),
+    lon0_(lon0),
+    h0_(h0)
 {
     this->setDiscriminator<LocalTangentPlaneCS>();
 
 
-    if (std::isnan(origin.z))
+    if (std::isnan(h0))
         throw GeocentricException("No valid z component of the LTP origin (dont use the Coordinate default constructor!)");
 
 }
@@ -40,7 +45,7 @@ bool LocalTangentPlaneCS::isEqual(const GlobalCS::Ptr other)
     auto otherLTG = std::dynamic_pointer_cast<LocalTangentPlaneCS>(other);
 
     if(otherLTG)
-    {
+    {   // check if origin is equal:
         return geom::Coordinate(lat0_, lon0_, h0_).equals3D(geom::Coordinate(otherLTG->lat0_, otherLTG->lon0_, otherLTG->h0_));
     }
     else

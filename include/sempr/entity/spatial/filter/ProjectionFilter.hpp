@@ -1,16 +1,20 @@
 #ifndef SEMPR_ENTITY_SPATIAL_PROJECTIONFILTER_HPP_
 #define SEMPR_ENTITY_SPATIAL_PROJECTIONFILTER_HPP_
 
-//#include <ogr_spatialref.h>
+#include <cstddef>
+#include <exception>
+#include <string>
+
+#include <geos/geom/CoordinateSequenceFilter.h>
+#include <geos/geom/CoordinateSequence.h>
+
 #include <geos/geom/CoordinateFilter.h>
 #include <geos/geom/Coordinate.h>
-#include <GeographicLib/UTMUPS.hpp>             
+
+#include <GeographicLib/UTMUPS.hpp>             //Util
 #include <GeographicLib/MGRS.hpp>               //MGRS
 #include <GeographicLib/TransverseMercator.hpp> //UTM
 #include <GeographicLib/PolarStereographic.hpp> //UPS
-
-#include <exception>
-#include <string>
 
 // weeeeeell... it's not an entity. more like... util?
 namespace sempr {
@@ -43,32 +47,41 @@ class ProjectionZoneMissmatch : public std::exception
     }
 };
 
-    
+
 /// UTM Projection Filter
-class UTMFilter : public geom::CoordinateFilter
+class UTMFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geom::Coordinate* coordinate) const;
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
 
-    void filter_ro(const geom::Coordinate* coordinate);
+    void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
+
+    bool isDone() const;
+
+    bool isGeometryChanged() const;
 
 protected:
-    UTMFilter(double a, double f, double k0, int zone);
+    UTMFilter(double a, double f, double k0, int zone, bool north);
+
+    static double centralMeridian(int zone);
 
     /// ref to const transform given on initialization
     const GeographicLib::TransverseMercator tm_;
     const int zone_;
 
-    static double CentralMeridian(int zone);
+    const double falseeasting_, falsenorthing_;
+
+    bool done_;
+    bool changed_;
 };
 
 /// Projection from lat/lon to UTM x/y
 class UTMForwardFilter : public UTMFilter
 {
 public:
-    UTMForwardFilter(double a, double f, double k0, int zone);
+    UTMForwardFilter(double a, double f, double k0, int zone, bool north);
 
-    void filter_rw(geom::Coordinate* coordinate) const;
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 
 };
 
@@ -76,9 +89,9 @@ public:
 class UTMReversFilter : public UTMFilter
 {
 public:
-    UTMReversFilter(double a, double f, double k0, int zone);
+    UTMReversFilter(double a, double f, double k0, int zone, bool north);
 
-    void filter_rw(geom::Coordinate* coordinate) const;
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 };
 
 

@@ -388,32 +388,29 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
     {
         // ProjectionCS::Ptr projCC = ProjectionCS::CreateEquirect(0, 0);
         GeodeticCS::Ptr wgs84(new GeodeticCS());
-        ProjectionCS::Ptr utm = ProjectionCS::CreateUTM(32);
-        //auto wgs2utm = wgs84->to(utm);
+        ProjectionCS::Ptr utm(new UniversalTransverseMercatorCS(32));
+        //ProjectionCS::Ptr utm = ProjectionCS::CreateUTM(32);
+        auto wgs2utm = wgs84->to(utm);
         // auto wgs2utm = utm->to(wgs84);
 
-        //BOOST_CHECK(wgs2utm);
+        BOOST_CHECK(!wgs2utm.empty());
 
         // mannheim paradeplatz (wiki example)
         // wgs85: 49.487111 (lat), 8.466278 (lon)
-        // (!) NOTE: POINT(lon lat)
-        // (!) remember: lon -> west/east (left/right), lat -> north/south (up/down)
-        // utm: zone 32, E: 461344 N: 5481745
         // mgrs: zone 32U, E: 61344 N: 81745
         // TODO: GDAL only knows UTM zones __N and __S (north/south), but not the local definitions made by UTMREF / MGRS (e.g. no zone 32U, only 32)
-      /*  Point::Ptr p(new Point());
 
-        std::string latlon = "POINT (8.466278 49.487111)";
-        char* tmp = (char*)latlon.c_str();
-        p->geometry()->importFromWkt(&tmp);
-        std::cout << "wgs84: " << p->geometry()->exportToJson() << '\n';
+        Point::Ptr p(new Point());
+        p->setGeometry(Geometry::importFromWKT("POINT (49.487111 8.466278)"));
+        p->setCS(wgs84);
 
         // transform
-        p->geometry()->transform(wgs2utm.get());
-        std::cout << "utm: " << p->geometry()->exportToJson() << '\n';
+        p->transformToCS(utm);
 
-        BOOST_CHECK_CLOSE(p->geometry()->getX(),  461344, 0.0001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), 5481745, 0.0001);*/
+        //print(p->geometry());
+
+        BOOST_CHECK_CLOSE(p->geometry()->getX(),  461344., 0.0001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), 5481745., 0.0001);
     }
 
     BOOST_AUTO_TEST_CASE(geometry_transformation_local)
@@ -454,11 +451,10 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
             is (200, -100) in (5)
         */
         GeodeticCS::Ptr wgs84(new GeodeticCS());
-        ProjectionCS::Ptr equi = ProjectionCS::CreateUPS();
-        equi->setRegion(52, 8);
+        GeocentricCS::Ptr centric(new LocalTangentPlaneCS(52, 8));
 
         LocalCS::Ptr localRot(new LocalCS());
-        localRot->setParent(equi);
+        localRot->setParent(centric);
         localRot->setRotation(0, 0, 1, M_PI/2.);
 
         LocalCS::Ptr localTrans(new LocalCS());
@@ -472,18 +468,19 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
             --> (0,0) in equi --> (0, 0) in rot --> (200, -100) in transrot
         */
         Point::Ptr p(new Point());
-        std::string latlon = "POINT (8 52)"; // lon, lat
+        std::string latlon = "POINT (52 8)"; // lat, lon
 
         p->setGeometry(Geometry::importFromWKT(latlon));
 
-        BOOST_CHECK_CLOSE(p->geometry()->getX(),  8, 0.0000001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), 52, 0.0000001);
-
         p->setCS(wgs84);
+
+        BOOST_CHECK_CLOSE(p->geometry()->getX(), 52, 0.0000001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(),  8, 0.0000001);
+
         p->transformToCS(localTrans);
 
-        //BOOST_CHECK_CLOSE(p->geometry()->getX(),  200, 0.0000001);
-        //BOOST_CHECK_CLOSE(p->geometry()->getY(), -100, 0.0000001);
+        BOOST_CHECK_CLOSE(p->geometry()->getX(),  200, 0.0000001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), -100, 0.0000001);
         
     }
 

@@ -50,6 +50,9 @@
 #include <sempr/entity/spatial/reference/GeocentricCS.hpp>
 #include <sempr/entity/spatial/reference/ProjectionCS.hpp>
 
+#include <sempr/entity/spatial/reference/UniversalTransverseMercatorCS.hpp>
+#include <sempr/entity/spatial/reference/LocalTangentPlaneCS.hpp>
+
 #include <sempr/processing/SopranoModule.hpp>
 #include <sempr/processing/SpatialIndex.hpp>
 

@@ -18,7 +18,8 @@ public:
     using Ptr = std::shared_ptr<LocalTangentPlaneCS>;
 
     LocalTangentPlaneCS(const geom::Coordinate& origin);
-    LocalTangentPlaneCS(const geom::Coordinate& origin, const core::IDGenBase*);
+    LocalTangentPlaneCS(double lat0, double lon0, double h0 = 0);
+    LocalTangentPlaneCS(double lat0, double lon0, double h0, const core::IDGenBase*);
 
     bool isEqual(const GlobalCS::Ptr other) override;
 

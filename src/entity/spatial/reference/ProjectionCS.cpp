@@ -1,81 +1,23 @@
 #include <sempr/entity/spatial/reference/ProjectionCS.hpp>
 #include <sempr/entity/spatial/reference/GeodeticCS.hpp>
+#include <sempr/entity/spatial/reference/UniversalTransverseMercatorCS.hpp>
 #include <ProjectionCS_odb.h>
 
 namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(ProjectionCS)
 
-ProjectionCS::ProjectionCS() 
-    : GlobalCS(new core::IDGen<ProjectionCS>())
-{
-    
-}
 
-ProjectionCS::ProjectionCS(double k0, const std::string& zone, bool north) 
-    : ProjectionCS(k0, zone, north, new core::IDGen<ProjectionCS>())
+ProjectionCS::ProjectionCS() : 
+    ProjectionCS(new core::IDGen<ProjectionCS>())
 {
 }
 
-ProjectionCS::ProjectionCS(double k0, const std::string& zone, bool north, const core::IDGenBase* idgen) : 
-    GlobalCS(idgen),
-    k0_(k0),
-    zone_(zone),
-    north_(north)
+ProjectionCS::ProjectionCS(const core::IDGenBase* idgen) : 
+    GlobalCS(idgen)
 {
     this->setDiscriminator<ProjectionCS>();
 }
-
-int ProjectionCS::getUTMZone() const
-{
-    return std::stoi(zone_);
-}
-
-void ProjectionCS::setUTMZone(int zone)
-{
-    zone_ = std::to_string(zone);
-}
-
-void ProjectionCS::setRegion(double lat, double lon)
-{
-    auto zone = GeographicLib::UTMUPS::StandardZone(lat, lon);
-    this->setUTMZone(zone);
-
-    north_ = lat >= 0;
-}
-
-bool ProjectionCS::getNorth() const
-{
-    return north_;
-}
-
-void ProjectionCS::setNorth(bool north)
-{
-    north_ = north;
-}
-
-
-ProjectionCS::Ptr ProjectionCS::CreateUTM(int zone)
-{
-    ProjectionCS::Ptr cs(new ProjectionCS(0.9996, std::to_string(zone), true));
-
-    return cs;
-}
-
-ProjectionCS::Ptr ProjectionCS::CreateUPS(bool north)
-{
-    ProjectionCS::Ptr cs(new ProjectionCS(0.994, std::to_string(GeographicLib::UTMUPS::UPS), north));
-
-    return cs;
-}
-
-ProjectionCS::Ptr ProjectionCS::CreateMGRS(const std::string& zone)
-{
-    ProjectionCS::Ptr cs(new ProjectionCS(1, zone, true));
-
-    return cs;
-}
-
 
 FilterList ProjectionCS::to(const GlobalCS::Ptr other)
 {
@@ -119,6 +61,49 @@ FilterPtr ProjectionCS::reverse() const
     return FilterPtr(nullptr);
 }
 
+ProjectionCS::Ptr ProjectionCS::importZone(const std::string& zonestr)
+{
+    //todo
+    int zone;
+    bool north;
+    GeographicLib::UTMUPS::DecodeZone(zonestr, zone, north);
+
+    if (zone > 0 && zone <= 60)
+    {
+        // is UTM
+        return ProjectionCS::Ptr(new UniversalTransverseMercatorCS(zone, north));;
+    }
+    else if (zone == 0)
+    {
+        // is UPS
+    }
+    else
+    {
+        //invalid
+        throw ProjectionException("Invalid zone string!");
+        return ProjectionCS::Ptr(nullptr);
+    }
+
+    return ProjectionCS::Ptr(nullptr);
+}
+
+std::string ProjectionCS::exportZone(const ProjectionCS::Ptr cs)
+{
+    //todo
+    return "";
+}
+
+ProjectionCS::Ptr ProjectionCS::importEPSGZone(int epsg)
+{
+    //todo
+    return ProjectionCS::Ptr(nullptr);
+}
+
+int ProjectionCS::exportEPSGZone(const ProjectionCS::Ptr cs)
+{
+    //todo
+    return 0;
+}
 
 
 
