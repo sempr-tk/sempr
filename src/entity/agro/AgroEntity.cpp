@@ -13,13 +13,6 @@ AgroEntity::AgroEntity() : AgroEntity(new core::IDGen<AgroEntity>())
 AgroEntity::AgroEntity(const core::IDGenBase* idgen) : Entity(idgen)
 {
     geometry_ = static_cast<OGRPolygon*>(OGRGeometryFactory::createGeometry(wkbPolygon));
-
-    m_bb.minX = 0.0;
-    m_bb.maxX = 0.0;
-    m_bb.minY = 0.0;
-    m_bb.maxY = 0.0;
-    m_bb.minZ = 0.0;
-    m_bb.maxZ = 0.0;
 }
 
 AgroEntity::~AgroEntity()
@@ -38,29 +31,42 @@ bool AgroEntity::calculateIntersection(const Polygon::Ptr &polygon)
 }
 */
 
-inline void AgroEntity::checkBounds(const OGRPoint *point) {
-    if(point->getX() < m_bb.minX) m_bb.minX = point->getX();
-    if(point->getX() > m_bb.maxX) m_bb.maxX = point->getX();
-    if(point->getY() < m_bb.minY) m_bb.minY = point->getZ();
-    if(point->getY() > m_bb.maxY) m_bb.maxY = point->getY();
-    if(point->getZ() < m_bb.minZ) m_bb.minZ = point->getZ();
-    if(point->getZ() > m_bb.maxZ) m_bb.maxZ = point->getZ();
-}
-
-void AgroEntity::calculateBoundingBox()
+PointCloud::BoundingBox AgroEntity::boundingBox()
 {
+    PointCloud::BoundingBox bb;
+
+    bb.minX = DBL_MAX;
+    bb.maxX = DBL_MIN;
+    bb.minY = DBL_MAX;
+    bb.maxY = DBL_MIN;
+    bb.minZ = DBL_MAX;
+    bb.maxZ = DBL_MIN;
+
+    std::cout << "what the heck" << geometry_->getExteriorRing()->getNumPoints() << std::endl;
+
     OGRPointIterator* it = geometry_->getExteriorRing()->getPointIterator();
-    OGRPoint* p;
+    OGRPoint *p = new OGRPoint(); // fuck
+    std::cout << "is therè a lack?" << std::endl;
 
-    while(it->getNextPoint(p))
+    while(it->getNextPoint(p) == true)
     {
-        checkBounds(p);
-
+        std::cout << bb.minX;
+        if(p->getX() < bb.minX) bb.minX = p->getX();
+        if(p->getX() > bb.maxX) bb.maxX = p->getX();
+        if(p->getY() < bb.minY) bb.minY = p->getZ();
+        if(p->getY() > bb.maxY) bb.maxY = p->getY();
+        if(p->getZ() < bb.minZ) bb.minZ = p->getZ();
+        if(p->getZ() > bb.maxZ) bb.maxZ = p->getZ();
+        std::cout << "  >" << bb.minX << std::endl;
     }
+
+    std::cout << "deleting" << std::endl;
     OGRPointIterator::destroy(it);
-    //OGRGeometryFactory::destroyGeometry(p);
+    std::cout << "deleted" << std::endl;
+
+    OGRGeometryFactory::destroyGeometry(p);
+
+    return bb;
 }
-
-
 
 }}}

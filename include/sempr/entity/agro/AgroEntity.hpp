@@ -5,6 +5,10 @@
 #include <sempr/entity/PointCloud.hpp>
 #include <ogr_geometry.h>
 
+#include <climits>
+
+#include <iostream>
+
 
 #include <type_traits>
 
@@ -24,6 +28,7 @@ public:
 
     OGRPolygon* geometry() { return geometry_; }
 
+    PointCloud::BoundingBox boundingBox();
     // This should be put into the Module?
     //bool calculateIntersection(const Polygon::Ptr& polygon);
 
@@ -32,17 +37,11 @@ protected:
     #pragma db type("TEXT")
     OGRPolygon* geometry_;
 
-    inline void checkBounds(const OGRPoint *point);
     // I could use the OGRGeometry->Boundary() function,
     // but this will create a new OGRGeometry
     // and I would still need to iterate over the Points, to get the raw coordinates of the BB
     // on the other hand, I could just use the OGRGeometry-Intersects() on the created
     // OGRGeometry ... is there any usecase for the min/max x,y,z coordinates other then intersection?
-    void calculateBoundingBox();
-
-    PointCloud::BoundingBox m_bb;
-
-
 };
 
 }}}
