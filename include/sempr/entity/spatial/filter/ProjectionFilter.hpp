@@ -96,12 +96,16 @@ public:
 
 
 /// UPS Projection Filter
-class UPSFilter : public geom::CoordinateFilter
+class UPSFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geom::Coordinate* coordinate) const;
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
 
-    void filter_ro(const geom::Coordinate* coordinate);
+    void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
+
+    bool isDone() const;
+
+    bool isGeometryChanged() const;
 
 protected:
     UPSFilter(double a, double f, double k0, bool north);
@@ -109,6 +113,9 @@ protected:
     /// ref to const transform given on initialization
     const GeographicLib::PolarStereographic ps_;
     const bool north_;
+
+    bool done_;
+    bool changed_;
 };
 
 /// Projection from lat/lon to UTM x/y
@@ -117,7 +124,7 @@ class UPSForwardFilter : public UPSFilter
 public:
     UPSForwardFilter(double a, double f, double k0, bool north);
 
-    void filter_rw(geom::Coordinate* coordinate) const;
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 };
 
 /// Reverse Projection from x/y to UTM lat/lon
@@ -126,7 +133,7 @@ class UPSReversFilter : public UPSFilter
 public:
     UPSReversFilter(double a, double f, double k0, bool north);
 
-    void filter_rw(geom::Coordinate* coordinate) const;
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 };
 
 /*

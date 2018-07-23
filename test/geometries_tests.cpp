@@ -389,9 +389,8 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         // ProjectionCS::Ptr projCC = ProjectionCS::CreateEquirect(0, 0);
         GeodeticCS::Ptr wgs84(new GeodeticCS());
         ProjectionCS::Ptr utm(new UniversalTransverseMercatorCS(32));
-        //ProjectionCS::Ptr utm = ProjectionCS::CreateUTM(32);
+
         auto wgs2utm = wgs84->to(utm);
-        // auto wgs2utm = utm->to(wgs84);
 
         BOOST_CHECK(!wgs2utm.empty());
 

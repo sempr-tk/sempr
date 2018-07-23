@@ -112,17 +112,29 @@ UPSFilter::UPSFilter(double a, double f, double k0, bool north) :
     ps_(GeographicLib::PolarStereographic(a, f, k0)),
     north_(north)
 {
+    done_ = false;
+    changed_ = false;
 }
 
-void UPSFilter::filter_ro(const geom::Coordinate* coordinate)
+void UPSFilter::filter_ro(const geom::CoordinateSequence& seq, std::size_t i)
 {
     // do nothing
     throw ProjectionException("No read-only filter for a local transformation!");
 }
 
-void UPSFilter::filter_rw(geom::Coordinate* coordinate) const
+void UPSFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
     assert(0); //like geos geom will do!
+}
+
+bool UPSFilter::isDone () const
+{
+    return done_;
+}
+
+bool UPSFilter::isGeometryChanged () const
+{
+    return changed_;
 }
 
 
@@ -131,9 +143,21 @@ UPSForwardFilter::UPSForwardFilter(double a, double f, double k0, bool north) :
 {
 }
 
-void UPSForwardFilter::filter_rw(geom::Coordinate* coordinate) const
+void UPSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
-    //todo
+    for(; i < seq.getSize(); i++)
+    {
+        geom::Coordinate upsCoord;
+        
+        auto wgsCoord = seq.getAt(i); // x = lat; y = lon; z = h
+
+        ps_.Forward(north_, wgsCoord.x, wgsCoord.y, upsCoord.x, upsCoord.y);
+
+        seq.setAt(upsCoord, i);
+        changed_ = true;
+    }
+
+    done_ = true;
 }
 
 
@@ -142,9 +166,21 @@ UPSReversFilter::UPSReversFilter(double a, double f, double k0, bool north) :
 {
 }
 
-void UPSReversFilter::filter_rw(geom::Coordinate* coordinate) const
+void UPSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
-    //todo
+    for(; i < seq.getSize(); i++)
+    {
+        geom::Coordinate wgsCoord;
+        
+        auto upsCoord = seq.getAt(i);
+
+        ps_.Reverse(north_, upsCoord.x, upsCoord.y, wgsCoord.x, wgsCoord.y);
+
+        seq.setAt(wgsCoord, i);
+        changed_ = true;
+    }
+
+    done_ = true;
 }
 
 

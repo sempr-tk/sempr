@@ -10,6 +10,7 @@ namespace sempr { namespace entity {
 
 // Forward Declaration of derived classes to allow import/export
 class UniversalTransverseMercatorCS;
+class UniversalPolarStereographicCS;
 
 /**
     A projected coordinate system, using a base-geographic system (e.g. WGS84) and a
@@ -22,6 +23,10 @@ public:
     using Ptr = std::shared_ptr<ProjectionCS>;
 
     virtual FilterList to(const GlobalCS::Ptr other);
+
+    virtual int getZone() const;
+    virtual bool isNorth() const;
+
 
     // import or export a UTM/UPS zone string
     static ProjectionCS::Ptr importZone(const std::string& zonestr);

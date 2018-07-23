@@ -51,6 +51,7 @@
 #include <sempr/entity/spatial/reference/ProjectionCS.hpp>
 
 #include <sempr/entity/spatial/reference/UniversalTransverseMercatorCS.hpp>
+#include <sempr/entity/spatial/reference/UniversalPolarStereographicCS.hpp>
 #include <sempr/entity/spatial/reference/LocalTangentPlaneCS.hpp>
 
 #include <sempr/processing/SopranoModule.hpp>

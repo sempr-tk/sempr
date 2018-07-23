@@ -1,6 +1,7 @@
 #include <sempr/entity/spatial/reference/ProjectionCS.hpp>
 #include <sempr/entity/spatial/reference/GeodeticCS.hpp>
 #include <sempr/entity/spatial/reference/UniversalTransverseMercatorCS.hpp>
+#include <sempr/entity/spatial/reference/UniversalPolarStereographicCS.hpp>
 #include <ProjectionCS_odb.h>
 
 namespace sempr { namespace entity {
@@ -61,9 +62,21 @@ FilterPtr ProjectionCS::reverse() const
     return FilterPtr(nullptr);
 }
 
+int ProjectionCS::getZone() const
+{
+    //only for ODB support - not abstract
+    return -1;
+}
+
+bool ProjectionCS::isNorth() const
+{
+    //only for ODB support - not abstract
+    return true;
+}
+
+
 ProjectionCS::Ptr ProjectionCS::importZone(const std::string& zonestr)
 {
-    //todo
     int zone;
     bool north;
     GeographicLib::UTMUPS::DecodeZone(zonestr, zone, north);
@@ -71,11 +84,12 @@ ProjectionCS::Ptr ProjectionCS::importZone(const std::string& zonestr)
     if (zone > 0 && zone <= 60)
     {
         // is UTM
-        return ProjectionCS::Ptr(new UniversalTransverseMercatorCS(zone, north));;
+        return ProjectionCS::Ptr(new UniversalTransverseMercatorCS(zone, north));
     }
     else if (zone == 0)
     {
         // is UPS
+        return ProjectionCS::Ptr(new UniversalPolarStereographicCS(north)); //todo
     }
     else
     {
@@ -83,26 +97,40 @@ ProjectionCS::Ptr ProjectionCS::importZone(const std::string& zonestr)
         throw ProjectionException("Invalid zone string!");
         return ProjectionCS::Ptr(nullptr);
     }
-
-    return ProjectionCS::Ptr(nullptr);
 }
 
 std::string ProjectionCS::exportZone(const ProjectionCS::Ptr cs)
 {
-    //todo
-    return "";
+    return GeographicLib::UTMUPS::EncodeZone(cs->getZone(), cs->isNorth());
 }
 
 ProjectionCS::Ptr ProjectionCS::importEPSGZone(int epsg)
 {
-    //todo
-    return ProjectionCS::Ptr(nullptr);
+    int zone;
+    bool north;
+    GeographicLib::UTMUPS::DecodeEPSG(epsg, zone, north);
+
+    if (zone > 0 && zone <= 60)
+    {
+        // is UTM
+        return ProjectionCS::Ptr(new UniversalTransverseMercatorCS(zone, north));
+    }
+    else if (zone == 0)
+    {
+        // is UPS
+        return ProjectionCS::Ptr(new UniversalPolarStereographicCS(north));  //todo
+    }
+    else
+    {
+        //invalid
+        throw ProjectionException("Invalid zone string!");
+        return ProjectionCS::Ptr(nullptr);
+    }
 }
 
 int ProjectionCS::exportEPSGZone(const ProjectionCS::Ptr cs)
 {
-    //todo
-    return 0;
+    return GeographicLib::UTMUPS::EncodeEPSG(cs->getZone(), cs->isNorth());
 }
 
 
