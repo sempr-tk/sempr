@@ -412,6 +412,42 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         BOOST_CHECK_CLOSE(p->geometry()->getY(), 5481745., 0.0001);
     }
 
+    BOOST_AUTO_TEST_CASE(global_mgrs_check)
+    {
+        std::string mgrsQ = MilitaryGridReferenceSystem::buildMGRS("Z");    // somewhere north of the russian arctic
+
+        std::string gzd;
+        double x, y;
+        MilitaryGridReferenceSystem::splitMGRS(mgrsQ, gzd, x, y);    // this will throw an exception if something is wrong. Unhandeld to test!
+
+        MilitaryGridReferenceSystem::splitMGRS("32U", gzd, x, y); 
+        BOOST_CHECK(gzd == "32U");
+        BOOST_CHECK(x == 0);
+        BOOST_CHECK(y == 0);
+
+        // check 1 digit zone and precision correction
+        MilitaryGridReferenceSystem::splitMGRS("4QFJ 12345 67890", gzd, x, y); 
+        std::string mgrs4Q = MilitaryGridReferenceSystem::buildMGRS(gzd, x, y);
+        BOOST_CHECK(mgrs4Q == "4QFJ 12345000 67890000");
+
+        // example mgrs usage:
+        geos::geom::Coordinate coord;
+        std::string zoneGZD;
+        MilitaryGridReferenceSystem::splitMGRS("32UMC3135061510", zoneGZD, coord.x, coord.y); 
+
+        ProjectionCS::Ptr mgrsCS(new MilitaryGridReferenceSystem(zoneGZD));
+
+        Point::Ptr p(new Point());
+        p->setCoordinate(coord);
+        p->setCS(mgrsCS);
+
+        GeodeticCS::Ptr wgs84(new GeodeticCS());
+        p->transformToCS(wgs84);
+
+        BOOST_CHECK_CLOSE(p->geometry()->getX(), 52, 0.0001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), 8, 0.0001);
+    }
+
     BOOST_AUTO_TEST_CASE(geometry_transformation_local)
     {
         LocalCS::Ptr root(new LocalCS());

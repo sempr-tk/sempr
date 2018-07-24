@@ -1,6 +1,8 @@
 #include <sempr/entity/spatial/filter/ProjectionFilter.hpp>
 #include <cmath>
 
+#include <sempr/entity/spatial/reference/MilitaryGridReferenceSystem.hpp> 
+
 namespace sempr {
 
 UTMFilter::UTMFilter(double a, double f, double k0, int zone, bool north) :
@@ -119,7 +121,7 @@ UPSFilter::UPSFilter(double a, double f, double k0, bool north) :
 void UPSFilter::filter_ro(const geom::CoordinateSequence& seq, std::size_t i)
 {
     // do nothing
-    throw ProjectionException("No read-only filter for a local transformation!");
+    throw ProjectionException("No read-only filter for a ups transformation!");
 }
 
 void UPSFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
@@ -175,6 +177,113 @@ void UPSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         auto upsCoord = seq.getAt(i);
 
         ps_.Reverse(north_, upsCoord.x, upsCoord.y, wgsCoord.x, wgsCoord.y);
+
+        seq.setAt(wgsCoord, i);
+        changed_ = true;
+    }
+
+    done_ = true;
+}
+
+
+MGRSFilter::MGRSFilter(const std::string& GZDSquareID) :
+    GZDSquareID_(GZDSquareID)
+{
+    done_ = false;
+    changed_ = false;
+}
+
+void MGRSFilter::filter_ro(const geom::CoordinateSequence& seq, std::size_t i)
+{
+    // do nothing
+    throw ProjectionException("No read-only filter for a mgrs transformation!");
+}
+
+void MGRSFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
+{
+    assert(0); //like geos geom will do!
+}
+
+bool MGRSFilter::isDone () const
+{
+    return done_;
+}
+
+bool MGRSFilter::isGeometryChanged () const
+{
+    return changed_;
+}
+
+MGRSForwardFilter::MGRSForwardFilter(const std::string& GZDSquareID) :
+    MGRSFilter(GZDSquareID)
+{
+}
+
+void MGRSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx)
+{
+    const std::size_t startIdx = idx;
+
+    std::vector<geom::Coordinate> tmp(seq.getSize());
+
+    for(std::size_t i = startIdx; i < seq.getSize(); i++)
+    {
+        auto wgsCoord = seq.getAt(i); // x = lat; y = lon; z = h
+
+        int zone;
+        bool northp;
+        double x, y;
+        GeographicLib::UTMUPS::Forward(wgsCoord.x, wgsCoord.y, zone, northp, x, y);
+
+        std::string mgrs;
+        GeographicLib::MGRS::Forward(zone, northp, x, y, wgsCoord.x, 8, mgrs);  //precision of 8 digits
+
+        std::string squareID;
+        geom::Coordinate mgrsCoord;
+
+        entity::MilitaryGridReferenceSystem::splitMGRS(mgrs, squareID, mgrsCoord.x, mgrsCoord.y);
+
+        if (squareID != GZDSquareID_)
+            throw ProjectionZoneMissmatch("Given MGRS zone does not match the calculated one!");
+
+        //store in tmp
+        tmp[i] = mgrsCoord;
+    }
+
+    // no zone missmatch so the transformation could be applied:
+    for(std::size_t i = startIdx; i < seq.getSize(); i++)
+    {
+        seq.setAt(tmp[i], i);
+        changed_ = true;
+    }
+
+    done_ = true;
+}
+
+
+MGRSReversFilter::MGRSReversFilter(const std::string& GZDSquareID) :
+    MGRSFilter(GZDSquareID)
+{
+}
+
+void MGRSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx)
+{
+    const std::size_t startIdx = idx;
+
+    std::vector<geom::Coordinate> tmp(seq.getSize());
+
+    for(std::size_t i = startIdx; i < seq.getSize(); i++)
+    {
+        auto mgrsCoord = seq.getAt(i); // x = lat; y = lon; z = h
+
+        std::string mgrsStr = entity::MilitaryGridReferenceSystem::buildMGRS(GZDSquareID_, mgrsCoord.x, mgrsCoord.y, "");
+
+        int zone, prec;
+        bool northp;
+        double x, y;
+        GeographicLib::MGRS::Reverse(mgrsStr, zone, northp, x, y, prec);
+
+        geom::Coordinate wgsCoord;
+        GeographicLib::UTMUPS::Reverse(zone, northp, x, y, wgsCoord.x, wgsCoord.y);
 
         seq.setAt(wgsCoord, i);
         changed_ = true;

@@ -136,13 +136,45 @@ public:
     void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 };
 
-/*
-class MGRSFilter : public geom::CoordinateFilter
+
+class MGRSFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    MGRSFilter(int zone, bool north, int prec = 8);
-}
-*/
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
+
+    void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
+
+    bool isDone() const;
+
+    bool isGeometryChanged() const;
+
+protected:
+    MGRSFilter(const std::string& GZDSquareID);   //only WGS84!
+
+    /// ref to const transform given on initialization
+    const std::string GZDSquareID_;
+
+    bool done_;
+    bool changed_;
+};
+
+/// Projection from lat/lon to UTM x/y
+class MGRSForwardFilter : public MGRSFilter
+{
+public:
+    MGRSForwardFilter(const std::string& GZDSquareID);
+
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t idx) override;
+};
+
+/// Reverse Projection from x/y to UTM lat/lon
+class MGRSReversFilter : public MGRSFilter
+{
+public:
+    MGRSReversFilter(const std::string& GZDSquareID);
+
+    void filter_rw(geom::CoordinateSequence& seq, std::size_t idx) override;
+};
 
 } /* sempr */
 

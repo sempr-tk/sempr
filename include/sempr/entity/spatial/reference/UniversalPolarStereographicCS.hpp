@@ -1,5 +1,5 @@
-#ifndef SEMPR_ENTITY_SPATIAL_UNIVERSALTRANSVERSEMERCATORCS_HPP_
-#define SEMPR_ENTITY_SPATIAL_UNIVERSALTRANSVERSEMERCATORCS_HPP_
+#ifndef SEMPR_ENTITY_SPATIAL_UNIVERSALPOLARSTEREOGRAPHICCS_HPP_
+#define SEMPR_ENTITY_SPATIAL_UNIVERSALPOLARSTEREOGRAPHICCS_HPP_
 
 #include <sempr/entity/spatial/reference/ProjectionCS.hpp>
 #include <sempr/entity/spatial/filter/ProjectionFilter.hpp>
@@ -12,13 +12,13 @@ namespace sempr { namespace entity {
 */
 
 #pragma db object
-class UniversalTransverseMercatorCS : public ProjectionCS {
+class UniversalPolarStereographicCS : public ProjectionCS {
     SEMPR_ENTITY
 public:
-    using Ptr = std::shared_ptr<UniversalTransverseMercatorCS>;
+    using Ptr = std::shared_ptr<UniversalPolarStereographicCS>;
 
-    UniversalTransverseMercatorCS(int zone, bool north = true);
-    UniversalTransverseMercatorCS(int zone, bool north, const core::IDGenBase*);
+    UniversalPolarStereographicCS(bool north);
+    UniversalPolarStereographicCS(bool north, const core::IDGenBase*);
 
     bool isEqual(const GlobalCS::Ptr other) override;
 
@@ -26,7 +26,7 @@ public:
     bool isNorth() const override;
 
 protected:
-    UniversalTransverseMercatorCS();
+    UniversalPolarStereographicCS();
 
     virtual FilterPtr forward() const;
 
@@ -35,11 +35,10 @@ protected:
 private:
     friend class odb::access;
 
-    const int zone_;
     const bool north_;
 };
 
 
 }}
 
-#endif /* end of include guard SEMPR_ENTITY_SPATIAL_UNIVERSALTRANSVERSEMERCATORCS_HPP_ */
+#endif /* end of include guard SEMPR_ENTITY_SPATIAL_UNIVERSALPOLARSTEREOGRAPHICCS_HPP_ */
