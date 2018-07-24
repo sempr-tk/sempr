@@ -53,7 +53,7 @@ PointCloud::BoundingBox AgroEntity::boundingBox()
         std::cout << bb.minX;
         if(p->getX() < bb.minX) bb.minX = p->getX();
         if(p->getX() > bb.maxX) bb.maxX = p->getX();
-        if(p->getY() < bb.minY) bb.minY = p->getZ();
+        if(p->getY() < bb.minY) bb.minY = p->getY();
         if(p->getY() > bb.maxY) bb.maxY = p->getY();
         if(p->getZ() < bb.minZ) bb.minZ = p->getZ();
         if(p->getZ() > bb.maxZ) bb.maxZ = p->getZ();
