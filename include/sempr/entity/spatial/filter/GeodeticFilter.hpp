@@ -29,7 +29,7 @@ class EmptyFilter : public geom::CoordinateSequenceFilter
 {
 public:
     /**
-        Create a transformation defined by the Affine3d matrix.
+        Create an empty filter.
     */
     EmptyFilter() {};
 

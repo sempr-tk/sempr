@@ -3,7 +3,10 @@
 
 #include <sempr/entity/Entity.hpp>
 #include <sempr/entity/spatial/reference/SpatialReference.hpp>
+#include <sempr/entity/spatial/filter/GeometryFilter.hpp>
+
 #include <geos/geom/Geometry.h>
+#include <geos/geom/CoordinateArraySequenceFactory.h>
 
 #include <type_traits>
 
@@ -64,7 +67,10 @@ class Geometry : public Entity
                 - different root CS that are not global
                 - transform between two global frames not known to GDAL/proj4
     */
-    void transformToCS(SpatialReference::Ptr cs); // replacement needed without the gdal dependency!
+    void transformToCS(SpatialReference::Ptr cs);
+
+    // apply a read only filter to find the min and max values of the geometry in his local coordinate system in 3d.
+    void findEnvelope(geom::Coordinate& min, geom::Coordinate& max);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of

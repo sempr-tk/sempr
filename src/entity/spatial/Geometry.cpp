@@ -157,6 +157,15 @@ void Geometry::transformToCS(SpatialReference::Ptr cs) {
     referenceFrame_ = cs;
 }
 
+void Geometry::findEnvelope(geom::Coordinate& min, geom::Coordinate& max)
+{
+    EnvelopeFilter envFilter;
+    apply(envFilter);   //apply the filter to find the min and max values of this geometry
+
+    min = envFilter.getMin();
+    max = envFilter.getMax();
+}
+
 
 geom::Geometry* Geometry::importFromWKB(const std::basic_string<char>& buffer)
 {

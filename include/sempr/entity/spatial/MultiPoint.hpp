@@ -23,6 +23,8 @@ public:
 
     const geom::MultiPoint* geometry() override;
 
+    void setCoordinates(const std::vector<geom::Coordinate>& coordinates);
+
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
         SpatialReference.

@@ -2,32 +2,22 @@
 using namespace testing;
 
 
-geom::Polygon* setupQuadrangle(const std::array<float, 3>& min, const std::array<float, 3>& max)
+geom::MultiPoint* setupQuadrangle(const std::array<float, 3>& min, const std::array<float, 3>& max)
 {
-    
-    std::vector<geom::Coordinate> ring;
+    std::vector<geom::Coordinate> corners;
 
-    ring.push_back(geom::Coordinate(min[0], min[1], max[2]));
-    ring.push_back(geom::Coordinate(min[0], max[1], min[2]));
-    ring.push_back(geom::Coordinate(min[0], max[1], max[2]));
-    ring.push_back(geom::Coordinate(min[0], min[1], min[2]));
-    ring.push_back(geom::Coordinate(min[0], min[1], max[2]));
-    ring.push_back(geom::Coordinate(min[0], max[1], min[2]));
-    ring.push_back(geom::Coordinate(min[0], max[1], max[2]));
-    ring.push_back(geom::Coordinate(max[0], min[1], min[2]));
-    ring.push_back(geom::Coordinate(max[0], min[1], max[2]));
-    ring.push_back(geom::Coordinate(max[0], max[1], min[2]));
-    ring.push_back(geom::Coordinate(max[0], max[1], max[2]));
+    corners.push_back(geom::Coordinate(min[0], min[1], min[2]));
+    corners.push_back(geom::Coordinate(min[0], min[1], max[2]));
+    corners.push_back(geom::Coordinate(min[0], max[1], min[2]));
+    corners.push_back(geom::Coordinate(min[0], max[1], max[2]));
+    corners.push_back(geom::Coordinate(max[0], min[1], min[2]));
+    corners.push_back(geom::Coordinate(max[0], min[1], max[2]));
+    corners.push_back(geom::Coordinate(max[0], max[1], min[2]));
+    corners.push_back(geom::Coordinate(max[0], max[1], max[2]));
 
-    ring.push_back(geom::Coordinate(min[0], min[1], max[2]));     //close the ring
+    auto mp = geom::GeometryFactory::getDefaultInstance()->createMultiPoint(corners);
 
-    auto sequence =  geom::CoordinateArraySequenceFactory::instance()->create(&ring);
-    auto linearRing = geom::GeometryFactory::getDefaultInstance()->createLinearRing(sequence);
-
-    std::vector<geom::Geometry*> holes;
-    auto polygon = geom::GeometryFactory::getDefaultInstance()->createPolygon(*linearRing, holes);
-
-    return polygon;
+    return mp;
 }
 
 
@@ -35,9 +25,10 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
     std::string dbfile = "test_spatial_index_sqlite.db";
     BOOST_AUTO_TEST_CASE(spatial_index_1)
     {
-        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
         Core core;
-
+        
+        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
+        
         SpatialIndex::Ptr index(new SpatialIndex());
         core.addModule(index);
 
@@ -50,7 +41,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         // |p0|p1|p2|p3|p4|p5|p6|p7|p8|p9|
         for (int i = 0; i < 10; i++)
         {
-            Polygon::Ptr poly( new Polygon(new PredefinedID("p" + std::to_string(i))) );
+            MultiPoint::Ptr poly( new MultiPoint(new PredefinedID("mp" + std::to_string(i))) );
             poly->setGeometry(setupQuadrangle({{float(i), 0, 0}}, {{float(i+1), 1, 1}}));
             poly->setCS(cs);
             core.addEntity(poly);
@@ -60,7 +51,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         LocalCS::Ptr previous = cs;
         for (int i = 10; i < 20; i++)
         {
-            Polygon::Ptr poly( new Polygon(new PredefinedID("p" + std::to_string(i))) );
+            MultiPoint::Ptr poly( new MultiPoint(new PredefinedID("mp" + std::to_string(i))) );
             poly->setGeometry(setupQuadrangle({{float(9), 0, 0}}, {{float(10), 1, 1}}));
 
             LocalCS::Ptr child(new LocalCS());  // with a new coordinate system

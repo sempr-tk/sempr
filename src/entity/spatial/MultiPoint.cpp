@@ -28,6 +28,11 @@ const geom::MultiPoint* MultiPoint::geometry()
     return dynamic_cast<geom::MultiPoint*>(geometry_);
 }
 
+void MultiPoint::setCoordinates(const std::vector<geom::Coordinate>& coordinates)
+{
+    setGeometry(factory_->createMultiPoint(coordinates));
+}
+
 MultiPoint::Ptr MultiPoint::clone() const 
 {
     // raw clone is virtual! :)

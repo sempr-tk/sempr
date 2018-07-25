@@ -3,6 +3,8 @@
 #include <sempr/entity/spatial/filter/LocalTransformationFilter.hpp>
 #include <iterator>
 
+#include <geos/geom/Coordinate.h>
+
 //#include <ogr_core.h>
 
 namespace sempr { namespace processing {
@@ -26,30 +28,27 @@ void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
 
     // create the AABB of the transformed query-volume.
 
-    //todo
-    /*
-    OGREnvelope3D env;
-    query->refGeo()->geometry()->getEnvelope(&env);
+    geos::geom::Coordinate min, max;
+    query->refGeo()->findEnvelope(min, max);
 
     bBox region(
-        bPoint(env.MinX, env.MinY, env.MinZ),
-        bPoint(env.MaxX, env.MaxY, env.MaxZ)
+        bPoint(min.x, min.y, min.z),
+        bPoint(max.x, max.y, max.z)
     );
-    */
+    
 
     std::vector<bValue> tmpResults;
 
     typedef query::SpatialIndexQuery::QueryType QueryType;
     switch (query->mode()) {
-        /* todo
+
         case QueryType::WITHIN:
             rtree_.query(bgi::within(region), std::back_inserter(tmpResults));
             break;
         case QueryType::NOTWITHIN:
             rtree_.query(!bgi::within(region), std::back_inserter(tmpResults));
             break;
-        */
-        /*
+
         // TODO: contains is introduced in boost 1.55, but ros indigo needs 1.54.
         // maybe its time for me to upgrade to 16.04 and kinetic...
         case QueryType::CONTAINS:
@@ -58,15 +57,14 @@ void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
         case QueryType::NOTCONTAINS:
             rtree_.query(!bgi::contains(region), std::back_inserter(tmpResults));
             break;
-        */
-        /* todo
+
         case QueryType::INTERSECTS:
             rtree_.query(bgi::intersects(region), std::back_inserter(tmpResults));
             break;
         case QueryType::NOTINTERSECTS:
             rtree_.query(!bgi::intersects(region), std::back_inserter(tmpResults));
             break;
-        */
+        
         default:
             std::cout << "SpatialIndex: Mode " << query->mode() << " not implemented." << '\n';
     }
@@ -134,45 +132,47 @@ void SpatialIndex::processChangedCS(entity::SpatialReference::Ptr cs)
 
 SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo)
 {
-    /*
+    
     // get the 3d envelope of the geometry.
-    OGREnvelope3D envelope;
-    geo->geometry()->getEnvelope(&envelope);
+    geos::geom::Coordinate min, max;
+    geo->findEnvelope(min, max);
+
     // this envelope is in the coordinate system of the geometry. But what we need is an envelope
     // that is axis aligned with the root reference system. We could transform the geometry to root,
     // take the envelope and transform it back, but that is just ridiculus. Instead: Create a
     // bounding-box-geometry (8 points, one for each corner), transform it, and take its envelope.
     // ---
     // create a geometry with the matching extends: 8 point, every corner must be checked!
-    OGRMultiPoint mp;
-    OGRPoint* p;
-    p = new OGRPoint(envelope.MinX, envelope.MinY, envelope.MinZ); mp.addGeometryDirectly(p);
-    p = new OGRPoint(envelope.MinX, envelope.MinY, envelope.MaxZ); mp.addGeometryDirectly(p);
-    p = new OGRPoint(envelope.MinX, envelope.MaxY, envelope.MinZ); mp.addGeometryDirectly(p);
-    p = new OGRPoint(envelope.MinX, envelope.MaxY, envelope.MaxZ); mp.addGeometryDirectly(p);
-    p = new OGRPoint(envelope.MaxX, envelope.MinY, envelope.MinZ); mp.addGeometryDirectly(p);
-    p = new OGRPoint(envelope.MaxX, envelope.MinY, envelope.MaxZ); mp.addGeometryDirectly(p);
-    p = new OGRPoint(envelope.MaxX, envelope.MaxY, envelope.MinZ); mp.addGeometryDirectly(p);
-    p = new OGRPoint(envelope.MaxX, envelope.MaxY, envelope.MaxZ); mp.addGeometryDirectly(p);
+
+    geos::geom::Coordinate coord;
+    std::vector<geos::geom::Coordinate> cornerCoordinates;
+    coord = geos::geom::Coordinate(min.x, min.y, min.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(min.x, min.y, max.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(min.x, max.y, min.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(min.x, max.y, max.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(max.x, min.y, min.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(max.x, min.y, max.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(max.x, max.y, min.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(max.x, max.y, max.z); cornerCoordinates.push_back(coord);
+
+    // todo will this be cleaned up correctly ?
+    geos::geom::MultiPoint* mp = geos::geom::GeometryFactory::getDefaultInstance()->createMultiPoint(cornerCoordinates);
 
     // transform the geometry
-    LocalTransformation tf(geo->getCS()->transformationToRoot());
-    mp.transform(&tf);
+    LocalTransformationFilter tf(geo->getCS()->transformationToRoot());
+    mp->apply_rw(tf);
 
     // get the new envelope
-    mp.getEnvelope(&envelope);
+    EnvelopeFilter ef;
+    mp->apply_ro(ef);
     // mp will run out of scope and destroy the points with it.
 
     // create the bBox out of bPoints.
     bBox box(
-        bPoint(envelope.MinX, envelope.MinY, envelope.MinZ),
-        bPoint(envelope.MaxX, envelope.MaxY, envelope.MaxZ)
+        bPoint(ef.getMin().x, ef.getMin().y, ef.getMin().z),
+        bPoint(ef.getMax().x, ef.getMax().y, ef.getMax().z)
     );
-*/
 
-    //todo
-    bBox box(bPoint(0, 0, 0),
-             bPoint(1, 1, 1));
     return bValue(box, geo);
 }
 

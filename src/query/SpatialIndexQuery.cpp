@@ -1,5 +1,5 @@
 #include <sempr/query/SpatialIndexQuery.hpp>
-#include <sempr/entity/spatial/GeometryCollection.hpp>
+#include <sempr/entity/spatial/MultiPoint.hpp>
 
 #include <geos/geom/Envelope.h>
 
@@ -32,40 +32,40 @@ entity::Geometry::Ptr SpatialIndexQuery::refGeo()
 void SpatialIndexQuery::setupRefGeo(const Eigen::Vector3d &lower, const Eigen::Vector3d &upper,
                                     entity::SpatialReference::Ptr cs)
 {
-    entity::GeometryCollection::Ptr corners(new entity::GeometryCollection());
-    /*
+    entity::MultiPoint::Ptr corners(new entity::MultiPoint());
+
     corners->setCS(cs);
 
-    OGRPoint* p;
-    p = new OGRPoint(lower.x(), lower.y(), lower.z()); corners->geometry()->addGeometryDirectly(p);
-    p = new OGRPoint(lower.x(), lower.y(), upper.z()); corners->geometry()->addGeometryDirectly(p);
-    p = new OGRPoint(lower.x(), upper.y(), lower.z()); corners->geometry()->addGeometryDirectly(p);
-    p = new OGRPoint(lower.x(), upper.y(), upper.z()); corners->geometry()->addGeometryDirectly(p);
-    p = new OGRPoint(upper.x(), lower.y(), lower.z()); corners->geometry()->addGeometryDirectly(p);
-    p = new OGRPoint(upper.x(), lower.y(), upper.z()); corners->geometry()->addGeometryDirectly(p);
-    p = new OGRPoint(upper.x(), upper.y(), lower.z()); corners->geometry()->addGeometryDirectly(p);
-    p = new OGRPoint(upper.x(), upper.y(), upper.z()); corners->geometry()->addGeometryDirectly(p);
+    geos::geom::Coordinate coord;
+    std::vector<geos::geom::Coordinate> cornerCoordinates;
+    coord = geos::geom::Coordinate(lower.x(), lower.y(), lower.z()); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(lower.x(), lower.y(), upper.z()); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(lower.x(), upper.y(), lower.z()); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(lower.x(), upper.y(), upper.z()); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(upper.x(), lower.y(), lower.z()); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(upper.x(), lower.y(), upper.z()); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(upper.x(), upper.y(), lower.z()); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(upper.x(), upper.y(), upper.z()); cornerCoordinates.push_back(coord);
+
+    corners->setCoordinates(cornerCoordinates);
+
     this->refGeo_ = corners;
-     */
 }
 
 SpatialIndexQuery::Ptr SpatialIndexQuery::createQuery(
     entity::Geometry::Ptr geometry, sempr::query::SpatialIndexQuery::QueryType type)
 {
-    /* todo
-    OGREnvelope3D env;
-    geometry->geometry()->getEnvelope(&env);
-    */
+    geos::geom::Coordinate min, max;
+    geometry->findEnvelope(min, max);
 
     Eigen::Vector3d lower, upper;
-    /* todo
-    lower.x() = env.MinX;
-    lower.y() = env.MinY;
-    lower.z() = env.MinZ;
-    upper.x() = env.MaxX;
-    upper.y() = env.MaxY;
-    upper.z() = env.MaxZ;
-     */
+
+    lower.x() = min.x;
+    lower.y() = min.y;
+    lower.z() = min.z;
+    upper.x() = max.x;
+    upper.y() = max.y;
+    upper.z() = max.z;
 
     return createQuery(lower, upper, geometry->getCS(), type);
 }

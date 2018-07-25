@@ -22,8 +22,6 @@ MilitaryGridReferenceSystem::MilitaryGridReferenceSystem() :
 MilitaryGridReferenceSystem::MilitaryGridReferenceSystem(const std::string& GZDSquareID) :
     MilitaryGridReferenceSystem(zoneFromGZD(GZDSquareID), designatorFromGZD(GZDSquareID), squareIDFromGZD(GZDSquareID))
 {
-    if (!checkGZD(GZDSquareID))
-        throw ProjectionException("No valid GZDSquareID in MGRS!");
 }
 
 MilitaryGridReferenceSystem::MilitaryGridReferenceSystem(int zone, char designator, const std::string& squareID) : 
@@ -38,6 +36,9 @@ MilitaryGridReferenceSystem::MilitaryGridReferenceSystem(int zone, char designat
     squareID_(squareID)
 {
     this->setDiscriminator<MilitaryGridReferenceSystem>();
+
+    if ( !checkGZD(getGZDSquareID()) )
+        throw ProjectionException("No valid GZDSquareID in MGRS!");
 }
 
 int MilitaryGridReferenceSystem::getZone() const
