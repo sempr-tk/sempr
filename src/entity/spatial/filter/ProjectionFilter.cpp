@@ -11,7 +11,6 @@ UTMFilter::UTMFilter(double a, double f, double k0, int zone, bool north) :
     falseeasting_(5e5),
     falsenorthing_(north ? 0 : 100e5)
 {
-    done_ = false;
     changed_ = false;
 
     if (!(zone >= GeographicLib::UTMUPS::MINZONE && zone <= GeographicLib::UTMUPS::MAXZONE))
@@ -44,7 +43,7 @@ double UTMFilter::centralMeridian(int zone)
 
 bool UTMFilter::isDone () const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool UTMFilter::isGeometryChanged () const
@@ -75,8 +74,6 @@ void UTMForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         seq.setAt(utmCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
@@ -104,8 +101,6 @@ void UTMReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         seq.setAt(wgsCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
@@ -114,7 +109,6 @@ UPSFilter::UPSFilter(double a, double f, double k0, bool north) :
     ps_(GeographicLib::PolarStereographic(a, f, k0)),
     north_(north)
 {
-    done_ = false;
     changed_ = false;
 }
 
@@ -131,7 +125,7 @@ void UPSFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 
 bool UPSFilter::isDone () const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool UPSFilter::isGeometryChanged () const
@@ -158,8 +152,6 @@ void UPSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         seq.setAt(upsCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
@@ -181,15 +173,12 @@ void UPSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         seq.setAt(wgsCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
 MGRSFilter::MGRSFilter(const std::string& GZDSquareID) :
     GZDSquareID_(GZDSquareID)
 {
-    done_ = false;
     changed_ = false;
 }
 
@@ -206,7 +195,7 @@ void MGRSFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 
 bool MGRSFilter::isDone () const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool MGRSFilter::isGeometryChanged () const
@@ -255,8 +244,6 @@ void MGRSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx
         seq.setAt(tmp[i], i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
@@ -288,10 +275,7 @@ void MGRSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx)
         seq.setAt(wgsCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
-
 
 
 } /* sempr */

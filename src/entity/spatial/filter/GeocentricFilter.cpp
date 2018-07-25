@@ -8,13 +8,12 @@ namespace sempr {
 ECEFFilter::ECEFFilter(double a, double f) : 
     ecef_(GeographicLib::Geocentric(a, f))
 {
-    done_ = false;
     changed_ = false;
 }
 
 bool ECEFFilter::isDone () const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool ECEFFilter::isGeometryChanged () const
@@ -54,8 +53,6 @@ void ECEFForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         seq.setAt(ecefCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 ECEFReverseFilter::ECEFReverseFilter(double a, double f) :
@@ -79,8 +76,6 @@ void ECEFReverseFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         seq.setAt(wgsCoord, i);
         changed_ = true;
     }
-    
-    done_ = true;
 }
 
 
@@ -90,13 +85,12 @@ void ECEFReverseFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 LTGFilter::LTGFilter(double lat0, double lon0, double h0, double a, double f) : 
     ltg_( GeographicLib::LocalCartesian(lat0, lon0, h0, GeographicLib::Geocentric(a, f)) ) 
 {
-    done_ = false;
     changed_ = false;
 }
 
 bool LTGFilter::isDone () const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool LTGFilter::isGeometryChanged () const
@@ -135,8 +129,6 @@ void LTGForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         seq.setAt(ltgCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 LTGReverseFilter::LTGReverseFilter(double lat0, double lon0, double h0, double a, double f) :
@@ -160,8 +152,6 @@ void LTGReverseFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         seq.setAt(wgsCoord, i);
         changed_ = true;
     }
-    
-    done_ = true;
 }
 
 

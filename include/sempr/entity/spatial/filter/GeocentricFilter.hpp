@@ -46,7 +46,6 @@ protected:
 
     const GeographicLib::Geocentric ecef_;
 
-    bool done_;
     bool changed_;
 };
 
@@ -82,7 +81,6 @@ protected:
 
     const GeographicLib::LocalCartesian ltg_;
 
-    bool done_;
     bool changed_;
 };
 

@@ -65,11 +65,12 @@ BOOST_AUTO_TEST_SUITE(geometries)
 
     BOOST_AUTO_TEST_CASE(geometries_insertion)
     {
-        ODBStorage::Ptr storage = setUpStorage(db_path, true);
         Core core;
 
         ActiveObjectStore::Ptr active(new ActiveObjectStore());
         core.addModule(active);
+
+        ODBStorage::Ptr storage = setUpStorage(db_path, true);
         DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
         core.addModule(updater);
 

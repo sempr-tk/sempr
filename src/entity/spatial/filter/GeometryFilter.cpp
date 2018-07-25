@@ -15,7 +15,6 @@ EnvelopeFilter::EnvelopeFilter()
     max_.y = - std::numeric_limits<double>::max();
     max_.z = - std::numeric_limits<double>::max();
 
-    done_ = false;
     changed_ = false;
 }
 
@@ -29,7 +28,8 @@ void EnvelopeFilter::filter_ro(const geom::CoordinateSequence& seq, std::size_t 
 {
     // a sequence shall only contain 2d or 3d coordinates. No valid output if they are mixed!
 
-    for(;i < seq.getSize(); i++)
+    const size_t size = seq.getSize();
+    for(;i < size; i++)
     {
         //intern copy of every point. I hope it get optimized by the compiler.
         geom::Coordinate coord = seq.getAt(i);
@@ -62,12 +62,11 @@ void EnvelopeFilter::filter_ro(const geom::CoordinateSequence& seq, std::size_t 
     }
 
     changed_ = false;
-    done_ = true;
 }
 
 bool EnvelopeFilter::isDone() const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool EnvelopeFilter::isGeometryChanged() const

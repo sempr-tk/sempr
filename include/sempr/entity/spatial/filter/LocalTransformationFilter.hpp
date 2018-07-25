@@ -29,17 +29,7 @@ class TransformException : public std::exception
 };
 
 
-/**
-    This class implements an OGRCoordinateTransformation that simply
-    applies an affine transformation to the given coordinates, without
-    changing any other details (units, coordinate systems, ...). It is
-    the equivalent of OGRCoordinateTransformations created to transform
-    a geometry from one geographic or projected coordinate system into
-    another, just for local coordinate systems that are not part of
-    GDAL.
 
-    Note: I think it could also be done by a CoordinateSequenceFilter in a bit more effective Way. (have to try it!)
-*/
 class LocalTransformationFilter : public geom::CoordinateSequenceFilter
 {
 public:
@@ -60,7 +50,6 @@ private:
     /// ref to const transform given on initialization
     const Eigen::Affine3d& mat_;
 
-    bool done_;
     bool changed_;
 
     void filter_rw(geom::Coordinate& coordinate) const;
