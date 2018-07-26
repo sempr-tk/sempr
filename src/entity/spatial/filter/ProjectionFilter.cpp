@@ -71,6 +71,8 @@ void UTMForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         utmCoord.x += falseeasting_;
         utmCoord.y += falsenorthing_;
 
+        utmCoord.z = wgsCoord.z;
+
         seq.setAt(utmCoord, i);
         changed_ = true;
     }
@@ -97,6 +99,8 @@ void UTMReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         utmCoord.y -= falsenorthing_;
 
         tm_.Reverse(lon0, utmCoord.x, utmCoord.y, wgsCoord.x, wgsCoord.y);
+
+        wgsCoord.z = utmCoord.z;
 
         seq.setAt(wgsCoord, i);
         changed_ = true;
@@ -149,6 +153,8 @@ void UPSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 
         ps_.Forward(north_, wgsCoord.x, wgsCoord.y, upsCoord.x, upsCoord.y);
 
+        upsCoord.z = wgsCoord.z;
+
         seq.setAt(upsCoord, i);
         changed_ = true;
     }
@@ -169,6 +175,8 @@ void UPSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         auto upsCoord = seq.getAt(i);
 
         ps_.Reverse(north_, upsCoord.x, upsCoord.y, wgsCoord.x, wgsCoord.y);
+
+        wgsCoord.z = upsCoord.z;
 
         seq.setAt(wgsCoord, i);
         changed_ = true;
@@ -234,6 +242,8 @@ void MGRSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx
         if (squareID != GZDSquareID_)
             throw ProjectionZoneMissmatch("Given MGRS zone does not match the calculated one!");
 
+        mgrsCoord.z = wgsCoord.z;
+
         //store in tmp
         tmp[i] = mgrsCoord;
     }
@@ -271,6 +281,8 @@ void MGRSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx)
 
         geom::Coordinate wgsCoord;
         GeographicLib::UTMUPS::Reverse(zone, northp, x, y, wgsCoord.x, wgsCoord.y);
+
+        wgsCoord.z = mgrsCoord.z;
 
         seq.setAt(wgsCoord, i);
         changed_ = true;

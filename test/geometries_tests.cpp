@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
         storage->loadAll(lstrings);
         storage->loadAll(lrings);
         storage->loadAll(polygons);
-        storage->loadAll(collections);     // it seems that there a loading issues with the collection
+        storage->loadAll(collections);
         storage->loadAll(multiPoints);
 
         BOOST_CHECK_EQUAL(points.size(), 1);

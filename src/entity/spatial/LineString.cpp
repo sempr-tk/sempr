@@ -18,9 +18,10 @@ LineString::LineString(const core::IDGenBase* idgen)
 
 LineString::~LineString()
 {
-    //TODO this rais a seg vault and i currently dont know why!
-    //factory_->destroyGeometry(geometry_);
-    //geometry_ = nullptr;
+    /*
+    factory_->destroyGeometry(geometry_);
+    geometry_ = nullptr;
+    */
 }
 
 const geom::LineString* LineString::geometry() 
