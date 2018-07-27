@@ -1,4 +1,4 @@
-# Semantic Mapping, Processing and Reasoning (SEMPR)
+# Semantic Environment Mapping, Processing and Reasoning (SEMPR)
 ## Status
 As the development of SEMPR just started recently, please do not expect a fully featured system. We are working on it. :)
 
@@ -69,7 +69,6 @@ When using this library you may experience very slow autocompletion (at least wh
 ```
 
 > **Note:** *A bug (in clang?) it is required to specify* `-include-pch` *and the actual path in two separate lines or else clang may try to directly include a file called "-pch", and issue an error due to not finding it.*
-
 
 ## License
 SEMPR itself is released under a 3-clause BSD license. However, it relies heavily on [ODB](http://www.codesynthesis.com/products/odb/download.xhtml) which is licensed under GPL. Please take a look at the [license exception](LICENSE_ODB) granted by Code Synthesis (copied from [here](https://git.codesynthesis.com/cgit/odb/odb-etc/tree/license-exceptions/sempr-tk-odb-license-exception.txt)) which allows the use of SEMPR (everything belonging to the sempr-tk family) in other projects without imposing additional constraints to the BSD-3-license -- as long as you don't modify the persistent object model for which ODB is used.

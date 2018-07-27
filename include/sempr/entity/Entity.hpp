@@ -3,6 +3,7 @@
 
 #include <odb/core.hxx>
 
+#include <wchar.h>
 #include <string>
 #include <vector>
 #include <memory>
