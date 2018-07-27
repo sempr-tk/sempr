@@ -15,7 +15,7 @@ Else please follow the instructions [here](https://www.codesynthesis.com/product
 
 Soprano and boost can be retrieved just as easily, **if you are okay with using qt4**:
 ```bash
-sudo apt-get install libsoprano-dev
+sudo apt-get install libsoprano-dev qt4-default
 sudo apt-get install libboost-all-dev
 ```
 The boost-part is a bit overkill, but I don't really know which part of boost is needed. You could try `libboost-dev`...
@@ -26,7 +26,7 @@ For the spatial geometries you also need GEOS and the GeographicLib to transform
 
 ```bash
 sudo apt-get install libgeos-dev libgeos++-dev
-sudo apt-get install libgeographic-dev
+sudo apt-get install libgeographic-dev libeigen3-dev
 ```
 
 ### SEMPR
