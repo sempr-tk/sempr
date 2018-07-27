@@ -110,12 +110,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
 
         // set up a multi point
         MultiPoint::Ptr multiPoint(new MultiPoint());
-        std::vector<geom::Geometry*> points;
-        for (auto coord : ring)
-        {
-            points.push_back(geom::GeometryFactory::getDefaultInstance()->createPoint(coord));
-        }
-        multiPoint->setCollection(points);
+        multiPoint->setCoordinates(ring);
 
         // build a geometry collection with the point, linestring and polygon
         std::vector<geom::Geometry*> geoms;
@@ -155,10 +150,10 @@ BOOST_AUTO_TEST_SUITE(geometries)
         storage->loadAll(multiPoints);
 
         BOOST_CHECK_EQUAL(points.size(), 1);
-        BOOST_CHECK_EQUAL(lstrings.size(), 2);  // there is one LinearRing that is also a LineString!
+        BOOST_CHECK_EQUAL(lstrings.size(), 1);
         BOOST_CHECK_EQUAL(lrings.size(), 1);
         BOOST_CHECK_EQUAL(polygons.size(), 1);
-        BOOST_CHECK_EQUAL(collections.size(), 2);   // ther is one MultiPoint that is also a GeometryCollection!
+        BOOST_CHECK_EQUAL(collections.size(), 1);
         BOOST_CHECK_EQUAL(multiPoints.size(), 1);
 
         BOOST_CHECK(points[0]->geometry()->within(polygons[0]->geometry()));

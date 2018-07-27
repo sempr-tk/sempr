@@ -23,25 +23,14 @@
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
 // geometries
-#include <sempr/entity/spatial/Geometry.hpp>
 #include <Geometry_odb.h>
-
-#include <sempr/entity/spatial/GeometryCollection.hpp>
+#include <Collection_odb.h>
+#include <Lineal_odb.h>
 #include <GeometryCollection_odb.h>
-
-#include <sempr/entity/spatial/Point.hpp>
 #include <Point_odb.h>
-
-#include <sempr/entity/spatial/LineString.hpp>
 #include <LineString_odb.h>
-
-#include <sempr/entity/spatial/LinearRing.hpp>
 #include <LinearRing_odb.h>
-
-#include <sempr/entity/spatial/Polygon.hpp>
 #include <Polygon_odb.h>
-
-#include <sempr/entity/spatial/MultiPoint.hpp>
 #include <MultiPoint_odb.h>
 
 // reference systems

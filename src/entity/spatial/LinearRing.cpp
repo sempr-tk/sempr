@@ -10,7 +10,7 @@ LinearRing::LinearRing() : LinearRing(new core::IDGen<LinearRing>())
 }
 
 LinearRing::LinearRing(const core::IDGenBase* idgen)
-    : LineString(idgen)
+    : Lineal(idgen)
 {
     this->setDiscriminator<LinearRing>();
     geometry_ = factory_->createLinearRing();

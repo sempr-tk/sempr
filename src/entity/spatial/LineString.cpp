@@ -10,7 +10,7 @@ LineString::LineString() : LineString(new core::IDGen<LineString>())
 }
 
 LineString::LineString(const core::IDGenBase* idgen)
-    : Geometry(idgen)
+    : Lineal(idgen)
 {
     this->setDiscriminator<LineString>();
     geometry_ = factory_->createLineString();
@@ -21,7 +21,7 @@ LineString::~LineString()
     /*
     factory_->destroyGeometry(geometry_);
     geometry_ = nullptr;
-    */
+     */
 }
 
 const geom::LineString* LineString::geometry() 

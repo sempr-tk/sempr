@@ -10,16 +10,9 @@ using namespace sempr::query;
 #include <fstream>
 #include <iostream>
 
-#include <odb/database.hxx>
 #include <Person_odb.h>
-
-#include <sempr/entity/spatial/Point.hpp>
 #include <Point_odb.h>
-
-#include <sempr/entity/spatial/Polygon.hpp>
 #include <Polygon_odb.h>
-
-#include <sempr/entity/spatial/GeometryCollection.hpp>
 #include <RuleSet_odb.h>
 
 #include <sempr/core/IncrementalIDGeneration.hpp>
