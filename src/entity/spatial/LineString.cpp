@@ -18,10 +18,8 @@ LineString::LineString(const core::IDGenBase* idgen)
 
 LineString::~LineString()
 {
-    /*
     factory_->destroyGeometry(geometry_);
     geometry_ = nullptr;
-     */
 }
 
 const geom::LineString* LineString::geometry() 
@@ -31,7 +29,8 @@ const geom::LineString* LineString::geometry()
 
 void LineString::setCoordinates(std::vector<geom::Coordinate>& coordinates)
 {
-    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create(&coordinates);
+    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create();
+    sequence->setPoints(coordinates);
     auto lineString = factory_->createLineString(sequence);
     setGeometry(lineString);
 }
