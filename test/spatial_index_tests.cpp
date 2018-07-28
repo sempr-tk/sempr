@@ -23,11 +23,34 @@ geom::MultiPoint* setupQuadrangle(const std::array<float, 3>& min, const std::ar
 
 BOOST_AUTO_TEST_SUITE(spatial_index)
     std::string dbfile = "test_spatial_index_sqlite.db";
-    BOOST_AUTO_TEST_CASE(spatial_index_1)
+
+    BOOST_AUTO_TEST_CASE(spatial_index_simple)
     {
         Core core;
         
-        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
+        SpatialIndex::Ptr index(new SpatialIndex());
+        core.addModule(index);
+
+        //build up a quadrangle
+        LocalCS::Ptr cs(new LocalCS());
+        MultiPoint::Ptr mp( new MultiPoint() );
+        mp->setGeometry(setupQuadrangle({1, 1, 1}, {10, 10, 10}));
+        mp->setCS(cs);
+        core.addEntity(mp);
+
+        auto queryWithinBox = SpatialIndexQuery::withinBox(Eigen::Vector3d{0, 0, 0}, Eigen::Vector3d{10, 10 ,10}, cs);
+        core.answerQuery(queryWithinBox);
+        BOOST_CHECK_EQUAL(queryWithinBox->results.size(), 1);
+
+        auto queryIntersecBox = SpatialIndexQuery::intersectsBox(Eigen::Vector3d{1, 1, 1}, Eigen::Vector3d{2, 2 ,2}, cs);
+        core.answerQuery(queryIntersecBox);
+        BOOST_CHECK_EQUAL(queryIntersecBox->results.size(), 1);
+
+    }
+
+    BOOST_AUTO_TEST_CASE(spatial_index_complex)
+    {
+        Core core;
         
         SpatialIndex::Ptr index(new SpatialIndex());
         core.addModule(index);
@@ -41,18 +64,18 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         // |p0|p1|p2|p3|p4|p5|p6|p7|p8|p9|
         for (int i = 0; i < 10; i++)
         {
-            MultiPoint::Ptr poly( new MultiPoint(new PredefinedID("mp" + std::to_string(i))) );
-            poly->setGeometry(setupQuadrangle({{float(i), 0, 0}}, {{float(i+1), 1, 1}}));
-            poly->setCS(cs);
-            core.addEntity(poly);
+            MultiPoint::Ptr mp( new MultiPoint(new PredefinedID("mp" + std::to_string(i))) );
+            mp->setGeometry(setupQuadrangle({{float(i), 0, 0}}, {{float(i+1), 1, 1}}));
+            mp->setCS(cs);
+            core.addEntity(mp);
         }
 
         // add more geometries, with different coordinate systems!
         LocalCS::Ptr previous = cs;
         for (int i = 10; i < 20; i++)
         {
-            MultiPoint::Ptr poly( new MultiPoint(new PredefinedID("mp" + std::to_string(i))) );
-            poly->setGeometry(setupQuadrangle({{float(9), 0, 0}}, {{float(10), 1, 1}}));
+            MultiPoint::Ptr mp( new MultiPoint(new PredefinedID("mp" + std::to_string(i))) );
+            mp->setGeometry(setupQuadrangle({{float(9), 0, 0}}, {{float(10), 1, 1}}));
 
             LocalCS::Ptr child(new LocalCS());  // with a new coordinate system
             child->setParent(previous);         // attached to the previous
@@ -60,8 +83,8 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
             core.addEntity(child);
             previous = child;
 
-            poly->setCS(child);
-            core.addEntity(poly);
+            mp->setCS(child);
+            core.addEntity(mp);
         }
 
         /** now we have 20 polygons side by side along the x axis, with the first 10 in the same
@@ -72,14 +95,14 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
                 within [7.5, 12.5] --> expected 8,9,10,11
                 intersects ^^ --> expected 7,8,9,10,11,12
         */
-        std::set<std::string> expected_within = {{ "p8", "p9", "p10", "p11" }};
-        std::set<std::string> expected_intersects = {{ "p7", "p8", "p9", "p10", "p11", "p12" }};
+        std::set<std::string> expected_within = {{ "mp8", "mp9", "mp10", "mp11" }};
+        std::set<std::string> expected_intersects = {{ "mp7", "mp8", "mp9", "mp10", "mp11", "mp12" }};
 
         // within
         auto query = SpatialIndexQuery::withinBox(Eigen::Vector3d{7.5, -1, -1}, Eigen::Vector3d{12.5, 2, 2}, cs);
         core.answerQuery(query);
 
-        //BOOST_CHECK_EQUAL(query->results.size(), expected_within.size());
+        BOOST_CHECK_EQUAL(query->results.size(), expected_within.size());
         for (auto r : query->results)
         {
             BOOST_CHECK( expected_within.find(r->id()) != expected_within.end() );
@@ -90,7 +113,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         query->mode(SpatialIndexQuery::INTERSECTS);
         core.answerQuery(query);
 
-        //BOOST_CHECK_EQUAL(query->results.size(), expected_intersects.size());
+        BOOST_CHECK_EQUAL(query->results.size(), expected_intersects.size());
         for (auto r : query->results)
         {
             BOOST_CHECK( expected_intersects.find(r->id()) != expected_intersects.end() );
@@ -101,4 +124,5 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
     {
         removeStorage(dbfile);
     }
+
 BOOST_AUTO_TEST_SUITE_END()

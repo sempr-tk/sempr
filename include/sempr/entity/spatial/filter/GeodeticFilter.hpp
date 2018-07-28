@@ -10,7 +10,6 @@ namespace sempr {
 
 namespace geom = geos::geom;
 
-    /** Exception that may be thrown during transformToCS. */
 class GeodeticException : public std::exception
 {
     private:
@@ -37,7 +36,7 @@ public:
 
     void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override {};
 
-    bool isDone() const override {return true;};
+    bool isDone() const override {return false;};
 
     bool isGeometryChanged() const override {return false;};
 

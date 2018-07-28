@@ -155,7 +155,6 @@ SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo)
     coord = geos::geom::Coordinate(max.x, max.y, min.z); cornerCoordinates.push_back(coord);
     coord = geos::geom::Coordinate(max.x, max.y, max.z); cornerCoordinates.push_back(coord);
 
-    // todo will this be cleaned up correctly ?
     geos::geom::MultiPoint* mp = geos::geom::GeometryFactory::getDefaultInstance()->createMultiPoint(cornerCoordinates);
 
     // transform the geometry
@@ -165,7 +164,9 @@ SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo)
     // get the new envelope
     EnvelopeFilter ef;
     mp->apply_ro(ef);
-    // mp will run out of scope and destroy the points with it.
+
+    // destroy the multi point after there usage:
+    geos::geom::GeometryFactory::getDefaultInstance()->destroyGeometry(mp);
 
     // create the bBox out of bPoints.
     bBox box(

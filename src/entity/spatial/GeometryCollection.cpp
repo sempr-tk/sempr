@@ -10,7 +10,7 @@ GeometryCollection::GeometryCollection() : GeometryCollection(new core::IDGen<Ge
 }
 
 GeometryCollection::GeometryCollection(const core::IDGenBase* idgen)
-    : Geometry(idgen)
+    : Collection(idgen)
 {
     this->setDiscriminator<GeometryCollection>();
     geometry_ = factory_->createGeometryCollection();

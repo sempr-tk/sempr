@@ -11,7 +11,6 @@ UTMFilter::UTMFilter(double a, double f, double k0, int zone, bool north) :
     falseeasting_(5e5),
     falsenorthing_(north ? 0 : 100e5)
 {
-    done_ = false;
     changed_ = false;
 
     if (!(zone >= GeographicLib::UTMUPS::MINZONE && zone <= GeographicLib::UTMUPS::MAXZONE))
@@ -44,7 +43,7 @@ double UTMFilter::centralMeridian(int zone)
 
 bool UTMFilter::isDone () const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool UTMFilter::isGeometryChanged () const
@@ -72,11 +71,11 @@ void UTMForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
         utmCoord.x += falseeasting_;
         utmCoord.y += falsenorthing_;
 
+        utmCoord.z = wgsCoord.z;
+
         seq.setAt(utmCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
@@ -101,11 +100,11 @@ void UTMReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 
         tm_.Reverse(lon0, utmCoord.x, utmCoord.y, wgsCoord.x, wgsCoord.y);
 
+        wgsCoord.z = utmCoord.z;
+
         seq.setAt(wgsCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
@@ -114,7 +113,6 @@ UPSFilter::UPSFilter(double a, double f, double k0, bool north) :
     ps_(GeographicLib::PolarStereographic(a, f, k0)),
     north_(north)
 {
-    done_ = false;
     changed_ = false;
 }
 
@@ -131,7 +129,7 @@ void UPSFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 
 bool UPSFilter::isDone () const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool UPSFilter::isGeometryChanged () const
@@ -155,11 +153,11 @@ void UPSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 
         ps_.Forward(north_, wgsCoord.x, wgsCoord.y, upsCoord.x, upsCoord.y);
 
+        upsCoord.z = wgsCoord.z;
+
         seq.setAt(upsCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
@@ -178,18 +176,17 @@ void UPSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 
         ps_.Reverse(north_, upsCoord.x, upsCoord.y, wgsCoord.x, wgsCoord.y);
 
+        wgsCoord.z = upsCoord.z;
+
         seq.setAt(wgsCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
 MGRSFilter::MGRSFilter(const std::string& GZDSquareID) :
     GZDSquareID_(GZDSquareID)
 {
-    done_ = false;
     changed_ = false;
 }
 
@@ -206,7 +203,7 @@ void MGRSFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 
 bool MGRSFilter::isDone () const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool MGRSFilter::isGeometryChanged () const
@@ -245,6 +242,8 @@ void MGRSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx
         if (squareID != GZDSquareID_)
             throw ProjectionZoneMissmatch("Given MGRS zone does not match the calculated one!");
 
+        mgrsCoord.z = wgsCoord.z;
+
         //store in tmp
         tmp[i] = mgrsCoord;
     }
@@ -255,8 +254,6 @@ void MGRSForwardFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx
         seq.setAt(tmp[i], i);
         changed_ = true;
     }
-
-    done_ = true;
 }
 
 
@@ -285,13 +282,12 @@ void MGRSReversFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t idx)
         geom::Coordinate wgsCoord;
         GeographicLib::UTMUPS::Reverse(zone, northp, x, y, wgsCoord.x, wgsCoord.y);
 
+        wgsCoord.z = mgrsCoord.z;
+
         seq.setAt(wgsCoord, i);
         changed_ = true;
     }
-
-    done_ = true;
 }
-
 
 
 } /* sempr */

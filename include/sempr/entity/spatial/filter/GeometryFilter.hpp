@@ -16,9 +16,7 @@ namespace geom = geos::geom;
 class EnvelopeFilter : public geom::CoordinateSequenceFilter 
 {
 public:
-    /**
-        Create a transformation defined by the Affine3d matrix.
-    */
+
     EnvelopeFilter();
 
     void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
@@ -36,7 +34,6 @@ private:
     geom::Coordinate min_;
     geom::Coordinate max_;
 
-    bool done_;
     bool changed_;
 };
 

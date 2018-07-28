@@ -11,7 +11,7 @@ MultiPoint::MultiPoint() : MultiPoint(new core::IDGen<MultiPoint>())
 }
 
 MultiPoint::MultiPoint(const core::IDGenBase* idgen)
-    : GeometryCollection(idgen)
+    : Collection(idgen)
 {
     this->setDiscriminator<MultiPoint>();
     geometry_ = factory_->createMultiPoint();

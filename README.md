@@ -1,4 +1,4 @@
-# Semantic Mapping, Processing and Reasoning (SEMPR)
+# Semantic Environment Mapping, Processing and Reasoning (SEMPR)
 ## Status
 As the development of SEMPR just started recently, please do not expect a fully featured system. We are working on it. :)
 
@@ -15,7 +15,7 @@ Else please follow the instructions [here](https://www.codesynthesis.com/product
 
 Soprano and boost can be retrieved just as easily, **if you are okay with using qt4**:
 ```bash
-sudo apt-get install libsoprano-dev
+sudo apt-get install libsoprano-dev qt4-default
 sudo apt-get install libboost-all-dev
 ```
 The boost-part is a bit overkill, but I don't really know which part of boost is needed. You could try `libboost-dev`...
@@ -26,7 +26,7 @@ For the spatial geometries you also need GEOS and the GeographicLib to transform
 
 ```bash
 sudo apt-get install libgeos-dev libgeos++-dev
-sudo apt-get install libgeographic-dev
+sudo apt-get install libgeographic-dev libeigen3-dev
 ```
 
 ### SEMPR
@@ -69,7 +69,6 @@ When using this library you may experience very slow autocompletion (at least wh
 ```
 
 > **Note:** *A bug (in clang?) it is required to specify* `-include-pch` *and the actual path in two separate lines or else clang may try to directly include a file called "-pch", and issue an error due to not finding it.*
-
 
 ## License
 SEMPR itself is released under a 3-clause BSD license. However, it relies heavily on [ODB](http://www.codesynthesis.com/products/odb/download.xhtml) which is licensed under GPL. Please take a look at the [license exception](LICENSE_ODB) granted by Code Synthesis (copied from [here](https://git.codesynthesis.com/cgit/odb/odb-etc/tree/license-exceptions/sempr-tk-odb-license-exception.txt)) which allows the use of SEMPR (everything belonging to the sempr-tk family) in other projects without imposing additional constraints to the BSD-3-license -- as long as you don't modify the persistent object model for which ODB is used.

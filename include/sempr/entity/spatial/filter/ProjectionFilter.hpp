@@ -71,7 +71,6 @@ protected:
 
     const double falseeasting_, falsenorthing_;
 
-    bool done_;
     bool changed_;
 };
 
@@ -114,7 +113,6 @@ protected:
     const GeographicLib::PolarStereographic ps_;
     const bool north_;
 
-    bool done_;
     bool changed_;
 };
 
@@ -154,7 +152,6 @@ protected:
     /// ref to const transform given on initialization
     const std::string GZDSquareID_;
 
-    bool done_;
     bool changed_;
 };
 

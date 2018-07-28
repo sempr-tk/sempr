@@ -5,14 +5,14 @@ namespace sempr {
 
 LocalTransformationFilter::LocalTransformationFilter(const Eigen::Affine3d& aff) :
     mat_(aff),
-    done_(false),
     changed_(false)
 {
 }
 
 void LocalTransformationFilter::filter_rw(geom::CoordinateSequence& seq, std::size_t i)
 {
-    for(;i < seq.getSize(); i++)
+    const size_t size = seq.getSize();
+    for(;i < size; i++)
     {
         //intern copy of every point. I hope it get optimized by the compiler.
         geom::Coordinate coord = seq.getAt(i);
@@ -57,7 +57,7 @@ void LocalTransformationFilter::filter_ro(const geom::CoordinateSequence& seq, s
 
 bool LocalTransformationFilter::isDone() const
 {
-    return done_;
+    return false; // no short-circuited possible!
 }
 
 bool LocalTransformationFilter::isGeometryChanged() const

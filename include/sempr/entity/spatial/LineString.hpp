@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_SPATIAL_LINESTRING_HPP_
 #define SEMPR_ENTITY_SPATIAL_LINESTRING_HPP_
 
-#include <sempr/entity/spatial/Geometry.hpp>
+#include <sempr/entity/spatial/Lineal.hpp>
 #include <geos/geom/LineString.h>
 #include <geos/geom/CoordinateArraySequenceFactory.h>
 
@@ -13,7 +13,7 @@ namespace geom = geos::geom;
     Container class for GEOM LineString
 */
 #pragma db object
-class LineString : public Geometry {
+class LineString : public Lineal {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<LineString>;

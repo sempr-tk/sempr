@@ -1,7 +1,7 @@
-#ifndef SEMPR_ENTITY_SPATIAL_GEOCOLLECTION_HPP_
-#define SEMPR_ENTITY_SPATIAL_GEOCOLLECTION_HPP_
+#ifndef SEMPR_ENTITY_SPATIAL_GEOMETRYCOLLECTION_HPP_
+#define SEMPR_ENTITY_SPATIAL_GEOMETRYCOLLECTION_HPP_
 
-#include <sempr/entity/spatial/Geometry.hpp>
+#include <sempr/entity/spatial/Collection.hpp>
 #include <geos/geom/GeometryCollection.h>
 
 namespace sempr { namespace entity {
@@ -12,7 +12,7 @@ namespace geom = geos::geom;
     Container class for the GEOM GeometryCollection
 */
 #pragma db object
-class GeometryCollection : public Geometry {
+class GeometryCollection : public Collection {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<GeometryCollection>;
@@ -39,4 +39,4 @@ private:
 
 }}
 
-#endif /* end of include guard SEMPR_ENTITY_SPATIAL_GEOCOLLECTION_HPP_ */
+#endif /* end of include guard SEMPR_ENTITY_SPATIAL_GEOMETRYCOLLECTION_HPP_ */
