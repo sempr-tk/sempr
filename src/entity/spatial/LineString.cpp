@@ -10,22 +10,33 @@ LineString::LineString() : LineString(new core::IDGen<LineString>())
 }
 
 LineString::LineString(const core::IDGenBase* idgen)
-    : SimpleCurve(idgen)
+    : Geometry(idgen)
 {
     this->setDiscriminator<LineString>();
-    geometry_ = static_cast<OGRLineString*>(OGRGeometryFactory::createGeometry(wkbLineString));
+    geometry_ = factory_->createLineString();
 }
 
 LineString::~LineString()
 {
-    OGRGeometryFactory::destroyGeometry(geometry_);
+    //TODO this rais a seg vault and i currently dont know why!
+    //factory_->destroyGeometry(geometry_);
+    //geometry_ = nullptr;
 }
 
-OGRLineString* LineString::geometry() {
-    return geometry_;
+const geom::LineString* LineString::geometry() 
+{
+    return dynamic_cast<geom::LineString*>(geometry_);
 }
 
-LineString::Ptr LineString::clone() const {
+void LineString::setCoordinates(std::vector<geom::Coordinate>& coordinates)
+{
+    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create(&coordinates);
+    auto lineString = factory_->createLineString(sequence);
+    setGeometry(lineString);
+}
+
+LineString::Ptr LineString::clone() const 
+{
     // raw clone is virtual! :)
     return LineString::Ptr(raw_clone());
 }
@@ -37,7 +48,8 @@ LineString* LineString::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    *(newInstance->geometry_) = *geometry_; // use OGRGeometry copy ctor
+    newInstance->geometry_ = geometry_->clone(); 
+    
     return newInstance;
 }
 

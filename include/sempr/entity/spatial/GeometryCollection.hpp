@@ -2,11 +2,14 @@
 #define SEMPR_ENTITY_SPATIAL_GEOCOLLECTION_HPP_
 
 #include <sempr/entity/spatial/Geometry.hpp>
+#include <geos/geom/GeometryCollection.h>
 
 namespace sempr { namespace entity {
 
+namespace geom = geos::geom;
+
 /**
-    Container class for OGRGeometryCollection
+    Container class for the GEOM GeometryCollection
 */
 #pragma db object
 class GeometryCollection : public Geometry {
@@ -18,7 +21,9 @@ public:
     GeometryCollection(const core::IDGenBase*);
     virtual ~GeometryCollection();
 
-    OGRGeometryCollection* geometry() override;
+    const geom::GeometryCollection* geometry() override;
+
+    void setCollection(const std::vector<geom::Geometry*> geoms);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
@@ -28,8 +33,6 @@ public:
 
 private:
     friend class odb::access;
-    #pragma db type("TEXT")
-    OGRGeometryCollection* geometry_;
 
     virtual GeometryCollection* raw_clone() const override;
 };

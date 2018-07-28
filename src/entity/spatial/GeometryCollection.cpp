@@ -13,19 +13,27 @@ GeometryCollection::GeometryCollection(const core::IDGenBase* idgen)
     : Geometry(idgen)
 {
     this->setDiscriminator<GeometryCollection>();
-    geometry_ = static_cast<OGRGeometryCollection*>(OGRGeometryFactory::createGeometry(wkbGeometryCollection));
+    geometry_ = factory_->createGeometryCollection();
 }
 
 GeometryCollection::~GeometryCollection()
 {
-    OGRGeometryFactory::destroyGeometry(geometry_);
+    factory_->destroyGeometry(geometry_);
+    geometry_ = nullptr;
 }
 
-OGRGeometryCollection* GeometryCollection::geometry() {
-    return geometry_;
+const geom::GeometryCollection* GeometryCollection::geometry() 
+{
+    return dynamic_cast<geom::GeometryCollection*>(geometry_);
 }
 
-GeometryCollection::Ptr GeometryCollection::clone() const {
+void GeometryCollection::setCollection(const std::vector<geom::Geometry*> geoms)
+{
+    setGeometry(factory_->createGeometryCollection(geoms));
+}
+
+GeometryCollection::Ptr GeometryCollection::clone() const 
+{
     // raw clone is virtual! :)
     return GeometryCollection::Ptr(raw_clone());
 }
@@ -37,7 +45,8 @@ GeometryCollection* GeometryCollection::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    *(newInstance->geometry_) = *geometry_; // use OGRGeometry copy ctor
+    newInstance->geometry_ = dynamic_cast<geom::GeometryCollection*>(geometry_->clone()); 
+
     return newInstance;
 }
 

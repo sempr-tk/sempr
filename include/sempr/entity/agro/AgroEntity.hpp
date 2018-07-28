@@ -9,8 +9,7 @@
 
 #include <iostream>
 
-
-#include <type_traits>
+//#include <type_traits>
 
 
 namespace sempr { namespace entity { namespace agro {

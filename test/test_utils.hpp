@@ -5,7 +5,7 @@
 
 #include <odb/core.hxx>
 #include <sempr/sempr.hpp>
-#include <sempr/entity/Person.hpp>
+#include <sempr/entity/example/Person.hpp>
 #include <Person_odb.h>
 #include <iostream>
 
@@ -23,16 +23,37 @@
 #include <sempr/core/IncrementalIDGeneration.hpp>
 
 // geometries
+#include <sempr/entity/spatial/Geometry.hpp>
 #include <Geometry_odb.h>
+
+#include <sempr/entity/spatial/GeometryCollection.hpp>
 #include <GeometryCollection_odb.h>
+
+#include <sempr/entity/spatial/Point.hpp>
 #include <Point_odb.h>
+
+#include <sempr/entity/spatial/LineString.hpp>
 #include <LineString_odb.h>
+
+#include <sempr/entity/spatial/LinearRing.hpp>
+#include <LinearRing_odb.h>
+
+#include <sempr/entity/spatial/Polygon.hpp>
 #include <Polygon_odb.h>
 
+#include <sempr/entity/spatial/MultiPoint.hpp>
+#include <MultiPoint_odb.h>
+
 // reference systems
-#include <sempr/entity/spatial/LocalCS.hpp>
-#include <sempr/entity/spatial/GeographicCS.hpp>
-#include <sempr/entity/spatial/ProjectionCS.hpp>
+#include <sempr/entity/spatial/reference/LocalCS.hpp>
+#include <sempr/entity/spatial/reference/GeodeticCS.hpp>
+#include <sempr/entity/spatial/reference/GeocentricCS.hpp>
+#include <sempr/entity/spatial/reference/ProjectionCS.hpp>
+
+#include <sempr/entity/spatial/reference/UniversalTransverseMercatorCS.hpp>
+#include <sempr/entity/spatial/reference/UniversalPolarStereographicCS.hpp>
+#include <sempr/entity/spatial/reference/LocalTangentPlaneCS.hpp>
+#include <sempr/entity/spatial/reference/MilitaryGridReferenceSystem.hpp>
 
 #include <sempr/processing/SopranoModule.hpp>
 #include <sempr/processing/SpatialIndex.hpp>
@@ -47,21 +68,17 @@ namespace testing {
 
   #define DISCRIMINATOR(T) (odb::object_traits_impl<T, odb::id_common>::info.discriminator)
 
-  inline std::string toString(OGRGeometry* p)
+  inline std::string toString(const geom::Geometry* p)
   {
-      char* str;
-      p->exportToWkt(&str, wkbVariantIso);
-      std::string s(str);
-      CPLFree(str);
-      return s;
+      return Geometry::exportToWKT(p);
   }
 
-  inline void print(OGRGeometry* p)
+  inline void print(const geom::Geometry* p)
   {
       std::cout << toString(p) << '\n';
   }
 
-  inline ODBStorage::Ptr setUpStorage(std::string db_path, bool reset){
+  inline ODBStorage::Ptr setUpStorage(const std::string& db_path, bool reset){
 
     BOOST_CHECK(!boost::filesystem::exists(db_path) );
     ODBStorage::Ptr storage( new ODBStorage(db_path, reset) );
@@ -77,7 +94,7 @@ namespace testing {
     return storage;
   }
 
-  inline ODBStorage::Ptr loadStorage(std::string db_path){
+  inline ODBStorage::Ptr loadStorage(const std::string& db_path){
 
     BOOST_CHECK(boost::filesystem::exists(db_path));
 
@@ -97,7 +114,7 @@ namespace testing {
     return storage;
   }
 
-  inline void removeStorage(std::string db_path){
+  inline void removeStorage(const std::string& db_path){
     IDGenerator::getInstance().reset(); // free the current strategy
     // (which keeps a pointer to ODBStorage)
 

@@ -1,57 +1,71 @@
+#include <geos/geom/GeometryFactory.h>
 #include "test_utils.hpp"
+
 using namespace testing;
 
 BOOST_AUTO_TEST_SUITE(geometries)
-    std::string dbfile = "test_sqlite.db";
+    const std::string db_path = "test_geometry_sqlite.db";  //todo seg. fault after renameing
+
+    BOOST_AUTO_TEST_CASE(geometries_coordinates)
+    {
+        geom::Coordinate dummyPosition;
+
+        //default constructor dont set NULL!
+        dummyPosition.setNull();
+
+        BOOST_CHECK(dummyPosition.isNull());
+    }
+
     BOOST_AUTO_TEST_CASE(geometries_cloneable)
     {
         // test if our CRTP "CloneableGeometry<class T>" works as expected.
 
-        // construct a OGRPolygon:
-        GeometryCollection::Ptr collection(new GeometryCollection());
+        // construct a GEOM Polygon by a Collection:
+
+        std::vector<geom::Geometry*> points;
         float x[] = {0, 0, 1, 1};
         float y[] = {0, 1, 1, 0};
         for (int i = 0; i < 4; i++) {
-            OGRPoint* p = (OGRPoint*) OGRGeometryFactory::createGeometry(wkbPoint);
-            p->setX(x[i]); p->setY(y[i]);
-            collection->geometry()->addGeometryDirectly(p);
+            geom::Point* p = (geom::Point*) geom::GeometryFactory::getDefaultInstance()->createPoint(geom::Coordinate(x[i], y[i]));
+            points.push_back(p);
         }
-        OGRPolygon* poly = (OGRPolygon*) collection->geometry()->ConvexHull();
+
+        auto collectionGeom = geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(&points);    //this will overwrite the old (empty) default collection geometry. Memory Leak! TODO
+
+        auto poly = dynamic_cast<geom::Polygon*>(collectionGeom->convexHull());
+
+        //geom::GeometryFactory::getDefaultInstance()->destroyGeometry(collectionGeom); //will also destroy the polygon points. - crashed!
 
         // use it in a polygon:
         Polygon::Ptr polygon(new Polygon());
-        *(polygon->geometry()) = *poly;
-        OGRGeometryFactory::destroyGeometry(poly);
+        polygon->setGeometry(poly);
 
         // get the expected wkt output for comparisons.
         std::string expectedWkt = toString(polygon->geometry());
+        //print(polygon->geometry());
 
         // now, create different pointer to the same thing.
-        CurvePolygon::Ptr curve_polygon = polygon;
         Geometry::Ptr geometry = polygon;
 
         // clone them!
         auto pclone = polygon->clone();   // Polygon::Ptr
-        auto cpclone = curve_polygon->clone(); // CurvePolygon::Ptr
-        auto gclone = geometry->clone(); // Geometry::Ptr
+        auto gclone = geometry->clone();  // Geometry::Ptr
 
-        // change the original
-        polygon->geometry()->empty();
-
+        // change the original (this will also destroy the source polygon)
+        polygon->setGeometry(geom::GeometryFactory::getDefaultInstance()->createPolygon());
+        
         // print the clones
         // print(pclone->geometry());
         // print(cpclone->geometry());
         // print(gclone->geometry());
         BOOST_CHECK_EQUAL(expectedWkt, toString(pclone->geometry()));
-        BOOST_CHECK_EQUAL(expectedWkt, toString(cpclone->geometry()));
         BOOST_CHECK_EQUAL(expectedWkt, toString(gclone->geometry()));
-
     }
 
 
     BOOST_AUTO_TEST_CASE(geometries_insertion)
     {
-        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
+        ODBStorage::Ptr storage = setUpStorage(db_path, true);
         Core core;
 
         ActiveObjectStore::Ptr active(new ActiveObjectStore());
@@ -60,56 +74,128 @@ BOOST_AUTO_TEST_SUITE(geometries)
         core.addModule(updater);
 
         // create a bunch of geometries
+        
+        // set up the point
         Point::Ptr point(new Point());
-        LineString::Ptr linestring(new LineString());
-        Polygon::Ptr polygon(new Polygon());
+        point->setCoordinate(geom::Coordinate(0, 0));
 
+
+        // set up ring
+        //
         //           B
         //         /   \ .
         //  ls ---/- m  \ .
         //      A ------ C
-        point->geometry()->setX(0); point->geometry()->setY(0);
+        LinearRing::Ptr linearRing(new LinearRing());
+        std::vector<geom::Coordinate> ring;
+        ring.push_back(geom::Coordinate(-1, -1));
+        ring.push_back(geom::Coordinate(+0, +1));
+        ring.push_back(geom::Coordinate(+1, -1));
+        ring.push_back(geom::Coordinate(-1, -1));   //needed to close the ring!
+        linearRing->setCoordinates(ring);
 
-        auto ring = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
-        ring->addPoint(-1, -1);
-        ring->addPoint(0, 1);
-        ring->addPoint(1, -1);
-        ring->closeRings();
+        // set up polygon from ring
+        Polygon::Ptr polygon(new Polygon());
+        std::vector<geom::Geometry*> holes;
+        auto polygonGeometry = geom::GeometryFactory::getDefaultInstance()->createPolygon(*linearRing->geometry(), holes);  //linear Ring as DeepCopy
+        polygon->setGeometry(polygonGeometry);
 
-        polygon->geometry()->addRingDirectly(ring);
+        // set up the linestring
+        LineString::Ptr linestring(new LineString());
+        std::vector<geom::Coordinate> string;
+        string.push_back(geom::Coordinate(-5, 0));
+        string.push_back(geom::Coordinate(+0, 0));
+        linestring->setCoordinates(string);
 
-        linestring->geometry()->addPoint(-5, 0);
-        linestring->geometry()->addPoint(0, 0);
+        // set up a multi point
+        MultiPoint::Ptr multiPoint(new MultiPoint());
+        std::vector<geom::Geometry*> points;
+        for (auto coord : ring)
+        {
+            points.push_back(geom::GeometryFactory::getDefaultInstance()->createPoint(coord));
+        }
+        multiPoint->setCollection(points);
 
-        // insert.
+        // build a geometry collection with the point, linestring and polygon
+        std::vector<geom::Geometry*> geoms;
+        geoms.push_back(point->geometry()->clone());
+        geoms.push_back(linestring->geometry()->clone());
+        geoms.push_back(linearRing->geometry()->clone());
+        geoms.push_back(polygon->geometry()->clone());
+
+        GeometryCollection::Ptr collection(new GeometryCollection());
+        collection->setCollection(geoms);
+
+        // insert 
         core.addEntity(point);
         core.addEntity(linestring);
+        core.addEntity(linearRing);
         core.addEntity(polygon);
+        core.addEntity(collection);
+        core.addEntity(multiPoint);
     }
 
     BOOST_AUTO_TEST_CASE(geometries_operations)
     {
-        ODBStorage::Ptr storage = loadStorage(dbfile);
+        ODBStorage::Ptr storage = loadStorage(db_path);
 
         std::vector<Point::Ptr> points;
         std::vector<LineString::Ptr> lstrings;
+        std::vector<LinearRing::Ptr> lrings;
         std::vector<Polygon::Ptr> polygons;
+        std::vector<GeometryCollection::Ptr> collections;
+        std::vector<MultiPoint::Ptr> multiPoints;
 
         storage->loadAll(points);
         storage->loadAll(lstrings);
+        storage->loadAll(lrings);
         storage->loadAll(polygons);
+        storage->loadAll(collections);     // it seems that there a loading issues with the collection
+        storage->loadAll(multiPoints);
 
         BOOST_CHECK_EQUAL(points.size(), 1);
-        BOOST_CHECK_EQUAL(lstrings.size(), 1);
+        BOOST_CHECK_EQUAL(lstrings.size(), 2);  // there is one LinearRing that is also a LineString!
+        BOOST_CHECK_EQUAL(lrings.size(), 1);
         BOOST_CHECK_EQUAL(polygons.size(), 1);
+        BOOST_CHECK_EQUAL(collections.size(), 2);   // ther is one MultiPoint that is also a GeometryCollection!
+        BOOST_CHECK_EQUAL(multiPoints.size(), 1);
 
-        BOOST_CHECK(points[0]->geometry()->Within(polygons[0]->geometry()));
-        BOOST_CHECK(lstrings[0]->geometry()->Intersects(polygons[0]->geometry()));
+        BOOST_CHECK(points[0]->geometry()->within(polygons[0]->geometry()));
+        BOOST_CHECK(lstrings[0]->geometry()->intersects(polygons[0]->geometry()));
+        
     }
+
+    BOOST_AUTO_TEST_CASE(geometries_transformation)
+    {
+        LocalCS::Ptr identity(new LocalCS());
+
+        Point::Ptr point2D(new Point());
+        point2D->setCoordinate(geom::Coordinate(1, 2));
+        point2D->setCS(identity);
+
+        Point::Ptr point3D(new Point());
+        point3D->setCoordinate(geom::Coordinate(1, 2, 3));
+        point3D->setCS(identity);
+
+        LocalCS::Ptr transformation(new LocalCS());
+        transformation->setRotation(0, 0, 1, M_PI/2);
+        transformation->setTranslation(2, 2, 0);
+        transformation->setParent(identity);
+
+        point2D->transformToCS(transformation);
+        point3D->transformToCS(transformation);
+
+        Point::Ptr pointExpected(new Point());
+        pointExpected->setCoordinate(geom::Coordinate(0, 1));
+
+        BOOST_CHECK(pointExpected->geometry()->equalsExact(point2D->geometry(), 0.0001));
+        BOOST_CHECK(pointExpected->geometry()->equalsExact(point3D->geometry(), 0.0001));   //Note this will only compare 2 dimension!
+    }
+
 
     BOOST_AUTO_TEST_CASE(geometries_cleanup)
     {
-        removeStorage(dbfile);
+        removeStorage(db_path);
     }
 
     BOOST_AUTO_TEST_SUITE_END()
@@ -301,33 +387,65 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
     BOOST_AUTO_TEST_CASE(global_references)
     {
         // ProjectionCS::Ptr projCC = ProjectionCS::CreateEquirect(0, 0);
-        GeographicCS::Ptr wgs84(new GeographicCS("WGS84"));
-        ProjectionCS::Ptr utm = ProjectionCS::CreateUTM(32, true, "WGS84");
-        auto wgs2utm = wgs84->to(utm);
-        // auto wgs2utm = utm->to(wgs84);
+        GeodeticCS::Ptr wgs84(new GeodeticCS());
+        ProjectionCS::Ptr utm(new UniversalTransverseMercatorCS(32));
 
-        BOOST_CHECK(wgs2utm);
+        auto wgs2utm = wgs84->to(utm);
+
+        BOOST_CHECK(!wgs2utm.empty());
 
         // mannheim paradeplatz (wiki example)
         // wgs85: 49.487111 (lat), 8.466278 (lon)
-        // (!) NOTE: POINT(lon lat)
-        // (!) remember: lon -> west/east (left/right), lat -> north/south (up/down)
-        // utm: zone 32, E: 461344 N: 5481745
         // mgrs: zone 32U, E: 61344 N: 81745
         // TODO: GDAL only knows UTM zones __N and __S (north/south), but not the local definitions made by UTMREF / MGRS (e.g. no zone 32U, only 32)
-        Point::Ptr p(new Point());
 
-        std::string latlon = "POINT (8.466278 49.487111)";
-        char* tmp = (char*)latlon.c_str();
-        p->geometry()->importFromWkt(&tmp);
-        std::cout << "wgs84: " << p->geometry()->exportToJson() << '\n';
+        Point::Ptr p(new Point());
+        p->setGeometry(Geometry::importFromWKT("POINT (49.487111 8.466278)"));
+        p->setCS(wgs84);
 
         // transform
-        p->geometry()->transform(wgs2utm.get());
-        std::cout << "utm: " << p->geometry()->exportToJson() << '\n';
+        p->transformToCS(utm);
 
-        BOOST_CHECK_CLOSE(p->geometry()->getX(),  461344, 0.0001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), 5481745, 0.0001);
+        //print(p->geometry());
+
+        BOOST_CHECK_CLOSE(p->geometry()->getX(),  461344., 0.0001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), 5481745., 0.0001);
+    }
+
+    BOOST_AUTO_TEST_CASE(global_mgrs_check)
+    {
+        std::string mgrsQ = MilitaryGridReferenceSystem::buildMGRS("Z");    // somewhere north of the russian arctic
+
+        std::string gzd;
+        double x, y;
+        MilitaryGridReferenceSystem::splitMGRS(mgrsQ, gzd, x, y);    // this will throw an exception if something is wrong. Unhandeld to test!
+
+        MilitaryGridReferenceSystem::splitMGRS("32U", gzd, x, y); 
+        BOOST_CHECK(gzd == "32U");
+        BOOST_CHECK(x == 0);
+        BOOST_CHECK(y == 0);
+
+        // check 1 digit zone and precision correction
+        MilitaryGridReferenceSystem::splitMGRS("4QFJ 12345 67890", gzd, x, y); 
+        std::string mgrs4Q = MilitaryGridReferenceSystem::buildMGRS(gzd, x, y);
+        BOOST_CHECK(mgrs4Q == "4QFJ 12345000 67890000");
+
+        // example mgrs usage:
+        geos::geom::Coordinate coord;
+        std::string zoneGZD;
+        MilitaryGridReferenceSystem::splitMGRS("32UMC3135061510", zoneGZD, coord.x, coord.y); 
+
+        ProjectionCS::Ptr mgrsCS(new MilitaryGridReferenceSystem(zoneGZD));
+
+        Point::Ptr p(new Point());
+        p->setCoordinate(coord);
+        p->setCS(mgrsCS);
+
+        GeodeticCS::Ptr wgs84(new GeodeticCS());
+        p->transformToCS(wgs84);
+
+        BOOST_CHECK_CLOSE(p->geometry()->getX(), 52, 0.0001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(), 8, 0.0001);
     }
 
     BOOST_AUTO_TEST_CASE(geometry_transformation_local)
@@ -339,11 +457,12 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         frame->setTranslation(1, 0, 0); // shift 1 along X
 
         Point::Ptr p(new Point());
-        p->geometry()->setX(1);
-        p->geometry()->setY(0);
+        p->setCoordinate(geom::Coordinate(1, 0));
+
         // apply rotation
         p->setCS(frame);
         p->transformToCS(root);
+
         // expect (1 1)
         BOOST_CHECK_CLOSE(p->geometry()->getX(), 1, 0.000001);
         BOOST_CHECK_CLOSE(p->geometry()->getY(), 1, 0.000001);
@@ -366,11 +485,11 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
             is (-100, -200) in (4)
             is (200, -100) in (5)
         */
-        GeographicCS::Ptr wgs84(new GeographicCS("WGS84"));
-        ProjectionCS::Ptr equi = ProjectionCS::CreateEquirect(52., 8., "WGS84");
+        GeodeticCS::Ptr wgs84(new GeodeticCS());
+        GeocentricCS::Ptr centric(new LocalTangentPlaneCS(52, 8));
 
         LocalCS::Ptr localRot(new LocalCS());
-        localRot->setParent(equi);
+        localRot->setParent(centric);
         localRot->setRotation(0, 0, 1, M_PI/2.);
 
         LocalCS::Ptr localTrans(new LocalCS());
@@ -384,14 +503,20 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
             --> (0,0) in equi --> (0, 0) in rot --> (200, -100) in transrot
         */
         Point::Ptr p(new Point());
-        std::string latlon = "POINT (8 52)"; // lon, lat
-        char* tmp = (char*)latlon.c_str();
-        p->geometry()->importFromWkt(&tmp);
+        std::string latlon = "POINT (52 8)"; // lat, lon
+
+        p->setGeometry(Geometry::importFromWKT(latlon));
 
         p->setCS(wgs84);
+
+        BOOST_CHECK_CLOSE(p->geometry()->getX(), 52, 0.0000001);
+        BOOST_CHECK_CLOSE(p->geometry()->getY(),  8, 0.0000001);
+
         p->transformToCS(localTrans);
+
         BOOST_CHECK_CLOSE(p->geometry()->getX(),  200, 0.0000001);
         BOOST_CHECK_CLOSE(p->geometry()->getY(), -100, 0.0000001);
+        
     }
 
 BOOST_AUTO_TEST_SUITE_END()
