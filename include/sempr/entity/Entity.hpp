@@ -103,10 +103,31 @@ public:
         Should we make created, loaded and removed private? In that case, they
         could still be overridden by derived classes, but could only be used by
         the Core (assuming a "friend class Core" in Entity) --> enforced tasks.
+
+        NOTE: Quite a lot has happened since I wrote the above todo. The Storage has become more or less a processing module: The DBUpdateModule takes care of updating the database, and even answers 'LoadingQuery's. Also, entities create their own child-entities and announce them with child->created() etc... But: I want to rework the Entity soon, and change the way IDs are given, things are initialized, the EventBroker is set, ... so I'll leave this here as a reminder. A nice interface to allow entities and modules to create entities has yet to be worked out.
     */
     void created();
     void loaded();
     void removed();
+
+    /**
+        Registers a child-entity: Every entity registered as a child-entity of this will be
+        announced (child->created() / child->loaded()) before and removed (child->removed()) after
+        this. This allows a class to be made of other entities, e.g. an RDFPropertyMap that
+        describes this but is invalid without this.
+
+        Be careful when using this. There are two ways that *should* work fine:
+
+        1. Register the child entity when both parent and child are not yet announced to the system. When you announce the parent it will automatically announce the children first. (Announce = created() or loaded()).
+        2. Register the child entity when both parent and child have been announced before.
+
+        I think the main concern is to make sure that the children are persisted before the parent
+        in order to not run into any database issues. There are other parts of SEMPR which should
+        be reworked sooner or later, which will change this problem and hopefully simplify it -- or
+        at least provide a strict, unified, easy way to handle it safely.
+    */
+    void registerChildEntity(Entity::Ptr child);
+
 
 protected:
     /** fires an event **/
@@ -116,14 +137,6 @@ protected:
     std::shared_ptr<Derived> shared_from_base() {
         return std::static_pointer_cast<Derived>(shared_from_this());
     }
-
-    /**
-        Registers a child-entity: Every entity registered as a child-entity of this will be
-        announced (child->created() / child->loaded()) before and removed (child->removed()) after
-        this. This allows a class to be made of other entities, e.g. an RDFPropertyMap that
-        describes this but is invalid without this.
-    */
-    void registerChildEntity(Entity::Ptr child);
 
     /** handle registered children */
     virtual void prePersist(odb::database& db) const override;
