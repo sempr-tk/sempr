@@ -186,19 +186,16 @@ SEMPR provides a mechanism to do this semi-automatically: Whenever an `Entity`cr
 ``` c++
 void Entity::registerChildEntity(Entity::Ptr)
 ```
-Upon persisting or updating the parent entity, the following steps are executed:
+On the first announcement (`loaded()` or `created()`)  of an entity, it also announces all children that are registered so far. To be exact, it announces the children prior to the parent: This assures that the children are persisted first. On removal, the parents removed-event is issued first, for the same reason of avoiding inconsistent/invalid database states.
 
-1. Before persisting/updating the parent, all newly registered children
-	1. get a pointer to the event-broker
-	2. get persisted in the database (which might trigger this mechanism again, recursively)
-2. After persisting/updating the parent, all newly registered children
-	1. are given a pointer to the parent with `on delete cascade` enabled
-	2. are updated (to apply the parent-pointer)
-	3. are announced to the system through invocation of `child->created()`
+Whenever you want to register a child entity make sure that either of these conditions holds true:
 
-The `on-delete-cascade` mechanic is database-internal: Whenever an entity has a valid parent-pointer and the parent is removed from the database, the child-entity is removed, too. This ensures that no orphans remain in the database, but it does not trigger any events on the code-side of things. Hence we need to trigger those events ourselves, which forces us to keep a list of all children. This list is managed inside `Entity`. Whenever the `Entiy::created()`, `Entiy::loaded()` or `Entiy::removed()` is called, the Entity also calls the same method of all of its children, thus firing the respective events for all of them. The parents `created() / removed()` are called when adding/removing it to/from the system (`Core::[add/remove]Entity`).
+1. Both parent and child have not been announced to the system yet, so that the parent can correctly handle its children.
+2. Both parent and child have already been announced (and thus persisted), so that no special treatment is necessary.
 
-**TODO: loaded() needs to be called on postLoad(), doesn't it? [Alternative: Storage calls it on loading.... inconsistent...]  To make everything a bit more consistent, do we need to call removed() on postDelete()? but created() has to be separated from the db-callbacks since we might want to create temporary, non-persistent objects...? then again, same goes for removed().**
+Also, you need to be aware that this mechanism is not fool-proof: No one prevents you from creating circular dependencies here, by registering the parent as a child of child. This _will_ be problematic, as you won't be able to remove one without a dangling reference, and thus a broken foreign-key-constraint.
+
+A typical usage of `registerChildEntity` would be to register entities that are created in the c'tor of another entity, as part of it. This would fulfill condition (1.).
 
 
 ## Storage
