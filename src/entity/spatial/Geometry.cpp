@@ -24,27 +24,20 @@ Geometry::Geometry(const core::IDGenBase* idgen)
     : Entity(idgen)
 {
     this->setDiscriminator<Geometry>();
-
-    //factory geometry creation by sub classes!
 }
 
 Geometry::~Geometry() 
 {
-    //factory geometry delete by sub classes!
 }
 
-const geom::Geometry* Geometry::geometry() 
+geom::Geometry* Geometry::geometry() 
 { 
-    return geometry_;
+    return NULL; // have to be override by childs!
 }
 
-void Geometry::setGeometry(geom::Geometry* geometry) 
-{ 
-    if (geometry != NULL)
-    {
-        factory_->destroyGeometry(geometry_);
-        geometry_ = geometry;
-    }
+const geom::Geometry* Geometry::getGeometry()
+{
+    return getGeometry();
 }
 
 Geometry::Ptr Geometry::clone() const 
@@ -70,10 +63,12 @@ SpatialReference::Ptr Geometry::getCS() const
 
 void Geometry::apply(Filter& filter)
 {
-    if (!geometry_)
-        throw TransformException("no geometry to transform");
+    geom::Geometry* geometry = this->geometry();
 
-    geometry_->apply_rw(filter);
+    if (!geometry)
+        throw TransformException("no geometry to apply a filter!");
+
+    geometry->apply_rw(filter);
 }
 
 void Geometry::apply(FilterList& filterList)
@@ -85,8 +80,11 @@ void Geometry::apply(FilterList& filterList)
 }
 
 
-void Geometry::transformToCS(SpatialReference::Ptr cs) {
-    if (!geometry_)
+void Geometry::transformToCS(SpatialReference::Ptr cs) 
+{
+    geom::Geometry* geometry = this->geometry();
+
+    if (!geometry)
         throw TransformException("no geometry to transform");
 
     if (!referenceFrame_)

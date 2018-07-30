@@ -18,19 +18,36 @@ LinearRing::LinearRing(const core::IDGenBase* idgen)
 
 LinearRing::~LinearRing()
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = nullptr;
+    if (geometry_)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = nullptr;
+    }
 }
 
-const geom::LinearRing* LinearRing::geometry() 
+const geom::LinearRing* LinearRing::getGeometry() 
 {
-    return dynamic_cast<geom::LinearRing*>(geometry_);
+    return this->geometry();
+}
+
+geom::LinearRing* LinearRing::geometry() 
+{
+    return geometry_;
+}
+
+void LinearRing::setGeometry(geom::LinearRing* geometry)
+{
+    if (geometry_)
+        factory_->destroyGeometry(geometry_);
+
+    geometry_ = geometry;
 }
 
 void LinearRing::setCoordinates(std::vector<geom::Coordinate>& coordinates)
 {
-    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create(&coordinates);
-    dynamic_cast<geom::LinearRing*>(geometry_)->setPoints(sequence);
+    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create();
+    sequence->setPoints(coordinates);
+    geometry_->setPoints(sequence);
 }
 
 LinearRing::Ptr LinearRing::clone() const 
@@ -46,7 +63,7 @@ LinearRing* LinearRing::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    newInstance->geometry_ = geometry_->clone(); 
+    newInstance->setGeometry( dynamic_cast<geom::LinearRing*>(geometry_->clone()) );
     
     return newInstance;
 }

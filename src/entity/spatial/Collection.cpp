@@ -19,4 +19,14 @@ Collection::~Collection()
 {
 }
 
+const geom::GeometryCollection* Collection::getGeometry()
+{
+    return this->geometry();
+}
+
+geom::GeometryCollection* Collection::geometry()
+{
+    return NULL; // have to be override by childs!
+}
+
 }}

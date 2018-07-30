@@ -41,8 +41,8 @@ BOOST_AUTO_TEST_SUITE(geometries)
         polygon->setGeometry(poly);
 
         // get the expected wkt output for comparisons.
-        std::string expectedWkt = toString(polygon->geometry());
-        //print(polygon->geometry());
+        std::string expectedWkt = toString(polygon->getGeometry());
+        //print(polygon->getGeometry());
 
         // now, create different pointer to the same thing.
         Geometry::Ptr geometry = polygon;
@@ -55,11 +55,11 @@ BOOST_AUTO_TEST_SUITE(geometries)
         polygon->setGeometry(geom::GeometryFactory::getDefaultInstance()->createPolygon());
         
         // print the clones
-        // print(pclone->geometry());
-        // print(cpclone->geometry());
-        // print(gclone->geometry());
-        BOOST_CHECK_EQUAL(expectedWkt, toString(pclone->geometry()));
-        BOOST_CHECK_EQUAL(expectedWkt, toString(gclone->geometry()));
+        // print(pclone->getGeometry());
+        // print(cpclone->getGeometry());
+        // print(gclone->getGeometry());
+        BOOST_CHECK_EQUAL(expectedWkt, toString(pclone->getGeometry()));
+        BOOST_CHECK_EQUAL(expectedWkt, toString(gclone->getGeometry()));
     }
 
 
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_SUITE(geometries)
         // set up polygon from ring
         Polygon::Ptr polygon(new Polygon());
         std::vector<geom::Geometry*> holes;
-        auto polygonGeometry = geom::GeometryFactory::getDefaultInstance()->createPolygon(*linearRing->geometry(), holes);  //linear Ring as DeepCopy
+        auto polygonGeometry = geom::GeometryFactory::getDefaultInstance()->createPolygon(*linearRing->getGeometry(), holes);  //linear Ring as DeepCopy
         polygon->setGeometry(polygonGeometry);
 
         // set up the linestring
@@ -114,10 +114,10 @@ BOOST_AUTO_TEST_SUITE(geometries)
 
         // build a geometry collection with the point, linestring and polygon
         std::vector<geom::Geometry*> geoms;
-        geoms.push_back(point->geometry()->clone());
-        geoms.push_back(linestring->geometry()->clone());
-        geoms.push_back(linearRing->geometry()->clone());
-        geoms.push_back(polygon->geometry()->clone());
+        geoms.push_back(point->getGeometry()->clone());
+        geoms.push_back(linestring->getGeometry()->clone());
+        geoms.push_back(linearRing->getGeometry()->clone());
+        geoms.push_back(polygon->getGeometry()->clone());
 
         GeometryCollection::Ptr collection(new GeometryCollection());
         collection->setCollection(geoms);
@@ -156,8 +156,8 @@ BOOST_AUTO_TEST_SUITE(geometries)
         BOOST_CHECK_EQUAL(collections.size(), 1);
         BOOST_CHECK_EQUAL(multiPoints.size(), 1);
 
-        BOOST_CHECK(points[0]->geometry()->within(polygons[0]->geometry()));
-        BOOST_CHECK(lstrings[0]->geometry()->intersects(polygons[0]->geometry()));
+        BOOST_CHECK(points[0]->getGeometry()->within(polygons[0]->getGeometry()));
+        BOOST_CHECK(lstrings[0]->getGeometry()->intersects(polygons[0]->getGeometry()));
         
     }
 
@@ -184,8 +184,8 @@ BOOST_AUTO_TEST_SUITE(geometries)
         Point::Ptr pointExpected(new Point());
         pointExpected->setCoordinate(geom::Coordinate(0, 1));
 
-        BOOST_CHECK(pointExpected->geometry()->equalsExact(point2D->geometry(), 0.0001));
-        BOOST_CHECK(pointExpected->geometry()->equalsExact(point3D->geometry(), 0.0001));   //Note this will only compare 2 dimension!
+        BOOST_CHECK(pointExpected->getGeometry()->equalsExact(point2D->getGeometry(), 0.0001));
+        BOOST_CHECK(pointExpected->getGeometry()->equalsExact(point3D->getGeometry(), 0.0001));   //Note this will only compare 2 dimension!
     }
 
 
@@ -396,16 +396,17 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         // TODO: GDAL only knows UTM zones __N and __S (north/south), but not the local definitions made by UTMREF / MGRS (e.g. no zone 32U, only 32)
 
         Point::Ptr p(new Point());
-        p->setGeometry(Geometry::importFromWKT("POINT (49.487111 8.466278)"));
+        geos::geom::Point* wktPoint = dynamic_cast<geos::geom::Point*>(Geometry::importFromWKT("POINT (49.487111 8.466278)"));
+        p->setGeometry(wktPoint);
         p->setCS(wgs84);
 
         // transform
         p->transformToCS(utm);
 
-        //print(p->geometry());
+        //print(p->getGeometry());
 
-        BOOST_CHECK_CLOSE(p->geometry()->getX(),  461344., 0.0001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), 5481745., 0.0001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getX(),  461344., 0.0001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getY(), 5481745., 0.0001);
     }
 
     BOOST_AUTO_TEST_CASE(global_mgrs_check)
@@ -440,8 +441,8 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         GeodeticCS::Ptr wgs84(new GeodeticCS());
         p->transformToCS(wgs84);
 
-        BOOST_CHECK_CLOSE(p->geometry()->getX(), 52, 0.0001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), 8, 0.0001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getX(), 52, 0.0001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getY(), 8, 0.0001);
     }
 
     BOOST_AUTO_TEST_CASE(geometry_transformation_local)
@@ -460,8 +461,8 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         p->transformToCS(root);
 
         // expect (1 1)
-        BOOST_CHECK_CLOSE(p->geometry()->getX(), 1, 0.000001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), 1, 0.000001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getX(), 1, 0.000001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getY(), 1, 0.000001);
     }
 
     BOOST_AUTO_TEST_CASE(geometry_transformation_global_local_combined)
@@ -500,18 +501,19 @@ BOOST_AUTO_TEST_SUITE(reference_systems)
         */
         Point::Ptr p(new Point());
         std::string latlon = "POINT (52 8)"; // lat, lon
+        geos::geom::Point* wktPoint = dynamic_cast<geos::geom::Point*>(Geometry::importFromWKT(latlon));
 
-        p->setGeometry(Geometry::importFromWKT(latlon));
+        p->setGeometry(wktPoint);
 
         p->setCS(wgs84);
 
-        BOOST_CHECK_CLOSE(p->geometry()->getX(), 52, 0.0000001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(),  8, 0.0000001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getX(), 52, 0.0000001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getY(),  8, 0.0000001);
 
         p->transformToCS(localTrans);
 
-        BOOST_CHECK_CLOSE(p->geometry()->getX(),  200, 0.0000001);
-        BOOST_CHECK_CLOSE(p->geometry()->getY(), -100, 0.0000001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getX(),  200, 0.0000001);
+        BOOST_CHECK_CLOSE(p->getGeometry()->getY(), -100, 0.0000001);
         
     }
 

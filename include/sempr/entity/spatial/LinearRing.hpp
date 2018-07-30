@@ -23,7 +23,9 @@ public:
     LinearRing(const core::IDGenBase*);
     virtual ~LinearRing();
 
-    const geom::LinearRing* geometry() override;
+    const geom::LinearRing* getGeometry() override;
+
+    void setGeometry(geom::LinearRing* geometry);
 
     void setCoordinates(std::vector<geom::Coordinate>& coordinates); //no const parameter because of geos::geom!
 
@@ -33,8 +35,14 @@ public:
     */
     LinearRing::Ptr clone() const;
 
+protected:
+    geom::LinearRing* geometry() override;
+
 private:
     friend class odb::access;
+
+    #pragma db type("TEXT")
+    geom::LinearRing* geometry_;
 
     virtual LinearRing* raw_clone() const override;
 };

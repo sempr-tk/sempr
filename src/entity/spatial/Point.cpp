@@ -33,20 +33,35 @@ Point::Point(const core::IDGenBase* idgen)
 
 Point::~Point()
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = nullptr;
+    if (geometry_)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = nullptr;
+    }
 }
 
 
-const geom::Point* Point::geometry() 
+const geom::Point* Point::getGeometry() 
 {
-    return dynamic_cast<geom::Point*>(geometry_);
+    return this->geometry();
+}
+
+geom::Point* Point::geometry() 
+{
+    return geometry_;
+}
+
+void Point::setGeometry(geom::Point* geometry)
+{
+    if (geometry_)
+        factory_->destroyGeometry(geometry_);
+
+    geometry_ = geometry;
 }
 
 void Point::setCoordinate(const geom::Coordinate& coordinate)
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = factory_->createPoint(coordinate);
+    setGeometry(factory_->createPoint(coordinate));
 }
 
 Point::Ptr Point::clone() const 
@@ -62,7 +77,7 @@ Point* Point::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    newInstance->geometry_ = geometry_->clone();
+    newInstance->setGeometry( dynamic_cast<geom::Point*>(geometry_->clone()) );
 
     return newInstance;
 }

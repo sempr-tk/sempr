@@ -181,7 +181,7 @@ SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo)
 void SpatialIndex::insertGeo(entity::Geometry::Ptr geo)
 {
     // sanity: it needs a geometry, and a spatial reference.
-    if (!geo->geometry() || !geo->getCS()) return;
+    if (!geo->getGeometry() || !geo->getCS()) return;
 
     // create a new entry
     bValue entry = createEntry(geo);
@@ -206,7 +206,7 @@ void SpatialIndex::updateGeo(entity::Geometry::Ptr geo)
     removeGeo(geo);
 
     // sanity: it needs a geometry, and a spatial reference.
-    if (!geo->geometry() || !geo->getCS()) return;
+    if (!geo->getGeometry() || !geo->getCS()) return;
 
     // and re-insert it with updated data.
     insertGeo(geo);

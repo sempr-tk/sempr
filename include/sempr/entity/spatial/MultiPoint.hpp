@@ -21,7 +21,9 @@ public:
     MultiPoint(const core::IDGenBase*);
     virtual ~MultiPoint();
 
-    const geom::MultiPoint* geometry() override;
+    const geom::MultiPoint* getGeometry() override;
+
+    void setGeometry(geom::MultiPoint* geometry);
 
     void setCoordinates(const std::vector<geom::Coordinate>& coordinates);
 
@@ -31,8 +33,14 @@ public:
     */
     MultiPoint::Ptr clone() const;
 
+protected:
+    geom::MultiPoint* geometry() override;
+
 private:
     friend class odb::access;
+
+    #pragma db type("TEXT")
+    geom::MultiPoint* geometry_;
 
     virtual MultiPoint* raw_clone() const override;
 };

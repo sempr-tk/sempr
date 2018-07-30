@@ -19,4 +19,14 @@ Lineal::~Lineal()
 {
 }
 
+const geom::Lineal* Lineal::getGeometry()
+{
+    return this->geometry();
+}
+
+geom::Lineal* Lineal::geometry()
+{
+    return NULL; // have to be override by childs!
+}
+
 }}

@@ -18,13 +18,29 @@ GeometryCollection::GeometryCollection(const core::IDGenBase* idgen)
 
 GeometryCollection::~GeometryCollection()
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = nullptr;
+    if (geometry_)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = nullptr;
+    }
 }
 
-const geom::GeometryCollection* GeometryCollection::geometry() 
+const geom::GeometryCollection* GeometryCollection::getGeometry() 
 {
-    return dynamic_cast<geom::GeometryCollection*>(geometry_);
+    return this->geometry();
+}
+
+geom::GeometryCollection* GeometryCollection::geometry() 
+{
+    return geometry_;
+}
+
+void GeometryCollection::setGeometry(geom::GeometryCollection* geometry)
+{
+    if (geometry_)
+        factory_->destroyGeometry(geometry_);
+
+    geometry_ = geometry;
 }
 
 void GeometryCollection::setCollection(const std::vector<geom::Geometry*> geoms)
@@ -45,7 +61,7 @@ GeometryCollection* GeometryCollection::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    newInstance->geometry_ = dynamic_cast<geom::GeometryCollection*>(geometry_->clone()); 
+    newInstance->setGeometry( dynamic_cast<geom::GeometryCollection*>(geometry_->clone()) );
 
     return newInstance;
 }

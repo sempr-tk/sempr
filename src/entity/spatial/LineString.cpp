@@ -18,13 +18,29 @@ LineString::LineString(const core::IDGenBase* idgen)
 
 LineString::~LineString()
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = nullptr;
+    if (geometry_)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = nullptr;
+    }
 }
 
-const geom::LineString* LineString::geometry() 
+const geom::LineString* LineString::getGeometry() 
 {
-    return dynamic_cast<geom::LineString*>(geometry_);
+    return this->geometry();
+}
+
+geom::LineString* LineString::geometry() 
+{
+    return geometry_;
+}
+
+void LineString::setGeometry(geom::LineString* geometry)
+{
+    if (geometry_)
+        factory_->destroyGeometry(geometry_);
+
+    geometry_ = geometry;
 }
 
 void LineString::setCoordinates(std::vector<geom::Coordinate>& coordinates)
@@ -48,7 +64,7 @@ LineString* LineString::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    newInstance->geometry_ = geometry_->clone(); 
+    newInstance->setGeometry( dynamic_cast<geom::LineString*>(geometry_->clone()) );
     
     return newInstance;
 }
