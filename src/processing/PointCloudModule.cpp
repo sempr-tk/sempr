@@ -19,7 +19,7 @@ std::string PointCloudModule::type() const {
 
 void PointCloudModule::process(query::PolygonQuery::Ptr query)
 {
-    query::ObjectQuery<entity::PointCloud2>::Ptr clouds(new query::ObjectQuery<entity::PointCloud2>() );
+    query::ObjectQuery<entity::PointCloud>::Ptr clouds(new query::ObjectQuery<entity::PointCloud>() );
 
     ask(clouds);
 
@@ -29,7 +29,7 @@ void PointCloudModule::process(query::PolygonQuery::Ptr query)
     }
 }
 
-void PointCloudModule::calculatePoints(const entity::PointCloud2::Ptr cloud, query::PolygonQuery::Ptr query)
+void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, query::PolygonQuery::Ptr query)
 {
     unsigned int i, j;
 
@@ -73,7 +73,6 @@ void PointCloudModule::calculatePoints(const entity::PointCloud2::Ptr cloud, que
             {
                 intersections += checkIntersection(coords[i - 1], coords[i], outerPoint, cloud_coords[j]);
             }
-            qDebug() << intersections;
             if((intersections & 1) == 1)
             {
                     query->results.push_back(cloud_coords[j]);
@@ -84,7 +83,7 @@ void PointCloudModule::calculatePoints(const entity::PointCloud2::Ptr cloud, que
         std::cout << query->results.size() << std::endl;
 
     }
-    // this is a really bad running time .. O(NumberOfClouds) * O(NumberOfPointsInEachCloud) * O(NumberOfVerticesInPolygon) * O(calculating) ... :(
+    // this is a really bad running time, isnt it? .. O(NumberOfClouds) * O(NumberOfPointsInEachCloud) * O(NumberOfVerticesInPolygon) * O(calculating) ... :(
 
 }
 

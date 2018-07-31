@@ -14,7 +14,7 @@ PolygonQuery::PolygonQuery(const geom::Polygon *poly) : m_poly(poly)
 
 // this is really confusing with all the getGeometry, setGeometry, geometry() functions -
 // with GDAL the only implementation of geometry() for everything was so beautiful :(
-PolygonQuery::PolygonQuery(entity::agro::AgroEntity::Ptr &agro) : PolygonQuery(agro->geometry())
+PolygonQuery::PolygonQuery(entity::agro::AgroEntity::Ptr &agro) : PolygonQuery(agro->polygon()->getGeometry())
 {
 }
 

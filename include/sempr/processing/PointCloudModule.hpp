@@ -7,7 +7,7 @@
 #include <sempr/processing/Module.hpp>
 #include <sempr/query/ObjectQuery.hpp>
 #include <sempr/query/PolygonQuery.hpp>
-#include <PointCloud_2_odb.h>
+#include <PointCloud_odb.h>
 #include <AgroEntity_odb.h>
 
 namespace sempr { namespace processing {
@@ -29,7 +29,7 @@ public:
 private:
     int checkIntersection(geom::Coordinate v11, geom::Coordinate v12, geom::Coordinate v21, geom::Coordinate v22);
 
-    void calculatePoints(const entity::PointCloud2::Ptr cloud, query::PolygonQuery::Ptr query);
+    void calculatePoints(const entity::PointCloud::Ptr cloud, query::PolygonQuery::Ptr query);
 };
 
 }}

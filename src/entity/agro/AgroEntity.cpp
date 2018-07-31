@@ -1,4 +1,4 @@
-//#include <sempr/entity/agro/AgroEntity.hpp>
+#include <sempr/entity/agro/AgroEntity.hpp>
 #include <AgroEntity_odb.h>
 
 
@@ -12,23 +12,17 @@ AgroEntity::AgroEntity() : AgroEntity(new core::IDGen<AgroEntity>())
 
 AgroEntity::AgroEntity(const core::IDGenBase* idgen) : Entity(idgen)
 {
-    this->setDiscriminator<AgroEntity>();
+    setDiscriminator<AgroEntity>();
+
+    m_polygon = Polygon::Ptr(new Polygon());
+    std::cout << id() << " created an Polygon, namely " << m_polygon->id() << '\n';
+
+    registerChildEntity(m_polygon);
 }
 
 AgroEntity::~AgroEntity()
 {
 }
-
-/*
-bool AgroEntity::calculateIntersection(const Polygon::Ptr &polygon)
-{
-    if(m_polygon->Intersects(polygon))
-    {
-            return true;
-    }
-    return false;
-}
-*/
 
 
 }}}

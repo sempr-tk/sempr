@@ -1,7 +1,7 @@
-#ifndef SEMPR_ENTITY_SPATIAL_POINTCLOUD2_HPP_
-#define SEMPR_ENTITY_SPATIAL_POINTCLOUD2_HPP_
+#ifndef SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_
+#define SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_
 
-//#include <sempr/storage/History.hpp>
+#include <sempr/storage/History.hpp>
 
 #include <sempr/entity/spatial/MultiPoint.hpp>
 #include <geos/geom/MultiPoint.h>
@@ -18,16 +18,16 @@ namespace geom = geos::geom;
 /**
  * @brief The PointCloud class is a Entity that represents a Pointcloud
  */
-class PointCloud2 : public MultiPoint
+class PointCloud : public MultiPoint
 {
     SEMPR_ENTITY
 public:
-    using Ptr = std::shared_ptr<PointCloud2>;
+    using Ptr = std::shared_ptr<PointCloud>;
 
-    PointCloud2();
-    PointCloud2(const sempr::core::IDGenBase*);
+    PointCloud();
+    PointCloud(const sempr::core::IDGenBase*);
 
-    ~PointCloud2() {}
+    ~PointCloud() {}
 
     #pragma db value
     struct Color
@@ -62,9 +62,9 @@ protected:
 };
 
 // enable history:
-typedef storage::History<PointCloud2::Ptr> PointCloud2History;
-#pragma db value(PointCloud2History)
+typedef storage::History<PointCloud::Ptr> PointCloudHistory;
+#pragma db value(PointCloudHistory)
     
 }}
 
-#endif /* end of include guard: SEMPR_ENTITY_SPATIAL_POINTCLOUD_2_HPP_ */
+#endif /* end of include guard: SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_ */
