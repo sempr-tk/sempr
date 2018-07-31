@@ -10,7 +10,7 @@ AgroEntity::AgroEntity() : AgroEntity(new core::IDGen<AgroEntity>())
 {
 }
 
-AgroEntity::AgroEntity(const core::IDGenBase* idgen) : Polygon(idgen)
+AgroEntity::AgroEntity(const core::IDGenBase* idgen) : Entity(idgen)
 {
     this->setDiscriminator<AgroEntity>();
 }
