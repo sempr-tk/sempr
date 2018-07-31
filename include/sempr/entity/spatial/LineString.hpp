@@ -22,7 +22,9 @@ public:
     LineString(const core::IDGenBase*);
     virtual ~LineString();
 
-    const geom::LineString* geometry() override;
+    const geom::LineString* getGeometry() const override;
+
+    void setGeometry(geom::LineString* geometry);
 
     void setCoordinates(std::vector<geom::Coordinate>& coordinates); //no const parameter because of geos::geom!
 
@@ -32,8 +34,14 @@ public:
     */
     LineString::Ptr clone() const;
 
+protected:
+    geom::LineString* geometry() const override;
+
 private:
     friend class odb::access;
+
+    #pragma db type("TEXT")
+    geom::LineString* geometry_;
 
     virtual LineString* raw_clone() const override;
 };

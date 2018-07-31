@@ -21,7 +21,9 @@ public:
     GeometryCollection(const core::IDGenBase*);
     virtual ~GeometryCollection();
 
-    const geom::GeometryCollection* geometry() override;
+    const geom::GeometryCollection* getGeometry() const override;
+
+    void setGeometry(geom::GeometryCollection* geometry);
 
     void setCollection(const std::vector<geom::Geometry*> geoms);
 
@@ -31,10 +33,17 @@ public:
     */
     GeometryCollection::Ptr clone() const;
 
+protected:
+    geom::GeometryCollection* geometry() const override;
+
 private:
     friend class odb::access;
 
+    #pragma db type("TEXT")
+    geom::GeometryCollection* geometry_;
+
     virtual GeometryCollection* raw_clone() const override;
+
 };
 
 }}

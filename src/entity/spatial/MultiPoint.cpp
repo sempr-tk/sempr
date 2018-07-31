@@ -19,13 +19,29 @@ MultiPoint::MultiPoint(const core::IDGenBase* idgen)
 
 MultiPoint::~MultiPoint()
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = nullptr;
+    if (geometry_)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = nullptr;
+    }
 }
 
-const geom::MultiPoint* MultiPoint::geometry() 
+const geom::MultiPoint* MultiPoint::getGeometry() const
 {
-    return dynamic_cast<geom::MultiPoint*>(geometry_);
+    return this->geometry();
+}
+
+geom::MultiPoint* MultiPoint::geometry() const
+{
+    return geometry_;
+}
+
+void MultiPoint::setGeometry(geom::MultiPoint* geometry)
+{
+    if (geometry_)
+        factory_->destroyGeometry(geometry_);
+
+    geometry_ = geometry;
 }
 
 void MultiPoint::setCoordinates(const std::vector<geom::Coordinate>& coordinates)
@@ -46,7 +62,7 @@ MultiPoint* MultiPoint::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    newInstance->geometry_ = geometry_->clone(); 
+    newInstance->setGeometry( dynamic_cast<geom::MultiPoint*>(geometry_->clone()) );
     
     return newInstance;
 }

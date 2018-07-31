@@ -19,13 +19,29 @@ Polygon::Polygon(const core::IDGenBase* idgen)
 
 Polygon::~Polygon()
 {
-    factory_->destroyGeometry(geometry_);
-    geometry_ = nullptr;
+    if (geometry_)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = nullptr;
+    }
 }
 
-const geom::Polygon* Polygon::geometry() 
+const geom::Polygon* Polygon::getGeometry() const
 {
-    return dynamic_cast<geom::Polygon*>(geometry_);
+    return this->geometry();
+}
+
+geom::Polygon* Polygon::geometry() const
+{
+    return geometry_;
+}
+
+void Polygon::setGeometry(geom::Polygon* geometry)
+{
+    if (geometry_)
+        factory_->destroyGeometry(geometry_);
+
+    geometry_ = geometry;
 }
 
 Polygon::Ptr Polygon::clone() const 
@@ -41,7 +57,8 @@ Polygon* Polygon::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    newInstance->geometry_ = geometry_->clone(); // use OGRGeometry copy ctor
+    newInstance->setGeometry( dynamic_cast<geom::Polygon*>(geometry_->clone()) );
+
     return newInstance;
 }
 

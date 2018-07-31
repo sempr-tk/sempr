@@ -2,6 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_LINEAL_HPP_
 
 #include <sempr/entity/spatial/Geometry.hpp>
+#include <geos/geom/Lineal.h>
 
 namespace sempr { namespace entity {
 
@@ -16,9 +17,13 @@ class Lineal : public Geometry {
 public:
     using Ptr = std::shared_ptr<Lineal>;
 
+    virtual const geom::Lineal* getGeometry() const;
+
     virtual ~Lineal();
 protected:
     Lineal(const core::IDGenBase* idgen);
+
+    virtual geom::Lineal* geometry() const;
 
 private:
     friend class odb::access;
