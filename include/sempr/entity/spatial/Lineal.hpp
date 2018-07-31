@@ -17,13 +17,13 @@ class Lineal : public Geometry {
 public:
     using Ptr = std::shared_ptr<Lineal>;
 
-    virtual const geom::Lineal* getGeometry() const;
+    virtual const geom::Lineal* getGeometry();
 
     virtual ~Lineal();
 protected:
     Lineal(const core::IDGenBase* idgen);
 
-    virtual geom::Lineal* geometry() const;
+    virtual geom::Lineal* getGeometry() const;
 
 private:
     friend class odb::access;

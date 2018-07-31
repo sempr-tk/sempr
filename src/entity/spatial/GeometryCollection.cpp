@@ -25,12 +25,12 @@ GeometryCollection::~GeometryCollection()
     }
 }
 
-const geom::GeometryCollection* GeometryCollection::getGeometry() const
+const geom::GeometryCollection* GeometryCollection::getGeometry()
 {
-    return this->geometry();
+    return geometry_;
 }
 
-geom::GeometryCollection* GeometryCollection::geometry() const
+geom::GeometryCollection* GeometryCollection::getGeometry() const
 {
     return geometry_;
 }

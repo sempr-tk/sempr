@@ -23,7 +23,7 @@ public:
     Point(const core::IDGenBase*);
     virtual ~Point();
 
-    const geom::Point* getGeometry() const override;
+    const geom::Point* getGeometry() override;
 
     void setGeometry(geom::Point* geometry);
 
@@ -36,7 +36,7 @@ public:
     Point::Ptr clone() const;
 
 protected:
-    geom::Point* geometry() const override;
+    geom::Point* getGeometry() const override;
 
 private:
     friend class odb::access;

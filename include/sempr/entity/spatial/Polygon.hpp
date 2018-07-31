@@ -21,7 +21,7 @@ public:
     Polygon(const core::IDGenBase*);
     virtual ~Polygon();
 
-    const geom::Polygon* getGeometry() const override;
+    const geom::Polygon* getGeometry() override;
 
     void setGeometry(geom::Polygon* geometry);
 
@@ -32,7 +32,7 @@ public:
     Polygon::Ptr clone() const;
 
 protected:
-    geom::Polygon* geometry() const override;
+    geom::Polygon* getGeometry() const override;
 
 private:
     friend class odb::access;

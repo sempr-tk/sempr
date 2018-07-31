@@ -25,12 +25,12 @@ LineString::~LineString()
     }
 }
 
-const geom::LineString* LineString::getGeometry() const
+const geom::LineString* LineString::getGeometry()
 {
-    return this->geometry();
+    return geometry_;
 }
 
-geom::LineString* LineString::geometry() const
+geom::LineString* LineString::getGeometry() const
 {
     return geometry_;
 }

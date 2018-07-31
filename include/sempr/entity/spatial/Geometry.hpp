@@ -39,7 +39,7 @@ class Geometry : public Entity
     // which again leads to compiler errors.
     // its not allow to use this geometry in another geometry (e.g. collection). Otherwise you will get multiple ownerships to this object!
     // To use a collection build a clone of this geometry or construct a new one.
-    virtual const geom::Geometry* getGeometry() const;
+    virtual const geom::Geometry* getGeometry();
 
     /**
         Assigns this geometry to the given reference frame. No transformations will be done.
@@ -78,7 +78,7 @@ class Geometry : public Entity
   protected:
     static const geom::GeometryFactory* factory_;
 
-    virtual geom::Geometry* geometry() const;
+    virtual geom::Geometry* getGeometry() const;
 
     void apply(Filter& filter);
     void apply(FilterList& filterList);
