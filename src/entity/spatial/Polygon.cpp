@@ -26,12 +26,12 @@ Polygon::~Polygon()
     }
 }
 
-const geom::Polygon* Polygon::getGeometry() 
+const geom::Polygon* Polygon::getGeometry() const
 {
     return this->geometry();
 }
 
-geom::Polygon* Polygon::geometry() 
+geom::Polygon* Polygon::geometry() const
 {
     return geometry_;
 }

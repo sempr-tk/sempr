@@ -17,13 +17,13 @@ class Collection : public Geometry {
 public:
     using Ptr = std::shared_ptr<Collection>;
 
-    virtual const geom::GeometryCollection* getGeometry();
+    virtual const geom::GeometryCollection* getGeometry() const;
 
     virtual ~Collection();
 protected:
     Collection(const core::IDGenBase* idgen);
 
-    virtual geom::GeometryCollection* geometry();
+    virtual geom::GeometryCollection* geometry() const;
 
 private:
     friend class odb::access;

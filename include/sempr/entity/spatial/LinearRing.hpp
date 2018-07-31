@@ -23,7 +23,7 @@ public:
     LinearRing(const core::IDGenBase*);
     virtual ~LinearRing();
 
-    const geom::LinearRing* getGeometry() override;
+    const geom::LinearRing* getGeometry() const override;
 
     void setGeometry(geom::LinearRing* geometry);
 
@@ -36,7 +36,7 @@ public:
     LinearRing::Ptr clone() const;
 
 protected:
-    geom::LinearRing* geometry() override;
+    geom::LinearRing* geometry() const override;
 
 private:
     friend class odb::access;

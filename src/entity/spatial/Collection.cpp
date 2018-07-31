@@ -19,12 +19,12 @@ Collection::~Collection()
 {
 }
 
-const geom::GeometryCollection* Collection::getGeometry()
+const geom::GeometryCollection* Collection::getGeometry() const
 {
     return this->geometry();
 }
 
-geom::GeometryCollection* Collection::geometry()
+geom::GeometryCollection* Collection::geometry() const
 {
     return NULL; // have to be override by childs!
 }

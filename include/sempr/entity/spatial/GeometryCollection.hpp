@@ -21,7 +21,7 @@ public:
     GeometryCollection(const core::IDGenBase*);
     virtual ~GeometryCollection();
 
-    const geom::GeometryCollection* getGeometry() override;
+    const geom::GeometryCollection* getGeometry() const override;
 
     void setGeometry(geom::GeometryCollection* geometry);
 
@@ -34,7 +34,7 @@ public:
     GeometryCollection::Ptr clone() const;
 
 protected:
-    geom::GeometryCollection* geometry() override;
+    geom::GeometryCollection* geometry() const override;
 
 private:
     friend class odb::access;

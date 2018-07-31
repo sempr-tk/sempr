@@ -30,14 +30,14 @@ Geometry::~Geometry()
 {
 }
 
-geom::Geometry* Geometry::geometry() 
+geom::Geometry* Geometry::geometry() const
 { 
     return NULL; // have to be override by childs!
 }
 
-const geom::Geometry* Geometry::getGeometry()
+const geom::Geometry* Geometry::getGeometry() const 
 {
-    return getGeometry();
+    return this->geometry();
 }
 
 Geometry::Ptr Geometry::clone() const 

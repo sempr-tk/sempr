@@ -19,12 +19,12 @@ Lineal::~Lineal()
 {
 }
 
-const geom::Lineal* Lineal::getGeometry()
+const geom::Lineal* Lineal::getGeometry() const
 {
     return this->geometry();
 }
 
-geom::Lineal* Lineal::geometry()
+geom::Lineal* Lineal::geometry() const
 {
     return NULL; // have to be override by childs!
 }
