@@ -32,7 +32,7 @@ public:
     Polygon::Ptr clone() const;
 
 protected:
-    geom::Polygon* geometry() const override;
+    geom::Polygon* getGeometryMut() const override;
 
 private:
     friend class odb::access;

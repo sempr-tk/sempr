@@ -35,7 +35,7 @@ public:
     LineString::Ptr clone() const;
 
 protected:
-    geom::LineString* geometry() const override;
+    geom::LineString* getGeometryMut() const override;
 
 private:
     friend class odb::access;

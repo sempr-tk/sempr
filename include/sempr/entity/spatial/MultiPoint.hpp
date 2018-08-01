@@ -34,7 +34,7 @@ public:
     MultiPoint::Ptr clone() const;
 
 protected:
-    geom::MultiPoint* geometry() const override;
+    geom::MultiPoint* getGeometryMut() const override;
 
 private:
     friend class odb::access;

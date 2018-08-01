@@ -36,7 +36,7 @@ public:
     Point::Ptr clone() const;
 
 protected:
-    geom::Point* geometry() const override;
+    geom::Point* getGeometryMut() const override;
 
 private:
     friend class odb::access;

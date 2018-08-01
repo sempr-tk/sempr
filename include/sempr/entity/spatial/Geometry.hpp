@@ -78,7 +78,10 @@ class Geometry : public Entity
   protected:
     static const geom::GeometryFactory* factory_;
 
-    virtual geom::Geometry* geometry() const;
+    /**
+     * @brief Get the GEOS GEOM Geometry object as mutable (non-const) pointer.
+     */
+    virtual geom::Geometry* getGeometryMut() const;
 
     void apply(Filter& filter);
     void apply(FilterList& filterList);

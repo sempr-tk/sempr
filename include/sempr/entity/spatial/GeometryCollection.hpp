@@ -34,7 +34,7 @@ public:
     GeometryCollection::Ptr clone() const;
 
 protected:
-    geom::GeometryCollection* geometry() const override;
+    geom::GeometryCollection* getGeometryMut() const override;
 
 private:
     friend class odb::access;

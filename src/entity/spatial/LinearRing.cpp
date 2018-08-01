@@ -27,10 +27,10 @@ LinearRing::~LinearRing()
 
 const geom::LinearRing* LinearRing::getGeometry() const
 {
-    return this->geometry();
+    return getGeometryMut();
 }
 
-geom::LinearRing* LinearRing::geometry() const
+geom::LinearRing* LinearRing::getGeometryMut() const
 {
     return geometry_;
 }

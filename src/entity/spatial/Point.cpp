@@ -43,10 +43,10 @@ Point::~Point()
 
 const geom::Point* Point::getGeometry() const
 {
-    return this->geometry();
+    return getGeometryMut();
 }
 
-geom::Point* Point::geometry() const
+geom::Point* Point::getGeometryMut() const
 {
     return geometry_;
 }
