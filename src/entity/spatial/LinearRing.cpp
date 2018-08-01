@@ -25,12 +25,12 @@ LinearRing::~LinearRing()
     }
 }
 
-const geom::LinearRing* LinearRing::getGeometry()
+const geom::LinearRing* LinearRing::getGeometry() const
 {
-    return geometry_;
+    return getGeometryMut();
 }
 
-geom::LinearRing* LinearRing::getGeometry() const
+geom::LinearRing* LinearRing::getGeometryMut() const
 {
     return geometry_;
 }

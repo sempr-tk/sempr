@@ -19,12 +19,12 @@ Lineal::~Lineal()
 {
 }
 
-const geom::Lineal* Lineal::getGeometry()
+const geom::Lineal* Lineal::getGeometry() const
 {
-    return nullptr;
+    return getGeometryMut();
 }
 
-geom::Lineal* Lineal::getGeometry() const
+geom::Lineal* Lineal::getGeometryMut() const
 {
     return nullptr; // have to be override by childs!
 }
