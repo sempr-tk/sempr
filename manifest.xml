@@ -17,7 +17,8 @@
     <url>https://git.hb.dfki.de/nniemann/SEMPR</url>
     <logo>...</logo>
 
-    <depend package="external/gdal-with-geos"/>
+    <depend package="geographiclib"/>
+    <depend package="geos"/>
     <depend package="soprano" />
     <depend package="odb" />
     <depend package="boost-uuid" />
