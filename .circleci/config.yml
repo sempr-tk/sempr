@@ -14,27 +14,12 @@ jobs:
       - run: apt-get install -y -qq pkg-config
       - run: apt-get install -y -qq libsoprano-dev
       - run: apt-get install -y -qq qt4-default
-      - run: apt-get install -y -qq libgeos-dev
+      - run: apt-get install -y -qq libgeos-dev libgeos++-dev
       - run: apt-get install -y -qq libeigen3-dev
       - run: apt-get install -y -qq git
-      - run: apt-get install -y -qq libproj-dev
-      - restore_cache:
-          keys:
-            - gdal-2.2.3-cache
-      - run:
-          name: Install GDAL
-          command: |
-            git clone https://github.com/OSGeo/gdal.git -b tags/2.2.3 || echo "gdal repo already present"
-            cd gdal/gdal 
-            ./configure -with-geos=yes
-            make -j8
-            make install
-      - save_cache:
-          key: gdal-2.2.3-cache
-          paths:
-            - gdal
+      - run: apt-get install -y -qq libgeographic-dev
       - run: mkdir build
-      - run: echo $LD_LIBRARY_PATH
       - run: cd build && cmake .. && make -j2
-      - run: ldd build/test/sempr_test_bin | grep gdal
-      - run: cd build && ./test/sempr_test_bin
+      - run: cd build && ctest --output-on-failure
+
+

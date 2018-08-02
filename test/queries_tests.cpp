@@ -2,7 +2,7 @@
 using namespace testing;
 
 BOOST_AUTO_TEST_SUITE(queries)
-    std::string dbfile = "test_sqlite.db";
+    std::string dbfile = "test_queries_sqlite.db";
     BOOST_AUTO_TEST_CASE(SPARQLQuery_test)
     {
         ODBStorage::Ptr storage = setUpStorage(dbfile, true);

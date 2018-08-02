@@ -10,22 +10,42 @@ Polygon::Polygon() : Polygon(new core::IDGen<Polygon>())
 }
 
 Polygon::Polygon(const core::IDGenBase* idgen)
-    : CurvePolygon(idgen)
+    : Geometry(idgen)
 {
     this->setDiscriminator<Polygon>();
-    geometry_ = static_cast<OGRPolygon*>(OGRGeometryFactory::createGeometry(wkbPolygon));
+
+    geometry_ = factory_->createPolygon();
 }
 
 Polygon::~Polygon()
 {
-    OGRGeometryFactory::destroyGeometry(geometry_);
+    if (geometry_)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = nullptr;
+    }
 }
 
-OGRPolygon* Polygon::geometry() {
+const geom::Polygon* Polygon::getGeometry() const
+{
     return geometry_;
 }
 
-Polygon::Ptr Polygon::clone() const {
+geom::Polygon* Polygon::getGeometryMut()
+{
+    return geometry_;
+}
+
+void Polygon::setGeometry(geom::Polygon* geometry)
+{
+    if (geometry_)
+        factory_->destroyGeometry(geometry_);
+
+    geometry_ = geometry;
+}
+
+Polygon::Ptr Polygon::clone() const 
+{
     // raw clone is virtual! :)
     return Polygon::Ptr(raw_clone());
 }
@@ -37,7 +57,8 @@ Polygon* Polygon::raw_clone() const
     newInstance->setCS(this->getCS());
 
     // copy the geometry
-    *(newInstance->geometry_) = *geometry_; // use OGRGeometry copy ctor
+    newInstance->setGeometry( dynamic_cast<geom::Polygon*>(geometry_->clone()) );
+
     return newInstance;
 }
 
