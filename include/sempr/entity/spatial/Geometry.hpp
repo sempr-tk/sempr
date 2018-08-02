@@ -2,12 +2,20 @@
 #define SEMPR_ENTITY_SPATIAL_GEOMETRY_HPP_
 
 #include <sempr/entity/Entity.hpp>
-#include <sempr/entity/spatial/SpatialReference.hpp>
-#include <ogr_geometry.h>
+#include <sempr/entity/spatial/reference/SpatialReference.hpp>
+#include <sempr/entity/spatial/filter/GeometryFilter.hpp>
+
+#include <geos/geom/Geometry.h>
+#include <geos/geom/CoordinateArraySequenceFactory.h>
 
 #include <type_traits>
 
-namespace sempr { namespace entity {
+namespace sempr
+{
+namespace entity
+{
+
+namespace geom = geos::geom;
 
 /**
     A base class for all geometry entities. Contains methods to manage spatial reference systems
@@ -15,9 +23,10 @@ namespace sempr { namespace entity {
     by the derived classes (point, polygon, ...).
 */
 #pragma db object
-class Geometry : public Entity {
+class Geometry : public Entity
+{
     SEMPR_ENTITY
-public:
+  public:
     using Ptr = std::shared_ptr<Geometry>;
 
     Geometry();
@@ -28,7 +37,9 @@ public:
     // Note: I'd like this to be a pure virtual, but in that case ODB does not create a
     // discriminator for the class (why should it, if no instances of it can be created?),
     // which again leads to compiler errors.
-    virtual OGRGeometry* geometry() { return NULL; };
+    // its not allow to use this geometry in another geometry (e.g. collection). Otherwise you will get multiple ownerships to this object!
+    // To use a collection build a clone of this geometry or construct a new one.
+    virtual const geom::Geometry* getGeometry() const;
 
     /**
         Assigns this geometry to the given reference frame. No transformations will be done.
@@ -49,16 +60,8 @@ public:
     */
     void transformToCS(SpatialReference::Ptr cs);
 
-    /** Exception that may be thrown during transformToCS. */
-    class TransformException : public std::exception {
-    private:
-        std::string message_;
-    public:
-        explicit TransformException(const std::string& m) : message_(m) {}
-        virtual const char* what() const throw() {
-            return message_.c_str();
-        }
-    };
+    // apply a read only filter to find the min and max values of the geometry in his local coordinate system in 3d.
+    void findEnvelope(geom::Coordinate& min, geom::Coordinate& max);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
@@ -66,7 +69,26 @@ public:
     */
     Geometry::Ptr clone() const;
 
-private:
+    static geom::Geometry* importFromWKB(const std::basic_string<char> &buffer);
+    static std::basic_string<char> exportToWKB(const geom::Geometry *geom);
+
+    static geom::Geometry* importFromWKT(const std::string &text);
+    static std::string exportToWKT(const geom::Geometry *geom);
+
+  protected:
+    static const geom::GeometryFactory* factory_;
+
+    /**
+     * @brief Get the GEOS GEOM Geometry object as mutable (non-const) pointer.
+     */
+    virtual geom::Geometry* getGeometryMut();
+
+    void apply(Filter& filter);
+    void apply(FilterList& filterList);
+
+  private:
+    friend class odb::access;    
+
     /**
         Return a pointer to a clone of this. Uses the copy-constructor. To be implemented by derived
         classes to copy the geometry and use the same SpatialReference (instance!).
@@ -74,11 +96,10 @@ private:
     */
     virtual Geometry* raw_clone() const;
 
-    friend class odb::access;
     SpatialReference::Ptr referenceFrame_;
 };
 
-}}
-
+} // namespace entity
+} // namespace sempr
 
 #endif /* end of include guard SEMPR_ENTITY_SPATIAL_GEOMETRY_HPP_ */

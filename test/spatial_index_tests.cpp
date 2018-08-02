@@ -1,32 +1,57 @@
 #include "test_utils.hpp"
 using namespace testing;
 
-void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const std::array<float, 3>& max)
+
+geom::MultiPoint* setupQuadrangle(const std::array<float, 3>& min, const std::array<float, 3>& max)
 {
-    // OGRLineString* ls = (OGRLineString*) OGRGeometryFactory::createGeometry(wkbLineString);
-    OGRLinearRing* lr = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
-    lr->addPoint(min[0], min[1], max[2]);
-    lr->addPoint(min[0], max[1], min[2]);
-    lr->addPoint(min[0], max[1], max[2]);
-    lr->addPoint(min[0], min[1], min[2]);
-    lr->addPoint(min[0], min[1], max[2]);
-    lr->addPoint(min[0], max[1], min[2]);
-    lr->addPoint(min[0], max[1], max[2]);
-    lr->addPoint(max[0], min[1], min[2]);
-    lr->addPoint(max[0], min[1], max[2]);
-    lr->addPoint(max[0], max[1], min[2]);
-    lr->addPoint(max[0], max[1], max[2]);
-    lr->closeRings();
-    poly->addRingDirectly(lr);
+    std::vector<geom::Coordinate> corners;
+
+    corners.push_back(geom::Coordinate(min[0], min[1], min[2]));
+    corners.push_back(geom::Coordinate(min[0], min[1], max[2]));
+    corners.push_back(geom::Coordinate(min[0], max[1], min[2]));
+    corners.push_back(geom::Coordinate(min[0], max[1], max[2]));
+    corners.push_back(geom::Coordinate(max[0], min[1], min[2]));
+    corners.push_back(geom::Coordinate(max[0], min[1], max[2]));
+    corners.push_back(geom::Coordinate(max[0], max[1], min[2]));
+    corners.push_back(geom::Coordinate(max[0], max[1], max[2]));
+
+    auto mp = geom::GeometryFactory::getDefaultInstance()->createMultiPoint(corners);
+
+    return mp;
 }
 
-BOOST_AUTO_TEST_SUITE(spatial_index)
-    std::string dbfile = "test_sqlite.db";
-    BOOST_AUTO_TEST_CASE(spatial_index_1)
-    {
-        ODBStorage::Ptr storage = setUpStorage(dbfile, true);
-        Core core;
 
+BOOST_AUTO_TEST_SUITE(spatial_index)
+    std::string dbfile = "test_spatial_index_sqlite.db";
+
+    BOOST_AUTO_TEST_CASE(spatial_index_simple)
+    {
+        Core core;
+        
+        SpatialIndex::Ptr index(new SpatialIndex());
+        core.addModule(index);
+
+        //build up a quadrangle
+        LocalCS::Ptr cs(new LocalCS());
+        MultiPoint::Ptr mp( new MultiPoint() );
+        mp->setGeometry(setupQuadrangle({1, 1, 1}, {10, 10, 10}));
+        mp->setCS(cs);
+        core.addEntity(mp);
+
+        auto queryWithinBox = SpatialIndexQuery::withinBox(Eigen::Vector3d{0, 0, 0}, Eigen::Vector3d{10, 10 ,10}, cs);
+        core.answerQuery(queryWithinBox);
+        BOOST_CHECK_EQUAL(queryWithinBox->results.size(), 1);
+
+        auto queryIntersecBox = SpatialIndexQuery::intersectsBox(Eigen::Vector3d{1, 1, 1}, Eigen::Vector3d{2, 2 ,2}, cs);
+        core.answerQuery(queryIntersecBox);
+        BOOST_CHECK_EQUAL(queryIntersecBox->results.size(), 1);
+
+    }
+
+    BOOST_AUTO_TEST_CASE(spatial_index_complex)
+    {
+        Core core;
+        
         SpatialIndex::Ptr index(new SpatialIndex());
         core.addModule(index);
 
@@ -39,18 +64,18 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         // |p0|p1|p2|p3|p4|p5|p6|p7|p8|p9|
         for (int i = 0; i < 10; i++)
         {
-            Polygon::Ptr p( new Polygon(new PredefinedID("p" + std::to_string(i))) );
-            setupQuadrangle(p->geometry(), {{float(i), 0, 0}}, {{float(i+1), 1, 1}});
-            p->setCS(cs);
-            core.addEntity(p);
+            MultiPoint::Ptr mp( new MultiPoint(new PredefinedID("mp" + std::to_string(i))) );
+            mp->setGeometry(setupQuadrangle({{float(i), 0, 0}}, {{float(i+1), 1, 1}}));
+            mp->setCS(cs);
+            core.addEntity(mp);
         }
 
         // add more geometries, with different coordinate systems!
         LocalCS::Ptr previous = cs;
         for (int i = 10; i < 20; i++)
         {
-            Polygon::Ptr p( new Polygon(new PredefinedID("p" + std::to_string(i))) );
-            setupQuadrangle(p->geometry(), {{float(9), 0, 0}}, {{float(10), 1, 1}});   // always the same
+            MultiPoint::Ptr mp( new MultiPoint(new PredefinedID("mp" + std::to_string(i))) );
+            mp->setGeometry(setupQuadrangle({{float(9), 0, 0}}, {{float(10), 1, 1}}));
 
             LocalCS::Ptr child(new LocalCS());  // with a new coordinate system
             child->setParent(previous);         // attached to the previous
@@ -58,8 +83,8 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
             core.addEntity(child);
             previous = child;
 
-            p->setCS(child);
-            core.addEntity(p);
+            mp->setCS(child);
+            core.addEntity(mp);
         }
 
         /** now we have 20 polygons side by side along the x axis, with the first 10 in the same
@@ -70,8 +95,8 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
                 within [7.5, 12.5] --> expected 8,9,10,11
                 intersects ^^ --> expected 7,8,9,10,11,12
         */
-        std::set<std::string> expected_within = {{ "p8", "p9", "p10", "p11" }};
-        std::set<std::string> expected_intersects = {{ "p7", "p8", "p9", "p10", "p11", "p12" }};
+        std::set<std::string> expected_within = {{ "mp8", "mp9", "mp10", "mp11" }};
+        std::set<std::string> expected_intersects = {{ "mp7", "mp8", "mp9", "mp10", "mp11", "mp12" }};
 
         // within
         auto query = SpatialIndexQuery::withinBox(Eigen::Vector3d{7.5, -1, -1}, Eigen::Vector3d{12.5, 2, 2}, cs);
@@ -99,4 +124,5 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
     {
         removeStorage(dbfile);
     }
+
 BOOST_AUTO_TEST_SUITE_END()
