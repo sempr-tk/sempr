@@ -27,10 +27,10 @@ GeometryCollection::~GeometryCollection()
 
 const geom::GeometryCollection* GeometryCollection::getGeometry() const
 {
-    return getGeometryMut();
+    return geometry_;
 }
 
-geom::GeometryCollection* GeometryCollection::getGeometryMut() const
+geom::GeometryCollection* GeometryCollection::getGeometryMut()
 {
     return geometry_;
 }

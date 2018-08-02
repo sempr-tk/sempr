@@ -28,10 +28,10 @@ MultiPoint::~MultiPoint()
 
 const geom::MultiPoint* MultiPoint::getGeometry() const
 {
-    return getGeometryMut();
+    return geometry_;
 }
 
-geom::MultiPoint* MultiPoint::getGeometryMut() const
+geom::MultiPoint* MultiPoint::getGeometryMut()
 {
     return geometry_;
 }

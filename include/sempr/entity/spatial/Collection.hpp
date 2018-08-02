@@ -23,7 +23,7 @@ public:
 protected:
     Collection(const core::IDGenBase* idgen);
 
-    virtual geom::GeometryCollection* getGeometryMut() const override;
+    virtual geom::GeometryCollection* getGeometryMut() override;
 
 private:
     friend class odb::access;

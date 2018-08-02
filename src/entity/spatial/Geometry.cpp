@@ -32,10 +32,10 @@ Geometry::~Geometry()
 
 const geom::Geometry* Geometry::getGeometry() const
 {
-    return getGeometryMut();
+    return nullptr;
 }
 
-geom::Geometry* Geometry::getGeometryMut() const
+geom::Geometry* Geometry::getGeometryMut()
 { 
     return nullptr; // have to be override by childs!
 }
