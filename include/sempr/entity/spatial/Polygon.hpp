@@ -26,6 +26,13 @@ public:
     void setGeometry(geom::Polygon* geometry);
 
     /**
+     * @brief Set the shell coordindates. Will overwrite the polygon geometry (including the holes)!
+     * 
+     * @note the coordinates have to define a closed linear ring. so the first and last coordinates have to be equal.
+     */
+    void setCoordinates(std::vector<geom::Coordinate>& coordinates); //no const parameter because of geos::geom!
+
+    /**
         Get a new entity with the same geometry (copy) referring to the same instance of
         SpatialReference.
     */
