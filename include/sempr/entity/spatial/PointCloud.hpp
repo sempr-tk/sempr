@@ -41,13 +41,13 @@ public:
         struct Color c;
     };
 
-    uint64_t size() const { return geometry()->getNumPoints(); }
+    uint64_t size() const { return getGeometry()->getNumPoints(); }
     // TODO How to store the colors?
 
     //std::vector<geom::Coordinate>& points() { return geometry_->getCoordinates(); }
-    geom::CoordinateSequence *points() { return geometry()->getCoordinates(); }
+    geom::CoordinateSequence *points() { return getGeometry()->getCoordinates(); }
     // TODO: error-handling? i out of bounds?
-    geom::Geometry const *point(int i) { return geometry()->getGeometryN(i); }           // beware of the CONST! point.
+    geom::Geometry const *point(int i) { return getGeometry()->getGeometryN(i); }           // beware of the CONST! point.
 
     void setCoordinatesWithColor(const std::vector<geom::Coordinate> &coordinates, const std::vector<unsigned char> &colors);
     //void setPoints(const std::vector<Point>& points) { m_points = points; calculateBounds(); changed(); }
