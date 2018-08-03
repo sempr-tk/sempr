@@ -44,28 +44,25 @@ void Polygon::setGeometry(geom::Polygon* geometry)
     geometry_ = geometry;
 }
 
-void Polygon::setCoordinates(const std::vector<geom::Coordinate>& coordinates)
+void Polygon::setCoordinates(std::vector<geom::Coordinate>& coordinates)
 {
-    geom::CoordinateSequence* seq = geom::CoordinateArraySequenceFactory::instance()->create();
-    seq->setPoints(coordinates);
+    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create();
+    sequence->setPoints(coordinates);
 
-    setCoordinates(*seq);
+    geom::LinearRing* ring = factory_->createLinearRing(sequence);
 
-    delete seq;
-}
+    std::vector< geom::Geometry* > holes;
 
-void Polygon::setCoordinates(const geom::CoordinateSequence& seq)
-{
-    geom::LinearRing* ring = factory_->createLinearRing(seq);
+    auto polygon = factory_->createPolygon(*ring, holes);   //copy ring to avoid ownership issues
 
-    auto holes = new std::vector< geom::Geometry* >();
-
-    auto polygon = factory_->createPolygon(ring, holes);
+    // ToDO: clean up
+    //factory_->destroyGeometry(ring);
+    //delete sequence;
 
     setGeometry(polygon);
 }
 
-Polygon::Ptr Polygon::clone() const 
+Polygon::Ptr Polygon::clone() const
 {
     // raw clone is virtual! :)
     return Polygon::Ptr(raw_clone());
