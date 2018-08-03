@@ -27,10 +27,10 @@ LineString::~LineString()
 
 const geom::LineString* LineString::getGeometry() const
 {
-    return this->geometry();
+    return geometry_;
 }
 
-geom::LineString* LineString::geometry() const
+geom::LineString* LineString::getGeometryMut()
 {
     return geometry_;
 }

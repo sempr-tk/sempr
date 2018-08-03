@@ -36,7 +36,7 @@ public:
     LinearRing::Ptr clone() const;
 
 protected:
-    geom::LinearRing* geometry() const override;
+    geom::LinearRing* getGeometryMut() override;
 
 private:
     friend class odb::access;

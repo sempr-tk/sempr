@@ -28,10 +28,10 @@ Polygon::~Polygon()
 
 const geom::Polygon* Polygon::getGeometry() const
 {
-    return this->geometry();
+    return geometry_;
 }
 
-geom::Polygon* Polygon::geometry() const
+geom::Polygon* Polygon::getGeometryMut()
 {
     return geometry_;
 }

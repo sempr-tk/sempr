@@ -30,14 +30,14 @@ Geometry::~Geometry()
 {
 }
 
-geom::Geometry* Geometry::geometry() const
-{ 
-    return NULL; // have to be override by childs!
+const geom::Geometry* Geometry::getGeometry() const
+{
+    return nullptr;
 }
 
-const geom::Geometry* Geometry::getGeometry() const 
-{
-    return this->geometry();
+geom::Geometry* Geometry::getGeometryMut()
+{ 
+    return nullptr; // have to be override by childs!
 }
 
 Geometry::Ptr Geometry::clone() const 
@@ -48,7 +48,7 @@ Geometry::Ptr Geometry::clone() const
 
 Geometry* Geometry::raw_clone() const 
 {
-    return NULL;
+    return nullptr;
 }
 
 void Geometry::setCS(SpatialReference::Ptr cs) 
@@ -63,7 +63,7 @@ SpatialReference::Ptr Geometry::getCS() const
 
 void Geometry::apply(Filter& filter)
 {
-    geom::Geometry* geometry = this->geometry();
+    geom::Geometry* geometry = getGeometryMut();   // best match call to the protected getter. If this is non-const you can only call the public getter with a const return value.
 
     if (!geometry)
         throw TransformException("no geometry to apply a filter!");
@@ -82,7 +82,7 @@ void Geometry::apply(FilterList& filterList)
 
 void Geometry::transformToCS(SpatialReference::Ptr cs) 
 {
-    geom::Geometry* geometry = this->geometry();
+    auto geometry = getGeometry();
 
     if (!geometry)
         throw TransformException("no geometry to transform");
