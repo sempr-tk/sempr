@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
 
     // to keep between tests.
     std::string mapId, personId;
-    std::string databaseFile = "test_sqlite.db";
+    std::string databaseFile = "test_rdf_sqlite.db";
 
     BOOST_AUTO_TEST_CASE(propertymap_insertion)
     {

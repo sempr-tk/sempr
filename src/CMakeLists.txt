@@ -3,12 +3,12 @@ include_directories(${Soprano_INCLUDE_DIRS})
 link_directories(${Soprano_LIBRARY_DIRS})
 # message("SOPRANO: ${Soprano_INCLUDE_DIRS}")
 
-pkg_check_modules(GDAL REQUIRED gdal)
-include_directories(${GDAL_INCLUDE_DIRS})
-link_directories(${GDAL_LIBRARY_DIRS})
+#find_package(GDAL)
+#if(GDAL_FOUND)
+#    include_directories(${GDAL_INCLUDE_DIR})
+#    link_directories(${GDAL_LIBRARY})
+#endif(GDAL_FOUND)
 
-pkg_check_modules(EIGEN REQUIRED eigen3)
-include_directories(${EIGEN_INCLUDE_DIRS})
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
@@ -61,11 +61,13 @@ odb_compile(ODB_GENERATED
     DB ${DATABASE} GENERATE_QUERY GENERATE_SESSION GENERATE_SCHEMA STANDARD c++11)
 
 list(APPEND SRC_FILES ${ODB_GENERATED})
+#message("ODB_GENERATED: ${ODB_GENERATED}")
 
 include_directories(${ODB_COMPILE_OUTPUT_DIR})
+# message("ODB_COMPILE_OUTPUT_DIR: ${ODB_COMPILE_OUTPUT_DIR}")
 # message("SOURCE FILES: ${SRC_FILES}")
 add_library(sempr_core SHARED ${SRC_FILES})
-target_link_libraries(sempr_core ${ODB_LIBRARIES} ${Soprano_LIBRARIES} ${GDAL_LIBRARIES})
+target_link_libraries(sempr_core ${ODB_LIBRARIES} ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 target_compile_definitions(sempr_core PUBLIC -D${CONFIG_DATABASE})
 # target_include_directories(sempr_core
     # PRIVATE ${ODB_COMPILE_OUTPUT_DIR} )

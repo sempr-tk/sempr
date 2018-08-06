@@ -2,10 +2,11 @@
 #define SEMPR_ENTITY_SPATIAL_POINT_HPP_
 
 #include <sempr/entity/spatial/Geometry.hpp>
-#include <ogr_geometry.h>
-
+#include <geos/geom/Point.h>
 
 namespace sempr { namespace entity {
+
+namespace geom = geos::geom;
 
 /**
     A base class for all geometry entities. Contains methods to manage spatial reference systems
@@ -22,7 +23,11 @@ public:
     Point(const core::IDGenBase*);
     virtual ~Point();
 
-    OGRPoint* geometry() override;
+    const geom::Point* getGeometry() const override;
+
+    void setGeometry(geom::Point* geometry);
+
+    void setCoordinate(const geom::Coordinate& coordinate);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
@@ -30,10 +35,14 @@ public:
     */
     Point::Ptr clone() const;
 
+protected:
+    geom::Point* getGeometryMut() override;
+
 private:
     friend class odb::access;
+
     #pragma db type("TEXT")
-    OGRPoint* geometry_;
+    geom::Point* geometry_;
 
     virtual Point* raw_clone() const override;
 };

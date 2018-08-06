@@ -97,13 +97,19 @@ void Entity::registerChildEntity(Entity::Ptr child)
         1. the persistent children_ vector that gets stored in the database
         2. the transient newChildren_ vector
 
-        newChildren_ is only used to handle the case in which chilren get created and registered
+        newChildren_ is only used to handle the case in which children get created and registered
         only to be overwritten during load. The children_-vector is the actual set of children
         that have also been saved in the database, or will be saved, possible, later on.
         Entity::created / loaded / removed will call the respecting method of the children_, too.
     */
     children_.push_back(child);
-    newChildren_.push_back(child);
+
+    /**
+        If the child has already been announced it has been created before 'this' and thus must not
+        be added to the newChildren_ vector, to avoid releasing the ids too early.
+    */
+    if (!child->announced_)
+        newChildren_.push_back(child);
 }
 
 

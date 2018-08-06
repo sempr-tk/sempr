@@ -6,7 +6,7 @@ As the development of SEMPR just started recently, please do not expect a fully 
 
 SEMPR currently relies on a few other libraries: ODB for the object relational mapping, sqlite3 for a database connection, boost for uuids, soprano for SPARQL queries, qt4 for soprano, and a recent version of gdal with geos support for more geometric operations.
 
-### ODB, soprano, boost
+### ODB, GeographicLib, soprano, boost, geos 
 For a start, install the odb compiler and the required odb-libraries. If you are on Ubuntu 16.04 you can install them easily:
 ```bash
 sudo apt-get install odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libodb-dev
@@ -15,40 +15,18 @@ Else please follow the instructions [here](https://www.codesynthesis.com/product
 
 Soprano and boost can be retrieved just as easily, **if you are okay with using qt4**:
 ```bash
-sudo apt-get install libsoprano-dev
+sudo apt-get install libsoprano-dev qt4-default
 sudo apt-get install libboost-all-dev
 ```
 The boost-part is a bit overkill, but I don't really know which part of boost is needed. You could try `libboost-dev`...
 
 **If you need qt5** instead, you will need a customized build of soprano: SEMPR uses Soprano, and qt to work with it. Whatever version of qt is used by soprano will also be used by SEMPR, as it is propagated through pkg-config. Compiling soprano with qt5-support can be a bit tricky, especially if you are simultaneously using `libcurl4-openssl-dev`, e.g. if you have ROS installed. But don't worry, everything is explained in detail at the wiki page on [how to enable qt5 support](https://github.com/sempr-tk/sempr/wiki/soprano_qt5).
 
-### GDAL with GEOS
-Since we need a recent version of GDAL with GEOS support you will need to compile it from source.  But first, make sure you have GEOS installed as well as proj4 (for coordinate system transformations):
+For the spatial geometries you also need GEOS and the GeographicLib to transform from and to global coordinate systems:
 
 ```bash
-sudo apt-get install libgeos-dev
-sudo apt-get install libproj-dev
-```
-
-Now, to install GDAL (feel free to adjust the paths to your liking):
-
-```bash
-cd ~
-git clone https://github.com/OSGeo/gdal.git
-cd ~/gdal
-git checkout release/2.3
-mkdir install
-cd ~/gdal/gdal
-```
-Compilation may take a while, feel free to grab a cup of tea in the mean time:
-```bash
-./configure --with-geos=yes --prefix=$HOME/gdal/install
-make -j8
-make install
-```
-To finish the installation make sure that the gdal includes and libraries can actually be *found*. Therefore, adjust your `PKG_CONFIG_PATH` (e.g. in your `.bashrc`):
-```bash
-export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:~/gdal/install/lib/pkgconfig
+sudo apt-get install libgeos-dev libgeos++-dev
+sudo apt-get install libgeographic-dev libeigen3-dev
 ```
 
 ### SEMPR
@@ -91,7 +69,6 @@ When using this library you may experience very slow autocompletion (at least wh
 ```
 
 > **Note:** *A bug (in clang?) it is required to specify* `-include-pch` *and the actual path in two separate lines or else clang may try to directly include a file called "-pch", and issue an error due to not finding it.*
-
 
 ## License
 SEMPR itself is released under a 3-clause BSD license. However, it relies heavily on [ODB](http://www.codesynthesis.com/products/odb/download.xhtml) which is licensed under GPL. Please take a look at the [license exception](LICENSE_ODB) granted by Code Synthesis (copied from [here](https://git.codesynthesis.com/cgit/odb/odb-etc/tree/license-exceptions/sempr-tk-odb-license-exception.txt)) which allows the use of SEMPR (everything belonging to the sempr-tk family) in other projects without imposing additional constraints to the BSD-3-license -- as long as you don't modify the persistent object model for which ODB is used.
@@ -186,19 +163,15 @@ SEMPR provides a mechanism to do this semi-automatically: Whenever an `Entity`cr
 ``` c++
 void Entity::registerChildEntity(Entity::Ptr)
 ```
-Upon persisting or updating the parent entity, the following steps are executed:
+On the first announcement (`loaded()` or `created()`)  of an entity, it also announces all children that are registered so far. To be exact, it announces the children prior to the parent: This assures that the children are persisted first. On removal, the parents removed-event is issued first, for the same reason of avoiding inconsistent/invalid database states.
 
-1. Before persisting/updating the parent, all newly registered children
-	1. get a pointer to the event-broker
-	2. get persisted in the database (which might trigger this mechanism again, recursively)
-2. After persisting/updating the parent, all newly registered children
-	1. are given a pointer to the parent with `on delete cascade` enabled
-	2. are updated (to apply the parent-pointer)
-	3. are announced to the system through invocation of `child->created()`
+Whenever you want to register a child entity make sure that either of these conditions holds true:
+1. Both parent and child have not been announced to the system yet, so that the parent can correctly handle its children.
+2. Both parent and child have already been announced (and thus persisted), so that no special treatment is necessary.
 
-The `on-delete-cascade` mechanic is database-internal: Whenever an entity has a valid parent-pointer and the parent is removed from the database, the child-entity is removed, too. This ensures that no orphans remain in the database, but it does not trigger any events on the code-side of things. Hence we need to trigger those events ourselves, which forces us to keep a list of all children. This list is managed inside `Entity`. Whenever the `Entiy::created()`, `Entiy::loaded()` or `Entiy::removed()` is called, the Entity also calls the same method of all of its children, thus firing the respective events for all of them. The parents `created() / removed()` are called when adding/removing it to/from the system (`Core::[add/remove]Entity`).
+Also, you need to be aware that this mechanism is not fool-proof: No one prevents you from creating circular dependencies here, by registering the parent as a child of child. This _will_ be problematic, as you won't be able to remove one without a dangling reference, and thus a broken foreign-key-constraint.
 
-**TODO: loaded() needs to be called on postLoad(), doesn't it? [Alternative: Storage calls it on loading.... inconsistent...]  To make everything a bit more consistent, do we need to call removed() on postDelete()? but created() has to be separated from the db-callbacks since we might want to create temporary, non-persistent objects...? then again, same goes for removed().**
+A typical usage of `registerChildEntity` would be to register entities that are created in the c'tor of another entity, as part of it. This would fulfill condition (1.).
 
 
 ## Storage
