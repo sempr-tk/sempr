@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_EXAMPLE_PROPERTYTESTENTITY_HPP_
 
 #include <sempr/entity/SemanticEntity.hpp>
-#include <sempr/entity/Person.hpp>
+#include <sempr/entity/example/Person.hpp>
 
 namespace sempr { namespace entity {
 
