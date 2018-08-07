@@ -28,10 +28,10 @@ Polygon::~Polygon()
 
 const geom::Polygon* Polygon::getGeometry() const
 {
-    return getGeometryMut();
+    return geometry_;
 }
 
-geom::Polygon* Polygon::getGeometryMut() const
+geom::Polygon* Polygon::getGeometryMut()
 {
     return geometry_;
 }
@@ -42,6 +42,24 @@ void Polygon::setGeometry(geom::Polygon* geometry)
         factory_->destroyGeometry(geometry_);
 
     geometry_ = geometry;
+}
+
+void Polygon::setCoordinates(std::vector<geom::Coordinate>& coordinates)
+{
+    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create();
+    sequence->setPoints(coordinates);
+
+    geom::LinearRing* ring = factory_->createLinearRing(sequence);
+
+    std::vector< geom::Geometry* > holes;
+
+    auto polygon = factory_->createPolygon(*ring, holes);   //copy ring to avoid ownership issues
+
+    // ToDO: clean up
+    //factory_->destroyGeometry(ring);
+    //delete sequence;
+
+    setGeometry(polygon);
 }
 
 Polygon::Ptr Polygon::clone() const 

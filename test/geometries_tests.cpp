@@ -97,9 +97,14 @@ BOOST_AUTO_TEST_SUITE(geometries)
 
         // set up polygon from ring
         Polygon::Ptr polygon(new Polygon());
+        polygon->setCoordinates(ring);
+
+        /* Alternative way to set the geometry manually with a given linear ring:
         std::vector<geom::Geometry*> holes;
         auto polygonGeometry = geom::GeometryFactory::getDefaultInstance()->createPolygon(*linearRing->getGeometry(), holes);  //linear Ring as DeepCopy
         polygon->setGeometry(polygonGeometry);
+        */
+
 
         // set up the linestring
         LineString::Ptr linestring(new LineString());

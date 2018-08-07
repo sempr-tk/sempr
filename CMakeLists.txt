@@ -8,6 +8,9 @@ add_definitions(-Wall -Wno-unknown-pragmas)
 # compile-output-dir!
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
+# allow includes of current dir.
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 ##
 # find packages that are used in src and test:
 ##

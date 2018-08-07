@@ -103,7 +103,13 @@ void Entity::registerChildEntity(Entity::Ptr child)
         Entity::created / loaded / removed will call the respecting method of the children_, too.
     */
     children_.push_back(child);
-    newChildren_.push_back(child);
+
+    /**
+        If the child has already been announced it has been created before 'this' and thus must not
+        be added to the newChildren_ vector, to avoid releasing the ids too early.
+    */
+    if (!child->announced_)
+        newChildren_.push_back(child);
 }
 
 

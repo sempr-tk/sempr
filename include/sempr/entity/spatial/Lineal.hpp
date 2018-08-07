@@ -23,7 +23,7 @@ public:
 protected:
     Lineal(const core::IDGenBase* idgen);
 
-    virtual geom::Lineal* getGeometryMut() const override;
+    virtual geom::Lineal* getGeometryMut() override;
 
 private:
     friend class odb::access;

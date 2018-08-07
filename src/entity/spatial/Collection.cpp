@@ -21,10 +21,10 @@ Collection::~Collection()
 
 const geom::GeometryCollection* Collection::getGeometry() const
 {
-    return getGeometryMut();
+    return nullptr;
 }
 
-geom::GeometryCollection* Collection::getGeometryMut() const
+geom::GeometryCollection* Collection::getGeometryMut()
 {
     return nullptr; // have to be override by childs!
 }

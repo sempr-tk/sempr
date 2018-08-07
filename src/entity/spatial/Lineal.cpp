@@ -21,10 +21,10 @@ Lineal::~Lineal()
 
 const geom::Lineal* Lineal::getGeometry() const
 {
-    return getGeometryMut();
+    return nullptr;
 }
 
-geom::Lineal* Lineal::getGeometryMut() const
+geom::Lineal* Lineal::getGeometryMut()
 {
     return nullptr; // have to be override by childs!
 }

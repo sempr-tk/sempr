@@ -81,7 +81,7 @@ class Geometry : public Entity
     /**
      * @brief Get the GEOS GEOM Geometry object as mutable (non-const) pointer.
      */
-    virtual geom::Geometry* getGeometryMut() const;
+    virtual geom::Geometry* getGeometryMut();
 
     void apply(Filter& filter);
     void apply(FilterList& filterList);
