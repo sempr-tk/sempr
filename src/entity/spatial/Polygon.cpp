@@ -44,22 +44,28 @@ void Polygon::setGeometry(geom::Polygon* geometry)
     geometry_ = geometry;
 }
 
-void Polygon::setCoordinates(std::vector<geom::Coordinate>& coordinates)
+void Polygon::setCoordinates(const std::vector<geom::Coordinate>& coordinates)
 {
-    auto sequence = geom::CoordinateArraySequenceFactory::instance()->create();
-    sequence->setPoints(coordinates);
+    geom::CoordinateSequence* seq = geom::CoordinateArraySequenceFactory::instance()->create();
+    seq->setPoints(coordinates);
 
-    geom::LinearRing* ring = factory_->createLinearRing(sequence);
+    setCoordinates(*seq);
+
+    delete seq;
+}
+
+void Polygon::setCoordinates(const geom::CoordinateSequence& seq)
+{
+    geom::LinearRing* ring = factory_->createLinearRing(seq);
 
     std::vector< geom::Geometry* > holes;
 
     auto polygon = factory_->createPolygon(*ring, holes);   //copy ring to avoid ownership issues
 
-    // ToDO: clean up
-    //factory_->destroyGeometry(ring);
-    //delete sequence;
-
     setGeometry(polygon);
+
+    factory_->destroyGeometry((geom::Geometry*)ring);
+
 }
 
 Polygon::Ptr Polygon::clone() const

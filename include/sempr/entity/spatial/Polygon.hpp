@@ -30,7 +30,8 @@ public:
      *
      * @note the coordinates have to define a closed linear ring. so the first and last coordinates have to be equal.
      */
-    void setCoordinates(std::vector<geom::Coordinate>& coordinates); //no const parameter because of geos::geom!
+    void setCoordinates(const std::vector<geom::Coordinate>& coordinates);
+    void setCoordinates(const geom::CoordinateSequence& seq);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
