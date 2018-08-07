@@ -10,14 +10,14 @@
 namespace sempr { namespace entity {
 
 
-class TripleIterator_impl {
-    friend class TripleIterator;
+class TripleIterator {
+    friend class TripleIteratorWrapper;
 protected:
-    virtual ~TripleIterator_impl();
+    virtual ~TripleIterator();
 
     virtual const Triple operator * () const = 0;
     virtual void operator ++ () = 0;
-    virtual bool operator == (const TripleIterator_impl& other) const = 0;
+    virtual bool operator == (const TripleIterator& other) const = 0;
 };
 
 /**
@@ -33,20 +33,20 @@ protected:
     Since we cannot assert that every container implementing this actually stores triples which
     we could reference, it  needs to return triples by value instead.
 */
-class TripleIterator {
-    TripleIterator_impl* impl_;
+class TripleIteratorWrapper {
+    TripleIterator* impl_;
 public:
-    TripleIterator(TripleIterator_impl* impl);
-    ~TripleIterator();
+    TripleIteratorWrapper(TripleIterator* impl);
+    ~TripleIteratorWrapper();
 
     /**
         "read-only" access: Creates a copy of the represented triple.
      */
     const Triple operator * () const;
 
-    TripleIterator& operator ++ ();
-    bool operator == (const TripleIterator& other) const;
-    bool operator != (const TripleIterator& other) const;
+    TripleIteratorWrapper& operator ++ ();
+    bool operator == (const TripleIteratorWrapper& other) const;
+    bool operator != (const TripleIteratorWrapper& other) const;
 };
 
 
@@ -68,8 +68,8 @@ public:
     void getTriples(std::vector<Triple>& triples) const;
 
     /** iterate the triples */
-    virtual TripleIterator begin() const;
-    virtual TripleIterator end() const;
+    virtual TripleIteratorWrapper begin() const;
+    virtual TripleIteratorWrapper end() const;
 
 protected:
     RDFEntity(const core::IDGenBase*);

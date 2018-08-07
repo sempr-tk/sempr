@@ -5,28 +5,28 @@
 namespace sempr { namespace entity {
 
 // iterator impl
-RDFVectorIterator_impl::RDFVectorIterator_impl(std::vector<Triple>::const_iterator it)
+RDFVectorIterator::RDFVectorIterator(std::vector<Triple>::const_iterator it)
     : vit_(it)
 {
 }
 
-RDFVectorIterator_impl::~RDFVectorIterator_impl()
+RDFVectorIterator::~RDFVectorIterator()
 {
 }
 
-const Triple RDFVectorIterator_impl::operator *() const
+const Triple RDFVectorIterator::operator *() const
 {
     return *vit_;
 }
 
-void RDFVectorIterator_impl::operator++()
+void RDFVectorIterator::operator++()
 {
     ++vit_;
 }
 
-bool RDFVectorIterator_impl::operator==(const TripleIterator_impl& other) const
+bool RDFVectorIterator::operator==(const TripleIterator& other) const
 {
-    const RDFVectorIterator_impl* o = dynamic_cast<const RDFVectorIterator_impl*>(&other);
+    const RDFVectorIterator* o = dynamic_cast<const RDFVectorIterator*>(&other);
     if (!o) return false;
     return o->vit_ == this->vit_;
 }
@@ -106,14 +106,14 @@ size_t RDFVector::size() const {
     return triples_.size();
 }
 
-TripleIterator RDFVector::begin() const
+TripleIteratorWrapper RDFVector::begin() const
 {
-    return TripleIterator(new RDFVectorIterator_impl(triples_.begin()));
+    return TripleIteratorWrapper(new RDFVectorIterator(triples_.begin()));
 }
 
-TripleIterator RDFVector::end() const
+TripleIteratorWrapper RDFVector::end() const
 {
-    return TripleIterator(new RDFVectorIterator_impl(triples_.end()));
+    return TripleIteratorWrapper(new RDFVectorIterator(triples_.end()));
 }
 
 

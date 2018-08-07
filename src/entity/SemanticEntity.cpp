@@ -31,13 +31,13 @@ std::string RegisteredPropertyBase::predicate() const
 
 
 /// SemanticEntity iterator
-SemanticEntityIterator_impl::SemanticEntityIterator_impl(SemanticEntityIterator_impl::ConstIterator it, SemanticEntityIterator_impl::ConstIterator end, const SemanticEntity* entity)
+SemanticEntityIterator::SemanticEntityIterator(SemanticEntityIterator::ConstIterator it, SemanticEntityIterator::ConstIterator end, const SemanticEntity* entity)
     : vit_(it), end_(end), entity_(entity)
 {
     makeValid();
 }
 
-const Triple SemanticEntityIterator_impl::operator*() const
+const Triple SemanticEntityIterator::operator*() const
 {
     Triple t;
 
@@ -52,21 +52,21 @@ const Triple SemanticEntityIterator_impl::operator*() const
 }
 
 
-void SemanticEntityIterator_impl::operator++()
+void SemanticEntityIterator::operator++()
 {
     ++vit_;
     // since we may be at an invalid entry now, make sure we are at end or valid!
     makeValid();
 }
 
-bool SemanticEntityIterator_impl::operator==(const sempr::entity::TripleIterator_impl &other) const
+bool SemanticEntityIterator::operator==(const sempr::entity::TripleIterator &other) const
 {
-    auto o = dynamic_cast<const SemanticEntityIterator_impl*>(&other);
+    auto o = dynamic_cast<const SemanticEntityIterator*>(&other);
     if (!o) return false;
     return this->vit_ == o->vit_;
 }
 
-void SemanticEntityIterator_impl::makeValid()
+void SemanticEntityIterator::makeValid()
 {
     while (vit_ != end_ &&      // as long as we are not at the end
            !(*vit_)->isValid()) // and the current entry is not valid
@@ -99,16 +99,16 @@ SemanticEntity::~SemanticEntity()
 }
 
 
-TripleIterator SemanticEntity::begin() const
+TripleIteratorWrapper SemanticEntity::begin() const
 {
-    return TripleIterator(new SemanticEntityIterator_impl(
+    return TripleIteratorWrapper(new SemanticEntityIterator(
         this->properties_.begin(), this->properties_.end(), this)
     );
 }
 
-TripleIterator SemanticEntity::end() const
+TripleIteratorWrapper SemanticEntity::end() const
 {
-    return TripleIterator(new SemanticEntityIterator_impl(
+    return TripleIteratorWrapper(new SemanticEntityIterator(
         this->properties_.end(), this->properties_.end(),  this)
     );
 }

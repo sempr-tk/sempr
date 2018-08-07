@@ -123,7 +123,7 @@ namespace entity {
     The RegisteredPropertyBase class is the interface for handling any variable that should be
     represented as the "object" part of an rdf triple. It also stores the predicate to use and
     provides a way to also add a custom, optional subject. If the latter is not given the
-    SemanticEntityIterator_impl will use the id of the SemanticEntity as the subject.
+    SemanticEntityIterator will use the id of the SemanticEntity as the subject.
 
     The virtual std::string object() const method needs to be overridden to return the string that
     will be used in the triple.
@@ -301,23 +301,23 @@ protected:
 public:
     ~SemanticEntity();
 
-    TripleIterator begin() const override;
-    TripleIterator end() const override;
+    TripleIteratorWrapper begin() const override;
+    TripleIteratorWrapper end() const override;
 };
 
 
-class SemanticEntityIterator_impl : public TripleIterator_impl {
+class SemanticEntityIterator : public TripleIterator {
     friend class SemanticEntity;
 
     typedef std::vector<RegisteredPropertyBase*>::const_iterator ConstIterator;
     ConstIterator vit_, end_;
     const SemanticEntity* entity_;
 
-    SemanticEntityIterator_impl(ConstIterator it, ConstIterator end, const SemanticEntity* entity);
+    SemanticEntityIterator(ConstIterator it, ConstIterator end, const SemanticEntity* entity);
 
     const Triple operator *() const override;
     void operator ++() override;
-    bool operator == (const TripleIterator_impl& other) const override;
+    bool operator == (const TripleIterator& other) const override;
 
     /**
         There may be invalid values inside the list, namely nullptrs, which would lead to invalid

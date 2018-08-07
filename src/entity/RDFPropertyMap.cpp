@@ -5,13 +5,13 @@ namespace sempr { namespace entity {
 
 // triple iterator for rdfpropertymap
 
-RDFPropertyMapIterator_impl::RDFPropertyMapIterator_impl(
+RDFPropertyMapIterator::RDFPropertyMapIterator(
     const RDFPropertyMap* pmap, std::map<std::string, RDFValue>::const_iterator it)
     : it_(it), pmap_(pmap)
 {
 }
 
-const Triple RDFPropertyMapIterator_impl::operator*() const
+const Triple RDFPropertyMapIterator::operator*() const
 {
     Triple t;
     t.subject = pmap_->subject_;
@@ -22,14 +22,14 @@ const Triple RDFPropertyMapIterator_impl::operator*() const
     return t;
 }
 
-void RDFPropertyMapIterator_impl::operator++()
+void RDFPropertyMapIterator::operator++()
 {
     ++it_;
 }
 
-bool RDFPropertyMapIterator_impl::operator==(const TripleIterator_impl &other) const
+bool RDFPropertyMapIterator::operator==(const TripleIterator &other) const
 {
-    auto o = dynamic_cast<const RDFPropertyMapIterator_impl*>(&other);
+    auto o = dynamic_cast<const RDFPropertyMapIterator*>(&other);
     if (!o) return false;
     return o->it_ == this->it_;
 }
@@ -117,14 +117,14 @@ void RDFPropertyMap::removeProperty(const std::string &key, const std::string ba
     keyValueMap_.erase(fullKey);
 }
 
-TripleIterator RDFPropertyMap::begin() const
+TripleIteratorWrapper RDFPropertyMap::begin() const
 {
-    return TripleIterator(new RDFPropertyMapIterator_impl(this, this->keyValueMap_.begin()));
+    return TripleIteratorWrapper(new RDFPropertyMapIterator(this, this->keyValueMap_.begin()));
 }
 
-TripleIterator RDFPropertyMap::end() const
+TripleIteratorWrapper RDFPropertyMap::end() const
 {
-    return TripleIterator(new RDFPropertyMapIterator_impl(this, this->keyValueMap_.end()));
+    return TripleIteratorWrapper(new RDFPropertyMapIterator(this, this->keyValueMap_.end()));
 }
 
 } /* entity */

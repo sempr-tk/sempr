@@ -311,7 +311,7 @@ MyClass::MyClass(const core::IDGenBase* gen)
 
 
 ### RDFPropertyMap
-The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, a triple exists for every key-value-pair. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
+The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, every key-value-pair can be seen as a triple. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
 ```c++
 RDFPropertyMap::Ptr map(new RDFPropertyMap("subject", "http://baseURI/"));
 core.addEntity(map);

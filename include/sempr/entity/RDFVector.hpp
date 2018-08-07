@@ -15,16 +15,16 @@
 namespace sempr { namespace entity {
 
 // custom triple-iterator for the vector class
-class RDFVectorIterator_impl : public TripleIterator_impl {
+class RDFVectorIterator : public TripleIterator {
     friend class RDFVector;
     std::vector<Triple>::const_iterator vit_;
 
-    RDFVectorIterator_impl(std::vector<Triple>::const_iterator it);
-    ~RDFVectorIterator_impl();
+    RDFVectorIterator(std::vector<Triple>::const_iterator it);
+    ~RDFVectorIterator();
 
     const Triple operator * () const override;
     void operator ++ () override;
-    bool operator == (const TripleIterator_impl& other) const override;
+    bool operator == (const TripleIterator& other) const override;
 };
 
 
@@ -49,8 +49,8 @@ public:
     // std::vector<Triple>::const_iterator begin() const;
     // std::vector<Triple>::const_iterator end() const;
 
-    TripleIterator begin() const override;
-    TripleIterator end() const override;
+    TripleIteratorWrapper begin() const override;
+    TripleIteratorWrapper end() const override;
 
 protected:
     friend class odb::access;

@@ -9,17 +9,17 @@ namespace sempr { namespace entity {
 
 class RDFPropertyMap;
 
-class RDFPropertyMapIterator_impl : public TripleIterator_impl {
+class RDFPropertyMapIterator : public TripleIterator {
     friend class RDFPropertyMap;
     std::map<std::string, RDFValue>::const_iterator it_;
     const RDFPropertyMap* pmap_;
 
-    RDFPropertyMapIterator_impl(const RDFPropertyMap* pmap,
+    RDFPropertyMapIterator(const RDFPropertyMap* pmap,
                                 std::map<std::string, RDFValue>::const_iterator it);
 
     const Triple operator * () const override;
     void operator ++ () override;
-    bool operator == (const TripleIterator_impl& other) const override;
+    bool operator == (const TripleIterator& other) const override;
 };
 
 /**
@@ -48,8 +48,8 @@ public:
 
     virtual ~RDFPropertyMap(){}
 
-    TripleIterator begin() const override;
-    TripleIterator end() const override;
+    TripleIteratorWrapper begin() const override;
+    TripleIteratorWrapper end() const override;
 
     /// checks if an entry for a given key exists, without creating one
     bool hasProperty(const std::string& key);
@@ -80,7 +80,7 @@ public:
 private:
     RDFPropertyMap();
     friend class odb::access;
-    friend class RDFPropertyMapIterator_impl;
+    friend class RDFPropertyMapIterator;
 
     std::map<std::string, RDFValue> keyValueMap_;
     std::string subject_;

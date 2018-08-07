@@ -4,44 +4,44 @@
 namespace sempr { namespace entity {
 
 
-// default implementation of the TripleIterator: Does not return a triple, and every iterator equals another!
-TripleIterator::TripleIterator(TripleIterator_impl* impl)
+// default implementation of the TripleIteratorWrapper: Does not return a triple, and every iterator equals another!
+TripleIteratorWrapper::TripleIteratorWrapper(TripleIterator* impl)
     : impl_(impl)
 {
 }
 
-TripleIterator::~TripleIterator()
+TripleIteratorWrapper::~TripleIteratorWrapper()
 {
     delete impl_;
 }
 
-const Triple TripleIterator::operator*() const
+const Triple TripleIteratorWrapper::operator*() const
 {
     if (!impl_)
         throw std::exception();
     return *(*impl_);
 }
 
-TripleIterator& TripleIterator::operator++()
+TripleIteratorWrapper& TripleIteratorWrapper::operator++()
 {
     if (!impl_) throw std::exception();
     ++(*impl_);
     return *this;
 }
 
-bool TripleIterator::operator==(const sempr::entity::TripleIterator &other) const
+bool TripleIteratorWrapper::operator==(const sempr::entity::TripleIteratorWrapper &other) const
 {
     if (!impl_) throw std::exception();
     return *impl_ == *(other.impl_);
 }
 
-bool TripleIterator::operator!=(const TripleIterator& other) const
+bool TripleIteratorWrapper::operator!=(const TripleIteratorWrapper& other) const
 {
     return !(*this == other);
 }
 
 // base impl
-TripleIterator_impl::~TripleIterator_impl()
+TripleIterator::~TripleIterator()
 {
 }
 
@@ -66,14 +66,14 @@ RDFEntity::RDFEntity()
 {
 }
 
-TripleIterator RDFEntity::begin() const
+TripleIteratorWrapper RDFEntity::begin() const
 {
-    return TripleIterator(nullptr);
+    return TripleIteratorWrapper(nullptr);
 }
 
-TripleIterator RDFEntity::end() const
+TripleIteratorWrapper RDFEntity::end() const
 {
-    return TripleIterator(nullptr);
+    return TripleIteratorWrapper(nullptr);
 }
 
 void RDFEntity::getTriples(std::vector<Triple>& triples) const
