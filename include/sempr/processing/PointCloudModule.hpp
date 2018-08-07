@@ -8,7 +8,7 @@
 #include <sempr/query/ObjectQuery.hpp>
 #include <sempr/query/PolygonQuery.hpp>
 #include <PointCloud_odb.h>
-#include <AgroEntity_odb.h>
+#include <AgriEntity_odb.h>
 
 namespace sempr { namespace processing {
 

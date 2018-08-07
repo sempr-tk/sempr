@@ -7,7 +7,7 @@
 
 #include <sempr/query/Query.hpp>
 #include <sempr/storage/DBObject.hpp>
-#include <AgroEntity_odb.h>
+#include <AgriEntity_odb.h>
 #include <Polygon_odb.h>
 
 namespace sempr { namespace query {
@@ -17,7 +17,7 @@ namespace sempr { namespace query {
         using Ptr = std::shared_ptr<PolygonQuery>;
 
         PolygonQuery(const geom::Polygon *poly);
-        PolygonQuery(entity::agro::AgroEntity::Ptr &agro);
+        PolygonQuery(entity::agri::AgriEntity::Ptr &agri);
         PolygonQuery(entity::Polygon::Ptr &polygon);
 
         ~PolygonQuery();
