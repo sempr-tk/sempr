@@ -43,10 +43,11 @@ void LineString::setGeometry(geom::LineString* geometry)
     geometry_ = geometry;
 }
 
-void LineString::setCoordinates(std::vector<geom::Coordinate>& coordinates)
+void LineString::setCoordinates(const std::vector<geom::Coordinate>& coordinates)
 {
     auto sequence = geom::CoordinateArraySequenceFactory::instance()->create();
     sequence->setPoints(coordinates);
+
     auto lineString = factory_->createLineString(sequence);
     setGeometry(lineString);
 }
