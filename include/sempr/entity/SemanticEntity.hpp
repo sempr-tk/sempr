@@ -315,8 +315,7 @@ class SemanticEntityIterator_impl : public TripleIterator_impl {
 
     SemanticEntityIterator_impl(ConstIterator it, ConstIterator end, const SemanticEntity* entity);
 
-    const Triple& operator *() const override;
-    const Triple* operator ->() const override;
+    const Triple operator *() const override;
     void operator ++() override;
     bool operator == (const TripleIterator_impl& other) const override;
 

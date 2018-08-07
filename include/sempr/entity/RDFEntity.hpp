@@ -15,8 +15,7 @@ class TripleIterator_impl {
 protected:
     virtual ~TripleIterator_impl();
 
-    virtual const Triple& operator * () const = 0;
-    virtual const Triple* operator -> () const = 0;
+    virtual const Triple operator * () const = 0;
     virtual void operator ++ () = 0;
     virtual bool operator == (const TripleIterator_impl& other) const = 0;
 };
@@ -29,14 +28,22 @@ protected:
     This class uses the pimpl-idiom: Every RDFEntity-subtype returns a TripleIterator, but with
     different implementations. To create your own implement a subclass of TripleIterator_impl and
     pass an instance of it to the ctor of the TripleIterator.
+
+    Although the class is called "[...]Iterator" it not really behaves like one.
+    Since we cannot assert that every container implementing this actually stores triples which
+    we could reference, it  needs to return triples by value instead.
 */
 class TripleIterator {
     TripleIterator_impl* impl_;
 public:
     TripleIterator(TripleIterator_impl* impl);
     ~TripleIterator();
-    const Triple& operator * () const;
-    const Triple* operator -> () const;
+
+    /**
+        "read-only" access: Creates a copy of the represented triple.
+     */
+    const Triple operator * () const;
+
     TripleIterator& operator ++ ();
     bool operator == (const TripleIterator& other) const;
     bool operator != (const TripleIterator& other) const;
@@ -48,7 +55,7 @@ public:
     allows iteration over the (constant!) triples, nothing more. This way every module may read the
     triples, but only modify them if they know how to exactly. (This was a major problem before,
     when RDFPropertyMap inherited RDFVector, so through RDFVector the RDFPropertyMap could become
-    invalid!) // TODO -- this is still the case!
+    invalid!)
 */
 #pragma db object
 class RDFEntity : public Entity {

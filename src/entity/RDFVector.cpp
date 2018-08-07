@@ -14,14 +14,9 @@ RDFVectorIterator_impl::~RDFVectorIterator_impl()
 {
 }
 
-const Triple& RDFVectorIterator_impl::operator *() const
+const Triple RDFVectorIterator_impl::operator *() const
 {
     return *vit_;
-}
-
-const Triple* RDFVectorIterator_impl::operator->() const
-{
-    return vit_.operator->();
 }
 
 void RDFVectorIterator_impl::operator++()

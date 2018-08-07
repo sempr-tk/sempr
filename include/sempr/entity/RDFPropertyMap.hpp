@@ -17,8 +17,7 @@ class RDFPropertyMapIterator_impl : public TripleIterator_impl {
     RDFPropertyMapIterator_impl(const RDFPropertyMap* pmap,
                                 std::map<std::string, RDFValue>::const_iterator it);
 
-    const Triple& operator * () const override;
-    const Triple* operator -> () const override;
+    const Triple operator * () const override;
     void operator ++ () override;
     bool operator == (const TripleIterator_impl& other) const override;
 };

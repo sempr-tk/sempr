@@ -37,9 +37,9 @@ SemanticEntityIterator_impl::SemanticEntityIterator_impl(SemanticEntityIterator_
     makeValid();
 }
 
-const Triple& SemanticEntityIterator_impl::operator*() const
+const Triple SemanticEntityIterator_impl::operator*() const
 {
-    static Triple t;    // TODO violation of const-ness!
+    Triple t;
 
     if ((*vit_)->hasSubject())
         t.subject = (*vit_)->subject();
@@ -49,11 +49,6 @@ const Triple& SemanticEntityIterator_impl::operator*() const
     t.object = (*vit_)->object();
 
     return t;
-}
-
-const Triple* SemanticEntityIterator_impl::operator->() const
-{
-    return &(**this);
 }
 
 

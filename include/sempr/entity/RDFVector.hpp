@@ -22,8 +22,7 @@ class RDFVectorIterator_impl : public TripleIterator_impl {
     RDFVectorIterator_impl(std::vector<Triple>::const_iterator it);
     ~RDFVectorIterator_impl();
 
-    const Triple& operator * () const override;
-    const Triple* operator -> () const override;
+    const Triple operator * () const override;
     void operator ++ () override;
     bool operator == (const TripleIterator_impl& other) const override;
 };

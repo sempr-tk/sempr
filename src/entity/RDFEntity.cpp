@@ -15,17 +15,11 @@ TripleIterator::~TripleIterator()
     delete impl_;
 }
 
-const Triple& TripleIterator::operator*() const
+const Triple TripleIterator::operator*() const
 {
     if (!impl_)
         throw std::exception();
     return *(*impl_);
-}
-
-const Triple* TripleIterator::operator->() const
-{
-    if (!impl_) throw std::exception();
-    return (*impl_).operator->();
 }
 
 TripleIterator& TripleIterator::operator++()

@@ -11,20 +11,15 @@ RDFPropertyMapIterator_impl::RDFPropertyMapIterator_impl(
 {
 }
 
-const Triple& RDFPropertyMapIterator_impl::operator*() const
+const Triple RDFPropertyMapIterator_impl::operator*() const
 {
-    static Triple t;
+    Triple t;
     t.subject = pmap_->subject_;
     t.predicate = "<" + it_->first + ">";
     t.object = it_->second.toString();
     t.document = "<" + sempr::baseURI() + pmap_->id() + ">";
 
     return t;
-}
-
-const Triple* RDFPropertyMapIterator_impl::operator->() const
-{
-    return &(**this);
 }
 
 void RDFPropertyMapIterator_impl::operator++()
