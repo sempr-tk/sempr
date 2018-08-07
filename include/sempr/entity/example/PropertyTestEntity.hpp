@@ -18,14 +18,6 @@ public:
     double doubleValue_;
     std::string stringValue_;
     Person::Ptr entityValue_;
-
-    // RDFProperty<int> intValue_;
-    // RDFProperty<float> floatValue_;
-    // RDFProperty<double> doubleValue_;
-    // RDFProperty<std::string> stringValue_;
-    // RDFProperty<Person::Ptr> entityValue_;
-
-    // TODO test composite value
 };
 
 } /* entity */

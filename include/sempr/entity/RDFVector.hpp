@@ -46,9 +46,6 @@ public:
     void clear();
     size_t size() const;
 
-    // std::vector<Triple>::const_iterator begin() const;
-    // std::vector<Triple>::const_iterator end() const;
-
     TripleIteratorWrapper begin() const override;
     TripleIteratorWrapper end() const override;
 

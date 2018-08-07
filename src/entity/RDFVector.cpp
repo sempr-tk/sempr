@@ -45,16 +45,6 @@ RDFVector::RDFVector() : RDFVector(new core::IDGen<RDFVector>())
 {
 }
 
-// std::vector<Triple>::const_iterator RDFVector::begin() const
-// {
-//     return triples_.begin();
-// }
-//
-// std::vector<Triple>::const_iterator RDFVector::end() const
-// {
-//     return triples_.end();
-// }
-
 
 void RDFVector::getTriples(std::vector<Triple> &triples) const
 {
