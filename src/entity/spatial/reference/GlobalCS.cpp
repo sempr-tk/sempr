@@ -24,7 +24,11 @@ GlobalCS::~GlobalCS()
 
 bool GlobalCS::isEqual(const GlobalCS::Ptr other)
 {
-    return typeid(*other) == typeid(*this);
+    // avoid expr. side effects warning:
+    auto& tmpOther = *other;
+    auto& tmpThis = *this;
+    
+    return typeid(tmpOther) == typeid(tmpThis);
 }
 
 SpatialReference::Ptr GlobalCS::getRoot()

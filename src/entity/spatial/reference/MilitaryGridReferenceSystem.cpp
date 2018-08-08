@@ -180,7 +180,7 @@ bool MilitaryGridReferenceSystem::checkGZD(const std::string& GZDSquareID)
         return false;
 
     std::string squareID = squareIDFromGZD(GZDSquareID);
-    if (squareID.size() < 0 || squareID.size() > 2)
+    if (squareID.size() > 2)
         return false;
 
     return true;
