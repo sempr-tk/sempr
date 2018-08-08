@@ -52,13 +52,13 @@ class ProjectionZoneMissmatch : public std::exception
 class UTMFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 
     void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
 
-    bool isDone() const;
+    bool isDone() const override;
 
-    bool isGeometryChanged() const;
+    bool isGeometryChanged() const override;
 
 protected:
     UTMFilter(double a, double f, double k0, int zone, bool north);
@@ -98,13 +98,13 @@ public:
 class UPSFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 
     void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
 
-    bool isDone() const;
+    bool isDone() const override;
 
-    bool isGeometryChanged() const;
+    bool isGeometryChanged() const override;
 
 protected:
     UPSFilter(double a, double f, double k0, bool north);
@@ -138,13 +138,13 @@ public:
 class MGRSFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 
     void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
 
-    bool isDone() const;
+    bool isDone() const override;
 
-    bool isGeometryChanged() const;
+    bool isGeometryChanged() const override;
 
 protected:
     MGRSFilter(const std::string& GZDSquareID);   //only WGS84!

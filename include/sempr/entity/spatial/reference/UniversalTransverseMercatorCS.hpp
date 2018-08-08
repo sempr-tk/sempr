@@ -28,9 +28,9 @@ public:
 protected:
     UniversalTransverseMercatorCS();
 
-    virtual FilterPtr forward() const;
+    virtual FilterPtr forward() const override;
 
-    virtual FilterPtr reverse() const;
+    virtual FilterPtr reverse() const override;
 
 private:
     friend class odb::access;
