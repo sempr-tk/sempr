@@ -138,6 +138,35 @@ public:
         return this->get<T>() == other;
     }
 
+    template <typename T>
+    bool operator != (const T& other) {
+        return !(this->get<T>() == other);
+    }
+
+
+    template <typename T>
+    bool operator < (const T& other) {
+        return this->get<T>() < other;
+    }
+
+    template <typename T>
+    bool operator <= (const T& other) {
+        return this->get<T>() <= other;
+    }
+
+    template <typename T>
+    bool operator > (const T& other) {
+        return this->get<T>() > other;
+    }
+
+    template <typename T>
+    bool operator >= (const T& other) {
+        return this->get<T>() >= other;
+    }
+
+
+
+
     /**
         Specialization (actually: Overload!) for comparison with c strings. Without this, trying to
         do:
@@ -147,6 +176,27 @@ public:
     bool operator == (const char* other) {
         return this->get<std::string>() == other;
     }
+
+    bool operator != (const char* other) {
+        return !(this->operator ==(other));
+    }
+    
+    bool operator < (const char* other) {
+        return this->get<std::string>() < other;
+    }
+
+    bool operator <= (const char* other) {
+        return this->get<std::string>() <= other;
+    }
+
+    bool operator > (const char* other) {
+        return this->get<std::string>() > other;
+    }
+
+    bool operator >= (const char* other) {
+        return this->get<std::string>() >= other;
+    }
+
 
 
     /** Casts. Delegates to "to<T>()" since the operators syntax doesn't allow

@@ -54,6 +54,20 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
         ok = m["float"] == 1.234f;
         BOOST_CHECK(ok);
         // ----------------
+        BOOST_CHECK( (m["int"] < 100) );
+        BOOST_CHECK( (m["int"] >  40) );
+        BOOST_CHECK( (m["int"] <= 42) );
+        BOOST_CHECK( (m["int"] <= 43) );
+        BOOST_CHECK(!(m["int"] <= 10) );
+        BOOST_CHECK( (m["int"] >= 10) );
+        BOOST_CHECK( (m["int"] !=  7) );
+        BOOST_CHECK(!(m["int"] != 42) );
+        BOOST_CHECK( (m["string"] < "ZZZ") );
+        BOOST_CHECK( (m["string"] > "AAA") );
+        BOOST_CHECK(!(m["string"] != "Hello, World!") );
+
+
+
 
         // create another entity and point to it.
         Person::Ptr person(new Person());
