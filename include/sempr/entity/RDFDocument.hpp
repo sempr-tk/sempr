@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_RDFDOCUMENT_HPP_
 #define SEMPR_ENTITY_RDFDOCUMENT_HPP_
 
-#include <sempr/entity/RDFEntity.hpp>
+#include <sempr/entity/RDFVector.hpp>
 
 namespace sempr { namespace entity {
 
@@ -9,7 +9,7 @@ namespace sempr { namespace entity {
     RDFDocument loads all triples from a file into itself.
 */
 #pragma db object
-class RDFDocument : public RDFEntity {
+class RDFDocument : public RDFVector {
     SEMPR_ENTITY
 private:
     friend class odb::access;

@@ -14,6 +14,7 @@ link_directories(${Soprano_LIBRARY_DIRS})
 
 add_executable(manual_test main.cpp)
 
+
 target_link_libraries(manual_test sempr_core ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
 if(Boost_FOUND)
@@ -44,6 +45,10 @@ if(Boost_FOUND)
   add_executable(sempr_entity_tests SEMPR_tests.cpp Entity_tests.cpp)
   target_link_libraries(sempr_entity_tests ${DEPENDENCIES})
   add_test(NAME sempr_entity_tests COMMAND sempr_entity_tests)
+  
+  add_executable(sempr_semanticentity_tests SEMPR_tests.cpp SemanticEntity_tests.cpp)
+  target_link_libraries(sempr_semanticentity_tests ${DEPENDENCIES})
+  add_test(NAME sempr_semanticentity_tests COMMAND sempr_semanticentity_tests)
 
   #todo: add a macro to reduce the line of command here!
 

@@ -1,13 +1,26 @@
 #ifndef SEMPR_ENTITY_RDFPROPERTYMAP_HPP_
 #define SEMPR_ENTITY_RDFPROPERTYMAP_HPP_
 
-#include <sempr/entity/RDFEntity.hpp>
+#include <sempr/entity/RDFVector.hpp>
 #include <sempr/entity/RDFValue.hpp>
 #include <Soprano/Soprano> // for conversion to rdf-literals.
 
 namespace sempr { namespace entity {
 
-class RDFValueProxy;
+class RDFPropertyMap;
+
+class RDFPropertyMapIterator : public TripleIterator {
+    friend class RDFPropertyMap;
+    std::map<std::string, RDFValue>::const_iterator it_;
+    const RDFPropertyMap* pmap_;
+
+    RDFPropertyMapIterator(const RDFPropertyMap* pmap,
+                                std::map<std::string, RDFValue>::const_iterator it);
+
+    const Triple operator * () const override;
+    void operator ++ () override;
+    bool operator == (const TripleIterator& other) const override;
+};
 
 /**
     The RDFPropertyMap is an extension of the simple RDFEntity. It provides
@@ -35,6 +48,8 @@ public:
 
     virtual ~RDFPropertyMap(){}
 
+    TripleIteratorWrapper begin() const override;
+    TripleIteratorWrapper end() const override;
 
     /// checks if an entry for a given key exists, without creating one
     bool hasProperty(const std::string& key);
@@ -49,8 +64,8 @@ public:
         that has been stored at the given key. As this accesses an internal map it automatically
         creates a new entry if necessary.
     */
-    RDFValueProxy operator[](const std::string& key);
-    RDFValueProxy operator()(const std::string& key);
+    RDFValue& operator[](const std::string& key);
+    RDFValue& operator()(const std::string& key);
 
     /**
         Allows to set a baseURI that differs from the default. To read/write the same variable
@@ -60,64 +75,16 @@ public:
             // will _not_ overwrite the previous, except if "http://example.com" is the default
             // baseURI.
     */
-    RDFValueProxy operator()(const std::string& key, const std::string& baseURI);
+    RDFValue& operator()(const std::string& key, const std::string& baseURI);
 
 private:
-    RDFPropertyMap(){}
+    RDFPropertyMap();
     friend class odb::access;
-    friend class RDFValueProxy;
+    friend class RDFPropertyMapIterator;
 
-    #pragma db value
-    struct Container {
-        RDFValue value_;        // the actual value
-        size_t vectorIndex_;    // the position of the Triple-Entry in RDFEntity
-    };
-
-    std::map<std::string, Container> keyValueMap_;
+    std::map<std::string, RDFValue> keyValueMap_;
     std::string subject_;
     std::string baseURI_;
-};
-
-/** A proxy around a RDFPropertyMap pointing at a fixed element. This is used
-    to update the triples of the RDFPropertyMap after altering an RDFValue it is
-    pointing at!
-*/
-class RDFValueProxy {
-    // the property map the value resides in. a raw pointer is sufficient, the
-    // proxy is NOT intended to be stored - it is just a helper.
-    RDFPropertyMap* propertyMap_;
-    // defines the entry to point at
-    std::string key_;
-public:
-    RDFValueProxy(RDFPropertyMap* map, const std::string key)
-        : propertyMap_(map), key_(key)
-    {
-    }
-
-    /**
-        Assign a value. This updates the RDFValue-Object (which actually
-        implments the conversion methods, using Soprano::LiteralValue etc.),
-        updates the associated "Triple" and emits a changed-event.
-    */
-    template <typename T>
-    RDFValueProxy& operator = (const T& value) {
-        // update the RDFValue
-        propertyMap_->keyValueMap_[key_].value_ = value;
-        // update the corresponding triple
-        size_t index = propertyMap_->keyValueMap_[key_].vectorIndex_;
-        Triple& triple = propertyMap_->getTripleAt(index);
-        triple.object = propertyMap_->keyValueMap_[key_].value_.toString();
-        // emit a changed-event (?)
-        // TODO -- maybe not and leave it to the user?
-        propertyMap_->changed();
-        return *this;
-    }
-
-    /** Casts -- implemented by RDFValue */
-    template <typename T>
-    operator T() const {
-        return propertyMap_->keyValueMap_[key_].value_;
-    }
 };
 
 

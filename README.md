@@ -311,7 +311,7 @@ MyClass::MyClass(const core::IDGenBase* gen)
 
 
 ### RDFPropertyMap
-The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, a triple exists for every key-value-pair. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
+The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, every key-value-pair can be seen as a triple. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
 ```c++
 RDFPropertyMap::Ptr map(new RDFPropertyMap("subject", "http://baseURI/"));
 core.addEntity(map);
@@ -348,6 +348,99 @@ Furthermore you might want to save triples with a property that does not belong 
 m("type", rdf::baseURI()) = RDFResource( "<" + rdf::baseURI() + "Person>" );
 ```
 > Please note the round brackets as c++ does not allow multiple arguments for the square-bracket-operator. For the single-argument version you may use any type: `m["foo"]` and `m("foo")` are interchangable.
+
+### SemanticEntity
+
+An alternative to the RDFPropertyMap is the SemanticEntity-class. Both achieve the same goal: They provide an RDF-Triple representation of its given values. But the actual implementation and usages differ quite a lot: The RDFPropertyMap stores the given values itself and associates them with string-keys. This means that you are free to add values as you please, from any source, but you need to know exactly the key and type of the value whenever you want to access it -- the compiler won't help you there, you lose static type safety. The SemanticEntity implements the other extreme: It does not store the values itself but keeps only references to variables, and thus has some restrictions on what can be stored. But since your data stays in your usual c++ member variables, you can work with them without any conversions.
+
+####Implementation details
+
+The SemanticEntity class provides the methods:
+
+```c++
+template<class T> void registerPropetry(const std::string& predicate, T& property);
+template<class T> void registerProperty(const std::string& subject, 
+                                        const std::string& predicate, T& property);
+
+template<class T> void registerPropertyPlain(const std::string& predicate, T& property);
+template<class T> void registerPropertyPlain(const std::string& subject, 
+                                             const std::string& predicate, T& property);
+```
+
+Which can be used to register a variable and thus make it available as a triple. The value of the variable will always be presented in the "object" part of the triple. The "predicate" part of the triple needs to be specified, whereas the "subject" part is optional: If omitted, the ID of the SemanticEntity is used, and the subject will be `"<" + sempr::baseURI() + entity->id() + ">"`, e.g. `<sempr:SemanticEntity_42>`.
+
+Since the variable is given by reference you must ensure that its lifetime exceeds/is coupled to the lifetime of the SemanticEntity. You should only register member variables of the SemanticEntity itself, and thus have to _derive_ from SemanticEntity, which is why the above methods were made _protected_. 
+
+> **TODO**: _In the future, methods to check the lifetime of the owner of the variable may be added in order to use the SemanticEntity in a compositional fashion, just like the RDFPropertyMap, without inheriting it, but those are not implemented yet._
+
+Internally, for every registered property an instance of `RegisteredPropertyBase` is stored in a vector of the SemanticEntity. Those objects simply provide an interface to `virtual std::string object() const = 0;` which is provided by the (templated) derived classes `RegisteredProperty`. The `RegisteredProperty`s in turn have to major modifications:
+
+1. They also provide a `bool isValid() const;` which is implemented differently for `std::shared_ptr`, in which case they return if the property/variable/member is not null. In case of non-shared-ptrs it always returns true. This method is used to check if a registered property should be skipped on iteration, as a nullptr is (IMHO) best represented by the absence of a triple.
+2. The RegisteredProperty-template takes as a second template argument another template referenced to as `ToString`. This can be used to switch between different modes: Currently implemented are the templates `sempr::rdf::traits::n3_string` and `sempr::rdf::traits::plain_string` which are used by the methods `SemanticEntity::registerProperty` and `SemanticEntity::registerPropertyPlain` respectively. The former converts the given value to N3 notation, e.g. `"42"^^<http://www.w3.org/2001/XMLSchema#int>`, whereas the latter converts the values to plain strings, e.g. `42`. 
+
+The currently supported datatypes may be a bit limited: The default definition for `n3_string` uses sopranos literal nodes for conversion, the default for `plain_string` utilizes `std::to_string`. Both have a specialization for shared pointers to types derived from `sempr::entity::Entity`, in which case the id of the entity is used to construct the rdf value. If you want to extend the capabilities of the SemanticEntity to your own types than this is your starting point: Implement your own conversion functions.
+
+#### Usage
+
+If you want to use the approach of the SemanticEntity to make certain member variables of your class visible as an RDF triple, do the following:
+
+1. Implement your class as described in the previous sections, but derive from SemanticEntity.
+2. In your constructor, use `registerProperty` or `registerPropertyPlain` to make a member variable visible.
+
+For example (parts from the PropertyTestEntity):
+
+```c++
+// PropertyTestEntity.hpp
+
+#include <sempr/entity/SemanticEntity.hpp>
+#include <sempr/entity/Person.hpp>
+
+namespace sempr { namespace entity {
+
+#pragma db object
+class PropertyTestEntity : public SemanticEntity {
+    SEMPR_ENTITY
+public:
+    using Ptr = std::shared_ptr<PropertyTestEntity>;
+    PropertyTestEntity();
+
+    int intValue_;
+    float floatValue_;
+    double doubleValue_;
+    std::string stringValue_;
+    Person::Ptr entityValue_;
+};
+    
+}}
+```
+
+```c++
+// PropertyTestEntity.cpp
+#include <PropertyTestEntity_odb.h>
+
+
+namespace sempr { namespace entity {
+
+SEMPR_ENTITY_SOURCE(PropertyTestEntity);
+
+
+PropertyTestEntity::PropertyTestEntity()
+    : SemanticEntity(new core::IDGen<PropertyTestEntity>())
+{
+    this->setDiscriminator<PropertyTestEntity>();
+
+    // register member variables   
+    this->registerProperty("<http://foo.bar/someInt>", intValue_);
+    this->registerProperty("<http://foo.bar/someFloat>", floatValue_);
+    this->registerProperty("<http://foo.bar/someDouble>", doubleValue_);
+    this->registerProperty("<http://foo.bar/someString>", stringValue_);
+    this->registerProperty("<http://foo.bar/someEntity>", entityValue_);
+}
+
+}}
+```
+
+It's as easy as that. Since a SemanticEntity implements the RDFEntity-Interface, whenever you call `PropertyTestEntity::changed()` all processing modules listening for RDFEntitys are informed, too, and when iterating over the triples of your entity have access to the current values of the registered properties.
 
 ### Geometry
 To store geometric data, SEMPR relies on [GDAL](http://www.gdal.org/), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. The class hierarchy of `OGRGeometry` is mirrored in entities with the `Geometry`-base-class. The entity-classes simply wrap a corresponding geometry: `entity::Point` contains an `OGRPoint*`etc.

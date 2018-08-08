@@ -1,81 +1,83 @@
 #include <sempr/entity/RDFEntity.hpp>
 #include <RDFEntity_odb.h>
-#include <Soprano/Soprano>
 
 namespace sempr { namespace entity {
 
-SEMPR_ENTITY_SOURCE(RDFEntity)
+
+TripleIteratorWrapper::TripleIteratorWrapper(TripleIterator* impl)
+    : impl_(impl)
+{
+    if (!impl_) throw std::exception();
+}
+
+TripleIteratorWrapper::~TripleIteratorWrapper()
+{
+    delete impl_;
+}
+
+const Triple TripleIteratorWrapper::operator*() const
+{
+    return *(*impl_);
+}
+
+TripleIteratorWrapper& TripleIteratorWrapper::operator++()
+{
+    ++(*impl_);
+    return *this;
+}
+
+bool TripleIteratorWrapper::operator==(const sempr::entity::TripleIteratorWrapper &other) const
+{
+    return *impl_ == *(other.impl_);
+}
+
+bool TripleIteratorWrapper::operator!=(const TripleIteratorWrapper& other) const
+{
+    return !(*this == other);
+}
+
+// base impl
+TripleIterator::~TripleIterator()
+{
+}
+
+
+
+
+
+// ------
+
+SEMPR_ENTITY_SOURCE(RDFEntity);
+
 
 RDFEntity::RDFEntity(const core::IDGenBase* idgen)
     : Entity(idgen)
 {
-    setDiscriminator<RDFEntity>();
 }
 
 
-RDFEntity::RDFEntity() : RDFEntity(new core::IDGen<RDFEntity>())
+// private, only to be used by odb!
+RDFEntity::RDFEntity()
+    : Entity()
 {
 }
 
-std::vector<Triple>::const_iterator RDFEntity::begin() const
+TripleIteratorWrapper RDFEntity::begin() const
 {
-    return triples_.begin();
+    return TripleIteratorWrapper(nullptr);
 }
 
-std::vector<Triple>::const_iterator RDFEntity::end() const
+TripleIteratorWrapper RDFEntity::end() const
 {
-    return triples_.end();
+    return TripleIteratorWrapper(nullptr);
 }
 
-
-void RDFEntity::getTriples(std::vector<Triple> &triples) const
+void RDFEntity::getTriples(std::vector<Triple>& triples) const
 {
-    triples.insert(triples.end(), triples_.begin(), triples_.end());
-}
-
-Triple& RDFEntity::getTripleAt(const size_t &index)
-{
-    return triples_[index];
-}
-
-bool RDFEntity::addTriple(const sempr::entity::Triple &triple)
-{
-    // check if the triple is valid!
-    auto sub = Soprano::Node::fromN3(QString::fromStdString(triple.subject));
-    auto pred = Soprano::Node::fromN3(QString::fromStdString(triple.predicate));
-    auto obj = Soprano::Node::fromN3(QString::fromStdString(triple.object));
-
-    Soprano::Statement st(sub, pred, obj);
-
-    // but add anyway, necessary for RDFPropertyMap etc
-    triples_.push_back(triple);
-    this->changed();
-
-    return st.isValid();
-}
-
-bool RDFEntity::removeTriple(const sempr::entity::Triple &triple)
-{
-    auto newEnd = std::remove(triples_.begin(), triples_.end(), triple);
-    if (newEnd == triples_.end()) return false;
-
-    triples_.erase(newEnd, triples_.end());
-    this->changed();
-    return true;
-}
-
-void RDFEntity::removeTripleAt(const size_t& index) {
-    triples_.erase(triples_.begin() + index);
-}
-
-void RDFEntity::clear()
-{
-    triples_.clear();
-    this->changed();
-}
-
-size_t RDFEntity::size() const {
-    return triples_.size();
+    for (auto& t : *this)
+    {
+        triples.push_back(t);
+    }
 }
 
 

@@ -40,6 +40,8 @@ BOOST_AUTO_TEST_SUITE(entity_RDFPropertyMap)
 
         m["person"] = person;
 
+        map->changed();
+
         updater->updateDatabase();
     }
 
