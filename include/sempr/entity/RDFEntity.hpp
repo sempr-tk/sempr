@@ -34,7 +34,7 @@ protected:
     we could reference, it  needs to return triples by value instead.
 */
 class TripleIteratorWrapper {
-    TripleIterator* impl_;
+    TripleIterator* const impl_;
 public:
     TripleIteratorWrapper(TripleIterator* impl);
     ~TripleIteratorWrapper();
