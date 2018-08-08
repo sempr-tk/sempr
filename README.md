@@ -349,6 +349,29 @@ m("type", rdf::baseURI()) = RDFResource( "<" + rdf::baseURI() + "Person>" );
 ```
 > Please note the round brackets as c++ does not allow multiple arguments for the square-bracket-operator. For the single-argument version you may use any type: `m["foo"]` and `m("foo")` are interchangable.
 
+There are more things to consider when working with an RDFPropertyMap: Internally, everything is stored in instances of RDFValue. These provide the interface to assign them values of (more or less) arbitrary type, and to cast them to the type you previously stored in it (and still know what it is!). The RDFValue class _tries_ to be as transparent as possible to the user by providing implicit cast-methods, and even implements some operators (`<, <=, ==, !=, >=, >`) to allow comparison of an RDFValue with a literal value, by casting the RDFValue to the right-handed side of the operation and using the operator of the result:
+
+```c++
+if (m["foo"] > 12) do_something(); // m["foo"].get<int>() > 12
+```
+
+Sometimes the casts can be a bit tricky, and ambiguous. When something goes wrong you can still try to use the `template <typename T> get()` method directly to cast the RDFValue to the desired type. If you want to compare strings e.g., the previously mentioned operators are overloaded to cast the RDFValue to std::string when comparing with a const char*:
+
+```c++
+if (m["baz"] == "Hello, World!") do_something(); // m["baz"].get<std::string> == "Hello, World!";
+```
+
+The `get<T>()` method is just another way to explicitly call the `operator T()`, and its implementation is short enough to fit into this README :wink: :
+
+```c++
+template <typename T>
+T get() {
+    return *this; // uses "template <typename T> operator T()" to cast to T.
+}
+```
+
+
+
 ### SemanticEntity
 
 An alternative to the RDFPropertyMap is the SemanticEntity-class. Both achieve the same goal: They provide an RDF-Triple representation of its given values. But the actual implementation and usages differ quite a lot: The RDFPropertyMap stores the given values itself and associates them with string-keys. This means that you are free to add values as you please, from any source, but you need to know exactly the key and type of the value whenever you want to access it -- the compiler won't help you there, you lose static type safety. The SemanticEntity implements the other extreme: It does not store the values itself but keeps only references to variables, and thus has some restrictions on what can be stored. But since your data stays in your usual c++ member variables, you can work with them without any conversions.

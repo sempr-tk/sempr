@@ -122,8 +122,6 @@ public:
         static_assert(std::is_base_of<Entity, T>::value, "Type not derived from Entity");
         type_ = Type::POINTER;
         pointer_ = other;
-        // TODO: need a central point of namespace definitions
-        // stringRepresentation_ = ("<" + std::string("sempr://") + pointer_->id() + ">");
         Soprano::Node tmp = Soprano::Node::createResourceNode(
             QUrl(QString::fromStdString(sempr::baseURI() + pointer_->id()))
         );
@@ -133,6 +131,73 @@ public:
 
     // overload for c-strings (so that map["name"]="Max" wont result in "true"^^<xsd:boolean>)
     RDFValue& operator = (const char* cstr);
+
+    /** Comparison with actual type */
+    template <typename T>
+    bool operator == (const T& other) {
+        return this->get<T>() == other;
+    }
+
+    template <typename T>
+    bool operator != (const T& other) {
+        return !(this->get<T>() == other);
+    }
+
+
+    template <typename T>
+    bool operator < (const T& other) {
+        return this->get<T>() < other;
+    }
+
+    template <typename T>
+    bool operator <= (const T& other) {
+        return this->get<T>() <= other;
+    }
+
+    template <typename T>
+    bool operator > (const T& other) {
+        return this->get<T>() > other;
+    }
+
+    template <typename T>
+    bool operator >= (const T& other) {
+        return this->get<T>() >= other;
+    }
+
+
+
+
+    /**
+        Specialization (actually: Overload!) for comparison with c strings. Without this, trying to
+        do:
+            bool ok = (map["key"] == "Hello, World!");
+        will cause the compiler to try to cast this RDFValue to char[14].
+    */
+    bool operator == (const char* other) {
+        return this->get<std::string>() == other;
+    }
+
+    bool operator != (const char* other) {
+        return !(this->operator ==(other));
+    }
+    
+    bool operator < (const char* other) {
+        return this->get<std::string>() < other;
+    }
+
+    bool operator <= (const char* other) {
+        return this->get<std::string>() <= other;
+    }
+
+    bool operator > (const char* other) {
+        return this->get<std::string>() > other;
+    }
+
+    bool operator >= (const char* other) {
+        return this->get<std::string>() >= other;
+    }
+
+
 
     /** Casts. Delegates to "to<T>()" since the operators syntax doesn't allow
         for enable_if<...> - differentiation
@@ -145,7 +210,7 @@ public:
 
     /** Just another way to cast. */
     template <typename T>
-    T get() const {
+    T get() {
         return *this;
     }
 
