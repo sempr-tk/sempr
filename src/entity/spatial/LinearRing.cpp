@@ -43,10 +43,11 @@ void LinearRing::setGeometry(geom::LinearRing* geometry)
     geometry_ = geometry;
 }
 
-void LinearRing::setCoordinates(std::vector<geom::Coordinate>& coordinates)
+void LinearRing::setCoordinates(const std::vector<geom::Coordinate>& coordinates)
 {
     auto sequence = geom::CoordinateArraySequenceFactory::instance()->create();
     sequence->setPoints(coordinates);
+
     geometry_->setPoints(sequence);
 }
 

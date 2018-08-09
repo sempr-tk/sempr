@@ -44,6 +44,27 @@ void Polygon::setGeometry(geom::Polygon* geometry)
     geometry_ = geometry;
 }
 
+void Polygon::setCoordinates(const std::vector<geom::Coordinate>& coordinates)
+{
+    geom::CoordinateSequence* seq = geom::CoordinateArraySequenceFactory::instance()->create();
+    seq->setPoints(coordinates);
+
+    setCoordinates(*seq);
+
+    delete seq;
+}
+
+void Polygon::setCoordinates(const geom::CoordinateSequence& seq)
+{
+    geom::LinearRing* ring = factory_->createLinearRing(seq);
+
+    auto holes = new std::vector< geom::Geometry* >();
+
+    auto polygon = factory_->createPolygon(ring, holes);
+
+    setGeometry(polygon);
+}
+
 Polygon::Ptr Polygon::clone() const 
 {
     // raw clone is virtual! :)

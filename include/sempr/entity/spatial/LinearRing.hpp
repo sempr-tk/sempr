@@ -27,7 +27,7 @@ public:
 
     void setGeometry(geom::LinearRing* geometry);
 
-    void setCoordinates(std::vector<geom::Coordinate>& coordinates); //no const parameter because of geos::geom!
+    void setCoordinates(const std::vector<geom::Coordinate>& coordinates);
 
     /**
         Get a new entity with the same geometry (copy) referring to the same instance of
