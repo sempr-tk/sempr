@@ -60,12 +60,9 @@ void Polygon::setCoordinates(const geom::CoordinateSequence& seq)
 
     std::vector< geom::Geometry* > holes;
 
-    auto polygon = factory_->createPolygon(*ring, holes);   //copy ring to avoid ownership issues
+    auto polygon = factory_->createPolygon(ring, new std::vector< geom::Geometry* >());
 
     setGeometry(polygon);
-
-    factory_->destroyGeometry((geom::Geometry*)ring);
-
 }
 
 Polygon::Ptr Polygon::clone() const 

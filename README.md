@@ -475,9 +475,9 @@ Geometric data is not always stored in the same global reference system. In some
 Global reference systems inherit from the `GlobalCS`-class and are implicitly linked to each other, with the earth as a common root. Since "earth" is not modeled explicitely, the global references are also referred to as "root reference systems". Currently, they are supported through three classes: `GeodeticCS` models geographic coordinate systems which are based on latitude and longitude coordinates on a WGS84 ellipsoid with Greenwich as meridian. 
 They do cannot be chained with other reference systems: How would an affine transformation relative to "WGS84" make any sense?
 
-In most cases you will want to represent data that is not directly aquired in (lon lat) but rather (x y z) coordinates, but which may be linked to a specific geographic location. This is what a `ProjectionCS` is used for: It defines a reference system projected to/from an underlying geographic one. Currently implemented are UTM, UPS and MGRS (also known as UTMREF) projections. The latter can be attached to any (lat lon) coordinate and defines a plane that touches the globe at that location. Since at this point the coordinates of any geometry attached to the coordinate system is interpreted as (x y z), it is possible to attach local reference systems to it.
+In most cases you will want to represent data that is not directly aquired in (lon lat) but rather (x y z) coordinates, but which may be linked to a specific geographic location. This is what a `ProjectionCS` is used for: It defines a reference system projected to/from an underlying geographic one. Currently implemented are UTM, UPS and MGRS (also known as UTMREF) projections. 
 
-Additional to the `ProjectionCS` the `GeocentricCS` provide not projected (x y z) coordinate. They could be based on the center point of the earth or as a local tangent plane at a given position.
+Additional to the `ProjectionCS` the `GeocentricCS` provide not projected (x y z) coordinate. They could be based on the center point of the earth or as a local tangent plane at a given position. The local tangent plane can be attached to any (lat lon) coordinate and defines a plane that touches the globe at that location. Since at this point the coordinates of any geometry attached to the coordinate system is interpreted as (x y z), it is possible to attach local reference systems to it. But the plane is not projected and so the earth's curvature will still cause an high error for a far distance to the given postion.
 
 ##### Local references
 Local reference systems simply define affine transformations (currently only rotation and translation) between each other, every `LocalCS` having at most one parent coordinate system, which can be another `LocalCS` or a global cartesian like `ProjectionCS` and `GeocentricCS`.
@@ -498,7 +498,7 @@ There exists some computational overhead for the transformations: First of all, 
 The `traits-sqlite-geom-geometry.hxx` implements a traits-class for `geos::geom::Geometry*` with templated methods to store any pointer to an `geos::geom::Geometry` or derived class. The serialization support is easily extended by inheriting from this traits-class: E.g., the line:
 
 ```c++
-template <> class value_traits<geom::Point*, id_text> : public value_traits<geom::Geometry*, id_text> {};
+template <> class value_traits<geom::Point*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 ```
 
 enables serialization of `geos::geom::MultiPoint*` in binary form (WKB). In your entities, use e.g.:
