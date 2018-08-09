@@ -311,7 +311,7 @@ MyClass::MyClass(const core::IDGenBase* gen)
 
 
 ### RDFPropertyMap
-The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, a triple exists for every key-value-pair. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
+The RDFPropertyMap is a utility entity that allows its user to store values of different types in a single datastructure. Internally, it uses `Soprano::LiteralValue`s (which are based on `QVariant`) to store the most common datatypes. As the name implies, it is a map-structure: String-keys are mapped to values, and since it is derived from `RDFEntity`, every key-value-pair can be seen as a triple. Therefore, the map has to be given a subject to use in the triples as well as a base-URI that precedes the keys to form valid properties in RDF. E.g.:
 ```c++
 RDFPropertyMap::Ptr map(new RDFPropertyMap("subject", "http://baseURI/"));
 core.addEntity(map);
@@ -349,17 +349,138 @@ m("type", rdf::baseURI()) = RDFResource( "<" + rdf::baseURI() + "Person>" );
 ```
 > Please note the round brackets as c++ does not allow multiple arguments for the square-bracket-operator. For the single-argument version you may use any type: `m["foo"]` and `m("foo")` are interchangable.
 
+There are more things to consider when working with an RDFPropertyMap: Internally, everything is stored in instances of RDFValue. These provide the interface to assign them values of (more or less) arbitrary type, and to cast them to the type you previously stored in it (and still know what it is!). The RDFValue class _tries_ to be as transparent as possible to the user by providing implicit cast-methods, and even implements some operators (`<, <=, ==, !=, >=, >`) to allow comparison of an RDFValue with a literal value, by casting the RDFValue to the right-handed side of the operation and using the operator of the result:
+
+```c++
+if (m["foo"] > 12) do_something(); // m["foo"].get<int>() > 12
+```
+
+Sometimes the casts can be a bit tricky, and ambiguous. When something goes wrong you can still try to use the `template <typename T> get()` method directly to cast the RDFValue to the desired type. If you want to compare strings e.g., the previously mentioned operators are overloaded to cast the RDFValue to std::string when comparing with a const char*:
+
+```c++
+if (m["baz"] == "Hello, World!") do_something(); // m["baz"].get<std::string> == "Hello, World!";
+```
+
+The `get<T>()` method is just another way to explicitly call the `operator T()`, and its implementation is short enough to fit into this README :wink: :
+
+```c++
+template <typename T>
+T get() {
+    return *this; // uses "template <typename T> operator T()" to cast to T.
+}
+```
+
+
+
+### SemanticEntity
+
+An alternative to the RDFPropertyMap is the SemanticEntity-class. Both achieve the same goal: They provide an RDF-Triple representation of its given values. But the actual implementation and usages differ quite a lot: The RDFPropertyMap stores the given values itself and associates them with string-keys. This means that you are free to add values as you please, from any source, but you need to know exactly the key and type of the value whenever you want to access it -- the compiler won't help you there, you lose static type safety. The SemanticEntity implements the other extreme: It does not store the values itself but keeps only references to variables, and thus has some restrictions on what can be stored. But since your data stays in your usual c++ member variables, you can work with them without any conversions.
+
+####Implementation details
+
+The SemanticEntity class provides the methods:
+
+```c++
+template<class T> void registerPropetry(const std::string& predicate, T& property);
+template<class T> void registerProperty(const std::string& subject, 
+                                        const std::string& predicate, T& property);
+
+template<class T> void registerPropertyPlain(const std::string& predicate, T& property);
+template<class T> void registerPropertyPlain(const std::string& subject, 
+                                             const std::string& predicate, T& property);
+```
+
+Which can be used to register a variable and thus make it available as a triple. The value of the variable will always be presented in the "object" part of the triple. The "predicate" part of the triple needs to be specified, whereas the "subject" part is optional: If omitted, the ID of the SemanticEntity is used, and the subject will be `"<" + sempr::baseURI() + entity->id() + ">"`, e.g. `<sempr:SemanticEntity_42>`.
+
+Since the variable is given by reference you must ensure that its lifetime exceeds/is coupled to the lifetime of the SemanticEntity. You should only register member variables of the SemanticEntity itself, and thus have to _derive_ from SemanticEntity, which is why the above methods were made _protected_. 
+
+> **TODO**: _In the future, methods to check the lifetime of the owner of the variable may be added in order to use the SemanticEntity in a compositional fashion, just like the RDFPropertyMap, without inheriting it, but those are not implemented yet._
+
+Internally, for every registered property an instance of `RegisteredPropertyBase` is stored in a vector of the SemanticEntity. Those objects simply provide an interface to `virtual std::string object() const = 0;` which is provided by the (templated) derived classes `RegisteredProperty`. The `RegisteredProperty`s in turn have to major modifications:
+
+1. They also provide a `bool isValid() const;` which is implemented differently for `std::shared_ptr`, in which case they return if the property/variable/member is not null. In case of non-shared-ptrs it always returns true. This method is used to check if a registered property should be skipped on iteration, as a nullptr is (IMHO) best represented by the absence of a triple.
+2. The RegisteredProperty-template takes as a second template argument another template referenced to as `ToString`. This can be used to switch between different modes: Currently implemented are the templates `sempr::rdf::traits::n3_string` and `sempr::rdf::traits::plain_string` which are used by the methods `SemanticEntity::registerProperty` and `SemanticEntity::registerPropertyPlain` respectively. The former converts the given value to N3 notation, e.g. `"42"^^<http://www.w3.org/2001/XMLSchema#int>`, whereas the latter converts the values to plain strings, e.g. `42`. 
+
+The currently supported datatypes may be a bit limited: The default definition for `n3_string` uses sopranos literal nodes for conversion, the default for `plain_string` utilizes `std::to_string`. Both have a specialization for shared pointers to types derived from `sempr::entity::Entity`, in which case the id of the entity is used to construct the rdf value. If you want to extend the capabilities of the SemanticEntity to your own types than this is your starting point: Implement your own conversion functions.
+
+#### Usage
+
+If you want to use the approach of the SemanticEntity to make certain member variables of your class visible as an RDF triple, do the following:
+
+1. Implement your class as described in the previous sections, but derive from SemanticEntity.
+2. In your constructor, use `registerProperty` or `registerPropertyPlain` to make a member variable visible.
+
+For example (parts from the PropertyTestEntity):
+
+```c++
+// PropertyTestEntity.hpp
+
+#include <sempr/entity/SemanticEntity.hpp>
+#include <sempr/entity/Person.hpp>
+
+namespace sempr { namespace entity {
+
+#pragma db object
+class PropertyTestEntity : public SemanticEntity {
+    SEMPR_ENTITY
+public:
+    using Ptr = std::shared_ptr<PropertyTestEntity>;
+    PropertyTestEntity();
+
+    int intValue_;
+    float floatValue_;
+    double doubleValue_;
+    std::string stringValue_;
+    Person::Ptr entityValue_;
+};
+    
+}}
+```
+
+```c++
+// PropertyTestEntity.cpp
+#include <PropertyTestEntity_odb.h>
+
+
+namespace sempr { namespace entity {
+
+SEMPR_ENTITY_SOURCE(PropertyTestEntity);
+
+
+PropertyTestEntity::PropertyTestEntity()
+    : SemanticEntity(new core::IDGen<PropertyTestEntity>())
+{
+    this->setDiscriminator<PropertyTestEntity>();
+
+    // register member variables   
+    this->registerProperty("<http://foo.bar/someInt>", intValue_);
+    this->registerProperty("<http://foo.bar/someFloat>", floatValue_);
+    this->registerProperty("<http://foo.bar/someDouble>", doubleValue_);
+    this->registerProperty("<http://foo.bar/someString>", stringValue_);
+    this->registerProperty("<http://foo.bar/someEntity>", entityValue_);
+}
+
+}}
+```
+
+It's as easy as that. Since a SemanticEntity implements the RDFEntity-Interface, whenever you call `PropertyTestEntity::changed()` all processing modules listening for RDFEntitys are informed, too, and when iterating over the triples of your entity have access to the current values of the registered properties.
+
 ### Geometry
-To store geometric data, SEMPR relies on [GDAL](http://www.gdal.org/), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. The class hierarchy of `OGRGeometry` is mirrored in entities with the `Geometry`-base-class. The entity-classes simply wrap a corresponding geometry: `entity::Point` contains an `OGRPoint*`etc.
+To store geometric data, SEMPR relies on [GEOS](http://geos.osgeo.org), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. The class hierarchy of `geos::geom::Geometry` is mirrored in entities with the `Geometry`-base-class. The entity-classes simply wrap a corresponding geometry: `entity::Point` contains an `geos::geom::Point*` etc.
 
 #### Spatial reference systems / coordinate systems
 Geometric data is not always stored in the same global reference system. In some cases it might be even beneficial to create local coordinate systems that are related to each other: If a parent system is changed, the children stay in relative position/orientation to their parent (and change on a more global scale). In order to support such chains and different reference systems -- even geographic ones -- the following distinctions have been made, and classes have been implemented.
-##### Global references
-Global reference systems inherit from the `GlobalCS`-class and are implicitly linked to each other, with the earth as a common root. Since "earth" is not modeled explicitely, the global references are also referred to as "root reference systems". Currently, they are supported through two classes: `GeographicCS` models geographic coordinate systems which are based on latitude and longitude coordinates. They do cannot be chained with other reference systems: How would an affine transformation relative to "WGS84" make any sense?
 
-In most cases you will want to represent data that is not directly aquired in (lon lat) but rather (x y z) coordinates, but which may be linked to a specific geographic location. This is what a `ProjectionCS` is used for: It defines a reference system projected to/from an underlying geographic one. Currently implemented are UTM-frames (*note: pure UTM,* **not** *MGRS!*) and equirectangular projections. The latter can be attached to any (lat lon) coordinate and defines a plane that touches the globe at that location. Since at this point the coordinates of any geometry attached to the coordinate system is interpreted as (x y z), it is possible to attach local reference systems to it.
+##### Global references
+Global reference systems inherit from the `GlobalCS`-class and are implicitly linked to each other, with the earth as a common root. Since "earth" is not modeled explicitely, the global references are also referred to as "root reference systems". Currently, they are supported through three classes: `GeodeticCS` models geographic coordinate systems which are based on latitude and longitude coordinates on a WGS84 ellipsoid with Greenwich as meridian. 
+They do cannot be chained with other reference systems: How would an affine transformation relative to "WGS84" make any sense?
+
+In most cases you will want to represent data that is not directly aquired in (lon lat) but rather (x y z) coordinates, but which may be linked to a specific geographic location. This is what a `ProjectionCS` is used for: It defines a reference system projected to/from an underlying geographic one. Currently implemented are UTM, UPS and MGRS (also known as UTMREF) projections. 
+
+Additional to the `ProjectionCS` the `GeocentricCS` provide not projected (x y z) coordinate. They could be based on the center point of the earth or as a local tangent plane at a given position. The local tangent plane can be attached to any (lat lon) coordinate and defines a plane that touches the globe at that location. Since at this point the coordinates of any geometry attached to the coordinate system is interpreted as (x y z), it is possible to attach local reference systems to it. But the plane is not projected and so the earth's curvature will still cause an high error for a far distance to the given postion.
+
 ##### Local references
-Local reference systems simply define affine transformations (currently only rotation and translation) between each other, every `LocalCS` having at most one parent coordinate system, which can be another `LocalCS` or a `ProjectionCS`.
+Local reference systems simply define affine transformations (currently only rotation and translation) between each other, every `LocalCS` having at most one parent coordinate system, which can be another `LocalCS` or a global cartesian like `ProjectionCS` and `GeocentricCS`.
 
 ##### Geometry transformation
 The `Geometry`-class implements methods to set the current reference systems as well as transforming it into another one. There are a few things that can go wrong during `Geometry::transformToCS`, so it may throw an exception on you. If it does, the geometry remains in a valid, unchanged state.
@@ -367,23 +488,23 @@ The `Geometry`-class implements methods to set the current reference systems as 
 There exists some computational overhead for the transformations: First of all, the transformation is computed whenever it is needed, which means that the tree of reference frames is traversed from the source and target systems to their respective roots -- which shouldn't be too expensive. After that, there are two possibilities:
 
 1. The root coordinate systems are the same. In this case, one full transformation can be computed (source --> root --> target) and applied to the geometry in one iteration over its coordinates.
-2. The root coordinate systems are different. Since GDAL takes care of the transformation between them, and the local systems are an addition of sempr, we need three steps to transform the geometry: 
+2. The root coordinate systems are different. In this case we need three steps to transform the geometry: 
 	1. Transform from source local to source root
-	2. Let GDAL transform it from source root to target root
+	2. Apply a global transformation as `geos::geom::CoordinateSequenceFilter`
 	3. Transform from target root to target
 
 
 #### Serialization
-The `traits-sqlite-geometry.hxx` implements a traits-class for `OGRGeometry*` with templated methods to store any pointer to an `OGRGeometry` or derived class. Currently, only a selected subset of GDALs geometries is supported, but serialization support is easily extended by inheriting from this traits-class: E.g., the line:
+The `traits-sqlite-geom-geometry.hxx` implements a traits-class for `geos::geom::Geometry*` with templated methods to store any pointer to an `geos::geom::Geometry` or derived class. The serialization support is easily extended by inheriting from this traits-class: E.g., the line:
 
 ```c++
-template <> class value_traits<OGRPolygon*, id_blob> : public value_traits<OGRGeometry*, id_blob> {};
+template <> class value_traits<geom::Point*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
 ```
 
-enables serialization of `OGRPolygon*` in binary form (WKB). In your entities, use e.g.:
+enables serialization of `geos::geom::MultiPoint*` in binary form (WKB). In your entities, use e.g.:
 ```c++
 #pragma db type("BLOB")
-OGRPolygon* polygon_;
+geos::geom::MultiPoint* geometry_;
 ```
 
 ## Events & Queries

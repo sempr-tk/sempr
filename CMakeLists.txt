@@ -30,6 +30,12 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include(${ODB_USE_FILE})
 include_directories(${ODB_COMPILE_OUTPUT_DIR})
 
+# libodb-sqlite-dev does not specify a dependency to libsqlite3-dev,
+# so lets check that manually. We just need the include dir set to
+# find 'sqlite3.h'. See issue #48
+pkg_check_modules(SQLITE REQUIRED sqlite3)
+include_directories(${SQLITE_LIBRARY_DIRS})
+
 # find package eigen3
 pkg_check_modules(EIGEN REQUIRED eigen3)
 include_directories(${EIGEN_INCLUDE_DIRS})

@@ -12,6 +12,28 @@ namespace entity {
 } /* storage */
 
 namespace core {
+
+    template <typename T>
+    struct remove_shared_ptr {
+        typedef T type;
+    };
+
+    template <typename T>
+    struct remove_shared_ptr<std::shared_ptr<T> > {
+        typedef T type;
+    };
+
+    template <typename T>
+    struct is_shared_ptr {
+        static constexpr bool value = false;
+    };
+
+    template <typename T>
+    struct is_shared_ptr<std::shared_ptr<T> > {
+        static constexpr bool value = true;
+    };
+
+
     /**
         A helper struct for SFINAE-check if odb::object_traits<T>::base_type exists.
         In c++17: std::void_t
