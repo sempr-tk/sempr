@@ -58,9 +58,9 @@ void Polygon::setCoordinates(const geom::CoordinateSequence& seq)
 {
     geom::LinearRing* ring = factory_->createLinearRing(seq);
 
-    std::vector< geom::Geometry* > holes;
+    auto holes = new std::vector< geom::Geometry* >();
 
-    auto polygon = factory_->createPolygon(ring, new std::vector< geom::Geometry* >());
+    auto polygon = factory_->createPolygon(ring, holes);
 
     setGeometry(polygon);
 }
