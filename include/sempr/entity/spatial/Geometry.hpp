@@ -19,8 +19,7 @@ namespace geom = geos::geom;
 
 /**
     A base class for all geometry entities. Contains methods to manage spatial reference systems
-    but no concrete geometry -- just a pure virtual OGRGeometry* geometry() method to be implemented
-    by the derived classes (point, polygon, ...).
+    but no concrete geometry.
 */
 #pragma db object
 class Geometry : public Entity
@@ -56,7 +55,7 @@ class Geometry : public Entity
                 - no geometry
                 - target/source null
                 - different root CS that are not global
-                - transform between two global frames not known to GDAL/proj4
+                - transform between two global frames not known.
     */
     void transformToCS(SpatialReference::Ptr cs);
 
