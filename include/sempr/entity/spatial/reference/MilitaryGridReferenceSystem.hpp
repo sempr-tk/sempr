@@ -18,7 +18,7 @@ public:
     using Ptr = std::shared_ptr<MilitaryGridReferenceSystem>;
 
     MilitaryGridReferenceSystem(const std::string& GZDSquareID);    //eg. 4QFJ
-    MilitaryGridReferenceSystem(int zone, char designator, const std::string& squareID);  
+    MilitaryGridReferenceSystem(int zone, char designator, const std::string& squareID);
     MilitaryGridReferenceSystem(int zone, char designator, const std::string& squareID, const core::IDGenBase*);
 
     bool isEqual(const GlobalCS::Ptr other) override;
@@ -35,9 +35,9 @@ public:
 protected:
     MilitaryGridReferenceSystem();
 
-    virtual FilterPtr forward() const;
+    virtual FilterPtr forward() const override;
 
-    virtual FilterPtr reverse() const;
+    virtual FilterPtr reverse() const override;
 
     static int zoneFromGZD(const std::string& GZDSquareID);
     static char designatorFromGZD(const std::string& GZDSquareID);

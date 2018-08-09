@@ -34,13 +34,13 @@ class GeocentricException : public std::exception
 class ECEFFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 
     void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
 
-    bool isDone() const;
+    bool isDone() const override;
 
-    bool isGeometryChanged() const;
+    bool isGeometryChanged() const override;
 protected:
     ECEFFilter(double a, double f);
 
@@ -69,13 +69,13 @@ public:
 class LTGFilter : public geom::CoordinateSequenceFilter
 {
 public:
-    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i);
+    virtual void filter_rw(geom::CoordinateSequence& seq, std::size_t i) override;
 
     void filter_ro(const geom::CoordinateSequence& seq, std::size_t i) override;
 
-    bool isDone() const;
+    bool isDone() const override;
 
-    bool isGeometryChanged() const;
+    bool isGeometryChanged() const override;
 protected:
     LTGFilter(double lat0, double lon0, double h0, double a, double f);
 

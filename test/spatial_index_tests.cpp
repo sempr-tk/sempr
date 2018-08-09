@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         //build up a quadrangle
         LocalCS::Ptr cs(new LocalCS());
         MultiPoint::Ptr mp( new MultiPoint() );
-        mp->setGeometry(setupQuadrangle({1, 1, 1}, {10, 10, 10}));
+        mp->setGeometry(setupQuadrangle({{1, 1, 1}}, {{10, 10, 10}}));
         mp->setCS(cs);
         core.addEntity(mp);
 

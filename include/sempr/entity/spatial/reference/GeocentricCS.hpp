@@ -18,13 +18,13 @@ class GeocentricCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<GeocentricCS>;
 
-    virtual FilterList to(const GlobalCS::Ptr other);
+    virtual FilterList to(const GlobalCS::Ptr other) override;
 
 protected:
 
-    virtual FilterPtr forward() const;
+    virtual FilterPtr forward() const override;
 
-    virtual FilterPtr reverse() const;
+    virtual FilterPtr reverse() const override;
 
 
     GeocentricCS();
