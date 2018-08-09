@@ -77,9 +77,7 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
             {
                     query->results.push_back(cloud_coords[j]);
             }
-            std::cout << intersections << std::endl;
             intersections = 0;
-
         }
     }
     // this is a really bad running time, isnt it? .. O(NumberOfClouds) * O(NumberOfPointsInEachCloud) * O(NumberOfVerticesInPolygon) * O(calculating) ... :(

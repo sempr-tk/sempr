@@ -14,7 +14,7 @@ namespace sempr { namespace entity { namespace agri {
 
 #pragma db object
 /** 
- * @brief The AgriEntity class is just an inherit of Polygon - so I will not need to copy all the features I want to use from Polygon.
+ * @brief The AgriEntity class
  */
 class AgriEntity : public Entity
 {
