@@ -42,7 +42,7 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
     double maxX = minX;
     double maxZ = minZ;
 
-    for(i = 1; i < coords.size() - 1; i++)
+    for(i = 1; i < coords.size(); i++)
     {
         if(coords[i].x < minX)
             minX = coords[i].x;

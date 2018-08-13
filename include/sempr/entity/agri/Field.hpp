@@ -1,5 +1,5 @@
-#ifndef FIELD_HPP
-#define FIELD_HPP
+#ifndef SEMPR_ENTITY_FIELD_HPP
+#define SEMPR_ENTITY_FIELD_HPP
 
 #include <sempr/entity/agri/AgriEntity.hpp>
 
@@ -34,4 +34,4 @@ private:
 } } }
 
 
-#endif // FIELD_HPP
+#endif // SEMPR_ENTITY_FIELD_HPP
