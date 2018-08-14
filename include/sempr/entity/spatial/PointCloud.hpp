@@ -1,18 +1,47 @@
 #ifndef SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_
 #define SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_
 
-#include <sempr/storage/History.hpp>
+#include <sempr/entity/spatial/AbstractPointCloud.hpp>
 
 #include <sempr/entity/spatial/MultiPoint.hpp>
 #include <geos/geom/MultiPoint.h>
 
+#include <stdexcept>
 #include <vector>
+#include <map>
 
 #include <type_traits>
 
 namespace sempr { namespace entity {
 
 namespace geom = geos::geom;
+
+// Wrapper for GOES::GEOM Coordinate to AbstractPoint
+class CoordinatePoint : public AbstractPoint
+{
+public:
+    CoordinatePoint(const geom::Coordinate& coord); //allows implicit type cast
+
+    inline double getX() override {return coord_.x;};
+    inline double getY() override {return coord_.y;};
+    inline double getZ() override {return coord_.z;};
+
+    //double& operator[](std::size_t idx) override;
+    const double& operator[](std::size_t idx) const override;
+
+private:
+    const geom::Coordinate& coord_;
+};
+
+
+#pragma db value
+struct Channel
+{
+    Channel() {};
+    Channel(const std::vector<double>& channel) : channel_(channel) {};
+    std::vector<double> channel_;
+};
+
 
 #pragma db object
 /**
@@ -27,43 +56,26 @@ public:
     PointCloud();
     PointCloud(const sempr::core::IDGenBase*);
 
-    ~PointCloud() {}
+    virtual ~PointCloud();
 
-    #pragma db value
-    struct Color
-    {
-        unsigned char r, g, b;
-    };
+    virtual bool hasChannel(int type) const;
 
-    #pragma db value
-    struct PointData
-    {
-        struct Color c;
-    };
+    void setChannel(int type, const std::vector<double>& channel);
 
-    uint64_t size() const { return getGeometry()->getNumPoints(); }
-    // TODO How to store the colors?
+    virtual std::vector<double>& getChannel(int type);
+    //virtual const std::vector<double>& getChannel(int type) const;
 
-    //std::vector<geom::Coordinate>& points() { return geometry_->getCoordinates(); }
-    geom::CoordinateSequence *points() { return getGeometry()->getCoordinates(); }
-    // TODO: error-handling? i out of bounds?
-    geom::Geometry const *point(int i) { return getGeometry()->getGeometryN(i); }           // beware of the CONST! point.
+    virtual std::size_t size() const;
 
-    void setCoordinatesWithColor(const std::vector<geom::Coordinate> &coordinates, const std::vector<unsigned char> &colors);
-    //void setPoints(const std::vector<Point>& points) { m_points = points; calculateBounds(); changed(); }
+    virtual const AbstractPoint& operator[](std::size_t idx) const;
 
-    // This seems to be complicated with geos? Create new geometry if we want to add/remove
-    //void addPoint(const Point& p) { checkBounds(p); m_points.push_back(p); changed(); }
-    //void removePoint(uint64_t i);
-
-
-protected:
+private:
     friend class odb::access;
+
+    //std::map< int, std::vector<double> > channels_;
+    std::map< int, Channel > channels_;     //workaround because odb will not solve std container in std container.
 };
 
-// enable history:
-typedef storage::History<PointCloud::Ptr> PointCloudHistory;
-#pragma db value(PointCloudHistory)
 
 }}
 
