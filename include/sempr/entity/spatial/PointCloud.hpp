@@ -67,7 +67,7 @@ public:
 
     virtual std::size_t size() const;
 
-    virtual const AbstractPoint& operator[](std::size_t idx) const;
+    virtual const CoordinatePoint operator[](std::size_t idx) const;
 
 private:
     friend class odb::access;

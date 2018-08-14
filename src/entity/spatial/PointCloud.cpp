@@ -102,9 +102,9 @@ std::size_t PointCloud::size() const
 }
 
 
-const AbstractPoint& PointCloud::operator[](std::size_t idx) const
+const CoordinatePoint PointCloud::operator[](std::size_t idx) const
 {
-    return CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());  //implicit type cast
+    return *getGeometry()->getGeometryN(idx)->getCoordinate();  // implicit type cast
 }
 
 }}
