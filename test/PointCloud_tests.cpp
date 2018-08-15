@@ -31,9 +31,14 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         BOOST_CHECK(pc->hasChannel(ChannelType::G));
         BOOST_CHECK(pc->getChannel(ChannelType::G)[0] == 0);
 
-        BOOST_CHECK((*pc)[0][0] == 1);  //check if the x 
-    }
+        //check iterator
+        for (auto red : pc->getChannel(ChannelType::R))
+        {
+            BOOST_CHECK_EQUAL(red, 1);
+        }
 
+        BOOST_CHECK((*pc)[0][0] == 1);  //check x
+    }
 
 
     BOOST_AUTO_TEST_CASE(pointcloud_insertion)
@@ -72,6 +77,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         core.addEntity(pc);
     }
 
+
     BOOST_AUTO_TEST_CASE(pointcloud_load)
     {
         ODBStorage::Ptr storage = loadStorage(db_path);
@@ -86,14 +92,13 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
         BOOST_CHECK(clouds[0]->hasChannel(ChannelType::I));
 
-        // ToDo: The channel informations are currently not stored in the db!
-        //BOOST_CHECK_EQUAL(clouds[0]->getChannel(ChannelType::I).size(), 10000);
+        BOOST_CHECK_EQUAL(clouds[0]->getChannel(ChannelType::I).size(), 10000);
         
     }
 
     BOOST_AUTO_TEST_CASE(pointcloud_cleanup)
     {
-        //removeStorage(db_path);
+        removeStorage(db_path);
     }
     
 
