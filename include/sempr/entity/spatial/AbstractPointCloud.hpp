@@ -42,6 +42,14 @@ private:
 
 };
 
+class AbstractChannel
+{
+public:
+    virtual std::size_t size() const = 0;
+    virtual double& operator[](std::size_t idx) = 0;
+    virtual const double& operator[](std::size_t idx) const = 0;
+};
+
 class AbstractPointCloud
 {
 public:
@@ -51,10 +59,10 @@ public:
 
     virtual bool hasChannel(int type) const = 0;
 
-    virtual std::vector<double>& getChannel(int type) = 0;
-    virtual const std::vector<double>& getChannel(int type) const = 0;
+    virtual AbstractChannel& getChannel(int type) = 0;
+    virtual const AbstractChannel& getChannel(int type) const = 0;
 
-    virtual std::size_t size() const;
+    virtual std::size_t size() const = 0;
 
     virtual const AbstractPoint operator[](std::size_t idx) const = 0;
 

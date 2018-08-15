@@ -69,21 +69,22 @@ bool PointCloud::hasChannel(int type) const
     return it != channels_.end();
 }
 
-void PointCloud::setChannel(int type, const std::vector<double>& channel)
+void PointCloud::setChannel(int type, const Channel& channel)
 {
     if(channel.size() != size())
         throw std::exception(); // no equial size of points and channel information
 
-    channels_[type] = Channel(channel);
+    channels_[type] = channel;
 }
 
-std::vector<double>& PointCloud::getChannel(int type)
+AbstractChannel& PointCloud::getChannel(int type)
 {
     if (!hasChannel(type))
-        throw std::out_of_range("");
+        throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
 
-    return channels_[type].channel_;
+    return channels_[type];
 }
+
 /*
 const std::vector<double>& PointCloud::getChannel(int type) const
 {
