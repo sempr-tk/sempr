@@ -33,8 +33,7 @@ private:
     const geom::Coordinate& coord_;
 };
 
-
-#pragma db value
+// No pragma db value to force odb to use the trait.
 class Channel : public AbstractChannel
 {
 public:
@@ -83,8 +82,13 @@ public:
 
 private:
     friend class odb::access;
-
-    //std::map< int, std::vector<double> > channels_;
+    
+    #pragma db table("PointCloud_channels")      \
+             id_column("object_id")   \
+             key_type("INT") \
+             key_column("type")        \
+             value_type("TEXT")     \
+             value_column("channel")
     std::map< int, Channel > channels_;     //workaround because odb will not solve std container in std container.
 };
 

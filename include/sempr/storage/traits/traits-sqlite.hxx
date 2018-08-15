@@ -3,6 +3,7 @@
 
 #include <sempr/storage/traits/traits-sqlite-uuid.hxx>
 #include <sempr/storage/traits/traits-sqlite-geom-geometry.hxx>
+#include <sempr/storage/traits/traits-sqlite-pointcloud.hxx>
 #include <sempr/storage/traits/traits-sqlite-eigen.hxx>
 #include <sempr/storage/traits/traits-sqlite-spatial-reference.hxx>
 #include <sempr/storage/traits/traits-sqlite-pointcloud.hxx>
