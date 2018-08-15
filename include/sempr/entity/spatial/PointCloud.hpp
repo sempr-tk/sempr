@@ -35,10 +35,22 @@ private:
 
 
 #pragma db value
-struct Channel
+class Channel : public AbstractChannel
 {
+public:
     Channel() {};
-    Channel(const std::vector<double>& channel) : channel_(channel) {};
+    Channel(const std::vector<double>& channel) : channel_(channel) {}; //allows impecit type cast
+
+    // Pre init the channel with the size e.g. of a the point cloud
+    Channel(std::size_t size) : channel_(std::vector<double>(size)) {};
+
+    inline std::size_t size() const override {return channel_.size();};
+    inline double& operator[](std::size_t idx) override {return channel_[idx];};
+    inline const double& operator[](std::size_t idx) const override {return channel_[idx];};
+
+private:
+    friend class odb::access;
+
     std::vector<double> channel_;
 };
 
@@ -47,7 +59,7 @@ struct Channel
 /**
  * @brief The PointCloud class is a Entity that represents a Pointcloud
  */
-class PointCloud : public MultiPoint
+class PointCloud : public MultiPoint /*, AbstractPointCloud*/
 {
     SEMPR_ENTITY
 public:
@@ -60,10 +72,10 @@ public:
 
     virtual bool hasChannel(int type) const;
 
-    void setChannel(int type, const std::vector<double>& channel);
+    void setChannel(int type, const Channel& channel);
 
-    virtual std::vector<double>& getChannel(int type);
-    //virtual const std::vector<double>& getChannel(int type) const;
+    virtual AbstractChannel& getChannel(int type);
+    //virtual const AbstractChannel& getChannel(int type) const;
 
     virtual std::size_t size() const;
 
