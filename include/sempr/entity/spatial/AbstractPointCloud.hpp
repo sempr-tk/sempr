@@ -28,6 +28,7 @@ enum /*class*/ ChannelType  // Note: Strong typed enums do not have a implecit d
 class AbstractPoint
 {
 public:
+    using Ptr = std::shared_ptr<AbstractPoint>;
 
     virtual double getX() {return 0;};
     virtual double getY() {return 0;};
@@ -101,7 +102,7 @@ public:
 
     virtual std::size_t size() const = 0;
 
-    virtual const AbstractPoint& operator[](std::size_t idx) const = 0;
+    virtual const AbstractPoint::Ptr operator[](std::size_t idx) const = 0;
 
     // ToDo:
     //virtual void apply(std::function<void(AbstractPoint&)>) = 0;
@@ -112,7 +113,7 @@ public:
         const_iterator(const AbstractPointCloud* ptr, std::size_t index = 0) : ptr_(ptr), index_(index) { }
         const_iterator operator++() { const_iterator i = *this; index_++; return i; }
         const_iterator operator++(int junk) { index_++; return *this; }
-        const AbstractPoint& operator*() { return (*ptr_)[index_]; }
+        const AbstractPoint& operator*() { return *(*ptr_)[index_]; }
         const AbstractPoint* operator->() { return &operator*(); }
         bool operator==(const const_iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
         bool operator!=(const const_iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
