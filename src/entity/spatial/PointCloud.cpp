@@ -10,15 +10,15 @@ SEMPR_ENTITY_SOURCE(PointCloud)
 const double& CoordinatePoint::operator[](std::size_t idx) const
 {
     if (idx == 0)
-        return coord_.x;
+        return x;
     else if (idx == 1)
-        return coord_.y;
+        return y;
     else if (idx == 2)
-        return coord_.z;
+        return z;
     else
         throw std::out_of_range(""); // Out of boundary!
 
-    return coord_.z;
+    return z;
 }
 
 
@@ -78,19 +78,21 @@ std::size_t PointCloud::size() const
 }
 
 
-const AbstractPoint& PointCloud::operator[](std::size_t idx) const
+const AbstractPoint::Ptr PointCloud::operator[](std::size_t idx) const
 {
-    static CoordinatePoint* ptr = new CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());
+    // Note: this a ineffective way to it because for each call it will create a copy of the coordinate on the heap!
+    // But this version is safe!
+    return std::make_shared<CoordinatePoint>(*getGeometry()->getGeometryN(idx)->getCoordinate());
+}
 
-    // ToDo:    By the use of static:
-    //          This is not a safe way to do it! This will return a reference to a singlton wrapper that will be changed by every call. 
-    //          So its not thread safe and user may not store the reference itself, because it will change!
-    // Note:    Replacement new with a double inhertance object will not work because the geos Coordinate habe no virtual elements ans so no vtable.
-    // Note:    To use shared pointer is mostly safe but slow because you need to alloc heap space for each call.
+const CoordinatePoint PointCloud::at(std::size_t idx) const
+{
+    return CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());
+}
 
-    ptr = new (ptr) CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());    // One Element Heap Cache by placement new.
-
-    return *ptr;
+geom::Coordinate& PointCloud::at(std::size_t idx)
+{
+    return *const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate());
 }
 
 }}

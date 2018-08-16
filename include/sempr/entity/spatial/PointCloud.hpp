@@ -17,19 +17,16 @@ namespace sempr { namespace entity {
 namespace geom = geos::geom;
 
 // Wrapper for GOES::GEOM Coordinate to AbstractPoint
-class CoordinatePoint : public AbstractPoint
+class CoordinatePoint : public AbstractPoint, public geom::Coordinate
 {
 public:
-    CoordinatePoint(const geom::Coordinate& coord) : coord_(coord) {}; //allows implicit type cast
+    CoordinatePoint(const geom::Coordinate& coord) : geom::Coordinate(coord.x, coord.y, coord.z) {}; //allows implicit type cast
 
-    inline double getX() override {return coord_.x;};
-    inline double getY() override {return coord_.y;};
-    inline double getZ() override {return coord_.z;};
+    inline double getX() override {return x;};
+    inline double getY() override {return y;};
+    inline double getZ() override {return z;};
 
     const double& operator[](std::size_t idx) const override;
-
-private:
-    const geom::Coordinate& coord_;
 };
 
 
@@ -58,7 +55,7 @@ private:
 /**
  * @brief The PointCloud class is a Entity that represents a Pointcloud
  */
-class PointCloud : public MultiPoint /*, AbstractPointCloud*/
+class PointCloud : public MultiPoint /*,public AbstractPointCloud */
 {
     SEMPR_ENTITY
 public:
@@ -78,7 +75,11 @@ public:
 
     virtual std::size_t size() const;
 
-    virtual const AbstractPoint& operator[](std::size_t idx) const;
+    // return a pointer to a copy of the point.
+    virtual const AbstractPoint::Ptr operator[](std::size_t idx) const;
+
+    const CoordinatePoint at(std::size_t idx) const;
+    geom::Coordinate& at(std::size_t idx);
 
 private:
     friend class odb::access;

@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
             BOOST_CHECK_EQUAL(red, 1);
         }
 
-        BOOST_CHECK((*pc)[0][0] == 1);  //check x
+        BOOST_CHECK(pc->at(0).x == 1);
     }
 
 
