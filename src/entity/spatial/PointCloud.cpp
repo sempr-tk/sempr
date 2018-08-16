@@ -80,7 +80,7 @@ std::size_t PointCloud::size() const
 
 const AbstractPoint::Ptr PointCloud::operator[](std::size_t idx) const
 {
-    // Note: this a ineffective way to it because for each call it will create a copy of the coordinate on the heap!
+    // Note: this is an ineffective way to it because for each call it will create a copy of the coordinate on the heap!
     // But this version is safe!
     return std::make_shared<CoordinatePoint>(*getGeometry()->getGeometryN(idx)->getCoordinate());
 }
