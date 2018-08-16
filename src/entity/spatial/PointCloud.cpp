@@ -7,27 +7,6 @@ namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(PointCloud)
 
-
-
-CoordinatePoint::CoordinatePoint(const geom::Coordinate& coord) :
-    coord_(coord)
-{
-
-}
-/*
-double& CoordinatePoint::operator[](std::size_t idx)
-{
-    if (idx == 0)
-        return coord_.x;
-    else if (idx == 1)
-        return coord_.y;
-    else if (idx == 2)
-        return coord_.z;
-    else
-        throw std::out_of_range(); // Out of boundary!
-    return coord_.z;
-}
-*/
 const double& CoordinatePoint::operator[](std::size_t idx) const
 {
     if (idx == 0)
@@ -84,15 +63,14 @@ AbstractChannel& PointCloud::getChannel(int type)
     return channels_[type];
 }
 
-/*
-const std::vector<double>& PointCloud::getChannel(int type) const
+
+const AbstractChannel& PointCloud::getChannel(int type) const
 {
-    if (hasChannel(type))
-        return channels_[type].channel_;
-    else
-        throw std::out_of_range("");
-    return std::vector<double>();
-}*/
+    if (!hasChannel(type))
+        throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
+
+    return channels_.at(type);
+}
 
 std::size_t PointCloud::size() const
 {
@@ -100,9 +78,19 @@ std::size_t PointCloud::size() const
 }
 
 
-const CoordinatePoint PointCloud::operator[](std::size_t idx) const
+const AbstractPoint& PointCloud::operator[](std::size_t idx) const
 {
-    return *getGeometry()->getGeometryN(idx)->getCoordinate();  // implicit type cast
+    static CoordinatePoint* ptr = new CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());
+
+    // ToDo:    By the use of static:
+    //          This is not a safe way to do it! This will return a reference to a singlton wrapper that will be changed by every call.
+    //          So its not thread safe and user may not store the reference itself, because it will change!
+    // Note:    Replacement new with a double inhertance object will not work because the geos Coordinate habe no virtual elements ans so no vtable.
+    // Note:    To use shared pointer is mostly safe but slow because you need to alloc heap space for each call.
+
+    ptr = new (ptr) CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());    // One Element Heap Cache by placement new.
+
+    return *ptr;
 }
 
 }}

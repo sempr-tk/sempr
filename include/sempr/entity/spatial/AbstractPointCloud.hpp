@@ -28,6 +28,7 @@ enum /*class*/ ChannelType  // Note: Strong typed enums do not have a implecit d
 class AbstractPoint
 {
 public:
+
     virtual double getX() {return 0;};
     virtual double getY() {return 0;};
     virtual double getZ() {return 0;};
