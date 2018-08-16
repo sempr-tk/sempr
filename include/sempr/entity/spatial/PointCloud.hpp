@@ -20,18 +20,18 @@ namespace geom = geos::geom;
 class CoordinatePoint : public AbstractPoint
 {
 public:
-    CoordinatePoint(const geom::Coordinate& coord); //allows implicit type cast
+    CoordinatePoint(const geom::Coordinate& coord) : coord_(coord) {}; //allows implicit type cast
 
     inline double getX() override {return coord_.x;};
     inline double getY() override {return coord_.y;};
     inline double getZ() override {return coord_.z;};
 
-    //double& operator[](std::size_t idx) override;
     const double& operator[](std::size_t idx) const override;
 
 private:
     const geom::Coordinate& coord_;
 };
+
 
 // No pragma db value to force odb to use the trait.
 class Channel : public AbstractChannel
@@ -74,11 +74,11 @@ public:
     void setChannel(int type, const Channel& channel);
 
     virtual AbstractChannel& getChannel(int type);
-    //virtual const AbstractChannel& getChannel(int type) const;
+    virtual const AbstractChannel& getChannel(int type) const;
 
     virtual std::size_t size() const;
 
-    virtual const CoordinatePoint operator[](std::size_t idx) const;
+    virtual const AbstractPoint& operator[](std::size_t idx) const;
 
 private:
     friend class odb::access;
