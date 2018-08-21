@@ -44,6 +44,7 @@ private:
 
 };
 
+// What about a tamplete of the base channel type??
 class AbstractChannel
 {
 public:

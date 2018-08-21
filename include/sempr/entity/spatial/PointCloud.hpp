@@ -54,6 +54,7 @@ private:
 #pragma db object
 /**
  * @brief The PointCloud class is a Entity that represents a Pointcloud
+ * Currently stored as text - shall be a bin blob
  */
 class PointCloud : public MultiPoint /*,public AbstractPointCloud */
 {
