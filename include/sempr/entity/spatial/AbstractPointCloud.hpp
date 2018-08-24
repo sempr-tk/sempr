@@ -9,17 +9,17 @@
 
 namespace sempr { namespace entity {
 
-
-enum /*class*/ ChannelType  // Note: Strong typed enums do not have a implecit downcast to int.
+// A list of channel type recommendations. Feel free to use own or additional type identifications in your usecase.
+enum ChannelType  // Note: Strong typed enum classes do not allow an implicit downcast to int.
 {
-    N_X = 0,    // Normale in X
-    N_Y = 1,    // Normale in Y
-    N_Z = 2,    // Normale in Z
-    V = 4,      // Velocity in normal direction
-    I = 5,      // Intensity
-    R = 10,     // Red 
-    G = 11,     // Green
-    B = 12,     // Blue
+    N_X = 0,    // Normale in X                     (double)
+    N_Y = 1,    // Normale in Y                     (double)
+    N_Z = 2,    // Normale in Z                     (double)
+    V = 4,      // Velocity in normal direction     (float)
+    I = 5,      // Intensity, normalized            (float)
+    R = 10,     // Red                              (uint8_t)
+    G = 11,     // Green                            (uint8_t)
+    B = 12,     // Blue                             (uint8_t)
     
     H_0 = 100   // Hyperspectral Channel 0
     // e.g. H_0 + 10 = Hyperspectral Channel 10
