@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <cstdint>
+
 
 namespace sempr { namespace entity {
 
@@ -25,32 +27,26 @@ enum /*class*/ ChannelType  // Note: Strong typed enums do not have a implecit d
 
 // The realization of the AbstractPoint shall be mapper to a specific type and the mapper will only deref. to the real values.
 // So the AbstractPoint may not be pure virtual!
+template<typename T>
 class AbstractPoint
 {
 public:
-    using Ptr = std::shared_ptr<AbstractPoint>;
+    using Ptr = std::shared_ptr< AbstractPoint<T> >;
 
-    virtual double getX() {return 0;};
-    virtual double getY() {return 0;};
-    virtual double getZ() {return 0;};
+    virtual T getX() = 0;
+    virtual T getY() = 0;
+    virtual T getZ() = 0;
 
-    virtual const double& operator[](std::size_t idx) const {return toReference((double*)nullptr);};
-
-protected:
-    AbstractPoint() {};    //its not allowed to create a AbstractPoint!
-
-private:
-    static double& toReference(double* ptr) {return *ptr;};
-
+    virtual const T& operator[](std::size_t idx) const = 0;
 };
 
-// What about a tamplete of the base channel type??
+template<typename T>
 class AbstractChannel
 {
 public:
     virtual std::size_t size() const = 0;
-    virtual double& operator[](std::size_t idx) = 0;
-    virtual const double& operator[](std::size_t idx) const = 0;
+    virtual T& operator[](std::size_t idx) = 0;
+    virtual const T& operator[](std::size_t idx) const = 0;
 
     class iterator
     {
@@ -58,8 +54,8 @@ public:
         iterator(AbstractChannel* ptr, std::size_t index = 0) : ptr_(ptr), index_(index) { }
         iterator operator++() { iterator i = *this; index_++; return i; }
         iterator operator++(int junk) { index_++; return *this; }
-        double& operator*() { return (*ptr_)[index_]; }
-        double* operator->() { return &operator*(); }
+        T& operator*() { return (*ptr_)[index_]; }
+        T* operator->() { return &operator*(); }
         bool operator==(const iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
         bool operator!=(const iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
     private:
@@ -73,8 +69,8 @@ public:
         const_iterator(const AbstractChannel* ptr, std::size_t index = 0) : ptr_(ptr), index_(index) { }
         const_iterator operator++() { const_iterator i = *this; index_++; return i; }
         const_iterator operator++(int junk) { index_++; return *this; }
-        const double& operator*() { return (*ptr_)[index_]; }
-        const double* operator->() { return &operator*(); }
+        const T& operator*() { return (*ptr_)[index_]; }
+        const T* operator->() { return &operator*(); }
         bool operator==(const const_iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
         bool operator!=(const const_iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
     private:
@@ -91,6 +87,7 @@ public:
     iterator end() { return iterator(this, size()); };
 };
 
+template<typename T>
 class AbstractPointCloud
 {
 public:
@@ -98,12 +95,31 @@ public:
 
     virtual bool hasChannel(int type) const = 0;
 
-    virtual AbstractChannel& getChannel(int type) = 0;
-    virtual const AbstractChannel& getChannel(int type) const = 0;
+    /**
+     * It isnt possible to declare a template to a virtual method.
+     * And C++ have no return value overloading so the the only this manual way to do.
+     * It shall look like:
+     * 
+     * template<typename D>
+     * typename std::enable_if<std::is_fundamental<D>::value>
+     * virtual AbstractChannel<D>& getChannel(int type) = 0;
+     */
+    virtual void getChannel(int type, AbstractChannel<int8_t>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<int16_t>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<int32_t>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<int64_t>& channel) const = 0;
+
+    virtual void getChannel(int type, AbstractChannel<uint8_t>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<uint16_t>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<uint32_t>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<uint64_t>& channel) const = 0;
+
+    virtual void getChannel(int type, AbstractChannel<float>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<double>& channel) const = 0;
 
     virtual std::size_t size() const = 0;
 
-    virtual const AbstractPoint::Ptr operator[](std::size_t idx) const = 0;
+    virtual const std::shared_ptr< AbstractPoint<T> > operator[](std::size_t idx) const = 0;
 
     // ToDo:
     //virtual void apply(std::function<void(AbstractPoint&)>) = 0;
@@ -114,8 +130,8 @@ public:
         const_iterator(const AbstractPointCloud* ptr, std::size_t index = 0) : ptr_(ptr), index_(index) { }
         const_iterator operator++() { const_iterator i = *this; index_++; return i; }
         const_iterator operator++(int junk) { index_++; return *this; }
-        const AbstractPoint& operator*() { return *(*ptr_)[index_]; }
-        const AbstractPoint* operator->() { return &operator*(); }
+        const AbstractPoint<T>& operator*() { return *(*ptr_)[index_]; }
+        const AbstractPoint<T>* operator->() { return &operator*(); }
         bool operator==(const const_iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
         bool operator!=(const const_iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
     private:
