@@ -50,7 +50,7 @@ class Channel : public AbstractChannel<T>
 {
 public:
     Channel() {};
-    Channel(const std::vector<T>& channel) : channel_(channel) {}; //allows impecit type cast
+    Channel(const std::vector<T>& channel) : channel_(channel) {}; //allows implicit type cast
 
     // Pre init the channel with the size e.g. of a the point cloud
     Channel(std::size_t size) : channel_(std::vector<T>(size)) {};
@@ -66,7 +66,7 @@ private:
 };
 
 // Could be changed to std::variant in C++17
-typedef boost::variant< Channel<int8_t>, 
+typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
                         Channel<int16_t>, 
                         Channel<int32_t>, 
                         Channel<int64_t>, 
