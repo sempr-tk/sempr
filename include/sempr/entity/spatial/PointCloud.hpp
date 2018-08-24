@@ -101,18 +101,37 @@ public:
         return it != channels_.end();
     }
 
+    //check if the pointcloud hold a channel of the given channel and data type.
     template<typename T>
-    //typename std::enable_if<std::is_fundamental<T>::value>
+    bool checkType(int type) const
+    {
+        if (hasChannel(type))
+        {
+            // this could be replaced with std::holds_alternative in C++17
+            try
+            {
+                boost::get< Channel<T> >(channels_.at(type));   // will throw on type missmatch!
+                return true;
+            }
+            catch (const boost::exception& ex)
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    template<typename T>
     void setChannel(int type, const Channel<T>& channel)
     {
         if(channel.size() != size())
-            throw std::exception(); // no equial size of points and channel information
+            throw std::exception(); // no equal size of points and channel information
 
         channels_[type] = channel;
     }
 
     template<typename T>
-    //typename std::enable_if<std::is_fundamental<T>::value>
     AbstractChannel<T>& getChannel(int type)
     {
         if (!hasChannel(type))
@@ -122,7 +141,6 @@ public:
     }
     
     template<typename T>
-    //typename std::enable_if<std::is_fundamental<T>::value>
     const AbstractChannel<T>& getChannel(int type) const
     {
         if (!hasChannel(type))
@@ -132,7 +150,6 @@ public:
     }
 
     template<typename T>
-    //typename std::enable_if<std::is_fundamental<T>::value>
     void getChannel(int type, AbstractChannel<T>& channel) const   // will this work and override the base class methods?
     {
         if (!hasChannel(type))
