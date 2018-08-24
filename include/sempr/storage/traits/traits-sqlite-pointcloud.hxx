@@ -43,6 +43,9 @@ public:
     static void
     set_image(image_type& b, std::size_t& n, bool& is_null, const value_type& channel)
     {
+
+        //std::type_info info = channel.type();
+
         /*
         is_null = false;
         std::stringstream ss;
