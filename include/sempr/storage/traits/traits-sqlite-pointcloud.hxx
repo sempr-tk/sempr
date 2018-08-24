@@ -14,17 +14,17 @@ namespace odb { namespace sqlite {
 
 
 template <>
-class value_traits<sempr::entity::Channel, id_text>
+class value_traits<sempr::entity::ChannelVariant, id_text>
 {
 public:
-    typedef sempr::entity::Channel value_type;
-    typedef sempr::entity::Channel query_type;
+    typedef sempr::entity::ChannelVariant value_type;
+    typedef sempr::entity::ChannelVariant query_type;
     typedef details::buffer image_type;
 
     static void
     set_value(value_type& channel, const image_type& b, std::size_t n, bool is_null)
     {
-        
+        /*
         if (!is_null) {
             std::string tmp(b.data(), n);
             std::stringstream ss(tmp);
@@ -37,12 +37,13 @@ public:
 
             channel = sempr::entity::Channel(ch);
         } 
-
+        */
     }
 
     static void
     set_image(image_type& b, std::size_t& n, bool& is_null, const value_type& channel)
     {
+        /*
         is_null = false;
         std::stringstream ss;
 
@@ -63,6 +64,7 @@ public:
             b.capacity(n);
         }
         std::memcpy(b.data(), tmp.data(), n);
+        */
     }
 };
 
