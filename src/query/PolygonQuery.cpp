@@ -9,7 +9,6 @@ PolygonQuery::PolygonQuery()
 
 PolygonQuery::PolygonQuery(const geom::Polygon *poly) : m_poly(poly)
 {
-    results.reserve(1); //what is a useful size here?!
 }
 
 // this is really confusing with all the getGeometry, setGeometry, geometry() functions -

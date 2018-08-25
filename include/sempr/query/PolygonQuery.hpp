@@ -9,6 +9,7 @@
 #include <sempr/storage/DBObject.hpp>
 #include <AgriEntity_odb.h>
 #include <Polygon_odb.h>
+#include <PointCloud_odb.h>
 
 namespace sempr { namespace query {
 
@@ -25,7 +26,7 @@ namespace sempr { namespace query {
         std::string type() const override { return "PolygonQuery"; }
 
         /** the vector of points, that are within the polygon of this entity **/
-        std::vector <geom::Coordinate> results;     
+        entity::PointCloud::Ptr results;
 
         const geom::Polygon* geometry() const { return m_poly; }
 

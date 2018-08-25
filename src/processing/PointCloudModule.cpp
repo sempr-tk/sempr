@@ -32,9 +32,22 @@ void PointCloudModule::process(query::PolygonQuery::Ptr query)
 void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, query::PolygonQuery::Ptr query)
 {
     unsigned int i, j;
+    bool colors = false;
 
     const std::vector <geom::Coordinate>* coords_ptr = query->geometry()->getCoordinates()->toVector();
     const std::vector <geom::Coordinate>& coords = *coords_ptr;
+
+    if(cloud->hasChannel(10) && cloud->hasChannel(11) && cloud->hasChannel(12))
+    {
+        std::cout << "we have color" << std::endl;
+
+        colors = true;
+    }
+
+    std::vector<geom::Coordinate> c;
+    std::vector<double> r;
+    std::vector<double> g;
+    std::vector<double> b;
 
     double minX = coords[0].x;
     double minZ = coords[0].z;
@@ -42,7 +55,7 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
     double maxX = minX;
     double maxZ = minZ;
 
-    for(i = 1; i < coords.size(); i++)
+    for(i = 1; i < coords.size() - 1; i++)
     {
         if(coords[i].x < minX)
             minX = coords[i].x;
@@ -73,13 +86,40 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
             {
                 intersections += checkIntersection(coords[i - 1], coords[i], outerPoint, cloud_coords[j]);
             }
+
             if((intersections & 1) == 1)
             {
-                    query->results.push_back(cloud_coords[j]);
+                //std::cout << "In" << std::endl;
+                c.push_back(cloud_coords[j]);
+                if(colors == true)
+                {
+                    //std::cout << cloud->getChannel(10)[j] << std::endl;
+                    r.emplace_back(cloud->getChannel(10)[j]);
+                    //std::cout << cloud->getChannel(11)[j] << std::endl;
+                    //std::cout << cloud->getChannel(12)[j] << std::endl;
+                    g.emplace_back(cloud->getChannel(11)[j]);
+                    b.emplace_back(cloud->getChannel(12)[j]);
+                }
+
             }
+            //std::cout << intersections << std::endl;
             intersections = 0;
         }
+
     }
+
+    entity::PointCloud::Ptr entity = entity::PointCloud::Ptr(new entity::PointCloud());
+
+    entity->setCoordinates(c);
+    if(colors == true)
+    {
+        std::cout << "Set Colors" << std::endl;
+        entity->setChannel(10, r);
+        entity->setChannel(11, g);
+        entity->setChannel(12, b);
+    }
+
+    query->results = entity;
     // this is a really bad running time, isnt it? .. O(NumberOfClouds) * O(NumberOfPointsInEachCloud) * O(NumberOfVerticesInPolygon) * O(calculating) ... :(
 
 }

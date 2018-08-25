@@ -53,7 +53,7 @@ private:
 
 #pragma db object
 /**
- * @brief The PointCloud class is a Entity that represents a Pointcloud
+ * @brief The PointCloud class is a Entity that repr*(pc->getGeometry()->getCoordinates()->toVector())esents a Pointcloud
  * Currently stored as text - shall be a bin blob
  */
 class PointCloud : public MultiPoint /*,public AbstractPointCloud */
