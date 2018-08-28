@@ -5,7 +5,7 @@ database=@DATABASE@
 
 Name: sempr-core
 Description: Core library of SEMPR (Semantic Environment Mapping, Processing and Reasoning)
-Version: 0.2.0
+Version: @SEMPR_VERSION_MAJOR@.@SEMPR_VERSION_MINOR@.@SEMPR_VERSION_PATCH@
 Requires: libodb libodb-boost libodb-sqlite eigen3 soprano
 Libs: -L${libdir} -lsempr_core -lgeos -lGeographic
-Cflags: -D@CONFIG_DATABASE@ -I${includedir} -I${includedir}/sempr/odb_gen
+Cflags: -std=c++11 -D@CONFIG_DATABASE@ -I${includedir} -I${includedir}/sempr/odb_gen
