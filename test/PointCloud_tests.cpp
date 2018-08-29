@@ -111,7 +111,10 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         sempr::entity::PointCloud::Ptr pc = std::make_shared<sempr::entity::PointCloud>();
 
         std::vector<geom::Coordinate> coords;
-        std::vector<double> intensity;
+        std::vector<unsigned short> r;
+        std::vector<unsigned short> g;
+        std::vector<unsigned short> b;
+        std::vector<float> intensity;
         for(int i = 0; i < 10000; i++)
         {
             // Random numbers: Min i ... Max 10 + 1
@@ -120,13 +123,24 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
             double z = rand() % (10 + i) + i;
             coords.push_back(geom::Coordinate(x, y, z));
 
+            unsigned short red = rand() % 256;
+            unsigned short gre = rand() % 256;
+            unsigned short blu = rand() % 256;
+
+            r.push_back(red);
+            g.push_back(gre);
+            b.push_back(blu);
+
             // Intensity between 0.0 and 0.99
-            double intensi = rand() % 100 / 100.0;
+            float intensi = rand() % 100 / 100.0;
             intensity.push_back(intensi);
         }
 
         pc->setCoordinates(coords);
-        pc->setChannel<double>(ChannelType::I, intensity);
+        pc->setChannel<unsigned short>(ChannelType::R, r);
+        pc->setChannel<unsigned short>(ChannelType::G, g);
+        pc->setChannel<unsigned short>(ChannelType::B, b);
+        pc->setChannel<float>(ChannelType::I, intensity);
 
         // insert 
         core.addEntity(pc);
@@ -136,7 +150,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
     BOOST_AUTO_TEST_CASE(pointcloud_load)
     {
-        /*
+        
         ODBStorage::Ptr storage = loadStorage(db_path);
 
         std::vector<PointCloud::Ptr> clouds;
@@ -147,11 +161,18 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
         BOOST_CHECK_EQUAL(clouds[0]->size(), 10000);
 
-        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::I));
+        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::R));
+        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::R).size(), 10000);
 
-        BOOST_CHECK_EQUAL(clouds[0]->getChannel(ChannelType::I).size(), 10000);
-        */
-        
+        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::G));
+        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::G).size(), 10000);
+
+        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::B));
+        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::B).size(), 10000);
+
+        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::I));
+        BOOST_CHECK_EQUAL(clouds[0]->getChannel<float>(ChannelType::I).size(), 10000);
+                
     }
 
     BOOST_AUTO_TEST_CASE(pointcloud_cleanup)

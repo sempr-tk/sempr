@@ -7,7 +7,6 @@
 #include <sempr/entity/Triple.hpp>
 #include <sempr/entity/RDFEntity.hpp>
 
-// #include <sempr/core/EventBroker.hpp>
 #include <sempr/core/EntityEvent.hpp>
 
 #include <vector>

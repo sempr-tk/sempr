@@ -59,6 +59,21 @@ public:
     inline T& operator[](std::size_t idx) override {return channel_[idx];};
     inline const T& operator[](std::size_t idx) const override {return channel_[idx];};
 
+    inline void add(const T& value) { channel_.push_back(value); }; 
+
+    friend std::ostream& operator<< (std::ostream& stream, const Channel<T>& channel)
+    {
+        for (std::size_t i=0; i < channel.size(); i++)
+        {
+            stream << channel[i];
+
+            if(i+1 != channel.size())
+                stream << " ";
+        }
+
+        return stream;
+    }
+
 private:
     friend class odb::access;
 
