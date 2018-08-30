@@ -55,7 +55,8 @@ public:
             // since thats the type of pointer that is persisted for the class it's stored in.
 
             // parse the geometry from wkb
-            std::basic_string<char> buffer((char*)(b.data()));
+            //std::basic_string<char> buffer((char*)(b.data()));
+            std::basic_string<char> buffer(b.data(), n);
             auto tmpGeom = sempr::entity::Geometry::importFromWKB(buffer);
 
             // (Let's assume that the entities create an empty geometry in their ctor and assign
