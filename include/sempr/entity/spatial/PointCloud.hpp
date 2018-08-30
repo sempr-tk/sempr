@@ -62,6 +62,10 @@ public:
 
     inline void add(const T& value) { channel_.push_back(value); }; 
 
+    inline T* data() { return channel_.data(); };
+
+    inline void resize(std::size_t size) { channel_.resize(size); };
+
     friend std::ostream& operator<< (std::ostream& stream, const Channel<T>& channel)
     {
         for (std::size_t i=0; i < channel.size(); i++)
@@ -219,7 +223,7 @@ private:
              id_column("object_id")   \
              key_type("INT") \
              key_column("type")        \
-             value_type("TEXT")     \
+             value_type("BLOB")     \
              value_column("channel")
     std::map< int, ChannelVariant > channels_;     //workaround because odb will not solve std container in std container.
 
