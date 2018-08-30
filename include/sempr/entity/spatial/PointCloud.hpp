@@ -3,7 +3,7 @@
 
 #include <sempr/entity/spatial/AbstractPointCloud.hpp>
 
-#include <sempr/entity/spatial/MultiPoint.hpp>
+#include <sempr/entity/spatial/Collection.hpp>
 #include <geos/geom/MultiPoint.h>
 
 #include <stdexcept>
@@ -13,6 +13,7 @@
 #include <type_traits>
 
 #include <boost/variant.hpp>
+
 
 namespace sempr { namespace entity {
 
@@ -76,6 +77,7 @@ public:
 
 private:
     friend class odb::access;
+    //friend class odb::sqlite::value_traits<sempr::entity::ChannelVariant, id_text>;
 
     std::vector<T> channel_;
 };
@@ -98,7 +100,7 @@ typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
  * @brief The PointCloud class is a Entity that represents a Pointcloud
  * Currently stored as text - shall be a bin blob
  */
-class PointCloud : public MultiPoint /*,public AbstractPointCloud<double> */
+class PointCloud : public Collection /*,public AbstractPointCloud<double> */
 {
     SEMPR_ENTITY
 public:
@@ -196,9 +198,23 @@ public:
         return *const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate());
     }
 
+    const geom::MultiPoint* getGeometry() const override;
+
+    void setGeometry(geom::MultiPoint* geometry);
+
+    void setPoints(const std::vector<geom::Coordinate>& coordinates);
+
+    PointCloud::Ptr clone() const;
+
+protected:
+    geom::MultiPoint* getGeometryMut() override;
+
 private:
     friend class odb::access;
-    
+
+    #pragma db type("BLOB")
+    geom::MultiPoint* geometry_;
+
     #pragma db table("PointCloud_channels")      \
              id_column("object_id")   \
              key_type("INT") \
@@ -206,6 +222,8 @@ private:
              value_type("TEXT")     \
              value_column("channel")
     std::map< int, ChannelVariant > channels_;     //workaround because odb will not solve std container in std container.
+
+    virtual PointCloud* raw_clone() const override;
 };
 
 

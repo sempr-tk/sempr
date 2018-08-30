@@ -1,145 +1,232 @@
-#ifndef SEMPR_ENTITY_POINTCLOUD_HPP_
-#define SEMPR_ENTITY_POINTCLOUD_HPP_
+#ifndef SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_
+#define SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_
 
-#include <sempr/storage/History.hpp>
-#include <sempr/entity/Entity.hpp>
-#include <sempr/entity/RDFPropertyMap.hpp>
-#include <memory>
+#include <sempr/entity/spatial/AbstractPointCloud.hpp>
+
+#include <sempr/entity/spatial/Collection.hpp>
+#include <geos/geom/MultiPoint.h>
+
+#include <stdexcept>
 #include <vector>
+#include <map>
 
 #include <type_traits>
 
-namespace sempr { namespace entity {
-    
-    
-#pragma db object
-    /**
-     * @brief The PointCloud class is a Entity that represents a Pointcloud
-     */
-    class PointCloud : public Entity
-    {
-        SEMPR_ENTITY
-    public:
-        using Ptr = std::shared_ptr<PointCloud>;
-        
-        PointCloud();
-        PointCloud(const sempr::core::IDGenBase*);
-        
-        /**
-         * @brief Points stored in a struct
-         */
-        struct Points
-        {
-            std::vector<double> points;
-            std::vector<unsigned char> colors;
-        };
-        
-        uint64_t number() const { return (uint64_t)((*prop_)["number"]); }
-        bool color() const { return (bool)((*prop_)["color"]); }
-        std::shared_ptr<double> bounds() const;
-        
-        // what should we return? Templating?
-        std::vector<double> points() { return m_points->points; }
-        //std::shared_ptr<double> points() const { return std::shared_ptr<double>(m_points.get()->points.data(), std::default_delete<double[]>()); }
-        //double* points() const { return points().data(); }
-        
-        std::vector<unsigned char> colors() { return m_points->colors; }
-        //std::shared_ptr<unsigned char> colors() const { return std::shared_ptr<unsigned char>(m_points.get()->colors.data(), std::default_delete<unsigned char[]>()); }
-        //unsigned char* colors() const { return points().data(); }
-        
-        //void setPointsWithColor(std::shared_ptr<double>& points, std::shared_ptr<unsigned char>& colors, uint64_t n);
-        void setPointsWithColor(std::vector<double>& points, std::vector<unsigned char>& colors, uint64_t n);
-        
-        virtual ~PointCloud(){}
-        
-        // #passt.
-        
-        // return single point i
-        int p(uint64_t i, std::vector<double>& p)
-        {
-            if (p.size() != 3)
-                p.resize(3);
-            if( (this->x(i, p[0]) == 0) && (this->y(i, p[1]) == 0) && (this->z(i, p[2]) == 0))
-                return 0;
-            return -1;
-        }
-        // single value of point
-        int x(uint64_t i, double& x) { return  w(i, x, 0); }
-        int y(uint64_t i, double& y) { return  w(i, y, 1); }
-        int z(uint64_t i, double& z) { return  w(i, z, 2); }
-        int w(uint64_t i, double& w, uint64_t j)
-        {
-            if (i < this->number())
-            {
-                w = m_points.get()->points[(i * 3) + j];
-                return 0;
-            }
-            return -1;
-        }
-        
-        // return single color of point i
-        int c(uint64_t i, std::vector<unsigned char>& c)
-        {
-            if (c.size() != 3)
-                c.resize(3);
-            if( (this->r(i, c[0]) == 0) && (this->g(i, c[1]) == 0) && (this->b(i, c[2]) == 0))
-                return 0;
-            return -1;
-        }
-        // single color
-        int r(uint64_t i, unsigned char& r) { return  a(i, r, 0); }
-        int g(uint64_t i, unsigned char& g) { return  a(i, g, 1); }
-        int b(uint64_t i, unsigned char& b) { return  a(i, b, 2); }
-        int a(uint64_t i, unsigned char& a, uint64_t j)
-        {
-            // check for mm_colors.emtpy() ? or check for i < mm_colors.capacity() ?
-            if (i < this->number())
-            {
-                a = m_points.get()->colors[(i * 3) + j];
-                return 0;
-            }
-            return -1;
-        }
-        
-    protected:
-        friend class odb::access;
-        
-        // we should not be able to set the bounds manually - let sempr calculate them TODO
-        void bounds(double *b);
-        void bounds(std::shared_ptr<double> b);
+#include <boost/variant.hpp>
 
-        void number(uint64_t n) { (*prop_)["number"] = (qulonglong)n; changed(); prop_->changed(); }
-        void color(bool c) { (*prop_)["color"] = (bool)c; changed(); prop_->changed(); }
-        
-        // how can I make this save?
-        /**
-         * Set the Points
-         */
-        void points(const std::shared_ptr<double>& p)        { m_points.get()->points = std::vector<double>(*p.get(), *(p.get() + this->number() * 3)); }
-        //void points(const std::shared_ptr<double> p)         { std::fill(m_points.get()->points.begin(), m_points.get()->points.end(), p.get()[0]); }
-        void points(const double*& p)                        { std::fill(m_points.get()->points.begin(), m_points.get()->points.end(), *p); }
-        void points(const std::vector<double>& p)            { this->m_points.get()->points = p; this->number(p.size()); }
-        
-        /**
-         * Set the Colors
-         */
-        void colors(const std::shared_ptr<unsigned char>& c) { m_points.get()->colors = std::vector<unsigned char>(*c.get(), *(c.get() + this->number() * 3)); }
-        //void colors(const std::shared_ptr<unsigned char> c)  { std::fill(m_points.get()->colors.begin(), m_points.get()->colors.end(), c.get()[0]); }
-        void colors(const unsigned char*& c)                 { std::fill(m_points.get()->colors.begin(), m_points.get()->colors.end(), *c); }
-        void colors(const std::vector<unsigned char>& c)     { if(c.size() == 3 * this->number()) this->m_points.get()->colors = c; } // else?
-        
-        //this arrays are for the points and the colors
-        #pragma db type("BLOB")
-        std::shared_ptr<Points> m_points;
-        //Points* m_points;
-        
-        RDFPropertyMap::Ptr prop_;
-    };
-    
-    // enable history:
-    typedef storage::History<PointCloud::Ptr> PointCloudHistory;
-    #pragma db value(PointCloudHistory)
-    
+
+namespace sempr { namespace entity {
+
+namespace geom = geos::geom;
+
+// Wrapper for GOES::GEOM Coordinate to AbstractPoint
+class CoordinatePoint : public AbstractPoint<double>, public geom::Coordinate
+{
+public:
+    CoordinatePoint(const geom::Coordinate& coord) : geom::Coordinate(coord.x, coord.y, coord.z) {}; //allows implicit type cast
+
+    inline double getX() override {return x;};
+    inline double getY() override {return y;};
+    inline double getZ() override {return z;};
+
+    const double& operator[](std::size_t idx) const override
+    {
+        if (idx == 0)
+            return x;
+        else if (idx == 1)
+            return y;
+        else if (idx == 2)
+            return z;
+        else
+            throw std::out_of_range(""); // Out of boundary!
+
+        return z;
+    }
+};
+
+
+// No pragma db value to force odb to use the trait.
+template<typename T>
+class Channel : public AbstractChannel<T>
+{
+public:
+    Channel() {};
+    Channel(const std::vector<T>& channel) : channel_(channel) {}; //allows impecit type cast
+
+    // Pre init the channel with the size e.g. of a the point cloud
+    Channel(std::size_t size) : channel_(std::vector<T>(size)) {};
+
+    inline std::size_t size() const override {return channel_.size();};
+    inline T& operator[](std::size_t idx) override {return channel_[idx];};
+    inline const T& operator[](std::size_t idx) const override {return channel_[idx];};
+
+    inline void add(const T& value) { channel_.push_back(value); };
+
+    friend std::ostream& operator<< (std::ostream& stream, const Channel<T>& channel)
+    {
+        for (std::size_t i=0; i < channel.size(); i++)
+        {
+            stream << channel[i];
+
+            if(i+1 != channel.size())
+                stream << " ";
+        }
+
+        return stream;
+    }
+
+private:
+    friend class odb::access;
+    //friend class odb::sqlite::value_traits<sempr::entity::ChannelVariant, id_text>;
+
+    std::vector<T> channel_;
+};
+
+// Could be changed to std::variant in C++17
+typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
+                        Channel<int16_t>,
+                        Channel<int32_t>,
+                        Channel<int64_t>,
+                        Channel<uint8_t>,
+                        Channel<uint16_t>,
+                        Channel<uint32_t>,
+                        Channel<uint64_t>,
+                        Channel<float>,
+                        Channel<double>      > ChannelVariant;
+
+
+#pragma db object
+/**
+ * @brief The PointCloud class is a Entity that represents a Pointcloud
+ * Currently stored as text - shall be a bin blob
+ */
+class PointCloud : public Collection /*,public AbstractPointCloud<double> */
+{
+    SEMPR_ENTITY
+public:
+    using Ptr = std::shared_ptr<PointCloud>;
+
+    PointCloud();
+    PointCloud(const sempr::core::IDGenBase*);
+
+    virtual ~PointCloud();
+
+    virtual bool hasChannel(int type) const
+    {
+        auto it = channels_.find(type);
+
+        return it != channels_.end();
+    }
+
+    //check if the pointcloud hold a channel of the given channel and data type.
+    template<typename T>
+    bool checkType(int type) const
+    {
+        if (hasChannel(type))
+        {
+            // this could be replaced with std::holds_alternative in C++17
+            try
+            {
+                boost::get< Channel<T> >(channels_.at(type));   // will throw on type missmatch!
+                return true;
+            }
+            catch (const boost::exception& ex)
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    template<typename T>
+    void setChannel(int type, const Channel<T>& channel)
+    {
+        if(channel.size() != size())
+            throw std::exception(); // no equal size of points and channel information
+
+        channels_[type] = channel;
+    }
+
+    template<typename T>
+    AbstractChannel<T>& getChannel(int type)
+    {
+        if (!hasChannel(type))
+            throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
+
+        return boost::get< Channel<T> >(channels_[type]);
+    }
+
+    template<typename T>
+    const AbstractChannel<T>& getChannel(int type) const
+    {
+        if (!hasChannel(type))
+            throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
+
+        return boost::get< Channel<T> >(channels_.at(type));
+    }
+
+    template<typename T>
+    void getChannel(int type, AbstractChannel<T>& channel) const   // will this work and override the base class methods?
+    {
+        if (!hasChannel(type))
+            throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
+
+        channel = boost::get< Channel<T> >(channels_.at(type));
+    }
+
+    virtual std::size_t size() const
+    {
+        // each point is a geometry so the num of geometries shall be equal to the num of points!
+        return getGeometry()->getNumGeometries();
+    }
+
+    virtual const AbstractPoint<double>::Ptr operator[](std::size_t idx) const
+    {
+        // Note: this is an ineffective way to it because for each call it will create a copy of the coordinate on the heap!
+        // But this version is safe!
+        return std::make_shared<CoordinatePoint>(*getGeometry()->getGeometryN(idx)->getCoordinate());
+    }
+
+    const CoordinatePoint at(std::size_t idx) const
+    {
+        return CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());
+    }
+
+    geom::Coordinate& at(std::size_t idx)
+    {
+        return *const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate());
+    }
+
+    const geom::MultiPoint* getGeometry() const override;
+
+    void setGeometry(geom::MultiPoint* geometry);
+
+    void setPoints(const std::vector<geom::Coordinate>& coordinates);
+
+    PointCloud::Ptr clone() const;
+
+protected:
+    geom::MultiPoint* getGeometryMut() override;
+
+private:
+    friend class odb::access;
+
+    #pragma db type("BLOB")
+    geom::MultiPoint* geometry_;
+
+    #pragma db table("PointCloud_channels")      \
+             id_column("object_id")   \
+             key_type("INT") \
+             key_column("type")        \
+             value_type("TEXT")     \
+             value_column("channel")
+    std::map< int, ChannelVariant > channels_;     //workaround because odb will not solve std container in std container.
+
+    virtual PointCloud* raw_clone() const override;
+};
+
+
 }}
 
-#endif /* end of include guard: SEMPR_ENTITY_POINTCLOUD_HPP_ */
+#endif /* end of include guard: SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_ */

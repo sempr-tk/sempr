@@ -10,19 +10,19 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
     {
         sempr::entity::PointCloud::Ptr pc = std::make_shared<sempr::entity::PointCloud>();
 
-        std::vector<geom::Coordinate> coords;
+        std::vector<geom::Coordinate> points;
         std::vector<uint8_t> r;
         std::vector<uint8_t> g;
         std::vector<uint8_t> b;
 
         geom::Coordinate dummyPosition(1, 1, 1);
-        coords.push_back(dummyPosition);
+        points.push_back(dummyPosition);
 
         r.push_back(255);
         g.push_back(0);
         b.push_back(0);
 
-        pc->setCoordinates(coords);
+        pc->setPoints(points);
 
         pc->setChannel<uint8_t>(ChannelType::R, r);
         pc->setChannel<uint8_t>(ChannelType::G, g);
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
     {
         sempr::entity::PointCloud::Ptr pc = std::make_shared<sempr::entity::PointCloud>();
 
-        std::vector<geom::Coordinate> coords;
+        std::vector<geom::Coordinate> points;
         std::vector<uint8_t> r;
         std::vector<uint8_t> g;
         std::vector<uint8_t> b;
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         std::vector<double> v;
 
         geom::Coordinate dummyPosition(1, 1, 1);
-        coords.push_back(dummyPosition);
+        points.push_back(dummyPosition);
 
         r.push_back(255);
         g.push_back(0);
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         i.push_back(0.95);
         v.push_back(2.5);
 
-        pc->setCoordinates(coords);
+        pc->setPoints(points);
 
         pc->setChannel<uint8_t>(ChannelType::R, r);
         pc->setChannel<uint8_t>(ChannelType::G, g);
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         // create a bunch of geometries
         sempr::entity::PointCloud::Ptr pc = std::make_shared<sempr::entity::PointCloud>();
 
-        std::vector<geom::Coordinate> coords;
+        std::vector<geom::Coordinate> points;
         std::vector<unsigned short> r;
         std::vector<unsigned short> g;
         std::vector<unsigned short> b;
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
             double x = rand() % (10 + i) + i;
             double y = rand() % (10 + i) + i;
             double z = rand() % (10 + i) + i;
-            coords.push_back(geom::Coordinate(x, y, z));
+            points.push_back(geom::Coordinate(x, y, z));
 
             unsigned short red = rand() % 256;
             unsigned short gre = rand() % 256;
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
             intensity.push_back(intensi);
         }
 
-        pc->setCoordinates(coords);
+        pc->setPoints(points);
         pc->setChannel<unsigned short>(ChannelType::R, r);
         pc->setChannel<unsigned short>(ChannelType::G, g);
         pc->setChannel<unsigned short>(ChannelType::B, b);
