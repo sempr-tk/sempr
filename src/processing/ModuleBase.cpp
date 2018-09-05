@@ -12,6 +12,11 @@ void ModuleBase::ask(query::Query::Ptr q)
     if (this->core_) { this->core_->answerQuery(q); }
 }
 
+core::Core* ModuleBase::core()
+{
+    return core_;
+}
+
 } /* processing */
 
 } /* sempr */

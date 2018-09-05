@@ -20,7 +20,7 @@ public:
     GeodeticCS();
     GeodeticCS(const core::IDGenBase*);
 
-    FilterList to(const GlobalCS::Ptr other) override;
+    FilterList to(const GlobalCS::Ptr other) const override;
 
 protected:
     FilterPtr forward() const override;

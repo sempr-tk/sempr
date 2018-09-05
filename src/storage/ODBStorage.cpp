@@ -32,6 +32,12 @@ void ODBStorage::save( std::vector<DBObject::Ptr>& in ) {
 //    std::cout << "got bulk data: " << in.size() << " entries" << std::endl;
     odb::transaction t(db_->begin());
     for(auto o : in){
+
+        // continue if o is only an temporary object
+        if(o->temporary())
+            continue;
+
+        // otherwise persist it
         try {
             // std::cout << "save " << o->id() << '\n';
             if (!o->persisted()) {
@@ -45,11 +51,16 @@ void ODBStorage::save( std::vector<DBObject::Ptr>& in ) {
             std::cout << "ODBStorage::save: object " << o->id() << " already persistent. (batch!)" << "\n";
             throw ex;
         }
+
     }
     t.commit();
 }
 
 void ODBStorage::save( DBObject::Ptr o ) {
+
+    if(o->temporary())
+            return;
+
     // std::cout << "single-save: " << o->id() << '\n';
     try {
         odb::transaction t(db_->begin());
@@ -85,6 +96,10 @@ void ODBStorage::loadAll(std::vector<DBObject::Ptr> &data) {
 }
 
 void ODBStorage::remove(DBObject::Ptr data) {
+
+    if(!data->persisted())
+        return;
+
     odb::transaction t( db_->begin() );
     db_->erase(data);
     t.commit();
@@ -95,7 +110,8 @@ void ODBStorage::remove(std::vector<DBObject::Ptr>& data)
     odb::transaction t( db_->begin() );
     for (auto o : data) {
         // std::cout << "remove: " << o->id() << '\n';
-        db_->erase(o);
+        if(o->persisted())
+            db_->erase(o);
     }
     t.commit();
 }

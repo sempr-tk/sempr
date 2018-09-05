@@ -36,7 +36,7 @@ bool UniversalPolarStereographicCS::isNorth() const
     return north_;
 }
 
-bool UniversalPolarStereographicCS::isEqual(const GlobalCS::Ptr other)
+bool UniversalPolarStereographicCS::isEqual(const GlobalCS::Ptr other) const
 {
     auto otherUPS = std::dynamic_pointer_cast<UniversalPolarStereographicCS>(other);
 

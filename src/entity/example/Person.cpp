@@ -7,8 +7,8 @@ namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(Person)
 
-Person::Person(const core::IDGenBase* idgen)
-    : Entity(idgen)
+Person::Person(const core::IDGenBase* idgen, bool temporary)
+    : Entity(idgen, temporary)
 {
     setDiscriminator<Person>();
     prop_ = RDFPropertyMap::Ptr(new RDFPropertyMap(*this));
@@ -25,6 +25,10 @@ Person::Person(const core::IDGenBase* idgen)
     // basic->addTriple(Triple( "<" + sempr::baseURI() + this->id() + ">", sempr::core::rdf::type(), "<" + sempr::baseURI() + "Person>"));
     // registerChildEntity(basic);
     m("type", core::rdf::baseURI()) = RDFResource("<" + sempr::baseURI() + "Person" + ">");
+}
+
+Person::Person(bool temporary) : Person(new core::IDGen<Person>(), temporary)
+{
 }
 
 Person::Person() : Person(new core::IDGen<Person>())

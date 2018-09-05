@@ -82,6 +82,10 @@ class Geometry : public Entity
      */
     virtual geom::Geometry* getGeometryMut();
 
+    /**
+     * @brief Apply a give filter or a sorted list of filters to all coordinates of the geometry as read write filter. 
+     * This will not fire an event!
+     */
     void apply(Filter& filter);
     void apply(FilterList& filterList);
 
