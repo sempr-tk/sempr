@@ -8,8 +8,8 @@ DBObject::DBObject()
 {
 }
 
-DBObject::DBObject(const core::IDGenBase* idgen)
-    : persisted_(false), idgenerator_(idgen)
+DBObject::DBObject(const core::IDGenBase* idgen, bool temporary)
+    : persisted_(false), idgenerator_(idgen), temporary_(temporary)
 {
     id_ = idgen->generate();
     setDiscriminator<DBObject>();

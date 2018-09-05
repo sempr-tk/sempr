@@ -35,7 +35,7 @@ public:
         strategy for the most derived type.
         (--> Chair_1 instead of DBObject_37)
     */
-    DBObject(const core::IDGenBase* idgen);
+    DBObject(const core::IDGenBase* idgen, bool temporary = false);
 
     /**
         Copy constructors are too confusing, so I disabled them for all entities.
@@ -56,6 +56,7 @@ public:
     */
     bool persisted() const { return persisted_; }
 
+    bool temporary() const { return temporary_; }
 
     std::string id() const { return id_; }
 
@@ -104,6 +105,10 @@ private:
     /// Is set to "false" in the ctor and to "true" in persist/load-callbacks
     #pragma db transient
     mutable bool persisted_;
+
+    /// A temporoy object will never be stored in the database.
+    #pragma db transient
+    bool temporary_;
 
 protected:
     /// The wrapper from which the given id was generated.

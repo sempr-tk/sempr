@@ -19,7 +19,7 @@ GeocentricCS::GeocentricCS(const core::IDGenBase* idgen) :
     this->setDiscriminator<GeocentricCS>();
 }
 
-FilterList GeocentricCS::to(const GlobalCS::Ptr other)
+FilterList GeocentricCS::to(const GlobalCS::Ptr other) const
 {
     //transform from this (Geodetic)
     auto otherGeodetic = std::dynamic_pointer_cast<GeodeticCS>(other);

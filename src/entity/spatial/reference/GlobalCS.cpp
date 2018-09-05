@@ -22,7 +22,7 @@ GlobalCS::~GlobalCS()
 {
 }
 
-bool GlobalCS::isEqual(const GlobalCS::Ptr other)
+bool GlobalCS::isEqual(const GlobalCS::Ptr other) const
 {
     // avoid expr. side effects warning:
     auto& tmpOther = *other;
@@ -47,7 +47,7 @@ Eigen::Affine3d GlobalCS::transformationFromRoot() const
     return Eigen::Affine3d::Identity();
 }
 
-FilterList GlobalCS::to(const GlobalCS::Ptr other)
+FilterList GlobalCS::to(const GlobalCS::Ptr other) const
 {
     //only for ODB support - not abstract
     assert(1);

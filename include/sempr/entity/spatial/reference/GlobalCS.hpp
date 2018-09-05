@@ -25,20 +25,14 @@ public:
     Eigen::Affine3d transformationFromRoot() const override;
     virtual ~GlobalCS();
 
-    /**
-        Create an OGRCoordinateTransformation from this to other. Only available for global
-        coordinate systems that use a OGRSpatialReference, as this task is simply delegated to GDAL.
-    */
-    //std::shared_ptr<OGRCoordinateTransformation> to(GlobalCS::Ptr other);
-
     //from this to other
-    virtual FilterList to(const GlobalCS::Ptr other);
+    virtual FilterList to(const GlobalCS::Ptr other) const;
 
     /**
      * Check if this and the other global cs are equal.
      * Note: This have to be override by derived class with attributes!
      */
-    virtual bool isEqual(const GlobalCS::Ptr other);
+    virtual bool isEqual(const GlobalCS::Ptr other) const;
 
 
 protected:

@@ -169,6 +169,7 @@ BOOST_AUTO_TEST_CASE(update) {
   //core.addModule(debug);
 }
 
+
 BOOST_AUTO_TEST_CASE(deletion) {
   std::string id;
 
@@ -244,6 +245,35 @@ BOOST_AUTO_TEST_SUITE(register_children_no_duplicates)
             storage->loadAll<RDFPropertyMap>(all);
 
             checkEntitiesInStorage<RDFPropertyMap>(storage, numBefore); // <-- should be the same as before.
+        }
+
+        removeStorage(db_path);
+    }
+BOOST_AUTO_TEST_SUITE_END()
+
+
+BOOST_AUTO_TEST_SUITE(persistent)
+    std::string db_path = "test_sqlite.db";
+
+    BOOST_AUTO_TEST_CASE(persistent_check)
+    {
+
+        {
+            ODBStorage::Ptr storage = setUpStorage(db_path, true);
+            Core core;
+            DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+            core.addModule(updater);
+
+            Person::Ptr person(new Person(false));
+            core.addEntity(person);
+
+            Person::Ptr person2(new Person(true));
+            core.addEntity(person2);
+
+            updater->updateDatabase();
+
+            BOOST_CHECK(person->persisted());
+            BOOST_CHECK(!person2->persisted());
         }
 
         removeStorage(db_path);

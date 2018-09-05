@@ -20,7 +20,7 @@ public:
     UniversalPolarStereographicCS(bool north);
     UniversalPolarStereographicCS(bool north, const core::IDGenBase*);
 
-    bool isEqual(const GlobalCS::Ptr other) override;
+    bool isEqual(const GlobalCS::Ptr other) const override;
 
     int getZone() const override;
     bool isNorth() const override;

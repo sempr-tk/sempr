@@ -8,8 +8,8 @@ namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(Entity)
 
-Entity::Entity(const core::IDGenBase* idgen)
-    : DBObject(idgen), announced_(false)
+Entity::Entity(const core::IDGenBase* idgen, bool temporary)
+    : DBObject(idgen, temporary), announced_(false)
 {
     // get the eventbroker
     broker_ = core::EventBroker::getInstance();
