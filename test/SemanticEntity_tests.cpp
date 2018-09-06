@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_SUITE(entity_SemanticEntity)
 
         // debug: print triples:
         for (auto t : *entity) {
-            std::cout << t.subject << " " << t.predicate << " " << t.object << " " << t.document << std::endl;
+            std::cout << t.subject << " " << t.predicate << " " << t.object << std::endl;
         }
     }
 

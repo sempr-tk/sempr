@@ -2,13 +2,8 @@
 #define SEMPR_ENTITY_RDFVECTOR_H_
 
 #include <odb/core.hxx>
-#include <sempr/core/RDF.hpp>
-#include <sempr/entity/Entity.hpp>
-#include <sempr/entity/Triple.hpp>
-#include <sempr/entity/RDFEntity.hpp>
 
-// #include <sempr/core/EventBroker.hpp>
-#include <sempr/core/EntityEvent.hpp>
+#include <sempr/entity/RDFEntity.hpp>
 
 #include <vector>
 
@@ -40,7 +35,7 @@ public:
 
     void getTriples(std::vector<Triple>& triples) const;
     const Triple& getTripleAt(const size_t index);
-    bool addTriple(const Triple& triple);
+    bool addTriple(const Triple& triple, bool replace = false);     // if replace than an equal triple will be removed before, otherwise there a multiple entries possible
     bool removeTriple(const Triple& triple);
     void removeTripleAt(const size_t index);
     void clear();
@@ -53,6 +48,8 @@ protected:
     friend class odb::access;
     std::vector<Triple> triples_;
 };
+
+
 
 }}
 
