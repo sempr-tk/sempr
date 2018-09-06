@@ -8,14 +8,14 @@
 namespace sempr { namespace entity {
 
 #pragma db value
-struct Triple {
+struct Triple {         //deprecated could be replaced by the RDFValueTriple as class with an subject(), predicate(), object() getter for the strings. ToDo!
     Triple() {}
 
     Triple(const RDFValueTriple& valueTriple)   // allow implicit type convert from complex to simple triple
     {
-        subject = std::get<0>(valueTriple).toString();
-        predicate = std::get<1>(valueTriple);
-        object = std::get<2>(valueTriple).toString();
+        subject = valueTriple.subject.toString();
+        predicate = valueTriple.predicate;
+        object = valueTriple.object.toString();
     }
 
     Triple(const std::string& s, const std::string& p, const std::string& o)

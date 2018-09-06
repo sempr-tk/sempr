@@ -72,7 +72,7 @@ public:
     virtual TripleIteratorWrapper end() const;
 
 protected:
-    RDFEntity(const core::IDGenBase*);
+    RDFEntity(const core::IDGenBase*, bool temporary = false);
 private:
     friend class odb::access;
     RDFEntity();

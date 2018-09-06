@@ -4,8 +4,8 @@
 namespace sempr { namespace entity {
 
 
-TripleIteratorWrapper::TripleIteratorWrapper(TripleIterator* impl)
-    : impl_(impl)
+TripleIteratorWrapper::TripleIteratorWrapper(TripleIterator* impl) : 
+    impl_(impl)
 {
     if (!impl_) throw std::exception();
 }
@@ -50,15 +50,15 @@ TripleIterator::~TripleIterator()
 SEMPR_ENTITY_SOURCE(RDFEntity);
 
 
-RDFEntity::RDFEntity(const core::IDGenBase* idgen)
-    : Entity(idgen)
+RDFEntity::RDFEntity(const core::IDGenBase* idgen, bool temporary) : 
+    Entity(idgen, temporary)
 {
 }
 
 
 // private, only to be used by odb!
-RDFEntity::RDFEntity()
-    : Entity()
+RDFEntity::RDFEntity() : 
+    Entity()
 {
 }
 

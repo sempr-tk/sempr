@@ -5,7 +5,7 @@
 namespace sempr { namespace entity {
 
 // iterator impl
-RDFVectorIterator::RDFVectorIterator(std::vector<Triple>::const_iterator it)
+RDFVectorIterator::RDFVectorIterator(std::vector<RDFValueTriple>::const_iterator it)
     : vit_(it)
 {
 }
@@ -34,38 +34,36 @@ bool RDFVectorIterator::operator==(const TripleIterator& other) const
 
 SEMPR_ENTITY_SOURCE(RDFVector)
 
-RDFVector::RDFVector(const core::IDGenBase* idgen)
-    : RDFEntity(idgen)
+RDFVector::RDFVector(const core::IDGenBase* idgen, bool temporary) : 
+    RDFEntity(idgen, temporary)
 {
     setDiscriminator<RDFVector>();
 }
 
+RDFVector::RDFVector(bool temporary) : 
+    RDFVector(new core::IDGen<RDFVector>(), temporary)
+{
+}
 
-RDFVector::RDFVector() : RDFVector(new core::IDGen<RDFVector>())
+RDFVector::RDFVector() : 
+    RDFVector(new core::IDGen<RDFVector>())
 {
 }
 
 
-void RDFVector::getTriples(std::vector<Triple> &triples) const
+void RDFVector::getTriples(std::vector<RDFValueTriple> &triples) const
 {
     triples.insert(triples.end(), triples_.begin(), triples_.end());
 }
 
-const Triple& RDFVector::getTripleAt(const size_t index)
+const RDFValueTriple& RDFVector::getTripleAt(const size_t index)
 {
     return triples_[index];
 }
 
-bool RDFVector::addTriple(const sempr::entity::Triple &triple, bool replace)
+bool RDFVector::addTriple(const RDFValueTriple& triple, bool replace)
 {
-    // check if the triple is valid!
-    auto sub = Soprano::Node::fromN3(QString::fromStdString(triple.subject));
-    auto pred = Soprano::Node::fromN3(QString::fromStdString(triple.predicate));
-    auto obj = Soprano::Node::fromN3(QString::fromStdString(triple.object));
-
-    Soprano::Statement st(sub, pred, obj);
-
-    bool isValid = st.isValid();
+    bool isValid = validity(triple);
 
     if (isValid)
     {
@@ -79,7 +77,20 @@ bool RDFVector::addTriple(const sempr::entity::Triple &triple, bool replace)
     return isValid;
 }
 
-bool RDFVector::removeTriple(const sempr::entity::Triple &triple)
+bool RDFVector::validity(const RDFValueTriple& triple) const
+{
+    Triple t = triple;
+    // check if the triple is valid!
+    auto sub = Soprano::Node::fromN3(QString::fromStdString(t.subject));
+    auto pred = Soprano::Node::fromN3(QString::fromStdString(t.predicate));
+    auto obj = Soprano::Node::fromN3(QString::fromStdString(t.object));
+
+    Soprano::Statement st(sub, pred, obj);
+
+    return st.isValid();
+}
+
+bool RDFVector::removeTriple(const RDFValueTriple& triple)
 {
     auto newEnd = std::remove(triples_.begin(), triples_.end(), triple);
     if (newEnd == triples_.end()) return false;
