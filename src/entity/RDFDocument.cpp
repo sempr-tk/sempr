@@ -54,7 +54,7 @@ RDFDocument::Ptr RDFDocument::FromFile(const std::string &file)
             {
                 // qDebug() << *statements;
                 doc->addTriple(
-                    Triple( (*statements).subject().toN3().toStdString(),
+                    RDFValueTriple( (*statements).subject().toN3().toStdString(),
                             (*statements).predicate().toN3().toStdString(),
                             (*statements).object().toN3().toStdString() )
                 );
