@@ -3,6 +3,7 @@
 #define SEMPR_ENTITY_TRIPLE
 
 #include <string>
+#include <sempr/entity/RDFValue.hpp>
 
 namespace sempr { namespace entity {
 
@@ -10,31 +11,31 @@ namespace sempr { namespace entity {
 struct Triple {
     Triple() {}
 
-    Triple(const std::string& s, const std::string& p, const std::string& o)
-        : subject(s), predicate(p), object(o), document("")
+    Triple(const RDFValueTriple& valueTriple)   // allow implicit type convert from complex to simple triple
     {
+        subject = std::get<0>(valueTriple).toString();
+        predicate = std::get<1>(valueTriple);
+        object = std::get<2>(valueTriple).toString();
     }
 
-    Triple(const std::string& s, const std::string& p, const std::string& o,
-            const std::string& d)
-        : subject(s), predicate(p), object(o), document(d)
+    Triple(const std::string& s, const std::string& p, const std::string& o)
+        : subject(s), predicate(p), object(o)
     {
     }
 
     Triple(const Triple& other)
         : subject(other.subject), predicate(other.predicate),
-            object(other.object), document(other.document)
+            object(other.object)
     {
     }
 
-    std::string subject, predicate, object, document;
+    std::string subject, predicate, object;
 
     bool operator==(const Triple& other)
     {
-        return (subject == other.subject) &&
+        return  (subject == other.subject) &&
                 (predicate == other.predicate) &&
-                (object == other.object) &&
-                (document == other.document);
+                (object == other.object);
     }
 };
 

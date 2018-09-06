@@ -2,7 +2,10 @@
 #define SEMPR_ENTITY_RDFVALUE_HPP_
 
 #include <memory>
+#include <string>
+#include <tuple>
 #include <type_traits>
+
 #include <Soprano/Soprano>
 #include <odb/core.hxx>
 #include <sempr/entity/Entity.hpp>
@@ -234,6 +237,8 @@ template <> RDFValue& RDFValue::operator = (const RDFResource& other);
 // results in "true"^^<xsd:boolean>
 // template <> RDFValue& RDFValue::operator = (const char& value);
 // done via overloading inside class.
+
+typedef std::tuple<RDFValue, std::string, RDFValue> RDFValueTriple;
 
 }}
 

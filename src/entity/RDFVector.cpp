@@ -56,7 +56,7 @@ const Triple& RDFVector::getTripleAt(const size_t index)
     return triples_[index];
 }
 
-bool RDFVector::addTriple(const sempr::entity::Triple &triple)
+bool RDFVector::addTriple(const sempr::entity::Triple &triple, bool replace)
 {
     // check if the triple is valid!
     auto sub = Soprano::Node::fromN3(QString::fromStdString(triple.subject));
@@ -65,11 +65,18 @@ bool RDFVector::addTriple(const sempr::entity::Triple &triple)
 
     Soprano::Statement st(sub, pred, obj);
 
-    // but add anyway, necessary for RDFPropertyMap etc
-    triples_.push_back(triple);
-    //this->changed();
+    bool isValid = st.isValid();
 
-    return st.isValid();
+    if (isValid)
+    {
+        if (replace)
+            removeTriple(triple);
+
+        triples_.push_back(triple);
+        //this->changed();
+    }
+
+    return isValid;
 }
 
 bool RDFVector::removeTriple(const sempr::entity::Triple &triple)

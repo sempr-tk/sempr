@@ -17,7 +17,6 @@ const Triple RDFPropertyMapIterator::operator*() const
     t.subject = pmap_->subject_;
     t.predicate = "<" + it_->first + ">";
     t.object = it_->second.toString();
-    t.document = "<" + sempr::baseURI() + pmap_->id() + ">";
 
     return t;
 }
