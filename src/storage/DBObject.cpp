@@ -16,6 +16,17 @@ DBObject::DBObject(const core::IDGenBase* idgen, bool temporary)
 }
 
 
+void DBObject::setTemporary(bool tmp)
+{
+    if (tmp == temporary_) return;
+    if (tmp && persisted()) throw std::exception();
+    temporary_ = tmp;
+
+    // TODO: Making a temporary object persistent is problematic, too...
+    // think about IDs.
+}
+
+
 void DBObject::dbcallback(odb::callback_event e, odb::database &db)
 {
     switch (e) {
