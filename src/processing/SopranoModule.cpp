@@ -7,6 +7,7 @@ namespace sempr { namespace processing {
 
 SopranoModule::SopranoModule()
 {
+    reasoningEnabled_ = false;
     model_ = Soprano::createModel();
     infmodel_ = new Soprano::Inference::InferenceModel(model_);
 }
@@ -18,12 +19,27 @@ SopranoModule::~SopranoModule()
 }
 
 
+void SopranoModule::enableReasoning(bool reason)
+{
+    reasoningEnabled_ = reason;
+}
+
 void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
 {
+    Soprano::Model* model;
+    if (reasoningEnabled_)
+    {
+        model = infmodel_;
+    }
+    else
+    {
+        model = model_;
+        dirty_ = true;
+    }
     // dirty#_ = true;
 
     // remove all triples in the model that are associated with this entity
-    infmodel_->removeAllStatements(
+    model->removeAllStatements(
         Soprano::Node(), Soprano::Node(), Soprano::Node(),
         Soprano::Node::createResourceNode(
             QUrl(
@@ -56,8 +72,7 @@ void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)
                       << st.object().toString().toStdString() << ") from "
                       << entity->id() << std::endl;
         } else {
-            infmodel_->addStatement(st);
-            // model_->addStatement(s, p, o, d);
+            model->addStatement(st);
         }
     }
 }
@@ -98,7 +113,7 @@ void SopranoModule::process(core::EntityEvent<entity::RuleSet>::Ptr event)
 
 void SopranoModule::process(query::SPARQLQuery::Ptr query)
 {
-    if (dirty_) {
+    if (dirty_ && reasoningEnabled_) {
         infmodel_->performInference();
         dirty_ = false;
         // TODO: this always performs inference on the whole model, which is not the best idea.
@@ -110,9 +125,11 @@ void SopranoModule::process(query::SPARQLQuery::Ptr query)
         //      - only set dirty (for performInference) when a ruleset is changed
     }
 
+    Soprano::Model* model = (reasoningEnabled_ ? infmodel_ : model_);
+
     QString sparql = QString::fromStdString(query->toString());
     // std::cout << sparql.toStdString() << '\n';
-    auto results = this->model_->executeQuery(sparql, Soprano::Query::QueryLanguageSparql);
+    auto results = model->executeQuery(sparql, Soprano::Query::QueryLanguageSparql);
 
     while (results.next())
     {

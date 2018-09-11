@@ -44,6 +44,11 @@ namespace sempr { namespace processing {
         */
         void process(query::SPARQLQuery::Ptr query) override;
 
+        /**
+            Set if soprano shall be used for reasoning. Default is "false".
+        */
+        void enableReasoning(bool);
+
     private:
         /// all updates take place inside the base model
         Soprano::Model* model_;
@@ -52,6 +57,8 @@ namespace sempr { namespace processing {
         /// if model and infmodel are out of sync, this flag is set and the next sparqlquery
         /// triggers a performInference
         bool dirty_;
+
+        bool reasoningEnabled_;
 
         /// a mapping between RuleSet-entities (string id) and their rules
         std::map<std::string, std::vector<Soprano::Inference::Rule> > ruleMap_;
