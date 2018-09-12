@@ -5,7 +5,7 @@
 namespace sempr { namespace entity {
 
 // iterator impl
-RDFVectorIterator::RDFVectorIterator(std::vector<RDFValueTriple>::const_iterator it)
+RDFVectorIterator::RDFVectorIterator(std::vector<Triple>::const_iterator it)
     : vit_(it)
 {
 }
@@ -51,17 +51,17 @@ RDFVector::RDFVector() :
 }
 
 
-void RDFVector::getTriples(std::vector<RDFValueTriple> &triples) const
+void RDFVector::getTriples(std::vector<Triple> &triples) const
 {
     triples.insert(triples.end(), triples_.begin(), triples_.end());
 }
 
-const RDFValueTriple& RDFVector::getTripleAt(const size_t index)
+const Triple& RDFVector::getTripleAt(const size_t index)
 {
     return triples_[index];
 }
 
-bool RDFVector::addTriple(const RDFValueTriple& triple, bool replace)
+bool RDFVector::addTriple(const Triple& triple, bool replace)
 {
     bool isValid = validity(triple);
 
@@ -77,7 +77,7 @@ bool RDFVector::addTriple(const RDFValueTriple& triple, bool replace)
     return isValid;
 }
 
-bool RDFVector::validity(const RDFValueTriple& triple) const
+bool RDFVector::validity(const Triple& triple) const
 {
     Triple t = triple;
     // check if the triple is valid!
@@ -90,7 +90,7 @@ bool RDFVector::validity(const RDFValueTriple& triple) const
     return st.isValid();
 }
 
-bool RDFVector::removeTriple(const RDFValueTriple& triple)
+bool RDFVector::removeTriple(const Triple& triple)
 {
     auto newEnd = std::remove(triples_.begin(), triples_.end(), triple);
     if (newEnd == triples_.end()) return false;

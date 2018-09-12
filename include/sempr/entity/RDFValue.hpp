@@ -238,52 +238,6 @@ template <> RDFValue& RDFValue::operator = (const RDFResource& other);
 // template <> RDFValue& RDFValue::operator = (const char& value);
 // done via overloading inside class.
 
-
-#pragma db value
-struct RDFValueTriple
-{
-    RDFValue subject;
-    std::string predicate;
-    RDFValue object;
-
-    RDFValueTriple() {}
-
-    RDFValueTriple(const std::string& s, const std::string& p, const std::string& o)
-    {
-        subject = s;
-        predicate = p;
-        object = o;
-    }
-
-    RDFValueTriple(const RDFValue& s, const std::string& p, const RDFValue& o)
-        : subject(s), predicate(p), object(o)
-    {
-    }
-/*
-    std::string subject() const
-    {
-        return subject.toString();
-    }
-
-    std::string predicate() const
-    {
-        return predicate;
-    }
-
-    std::string object() const
-    {
-        return object.toString();
-    }
-*/
-    bool operator==(const RDFValueTriple& other)
-    {
-        return  (subject == other.subject) &&
-                (predicate == other.predicate) &&
-                (object == other.object);
-    }
-};
-
-
 }}
 
 #endif /* end of include guard: SEMPR_ENTITY_RDFVALUE_HPP_ */
