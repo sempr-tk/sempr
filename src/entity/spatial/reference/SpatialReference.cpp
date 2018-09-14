@@ -20,6 +20,17 @@ SpatialReference::Ptr SpatialReference::getRoot()
     return SpatialReference::Ptr(NULL);
 }
 
+bool SpatialReference::isEqual(const SpatialReference::Ptr other) const
+ {
+    // avoid expr. side effects warning:
+    auto& tmpOther = *other;
+    auto& tmpThis = *this;
+    
+    // type check for all childs without any attributes valid. Have to be override if child contain attributes.
+    return typeid(tmpOther) == typeid(tmpThis);
+ }
+
+
 Eigen::Affine3d SpatialReference::transformationToRoot() const
 {
     return Eigen::Affine3d::Identity();

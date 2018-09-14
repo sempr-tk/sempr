@@ -22,15 +22,6 @@ GlobalCS::~GlobalCS()
 {
 }
 
-bool GlobalCS::isEqual(const GlobalCS::Ptr other) const
-{
-    // avoid expr. side effects warning:
-    auto& tmpOther = *other;
-    auto& tmpThis = *this;
-    
-    return typeid(tmpOther) == typeid(tmpThis);
-}
-
 SpatialReference::Ptr GlobalCS::getRoot()
 {
     // GlobalCS is always a root
