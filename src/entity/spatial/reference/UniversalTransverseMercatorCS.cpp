@@ -43,7 +43,7 @@ bool UniversalTransverseMercatorCS::isNorth() const
     return north_;
 }
 
-bool UniversalTransverseMercatorCS::isEqual(const GlobalCS::Ptr other) const
+bool UniversalTransverseMercatorCS::isEqual(const SpatialReference::Ptr other) const
 {
     auto otherUTM = std::dynamic_pointer_cast<UniversalTransverseMercatorCS>(other);
 

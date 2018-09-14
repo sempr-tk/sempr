@@ -41,6 +41,7 @@ public:
     void setParent(ProjectionCS::Ptr);
     void setParent(GeocentricCS::Ptr);
 
+    bool isEqual(const SpatialReference::Ptr other) const override;
 
     /**
         Set the rotation-part of the transformation by specifying a rotation axis and an angle.

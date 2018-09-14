@@ -28,13 +28,6 @@ public:
     //from this to other
     virtual FilterList to(const GlobalCS::Ptr other) const;
 
-    /**
-     * Check if this and the other global cs are equal.
-     * Note: This have to be override by derived class with attributes!
-     */
-    virtual bool isEqual(const GlobalCS::Ptr other) const;
-
-
 protected:
     GlobalCS();
     GlobalCS(const core::IDGenBase*);

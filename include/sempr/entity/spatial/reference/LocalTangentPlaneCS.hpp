@@ -21,7 +21,7 @@ public:
     LocalTangentPlaneCS(double lat0, double lon0, double h0 = 0);
     LocalTangentPlaneCS(double lat0, double lon0, double h0, const core::IDGenBase*);
 
-    bool isEqual(const GlobalCS::Ptr other) const override;
+    bool isEqual(const SpatialReference::Ptr other) const override;
 
 protected:
     LocalTangentPlaneCS();

@@ -17,6 +17,19 @@ LocalCS::LocalCS(const core::IDGenBase* idgen)
     this->setDiscriminator<LocalCS>();
 }
 
+bool LocalCS::isEqual(const SpatialReference::Ptr other) const
+{
+    auto otherLocal = std::dynamic_pointer_cast<LocalCS>(other);
+
+    if(otherLocal)
+    {   // check if origin is equal:
+        return parent_->isEqual(otherLocal->parent_) && transform_.isApprox(otherLocal->transform_);
+    }
+    else
+    {
+        return false;
+    }
+}
 
 SpatialReference::Ptr LocalCS::getRoot()
 {

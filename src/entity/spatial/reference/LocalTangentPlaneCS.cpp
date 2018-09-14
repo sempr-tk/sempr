@@ -40,7 +40,7 @@ LocalTangentPlaneCS::LocalTangentPlaneCS(double lat0, double lon0, double h0, co
 
 }
 
-bool LocalTangentPlaneCS::isEqual(const GlobalCS::Ptr other) const
+bool LocalTangentPlaneCS::isEqual(const SpatialReference::Ptr other) const
 {
     auto otherLTG = std::dynamic_pointer_cast<LocalTangentPlaneCS>(other);
 
