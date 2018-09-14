@@ -22,8 +22,8 @@ bool LocalCS::isEqual(const SpatialReference::Ptr other) const
     auto otherLocal = std::dynamic_pointer_cast<LocalCS>(other);
 
     if(otherLocal)
-    {   // check if origin is equal:
-        return parent_->isEqual(otherLocal->parent_) && transform_.isApprox(otherLocal->transform_);
+    {   // check if origin is equal: if there is a parent than the parent also have to be equal.
+        return ( !parent_ || parent_->isEqual(otherLocal->parent_) ) && transform_.isApprox(otherLocal->transform_);
     }
     else
     {
