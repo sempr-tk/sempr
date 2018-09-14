@@ -34,8 +34,6 @@ void SpatialIndexQuery::setupRefGeo(const Eigen::Vector3d &lower, const Eigen::V
 {
     entity::MultiPoint::Ptr corners(new entity::MultiPoint());
 
-    corners->setCS(cs);
-
     geos::geom::Coordinate coord;
     std::vector<geos::geom::Coordinate> cornerCoordinates;
     coord = geos::geom::Coordinate(lower.x(), lower.y(), lower.z()); cornerCoordinates.push_back(coord);
@@ -48,6 +46,8 @@ void SpatialIndexQuery::setupRefGeo(const Eigen::Vector3d &lower, const Eigen::V
     coord = geos::geom::Coordinate(upper.x(), upper.y(), upper.z()); cornerCoordinates.push_back(coord);
 
     corners->setCoordinates(cornerCoordinates);
+
+    corners->setCS(cs);
 
     this->refGeo_ = corners;
 }

@@ -28,11 +28,12 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
     {
         Core core;
         
-        SpatialIndex::Ptr index(new SpatialIndex());
+        LocalCS::Ptr cs(new LocalCS());
+
+        SpatialIndex::Ptr index(new SpatialIndex(cs));
         core.addModule(index);
 
         //build up a quadrangle
-        LocalCS::Ptr cs(new LocalCS());
         MultiPoint::Ptr mp( new MultiPoint() );
         mp->setGeometry(setupQuadrangle({{1, 1, 1}}, {{10, 10, 10}}));
         mp->setCS(cs);
@@ -51,13 +52,13 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
     BOOST_AUTO_TEST_CASE(spatial_index_complex)
     {
         Core core;
-        
-        SpatialIndex::Ptr index(new SpatialIndex());
-        core.addModule(index);
 
         // add a spatial refernce
         LocalCS::Ptr cs(new LocalCS());
         core.addEntity(cs);
+        
+        SpatialIndex::Ptr index(new SpatialIndex(cs));
+        core.addModule(index);
 
         // add a few geometries, all with y/z from 0 to 1, but with different x:
         // 0  1  2  3  4  5  6  7  8  9 10

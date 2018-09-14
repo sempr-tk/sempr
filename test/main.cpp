@@ -85,7 +85,7 @@ int main(int argc, char** args)
     DebugModule::Ptr debug(new DebugModule());
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
     SopranoModule::Ptr semantic( new SopranoModule() );
-    SpatialIndex::Ptr spatial( new SpatialIndex() );
+    SpatialIndex::Ptr spatial( new SpatialIndex(std::make_shared<LocalCS>()) );
 
     sempr::core::IDGenerator::getInstance().setStrategy(
         std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )

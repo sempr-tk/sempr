@@ -36,6 +36,10 @@ namespace bgi = boost::geometry::index;
     The bridge between ProjectionCS and GeographicCS could be a bit more difficult as we will need
     coordinate transformations done by GDAL in the process.
 */
+/**
+ * Spatial Index for one specific root coordinate system.
+ * All entities that could not be tranformes to this coordinate system will be skipped!
+ */
 class SpatialIndex
     : public Module< core::EntityEvent<entity::Geometry>,
                      core::EntityEvent<entity::SpatialReference>,
@@ -45,7 +49,7 @@ public:
     using Ptr = std::shared_ptr<SpatialIndex>;
     std::string type() const override;
 
-    SpatialIndex();
+    SpatialIndex(entity::SpatialReference::Ptr rootCS);
 
     /**
         Answer a SpatialIndexQuery
@@ -58,25 +62,30 @@ public:
         NOTE: Boost seems to support geographic and spherical coordinates (lat-long etc) here, how
         does this affect the RTree? Can we use this to support indexing on lat-lon later on?
     */
-    typedef bg::model::point<float, 3, bg::cs::cartesian> bPoint;
-    typedef bg::model::box<bPoint> bBox;
-    typedef std::pair<bBox, entity::Geometry::Ptr> bValue;
+    typedef bg::model::point<float, 3, bg::cs::cartesian> bPoint; //ToDo rename it
+    typedef bg::model::box<bPoint> bBox;        //ToDo rename it
+    typedef std::pair<bBox, entity::Geometry::Ptr> bValue;  //ToDo rename it
     typedef bgi::rtree<bValue, bgi::quadratic<16> > RTree;
 
 private:
     /**
-        The actual R-Tree.
+     *   The actual R-Tree.
     */
     RTree rtree_;
 
     /**
-        A mapping of Geometry-->bValue for easier updates of the RTree
+     *  The root reference system for this spatial index and R-Tree
+    */
+    entity::SpatialReference::Ptr rootCS_;
+
+    /**
+     *   A mapping of Geometry-->bValue for easier updates of the RTree
     */
     std::map<entity::Geometry::Ptr, bValue> geo2box_;
 
 
     /**
-        Process changes of geometries: New are inserted into the RTree, changed are recomputed
+     *   Process changes of geometries: New are inserted into the RTree, changed are recomputed
     */
     void process(core::EntityEvent<entity::Geometry>::Ptr geoEvent) override;
     void process(core::EntityEvent<entity::SpatialReference>::Ptr refEvent) override;
@@ -88,7 +97,7 @@ private:
     void removeGeo(entity::Geometry::Ptr geo);
 
     /** Create a pair of bounding-box and ptr */
-    bValue createEntry(entity::Geometry::Ptr geo);
+    bValue createEntry(entity::Geometry::Ptr geo) const;    //could throw an exception if there is no tranformation to the rootCS
 };
 
 

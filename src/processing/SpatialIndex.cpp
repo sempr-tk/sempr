@@ -1,6 +1,7 @@
 #include <sempr/processing/SpatialIndex.hpp>
 #include <sempr/core/EntityEvent.hpp>
 #include <sempr/entity/spatial/filter/LocalTransformationFilter.hpp>
+#include <sempr/entity/spatial/MultiPoint.hpp>
 #include <iterator>
 
 #include <geos/geom/Coordinate.h>
@@ -9,9 +10,9 @@
 
 namespace sempr { namespace processing {
 
-SpatialIndex::SpatialIndex()
+SpatialIndex::SpatialIndex(entity::SpatialReference::Ptr rootCS) :
+    rootCS_(rootCS)
 {
-    // nothing to do
 }
 
 
@@ -22,51 +23,49 @@ std::string SpatialIndex::type() const
 
 void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
 {
-    // TODO: transfer reference geometry into the frame of the spatial index
-    // (make a copy?)
-    // query->refGeo_
-
-    // create the AABB of the transformed query-volume.
-
-    geos::geom::Coordinate min, max;
-    query->refGeo()->findEnvelope(min, max);
-
-    bBox region(
-        bPoint(min.x, min.y, min.z),
-        bPoint(max.x, max.y, max.z)
-    );
-    
-
     std::vector<bValue> tmpResults;
 
-    typedef query::SpatialIndexQuery::QueryType QueryType;
-    switch (query->mode()) {
+    try
+    {
+        // create the AABB of the transformed query-volume. Create a transformed box.
+        auto searchEntry = createEntry(query->refGeo());
 
-        case QueryType::WITHIN:
-            rtree_.query(bgi::within(region), std::back_inserter(tmpResults));
-            break;
-        case QueryType::NOTWITHIN:
-            rtree_.query(!bgi::within(region), std::back_inserter(tmpResults));
-            break;
-
-        // TODO: contains is introduced in boost 1.55, but ros indigo needs 1.54.
-        // maybe its time for me to upgrade to 16.04 and kinetic...
-        case QueryType::CONTAINS:
-            rtree_.query(bgi::contains(region), std::back_inserter(tmpResults));
-            break;
-        case QueryType::NOTCONTAINS:
-            rtree_.query(!bgi::contains(region), std::back_inserter(tmpResults));
-            break;
-
-        case QueryType::INTERSECTS:
-            rtree_.query(bgi::intersects(region), std::back_inserter(tmpResults));
-            break;
-        case QueryType::NOTINTERSECTS:
-            rtree_.query(!bgi::intersects(region), std::back_inserter(tmpResults));
-            break;
+        bBox region = searchEntry.first;   
         
-        default:
-            std::cout << "SpatialIndex: Mode " << query->mode() << " not implemented." << '\n';
+        typedef query::SpatialIndexQuery::QueryType QueryType;
+        switch (query->mode()) {
+
+            case QueryType::WITHIN:
+                rtree_.query(bgi::within(region), std::back_inserter(tmpResults));
+                break;
+            case QueryType::NOTWITHIN:
+                rtree_.query(!bgi::within(region), std::back_inserter(tmpResults));
+                break;
+
+            // TODO: contains is introduced in boost 1.55, but ros indigo needs 1.54.
+            // maybe its time for me to upgrade to 16.04 and kinetic...
+            case QueryType::CONTAINS:
+                rtree_.query(bgi::contains(region), std::back_inserter(tmpResults));
+                break;
+            case QueryType::NOTCONTAINS:
+                rtree_.query(!bgi::contains(region), std::back_inserter(tmpResults));
+                break;
+
+            case QueryType::INTERSECTS:
+                rtree_.query(bgi::intersects(region), std::back_inserter(tmpResults));
+                break;
+            case QueryType::NOTINTERSECTS:
+                rtree_.query(!bgi::intersects(region), std::back_inserter(tmpResults));
+                break;
+            
+            default:
+                std::cout << "SpatialIndex: Mode " << query->mode() << " not implemented." << '\n';
+        }
+
+    }
+    catch (const TransformException& ex)
+    {
+        //ref geom of the query is in a different cs. Not results.
     }
 
     std::transform( tmpResults.begin(), tmpResults.end(),
@@ -130,12 +129,12 @@ void SpatialIndex::processChangedCS(entity::SpatialReference::Ptr cs)
 }
 
 
-SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo)
+SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo) const
 {
     
     // get the 3d envelope of the geometry.
-    geos::geom::Coordinate min, max;
-    geo->findEnvelope(min, max);
+    geos::geom::Coordinate geoMin, geoMax;
+    geo->findEnvelope(geoMin, geoMax);
 
     // this envelope is in the coordinate system of the geometry. But what we need is an envelope
     // that is axis aligned with the root reference system. We could transform the geometry to root,
@@ -146,34 +145,45 @@ SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo)
 
     geos::geom::Coordinate coord;
     std::vector<geos::geom::Coordinate> cornerCoordinates;
-    coord = geos::geom::Coordinate(min.x, min.y, min.z); cornerCoordinates.push_back(coord);
-    coord = geos::geom::Coordinate(min.x, min.y, max.z); cornerCoordinates.push_back(coord);
-    coord = geos::geom::Coordinate(min.x, max.y, min.z); cornerCoordinates.push_back(coord);
-    coord = geos::geom::Coordinate(min.x, max.y, max.z); cornerCoordinates.push_back(coord);
-    coord = geos::geom::Coordinate(max.x, min.y, min.z); cornerCoordinates.push_back(coord);
-    coord = geos::geom::Coordinate(max.x, min.y, max.z); cornerCoordinates.push_back(coord);
-    coord = geos::geom::Coordinate(max.x, max.y, min.z); cornerCoordinates.push_back(coord);
-    coord = geos::geom::Coordinate(max.x, max.y, max.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(geoMin.x, geoMin.y, geoMin.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(geoMin.x, geoMin.y, geoMax.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(geoMin.x, geoMax.y, geoMin.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(geoMin.x, geoMax.y, geoMax.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(geoMax.x, geoMin.y, geoMin.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(geoMax.x, geoMin.y, geoMax.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(geoMax.x, geoMax.y, geoMin.z); cornerCoordinates.push_back(coord);
+    coord = geos::geom::Coordinate(geoMax.x, geoMax.y, geoMax.z); cornerCoordinates.push_back(coord);
 
-    geos::geom::MultiPoint* mp = geos::geom::GeometryFactory::getDefaultInstance()->createMultiPoint(cornerCoordinates);
 
-    // transform the geometry
-    LocalTransformationFilter tf(geo->getCS()->transformationToRoot());
-    mp->apply_rw(tf);
+    entity::MultiPoint::Ptr mpEntity( new entity::MultiPoint() );    // Note: this wast IDs - recommended to use a factory in future
 
-    // get the new envelope
-    EnvelopeFilter ef;
-    mp->apply_ro(ef);
+    mpEntity->setCoordinates(cornerCoordinates);
+    mpEntity->setCS(geo->getCS());
 
-    // destroy the multi point after there usage:
-    geos::geom::GeometryFactory::getDefaultInstance()->destroyGeometry(mp);
+    // transfrom it to the reference system of the R-Tree
+    mpEntity->transformToCS(rootCS_);   //could throw an exception if there is no transformation from geo cs to root cs
+
+    /*  // really strange happenings - this is different to the manually apply of the env filter!!!
+    geos::geom::Coordinate mpMin, mpMax;
+    geo->findEnvelope(mpMin, mpMax);
+
+    // create the bBox out of bPoints.
+    bBox box(
+        bPoint(mpMin.x, mpMin.y, mpMin.z),
+        bPoint(mpMax.x, mpMax.y, mpMax.z)
+    );
+
+    */
+
+   EnvelopeFilter ef;
+   mpEntity->getGeometry()->apply_ro(ef);
 
     // create the bBox out of bPoints.
     bBox box(
         bPoint(ef.getMin().x, ef.getMin().y, ef.getMin().z),
         bPoint(ef.getMax().x, ef.getMax().y, ef.getMax().z)
     );
-
+    
     return bValue(box, geo);
 }
 
@@ -183,13 +193,20 @@ void SpatialIndex::insertGeo(entity::Geometry::Ptr geo)
     // sanity: it needs a geometry, and a spatial reference.
     if (!geo->getGeometry() || !geo->getCS()) return;
 
-    // create a new entry
-    bValue entry = createEntry(geo);
-    // save it in our map
-    geo2box_[geo] = entry;
-    // and insert it into the RTree
-    rtree_.insert(entry);
 
+    try
+    {
+        // create a new entry
+        bValue entry = createEntry(geo);
+        // save it in our map
+        geo2box_[geo] = entry;
+        // and insert it into the RTree
+        rtree_.insert(entry);
+    }
+    catch (const TransformException& ex)
+    {
+        // this will skip the geometry if there is no transformation to the root cs of the spatial index
+    }
 
     // std::cout << "inserted " << geo->id() << " into spatial index. AABB: "
     //     << "(" << entry.first.min_corner().get<0>() << ", " <<
