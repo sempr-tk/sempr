@@ -40,10 +40,11 @@ public:
                 inside of sqlite3.h, which makes the preprocessor expand it here, and the compiler
                 throwing an error pointing at NOT_WITHIN...
     */
+    // negative constraints have to be odd!
     enum QueryType {
-        WITHIN = 0, NOTWITHIN,
-        CONTAINS, NOTCONTAINS,
-        INTERSECTS, NOTINTERSECTS
+        WITHIN      = 0, NOTWITHIN,
+        CONTAINS    = 2, NOTCONTAINS,
+        INTERSECTS  = 4, NOTINTERSECTS
     };
 
 

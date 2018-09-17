@@ -22,6 +22,9 @@ namespace sempr { namespace processing {
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
 
+template <class SpatialEntity>
+class SpatialConclusion;
+
 
 /**
     This class implements a spatial index for geometry-entities. It listens to events of Geometry
@@ -62,12 +65,15 @@ public:
         NOTE: Boost seems to support geographic and spherical coordinates (lat-long etc) here, how
         does this affect the RTree? Can we use this to support indexing on lat-lon later on?
     */
-    typedef bg::model::point<float, 3, bg::cs::cartesian> bPoint; //ToDo rename it
-    typedef bg::model::box<bPoint> bBox;        //ToDo rename it
-    typedef std::pair<bBox, entity::Geometry::Ptr> bValue;  //ToDo rename it
+    typedef bg::model::point<float, 3, bg::cs::cartesian> bPoint;
+    typedef bg::model::box<bPoint> bBox;
+    typedef std::pair<bBox, entity::Geometry::Ptr> bValue;
     typedef bgi::rtree<bValue, bgi::quadratic<16> > RTree;
 
 private:
+    template <class SpatialEntity>
+    friend class SpatialConclusion;
+
     /**
      *   The actual R-Tree.
     */
