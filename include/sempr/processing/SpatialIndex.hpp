@@ -61,11 +61,11 @@ public:
 
     /**
         Specify what is stored in the R-Tree:
-            boxes, made out of points, consisting of 3 floats, in cartesian space.
+            boxes, made out of points, consisting of 3 double, in cartesian space.
         NOTE: Boost seems to support geographic and spherical coordinates (lat-long etc) here, how
         does this affect the RTree? Can we use this to support indexing on lat-lon later on?
     */
-    typedef bg::model::point<float, 3, bg::cs::cartesian> bPoint;
+    typedef bg::model::point<double, 3, bg::cs::cartesian> bPoint;
     typedef bg::model::box<bPoint> bBox;
     typedef std::pair<bBox, entity::Geometry::Ptr> bValue;
     typedef bgi::rtree<bValue, bgi::quadratic<16> > RTree;
