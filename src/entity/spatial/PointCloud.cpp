@@ -13,17 +13,17 @@ PointCloud::PointCloud() :
 }
 
 PointCloud::PointCloud(const sempr::core::IDGenBase* idgen) : 
-    Collection(idgen)
+    Entity(idgen)
 {
     setDiscriminator<PointCloud>();
-    geometry_ = factory_->createMultiPoint();
+    geometry_ = geom::GeometryFactory::getDefaultInstance()->createMultiPoint();
 }
 
 PointCloud::~PointCloud()
 {
     if (geometry_)
     {
-        factory_->destroyGeometry(geometry_);
+        geom::GeometryFactory::getDefaultInstance()->destroyGeometry(geometry_);
         geometry_ = nullptr;
     }
 }
@@ -41,14 +41,14 @@ geom::MultiPoint* PointCloud::getGeometryMut()
 void PointCloud::setGeometry(geom::MultiPoint* geometry)
 {
     if (geometry_)
-        factory_->destroyGeometry(geometry_);
+        geom::GeometryFactory::getDefaultInstance()->destroyGeometry(geometry_);
 
     geometry_ = geometry;
 }
 
 void PointCloud::setPoints(const std::vector<geom::Coordinate>& coordinates)
 {
-    setGeometry(factory_->createMultiPoint(coordinates));
+    setGeometry(geom::GeometryFactory::getDefaultInstance()->createMultiPoint(coordinates));
 }
 
 PointCloud::Ptr PointCloud::clone() const 
@@ -67,6 +67,16 @@ PointCloud* PointCloud::raw_clone() const
     newInstance->setGeometry( dynamic_cast<geom::MultiPoint*>(geometry_->clone()) );
     
     return newInstance;
+}
+
+void PointCloud::setCS(SpatialReference::Ptr cs) 
+{
+    referenceFrame_ = cs;
+}
+
+SpatialReference::Ptr PointCloud::getCS() const 
+{
+    return referenceFrame_;
 }
 
 

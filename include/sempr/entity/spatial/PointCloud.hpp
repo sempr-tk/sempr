@@ -104,7 +104,7 @@ typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
  * @brief The PointCloud class is a Entity that represents a Pointcloud
  * Currently stored as text - shall be a bin blob
  */
-class PointCloud : public Collection /*,public AbstractPointCloud<double> */
+class PointCloud : public Entity /*,public AbstractPointCloud<double> */
 {
     SEMPR_ENTITY
 public:
@@ -202,16 +202,20 @@ public:
         return *const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate());
     }
 
-    const geom::MultiPoint* getGeometry() const override;
+    const geom::MultiPoint* getGeometry() const;
 
     void setGeometry(geom::MultiPoint* geometry);
 
     void setPoints(const std::vector<geom::Coordinate>& coordinates);
 
+    void setCS(SpatialReference::Ptr cs);
+
+    SpatialReference::Ptr getCS() const;
+
     PointCloud::Ptr clone() const;
 
 protected:
-    geom::MultiPoint* getGeometryMut() override;
+    geom::MultiPoint* getGeometryMut();
 
 private:
     friend class odb::access;
@@ -227,7 +231,9 @@ private:
              value_column("channel")
     std::map< int, ChannelVariant > channels_;     //workaround because odb will not solve std container in std container.
 
-    virtual PointCloud* raw_clone() const override;
+    SpatialReference::Ptr referenceFrame_;
+
+    virtual PointCloud* raw_clone() const;
 };
 
     
