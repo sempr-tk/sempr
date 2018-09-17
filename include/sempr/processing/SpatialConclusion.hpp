@@ -255,22 +255,22 @@ private:
             for (auto checkBoxIt = checkBoxFunctions_.begin(); checkBoxIt != checkBoxFunctions_.end(); ++checkBoxIt)
             {
 
-                for (auto other : idx->rtree_)
+                for (auto other : idx->geo2box_)
                 {
                     //check from self to others
-                    bool selfRelated = checkBoxIt->second(selfBox, other.first, globalRoot_);
+                    bool selfRelated = checkBoxIt->second(selfBox, other.second.first, globalRoot_);
                     if (selfRelated)
                     {
                         // Build Triple: SelfId, Function predicate, OtherID
-                        entity::Triple t(sempr::baseURI() + id, checkBoxIt->first, sempr::baseURI() + spatialGeometry_.at(other.second));
+                        entity::Triple t(sempr::baseURI() + id, checkBoxIt->first, sempr::baseURI() + spatialGeometry_.at(other.first));
                         rdfMap_[id]->addTriple(t, true);
                     }
 
                     //check from others to self
-                    bool otherRelated = checkBoxIt->second(other.first, selfBox, globalRoot_);
+                    bool otherRelated = checkBoxIt->second(other.second.first, selfBox, globalRoot_);
                     if (otherRelated)
                     {
-                        auto otherID = spatialGeometry_.at(other.second);
+                        auto otherID = spatialGeometry_.at(other.first);
                         // Build Triple: OtherID, Function predicate, SelfId
                         entity::Triple t(sempr::baseURI() + otherID, checkBoxIt->first, sempr::baseURI() + id);
                         rdfMap_[otherID]->addTriple(t, true);
@@ -287,22 +287,22 @@ private:
             for (auto checkGeomIt = checkGeomFunctions_.begin(); checkGeomIt != checkGeomFunctions_.end(); ++checkGeomIt)
             {
 
-                for (auto other : idx->rtree_)
+                for (auto other : idx->geo2box_)
                 {
                     //check from self to others
-                    bool selfRelated = checkGeomIt->second(selfGeometry, other.second, globalRoot_);
+                    bool selfRelated = checkGeomIt->second(selfGeometry, other.second.second, globalRoot_);
                     if (selfRelated)
                     {
                         // Build Triple: SelfId, Function predicate, OtherID
-                        entity::Triple t(sempr::baseURI() + id, checkGeomIt->first, sempr::baseURI() + spatialGeometry_.at(other.second));
+                        entity::Triple t(sempr::baseURI() + id, checkGeomIt->first, sempr::baseURI() + spatialGeometry_.at(other.first));
                         rdfMap_[id]->addTriple(t, true);
                     }
 
                     //check from others to self
-                    bool otherRelated = checkGeomIt->second(other.second, selfGeometry, globalRoot_);
+                    bool otherRelated = checkGeomIt->second(other.second.second, selfGeometry, globalRoot_);
                     if (otherRelated)
                     {
-                        auto otherID = spatialGeometry_.at(other.second);
+                        auto otherID = spatialGeometry_.at(other.first);
                         // Build Triple: OtherID, Function predicate, SelfId
                         entity::Triple t(sempr::baseURI() + otherID, checkGeomIt->first, sempr::baseURI() + id);
                         rdfMap_[otherID]->addTriple(t, true);
