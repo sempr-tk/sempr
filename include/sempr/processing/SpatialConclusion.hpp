@@ -121,6 +121,10 @@ public:
         checkBoxFunctions_[relationPredicate] = checker;
     }
 
+    void registerCheckFunction(const std::string& relationPredicate, const CheckGeometryFunction& checker)
+    {
+        checkGeomFunctions_[relationPredicate] = checker;
+    }
 
 
 private:
@@ -133,6 +137,7 @@ private:
     bool globalRoot_;
 
     std::map<std::string, CheckBoxFunction> checkBoxFunctions_;
+    std::map<std::string, CheckGeometryFunction> checkGeomFunctions_;
 
 
     void removeEntity(const std::shared_ptr<SpatialEntity>& entity)
@@ -246,28 +251,60 @@ private:
 
             std::set<entity::RDFVector::Ptr> changedRDF;    //set for all changed RDFVectors by this method
 
-            // check every registered check function 
-            for (auto checkIt = checkBoxFunctions_.begin(); checkIt != checkBoxFunctions_.end(); ++checkIt)
+            // check every registered box check function 
+            for (auto checkBoxIt = checkBoxFunctions_.begin(); checkBoxIt != checkBoxFunctions_.end(); ++checkBoxIt)
             {
 
                 for (auto other : idx->rtree_)
                 {
                     //check from self to others
-                    bool selfRelated = checkIt->second(self, other.first, globalRoot_);
+                    bool selfRelated = checkBoxIt->second(selfBox, other.first, globalRoot_);
                     if (selfRelated)
                     {
                         // Build Triple: SelfId, Function predicate, OtherID
-                        entity::Triple t(sempr::baseURI() + id, checkIt->first, sempr::baseURI() + spatialGeometry_.at(other.second));
+                        entity::Triple t(sempr::baseURI() + id, checkBoxIt->first, sempr::baseURI() + spatialGeometry_.at(other.second));
                         rdfMap_[id]->addTriple(t, true);
                     }
 
                     //check from others to self
-                    bool otherRelated = checkIt->second(other.first, self, globalRoot_);
+                    bool otherRelated = checkBoxIt->second(other.first, selfBox, globalRoot_);
                     if (otherRelated)
                     {
                         auto otherID = spatialGeometry_.at(other.second);
                         // Build Triple: OtherID, Function predicate, SelfId
-                        entity::Triple t(sempr::baseURI() + otherID, checkIt->first, sempr::baseURI() + id);
+                        entity::Triple t(sempr::baseURI() + otherID, checkBoxIt->first, sempr::baseURI() + id);
+                        rdfMap_[otherID]->addTriple(t, true);
+                        changedRDF.insert(rdfMap_[otherID]);    //mark vactor as changed
+                    }
+                }
+
+            }
+
+
+            auto selfGeometry = idx->geo2box_[self].second;
+
+            // check every registered geom check function 
+            for (auto checkGeomIt = checkGeomFunctions_.begin(); checkGeomIt != checkGeomFunctions_.end(); ++checkGeomIt)
+            {
+
+                for (auto other : idx->rtree_)
+                {
+                    //check from self to others
+                    bool selfRelated = checkGeomIt->second(selfGeometry, other.second, globalRoot_);
+                    if (selfRelated)
+                    {
+                        // Build Triple: SelfId, Function predicate, OtherID
+                        entity::Triple t(sempr::baseURI() + id, checkGeomIt->first, sempr::baseURI() + spatialGeometry_.at(other.second));
+                        rdfMap_[id]->addTriple(t, true);
+                    }
+
+                    //check from others to self
+                    bool otherRelated = checkGeomIt->second(other.second, selfGeometry, globalRoot_);
+                    if (otherRelated)
+                    {
+                        auto otherID = spatialGeometry_.at(other.second);
+                        // Build Triple: OtherID, Function predicate, SelfId
+                        entity::Triple t(sempr::baseURI() + otherID, checkGeomIt->first, sempr::baseURI() + id);
                         rdfMap_[otherID]->addTriple(t, true);
                         changedRDF.insert(rdfMap_[otherID]);    //mark vactor as changed
                     }
