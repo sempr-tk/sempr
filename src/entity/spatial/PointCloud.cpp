@@ -60,6 +60,7 @@ PointCloud::Ptr PointCloud::clone() const
 PointCloud* PointCloud::raw_clone() const
 {
     PointCloud* newInstance = new PointCloud();
+
     // set the same reference frame
     newInstance->setCS(this->getCS());
 
