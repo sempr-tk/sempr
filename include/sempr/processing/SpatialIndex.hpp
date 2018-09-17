@@ -67,7 +67,7 @@ public:
     */
     typedef bg::model::point<double, 3, bg::cs::cartesian> bPoint;
     typedef bg::model::box<bPoint> bBox;
-    typedef std::pair<bBox, entity::Geometry::Ptr> bValue;
+    typedef std::pair<bBox, entity::Geometry::Ptr> bValue;  // pair af a bounding box and a translated geometry clone
     typedef bgi::rtree<bValue, bgi::quadratic<16> > RTree;
 
 private:
@@ -104,6 +104,9 @@ private:
 
     /** Create a pair of bounding-box and ptr */
     bValue createEntry(entity::Geometry::Ptr geo) const;    //could throw an exception if there is no tranformation to the rootCS
+    entity::Geometry::Ptr findEntry(const bValue value) const;
+
+
 };
 
 
