@@ -68,10 +68,11 @@ void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
         //ref geom of the query is in a different cs. Not results.
     }
 
-    std::transform( tmpResults.begin(), tmpResults.end(),
-                    std::inserter(query->results, query->results.end()),
-         [](bValue tmp) { return tmp.second; }
-    );
+    for (auto result : tmpResults)
+    {
+        query->results.insert(findEntry(result));
+    }
+
 }
 
 
@@ -183,8 +184,12 @@ SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo) const
         bPoint(ef.getMin().x, ef.getMin().y, ef.getMin().z),
         bPoint(ef.getMax().x, ef.getMax().y, ef.getMax().z)
     );
+
+    // create a transformed copy of the geometry.
+    auto geom = geo->clone();
+    geom->transformToCS(rootCS_);
     
-    return bValue(box, geo);
+    return bValue(box, geom);
 }
 
 
@@ -240,6 +245,17 @@ void SpatialIndex::removeGeo(entity::Geometry::Ptr geo)
         // and from the map
         geo2box_.erase(it);
     }
+}
+
+entity::Geometry::Ptr SpatialIndex::findEntry(const bValue value) const
+{
+    for (auto it = geo2box_.begin(); it != geo2box_.end(); ++it)
+    {
+        if (it->second.second == value.second)
+            return it->first;
+    }
+
+    return nullptr;
 }
 
 }}
