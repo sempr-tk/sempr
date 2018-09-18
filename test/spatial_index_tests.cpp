@@ -33,6 +33,8 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         SpatialIndex::Ptr index(new SpatialIndex(cs));
         core.addModule(index);
 
+        
+
         //build up a quadrangle
         MultiPoint::Ptr mp( new MultiPoint() );
         mp->setGeometry(setupQuadrangle({{1, 1, 1}}, {{10, 10, 10}}));
