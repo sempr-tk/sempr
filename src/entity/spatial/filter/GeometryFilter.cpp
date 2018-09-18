@@ -52,7 +52,7 @@ void EnvelopeFilter::filter_ro(const geom::CoordinateSequence& seq, std::size_t 
         if (coord.z > max_.z)
             max_.z = coord.z;
 
-        if (min_.z == std::numeric_limits<double>::max() || max_.z == std::numeric_limits<double>::min())
+        if (min_.z == + std::numeric_limits<double>::max() || max_.z == - std::numeric_limits<double>::max())
         {
             //only 2d:
             min_.z = std::numeric_limits<double>::quiet_NaN();

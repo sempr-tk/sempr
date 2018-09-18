@@ -70,6 +70,8 @@ public:
     typedef std::pair<bBox, entity::Geometry::Ptr> bValue;  // pair af a bounding box and a translated geometry clone
     typedef bgi::rtree<bValue, bgi::quadratic<16> > RTree;
 
+    //const std::map<entity::Geometry::Ptr, bValue>& getGeoBoxes() const;
+
 private:
     template <class SpatialEntity>
     friend class SpatialConclusion;
