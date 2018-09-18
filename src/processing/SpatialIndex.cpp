@@ -132,10 +132,16 @@ void SpatialIndex::processChangedCS(entity::SpatialReference::Ptr cs)
 
 SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo) const
 {
-    
-    // get the 3d envelope of the geometry.
+    // get the 3D envelope of the geometry.
     geos::geom::Coordinate geoMin, geoMax;
     geo->findEnvelope(geoMin, geoMax);
+
+    // Fix for 2D. It will be a box with the max. possible height.
+    if (geoMin.z != geoMin.z)   //NaN Check
+        geoMin.z = - std::numeric_limits<float>::max(); // max double isnt valid for boost!
+
+    if (geoMax.z != geoMax.z)   //NaN Check
+        geoMax.z = + std::numeric_limits<float>::max(); // max double isnt valid for boost!
 
     // this envelope is in the coordinate system of the geometry. But what we need is an envelope
     // that is axis aligned with the root reference system. We could transform the geometry to root,
@@ -154,7 +160,6 @@ SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo) const
     coord = geos::geom::Coordinate(geoMax.x, geoMin.y, geoMax.z); cornerCoordinates.push_back(coord);
     coord = geos::geom::Coordinate(geoMax.x, geoMax.y, geoMin.z); cornerCoordinates.push_back(coord);
     coord = geos::geom::Coordinate(geoMax.x, geoMax.y, geoMax.z); cornerCoordinates.push_back(coord);
-
 
     entity::MultiPoint::Ptr mpEntity( new entity::MultiPoint() );    // Note: this wast IDs - recommended to use a factory in future
 
@@ -246,7 +251,12 @@ void SpatialIndex::removeGeo(entity::Geometry::Ptr geo)
         geo2box_.erase(it);
     }
 }
-
+/*
+const std::map<entity::Geometry::Ptr, bValue>& SpatialIndex::getGeoBoxes() const
+{
+    return geo2box_;
+}
+*/
 entity::Geometry::Ptr SpatialIndex::findEntry(const bValue value) const
 {
     for (auto it = geo2box_.begin(); it != geo2box_.end(); ++it)
