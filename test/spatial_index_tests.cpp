@@ -41,11 +41,11 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         mp->setCS(cs);
         core.addEntity(mp);
 
-        auto queryWithinBox = SpatialIndexQuery::withinBox(Eigen::Vector3d{0, 0, 0}, Eigen::Vector3d{10, 10 ,10}, cs);
+        auto queryWithinBox = SpatialIndexQuery<3>::withinBox(Eigen::Vector3d{0, 0, 0}, Eigen::Vector3d{10, 10 ,10}, cs);
         core.answerQuery(queryWithinBox);
         BOOST_CHECK_EQUAL(queryWithinBox->results.size(), 1);
 
-        auto queryIntersecBox = SpatialIndexQuery::intersectsBox(Eigen::Vector3d{1, 1, 1}, Eigen::Vector3d{2, 2 ,2}, cs);
+        auto queryIntersecBox = SpatialIndexQuery<3>::intersectsBox(Eigen::Vector3d{1, 1, 1}, Eigen::Vector3d{2, 2 ,2}, cs);
         core.answerQuery(queryIntersecBox);
         BOOST_CHECK_EQUAL(queryIntersecBox->results.size(), 1);
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         std::set<std::string> expected_intersects = {{ "mp7", "mp8", "mp9", "mp10", "mp11", "mp12" }};
 
         // within
-        auto query = SpatialIndexQuery::withinBox(Eigen::Vector3d{7.5, -1, -1}, Eigen::Vector3d{12.5, 2, 2}, cs);
+        auto query = SpatialIndexQuery<3>::withinBox(Eigen::Vector3d{7.5, -1, -1}, Eigen::Vector3d{12.5, 2, 2}, cs);
         core.answerQuery(query);
 
         BOOST_CHECK_EQUAL(query->results.size(), expected_within.size());
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
 
         // intersects
         query->results.clear();
-        query->mode(SpatialIndexQuery::INTERSECTS);
+        query->mode(SpatialIndexQuery<3>::INTERSECTS);
         core.answerQuery(query);
 
         BOOST_CHECK_EQUAL(query->results.size(), expected_intersects.size());
