@@ -42,11 +42,14 @@ class SpatialConclusion;
 /**
  * Spatial Index for one specific root coordinate system.
  * All entities that could not be tranformes to this coordinate system will be skipped!
+ * Note that the SpatialIndex currently only support 3D Indexing. 2D Geometries will be projected to the zero x/y plane.
  */
-class SpatialIndex
-    : public Module< core::EntityEvent<entity::Geometry>,
+//template< std::size_t Dim = 3 >
+class SpatialIndex : 
+    public Module<  core::EntityEvent<entity::Geometry>,
                      core::EntityEvent<entity::SpatialReference>,
-                     query::SpatialIndexQuery >
+                     query::SpatialIndexQuery<3> >,
+    SpatialIndexBase<3>
 {
 public:
     using Ptr = std::shared_ptr<SpatialIndex>;
@@ -57,18 +60,8 @@ public:
     /**
         Answer a SpatialIndexQuery
     */
-    void process(query::SpatialIndexQuery::Ptr query) override;
+    void process(query::SpatialIndexQuery<3>::Ptr query) override;
 
-    /**
-        Specify what is stored in the R-Tree:
-            boxes, made out of points, consisting of 3 double, in cartesian space.
-        NOTE: Boost seems to support geographic and spherical coordinates (lat-long etc) here, how
-        does this affect the RTree? Can we use this to support indexing on lat-lon later on?
-    */
-    typedef bg::model::point<double, 3, bg::cs::cartesian> bPoint;
-    typedef bg::model::box<bPoint> bBox;
-    typedef std::pair<bBox, entity::Geometry::Ptr> bValue;  // pair af a bounding box and a translated geometry clone
-    typedef bgi::rtree<bValue, bgi::quadratic<16> > RTree;
 
     //const std::map<entity::Geometry::Ptr, bValue>& getGeoBoxes() const;
 
@@ -89,7 +82,7 @@ private:
     /**
      *   A mapping of Geometry-->bValue for easier updates of the RTree
     */
-    std::map<entity::Geometry::Ptr, bValue> geo2box_;
+    std::map<entity::Geometry::Ptr, ValuePair> geo2box_;
 
 
     /**
@@ -105,8 +98,8 @@ private:
     void removeGeo(entity::Geometry::Ptr geo);
 
     /** Create a pair of bounding-box and ptr */
-    bValue createEntry(entity::Geometry::Ptr geo) const;    //could throw an exception if there is no tranformation to the rootCS
-    entity::Geometry::Ptr findEntry(const bValue value) const;
+    ValuePair createEntry(entity::Geometry::Ptr geo, bool query = false) const;    //could throw an exception if there is no tranformation to the rootCS
+    entity::Geometry::Ptr findEntry(const ValuePair value) const;
 
 
 };

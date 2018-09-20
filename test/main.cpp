@@ -120,7 +120,7 @@ int main(int argc, char** args)
      // query for everything in a box.
      Eigen::Vector3d lower{-0.1, -0.1, -0.1};
      Eigen::Vector3d upper{5.2, 1.2, 1.2};
-     auto q = SpatialIndexQuery::withinBox(lower, upper, cs);
+     auto q = SpatialIndexQuery<3>::withinBox(lower, upper, cs);
      c.answerQuery(q);
      for (auto r : q->results) {
          std::cout << "SpatialIndexQuery result: " << r->id() << '\n';

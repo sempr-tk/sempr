@@ -21,18 +21,17 @@ std::string SpatialIndex::type() const
     return "SpatialIndex";
 }
 
-void SpatialIndex::process(query::SpatialIndexQuery::Ptr query)
+void SpatialIndex::process(query::SpatialIndexQuery<3>::Ptr query)
 {
-    std::vector<bValue> tmpResults;
+    std::vector<ValuePair> tmpResults;
 
     try
     {
-        // create the AABB of the transformed query-volume. Create a transformed box.
-        auto searchEntry = createEntry(query->refGeo());
+        // ToDo: Transform Box and Geom of the Pair into the root ref system.
 
-        bBox region = searchEntry.first;   
-        
-        typedef query::SpatialIndexQuery::QueryType QueryType;
+        Box region = query->refBoxGeometryPair().first;
+
+        typedef query::SpatialIndexQuery<3>::QueryType QueryType;
         switch (query->mode()) {
 
             case QueryType::WITHIN:
@@ -130,18 +129,18 @@ void SpatialIndex::processChangedCS(entity::SpatialReference::Ptr cs)
 }
 
 
-SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo) const
+SpatialIndex::ValuePair SpatialIndex::createEntry(entity::Geometry::Ptr geo, bool query) const
 {
     // get the 3D envelope of the geometry.
     geos::geom::Coordinate geoMin, geoMax;
     geo->findEnvelope(geoMin, geoMax);
 
-    // Fix for 2D. It will be a box with the max. possible height.
+    // Fix for 2D. It will be a box with the max. possible height.  // min -1 and max +1 for a query entry!
     if (geoMin.z != geoMin.z)   //NaN Check
-        geoMin.z = - std::numeric_limits<float>::max(); // max double isnt valid for boost!
+        geoMin.z = 0; // -std::numeric_limits<float>::max(); // max double isnt valid for boost!
 
     if (geoMax.z != geoMax.z)   //NaN Check
-        geoMax.z = + std::numeric_limits<float>::max(); // max double isnt valid for boost!
+        geoMax.z = 0; // +std::numeric_limits<float>::max(); // max double isnt valid for boost!
 
     // this envelope is in the coordinate system of the geometry. But what we need is an envelope
     // that is axis aligned with the root reference system. We could transform the geometry to root,
@@ -185,16 +184,16 @@ SpatialIndex::bValue SpatialIndex::createEntry(entity::Geometry::Ptr geo) const
    mpEntity->getGeometry()->apply_ro(ef);
 
     // create the bBox out of bPoints.
-    bBox box(
-        bPoint(ef.getMin().x, ef.getMin().y, ef.getMin().z),
-        bPoint(ef.getMax().x, ef.getMax().y, ef.getMax().z)
+    Box box(
+        Point(ef.getMin().x, ef.getMin().y, ef.getMin().z),
+        Point(ef.getMax().x, ef.getMax().y, ef.getMax().z)
     );
 
     // create a transformed copy of the geometry.
     auto geom = geo->clone();
     geom->transformToCS(rootCS_);
     
-    return bValue(box, geom);
+    return ValuePair(box, geom);
 }
 
 
@@ -207,7 +206,7 @@ void SpatialIndex::insertGeo(entity::Geometry::Ptr geo)
     try
     {
         // create a new entry
-        bValue entry = createEntry(geo);
+        ValuePair entry = createEntry(geo);
         // save it in our map
         geo2box_[geo] = entry;
         // and insert it into the RTree
@@ -257,7 +256,7 @@ const std::map<entity::Geometry::Ptr, bValue>& SpatialIndex::getGeoBoxes() const
     return geo2box_;
 }
 */
-entity::Geometry::Ptr SpatialIndex::findEntry(const bValue value) const
+entity::Geometry::Ptr SpatialIndex::findEntry(const ValuePair value) const
 {
     for (auto it = geo2box_.begin(); it != geo2box_.end(); ++it)
     {

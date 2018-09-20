@@ -62,7 +62,7 @@ std::vector<geos::geom::Coordinate> getNDSCoords()
     ndsCorner.emplace_back(52.198737, 8.460202);
     ndsCorner.emplace_back(52.454954, 8.332350);
     ndsCorner.emplace_back(52.500513, 8.558474);
-    ndsCorner.emplace_back(52.531468, 8.652268); //NRW Nordpunkt
+    ndsCorner.emplace_back(52.531468, 8.652268); //NRW Northpoint
     ndsCorner.emplace_back(52.400771, 8.724932);
     ndsCorner.emplace_back(52.401876, 8.93696);
     ndsCorner.emplace_back(52.497824, 9.095536);
@@ -149,7 +149,9 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
         Polygon::Ptr nds( new Polygon() );
         nds->setCoordinates(getNDSCoords());
         nds->setCS(globalCS);
-        auto queryNDS = SpatialIndexQuery::withinBoxOf(nds);
+        //auto queryNDS = SpatialIndexQuery<3>::containsBoxOf(nds);
+        //auto queryNDS = SpatialIndexQuery<3>::withinBoxOf(nds);
+        auto queryNDS = SpatialIndexQuery<3>::intersectsBoxOf(nds);
 
         core.answerQuery(queryNDS);
         BOOST_CHECK_EQUAL(queryNDS->results.size(), 2); // Osna and Bremen are in NDS if the query use a box. But in real Bremen is no part of NDS.
