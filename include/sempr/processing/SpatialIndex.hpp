@@ -84,13 +84,15 @@ public:
 
             Box region = transformedPair.first;
 
-            //typedef query::SpatialIndexQuery<3>::QueryType QueryType;
             switch (query->mode()) {
+                case SpatialQueryType::NEAREST:
+                    rtree_.query(bgi::nearest(region, 1), std::back_inserter(tmpResults));  // Note: could be more than only the nearest one!
+                    break;
 
                 case SpatialQueryType::WITHIN:
                     rtree_.query(bgi::within(region), std::back_inserter(tmpResults));
                     break;
-                case SpatialQueryType::NOTWITHIN:
+                case SpatialQueryType::NOT_WITHIN:
                     rtree_.query(!bgi::within(region), std::back_inserter(tmpResults));
                     break;
 
@@ -99,15 +101,29 @@ public:
                 case SpatialQueryType::CONTAINS:
                     rtree_.query(bgi::contains(region), std::back_inserter(tmpResults));
                     break;
-                case SpatialQueryType::NOTCONTAINS:
+                case SpatialQueryType::NOT_CONTAINS:
                     rtree_.query(!bgi::contains(region), std::back_inserter(tmpResults));
                     break;
 
                 case SpatialQueryType::INTERSECTS:
                     rtree_.query(bgi::intersects(region), std::back_inserter(tmpResults));
                     break;
-                case SpatialQueryType::NOTINTERSECTS:
+                case SpatialQueryType::NOT_INTERSECTS:
                     rtree_.query(!bgi::intersects(region), std::back_inserter(tmpResults));
+                    break;
+
+                case SpatialQueryType::COVERED:
+                    rtree_.query(bgi::covered_by(region), std::back_inserter(tmpResults));
+                    break;
+                case SpatialQueryType::NOT_COVERED:
+                    rtree_.query(!bgi::covered_by(region), std::back_inserter(tmpResults));
+                    break;
+
+                case SpatialQueryType::OVERLAPS:
+                    rtree_.query(bgi::overlaps(region), std::back_inserter(tmpResults));
+                    break;
+                case SpatialQueryType::NOT_OVERLAPS:
+                    rtree_.query(!bgi::overlaps(region), std::back_inserter(tmpResults));
                     break;
                 
                 default:

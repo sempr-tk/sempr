@@ -13,24 +13,22 @@
 #include <Geometry_odb.h>   // required for EntityEvent<Geometry>
 #include <SpatialReference_odb.h>   // required for EntityEvent<SpatialReference>
 
+// SQLite is defining #define NOT_WITHIN 0 inside the sqlite3.h. We undfine it here locally because the processing units are not depending of SQLite.
+#undef NOT_WITHIN   
 
 namespace sempr { namespace processing {
 
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
 
-/*
-    NOTE:   I'd prefer "NOT_WITHIN" etc instead of "NOTWITHIN", but sadly newer versions of
-            libsqlite3-dev (3.11) have a
-                #define NOT_WITHIN 0
-            inside of sqlite3.h, which makes the preprocessor expand it here, and the compiler
-            throwing an error pointing at NOT_WITHIN...
-*/
 // negative constraints have to be odd!
 enum class SpatialQueryType {
-    WITHIN      = 0, NOTWITHIN,
-    CONTAINS    = 2, NOTCONTAINS,
-    INTERSECTS  = 4, NOTINTERSECTS
+    NEAREST,
+    WITHIN      = 2,    NOT_WITHIN,
+    CONTAINS    = 4,    NOT_CONTAINS,
+    INTERSECTS  = 6,    NOT_INTERSECTS,
+    COVERED     = 8,    NOT_COVERED,
+    OVERLAPS    = 10,   NOT_OVERLAPS
 };
 
 template<std::size_t dim>

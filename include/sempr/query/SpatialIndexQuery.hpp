@@ -63,6 +63,7 @@ public:
     /** inverts the mode: WITHIN <-> NOTWITHIN etc. */
     void invert()
     {
+        if (qtype_ == SpatialQueryType::NEAREST ) return;
     /*  inversion of query type:
         positive (WITHIN, CONTAINS, INTERSECTS) are even (0, 2, 4),
         negative (NOT_WITHIN, ...) are odd (1, 3, 5).
@@ -89,6 +90,21 @@ public:
         return SpatialIndexQuery::createBoxQuery(geometry, SpatialQueryType::INTERSECTS);
     }
 
+    static SpatialIndexQuery::Ptr nearestToBoxOf(entity::Geometry::Ptr geometry)
+    {
+        return SpatialIndexQuery::createBoxQuery(geometry, SpatialQueryType::NEAREST);
+    }
+
+    static SpatialIndexQuery::Ptr coveredByBoxOf(entity::Geometry::Ptr geometry)
+    {
+        return SpatialIndexQuery::createBoxQuery(geometry, SpatialQueryType::COVERED);
+    }
+
+    static SpatialIndexQuery::Ptr overlapsBoxOf(entity::Geometry::Ptr geometry)
+    {
+        return SpatialIndexQuery::createBoxQuery(geometry, SpatialQueryType::COVERED);
+    }
+
 
     /**
         Query for everything within the bbox specified. Explicit coordinate system.
@@ -99,7 +115,7 @@ public:
         return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::WITHIN);
     }
 
-    static SpatialIndexQuery::Ptr containsBox(  const Vector& lower, const Vector& upper, entity::SpatialReference::Ptr cs)
+    static SpatialIndexQuery::Ptr containsBox(const Vector& lower, const Vector& upper, entity::SpatialReference::Ptr cs)
     {
         return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::CONTAINS);
     }
@@ -109,7 +125,21 @@ public:
         return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::INTERSECTS);
     }
 
-    // TODO Disjoint and Overlaps
+    static SpatialIndexQuery::Ptr nearestBox(const Vector& lower, const Vector& upper, entity::SpatialReference::Ptr cs)
+    {
+        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::NEAREST);
+    }
+
+    static SpatialIndexQuery::Ptr coveredByBox(const Vector& lower, const Vector& upper, entity::SpatialReference::Ptr cs)
+    {
+        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::COVERED);
+    }
+
+    static SpatialIndexQuery::Ptr overlapsBox(const Vector& lower, const Vector& upper, entity::SpatialReference::Ptr cs)
+    {
+        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::OVERLAPS);
+    }
+
     // TODO Query for a specific geometry relations not only Boxes!
 private:
 
