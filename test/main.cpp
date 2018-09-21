@@ -85,7 +85,7 @@ int main(int argc, char** args)
     DebugModule::Ptr debug(new DebugModule());
     ActiveObjectStore::Ptr active( new ActiveObjectStore() );
     SopranoModule::Ptr semantic( new SopranoModule() );
-    SpatialIndex::Ptr spatial( new SpatialIndex(std::make_shared<LocalCS>()) );
+    SpatialIndex3D::Ptr spatial( new SpatialIndex3D(std::make_shared<LocalCS>()) );
 
     sempr::core::IDGenerator::getInstance().setStrategy(
         std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
@@ -120,7 +120,7 @@ int main(int argc, char** args)
      // query for everything in a box.
      Eigen::Vector3d lower{-0.1, -0.1, -0.1};
      Eigen::Vector3d upper{5.2, 1.2, 1.2};
-     auto q = SpatialIndexQuery<3>::withinBox(lower, upper, cs);
+     auto q = SpatialIndexQuery3D::withinBox(lower, upper, cs);
      c.answerQuery(q);
      for (auto r : q->results) {
          std::cout << "SpatialIndexQuery result: " << r->id() << '\n';

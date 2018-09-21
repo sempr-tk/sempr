@@ -54,9 +54,10 @@ namespace sempr { namespace query {
 template<std::size_t dim = 3>
 class SpatialIndexQuery : public Query, public core::OType< SpatialIndexQuery<dim> > {
 public:
-    typedef typename processing::SpatialIndexBase<dim>::ValuePair ValuePair;
+
     typedef typename processing::SpatialIndexBase<dim>::Box Box;
     typedef typename processing::SpatialIndexBase<dim>::Point Point;
+    typedef typename processing::SpatialIndexBase<dim>::ValuePair ValuePair;
     typedef Eigen::Matrix<double, dim, 1> EigenVector;
 
     using Ptr = std::shared_ptr< SpatialIndexQuery<dim> >;
@@ -225,6 +226,8 @@ private:
 
 };
 
+typedef SpatialIndexQuery<2> SpatialIndexQuery2D;
+typedef SpatialIndexQuery<3> SpatialIndexQuery3D;
 
 }}
 
