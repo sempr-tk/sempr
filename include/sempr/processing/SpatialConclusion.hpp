@@ -70,10 +70,10 @@ public:
     using Ptr = std::shared_ptr< SpatialConclusion<SpatialEntity> >;
 
     // isGlobal is set if both geometries are transformed in the same global reference system
-    typedef std::function<bool(const SpatialIndex::Box& self,const SpatialIndex::Box& other, bool isGlobal)> CheckBoxFunction;
+    typedef std::function<bool(const SpatialIndex<3>::Box& self,const SpatialIndex<3>::Box& other, bool isGlobal)> CheckBoxFunction;
     typedef std::function<bool(const entity::Geometry::Ptr& self,const entity::Geometry::Ptr& other, bool isGlobal)> CheckGeometryFunction;
 
-    SpatialConclusion(const std::weak_ptr<SpatialIndex>& spatialIndex) :
+    SpatialConclusion(const std::weak_ptr< SpatialIndex<3> >& spatialIndex) :
         index_(spatialIndex)
     { 
         globalRoot_ = false;
@@ -128,7 +128,7 @@ public:
 
 
 private:
-    std::weak_ptr<SpatialIndex> index_;
+    std::weak_ptr< SpatialIndex<3> > index_;
 
     std::map<entity::Geometry::Ptr, std::string> spatialGeometry_;
 
@@ -330,13 +330,13 @@ private:
     }
 
 
-    static bool check2D(const SpatialIndex::Box& test)
+    static bool check2D(const SpatialIndex<3>::Box& test)
     {
         double h = abs(test.min_corner().get<2>() - test.max_corner().get<2>());
         return h < 0.00001; // objects with a high less than 0.1mm 
     }
 
-    static bool checkNorthOf(const SpatialIndex::Box& self, const SpatialIndex::Box& other, bool isGlobal)
+    static bool checkNorthOf(const SpatialIndex<3>::Box& self, const SpatialIndex<3>::Box& other, bool isGlobal)
     {
         if (isGlobal)
         {
@@ -348,7 +348,7 @@ private:
         }
     }
 
-    static bool checkSouthOf(const SpatialIndex::Box& self, const SpatialIndex::Box& other, bool isGlobal)
+    static bool checkSouthOf(const SpatialIndex<3>::Box& self, const SpatialIndex<3>::Box& other, bool isGlobal)
     {
         if (isGlobal)
         {
@@ -360,7 +360,7 @@ private:
         }
     }
 
-    static bool checkEastOf(const SpatialIndex::Box& self, const SpatialIndex::Box& other, bool isGlobal)
+    static bool checkEastOf(const SpatialIndex<3>::Box& self, const SpatialIndex<3>::Box& other, bool isGlobal)
     {
         if (isGlobal)
         {
@@ -372,7 +372,7 @@ private:
         }
     }
 
-    static bool checkWestOf(const SpatialIndex::Box& self, const SpatialIndex::Box& other, bool isGlobal)
+    static bool checkWestOf(const SpatialIndex<3>::Box& self, const SpatialIndex<3>::Box& other, bool isGlobal)
     {
         if (isGlobal)
         {

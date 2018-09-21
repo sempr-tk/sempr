@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         
         LocalCS::Ptr cs(new LocalCS());
 
-        SpatialIndex::Ptr index(new SpatialIndex(cs));
+        SpatialIndex<3>::Ptr index(new SpatialIndex<3>(cs));
         core.addModule(index);
 
         
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         LocalCS::Ptr cs(new LocalCS());
         core.addEntity(cs);
         
-        SpatialIndex::Ptr index(new SpatialIndex(cs));
+        SpatialIndex<3>::Ptr index(new SpatialIndex<3>(cs));
         core.addModule(index);
 
         // add a few geometries, all with y/z from 0 to 1, but with different x:
