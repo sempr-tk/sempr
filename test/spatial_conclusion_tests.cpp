@@ -20,6 +20,20 @@ geom::MultiPoint* setupQuadrangle(const std::array<float, 3>& min, const std::ar
     return mp;
 }
 
+std::vector<geos::geom::Coordinate> getVechtaCoords()
+{
+    std::vector<geom::Coordinate> vechtaCorner;
+    
+    vechtaCorner.emplace_back(52.755742, 8.274784);
+    vechtaCorner.emplace_back(52.758035, 8.307160);
+    vechtaCorner.emplace_back(52.745131, 8.328818);
+    vechtaCorner.emplace_back(52.701042, 8.299618);
+    vechtaCorner.emplace_back(52.719873, 8.257034);
+    vechtaCorner.emplace_back(52.755742, 8.274784); //close the ring
+
+    return vechtaCorner;
+}
+
 std::vector<geos::geom::Coordinate> getOsnaCoords()
 {
     std::vector<geom::Coordinate> osnaCorner;
@@ -28,7 +42,7 @@ std::vector<geos::geom::Coordinate> getOsnaCoords()
     osnaCorner.emplace_back(52.302939, 8.034527);
     osnaCorner.emplace_back(52.297650, 8.107368);
     osnaCorner.emplace_back(52.245902, 8.087810);
-    osnaCorner.emplace_back(53.029056, 8.858612);
+    osnaCorner.emplace_back(53.029056, 8.858612); //close the ring
 
     return osnaCorner;
 }
@@ -136,27 +150,37 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
         //core.addModule(conclusion);
 
         //build up a quadrangle
-        Polygon::Ptr osna( new Polygon() );
-        osna->setCoordinates(getOsnaCoords());
-        osna->setCS(globalCS);
-        core.addEntity(osna);
+        {
+            Polygon::Ptr osna( new Polygon() );
+            osna->setCoordinates(getOsnaCoords());
+            osna->setCS(globalCS);
+            core.addEntity(osna);
+        }
 
-        Polygon::Ptr bremen( new Polygon() );
-        bremen->setCoordinates(getBremenCoords());
-        bremen->setCS(globalCS);
-        core.addEntity(bremen);
+        {
+            Polygon::Ptr bremen( new Polygon() );
+            bremen->setCoordinates(getBremenCoords());
+            bremen->setCS(globalCS);
+            core.addEntity(bremen);
+        }
+
+        {
+            Polygon::Ptr vechta( new Polygon() );
+            vechta->setCoordinates(getVechtaCoords());
+            vechta->setCS(globalCS);
+            core.addEntity(vechta);
+        }
 
         Polygon::Ptr nds( new Polygon() );
         nds->setCoordinates(getNDSCoords());
         nds->setCS(globalCS);
-        //auto queryNDS = SpatialIndexQuery<3>::containsBoxOf(nds);
-        //auto queryNDS = SpatialIndexQuery<3>::withinBoxOf(nds);
-        /*
-        auto queryNDS = SpatialIndexQuery2D::intersectsBoxOf(nds);
+        //auto queryNDS = SpatialIndexQuery2D::containsBoxOf(nds);
+        auto queryNDS = SpatialIndexQuery2D::withinBoxOf(nds);
+        //auto queryNDS = SpatialIndexQuery2D::intersectsBoxOf(nds);
 
         core.answerQuery(queryNDS);
-        BOOST_CHECK_EQUAL(queryNDS->results.size(), 2); // Osna and Bremen are in NDS if the query use a box. But in real Bremen is no part of NDS.
-        */
+        BOOST_CHECK_EQUAL(queryNDS->results.size(), 3); // Osna and Bremen are in NDS if the query use a box. But in real Bremen is no part of NDS.
+        
         /*
         auto queryWithinBox = SpatialIndexQuery::withinBox(Eigen::Vector3d{0, 0, 0}, Eigen::Vector3d{10, 10 ,10}, cs);
         core.answerQuery(queryWithinBox);
