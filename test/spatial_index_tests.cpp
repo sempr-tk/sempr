@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
 
         // intersects
         query->results.clear();
-        query->mode(SpatialIndexQuery<3>::INTERSECTS);
+        query->mode(SpatialQueryType::INTERSECTS);
         core.answerQuery(query);
 
         BOOST_CHECK_EQUAL(query->results.size(), expected_intersects.size());

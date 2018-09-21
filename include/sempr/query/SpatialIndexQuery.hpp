@@ -2,6 +2,7 @@
 #define SEMPR_QUERY_SPATIALQUERY_HPP_
 
 #include <sempr/query/Query.hpp>
+#include <sempr/processing/SpatialIndexBase.hpp>
 #include <sempr/entity/spatial/Geometry.hpp>
 #include <sempr/entity/spatial/MultiPoint.hpp>
 #include <vector>
@@ -13,27 +14,6 @@
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/index/rtree.hpp>
-
-// forward declaration of SpatialIndex      // ToDo: Move this to a own Header File!
-namespace sempr { namespace processing {
-    namespace bg = boost::geometry;
-    namespace bgi = boost::geometry::index;
-
-    template<std::size_t dim>
-    struct SpatialIndexBase
-    {
-        /**
-        Specify what is stored in the R-Tree:
-            boxes, made out of points, consisting of 3 double, in cartesian space.
-        NOTE: Boost seems to support geographic and spherical coordinates (lat-long etc) here, how
-        does this affect the RTree? Can we use this to support indexing on lat-lon later on?
-        */
-        typedef bg::model::point<double, dim, bg::cs::cartesian> Point;
-        typedef bg::model::box<Point> Box;
-        typedef std::pair<Box, entity::Geometry::Ptr> ValuePair;  // pair af a bounding box and a translated geometry clone
-        typedef bgi::rtree<ValuePair, bgi::quadratic<16> > RTree;
-    };
-}}
 
 namespace sempr { namespace query {
 
@@ -54,12 +34,12 @@ namespace sempr { namespace query {
 template<std::size_t dim = 3>
 class SpatialIndexQuery : public Query, public core::OType< SpatialIndexQuery<dim> > {
 public:
-
-    typedef typename processing::SpatialIndexBase<dim>::Box Box;
-    typedef typename processing::SpatialIndexBase<dim>::Point Point;
-    typedef typename processing::SpatialIndexBase<dim>::ValuePair ValuePair;
-    typedef Eigen::Matrix<double, dim, 1> EigenVector;
-    
+    typedef processing::SpatialQueryType SpatialQueryType;
+    typedef processing::SpatialIndexBase<dim> SpatialIndexBase;
+    typedef typename SpatialIndexBase::Box Box;
+    typedef typename SpatialIndexBase::Point Point;
+    typedef typename SpatialIndexBase::ValuePair ValuePair;
+    typedef typename SpatialIndexBase::Vector Vector;
 
     using Ptr = std::shared_ptr< SpatialIndexQuery<dim> >;
     ~SpatialIndexQuery() {}
@@ -69,28 +49,16 @@ public:
     /** The set of geometries matching the criterium */
     std::set<entity::Geometry::Ptr> results;
 
-    /*
-        NOTE:   I'd prefer "NOT_WITHIN" etc instead of "NOTWITHIN", but sadly newer versions of
-                libsqlite3-dev (3.11) have a
-                    #define NOT_WITHIN 0
-                inside of sqlite3.h, which makes the preprocessor expand it here, and the compiler
-                throwing an error pointing at NOT_WITHIN...
-    */
-    // negative constraints have to be odd!
-    enum QueryType {
-        WITHIN      = 0, NOTWITHIN,
-        CONTAINS    = 2, NOTCONTAINS,
-        INTERSECTS  = 4, NOTINTERSECTS
-    };  // ToDo rename it to SpatialQueryType and make a enum class out of it!
-
     /** gets the reference bounding box and geometry pair. It could either be 2D or 3D. The geometry will be null if its only a box based query. */
     ValuePair refBoxGeometryPair() { return refPair_; }
 
+    entity::SpatialReference::Ptr refCS() { return referenceCS_; }
+
     /** returns the mode of the query: WITHIN, NOT_WITHIN, ... */
-    QueryType mode() const { return qtype_; }
+    SpatialQueryType mode() const { return qtype_; }
 
     /** set the mode of the query */
-    void mode(QueryType m) { qtype_ = m; }
+    void mode(SpatialQueryType m) { qtype_ = m; }
 
     /** inverts the mode: WITHIN <-> NOTWITHIN etc. */
     void invert()
@@ -99,7 +67,7 @@ public:
         positive (WITHIN, CONTAINS, INTERSECTS) are even (0, 2, 4),
         negative (NOT_WITHIN, ...) are odd (1, 3, 5).
         Just increment even and decrement odd values.    */
-        qtype_ = (qtype_ % 2 == 0) ? QueryType(qtype_+1) : QueryType(qtype_-1);
+        qtype_ = (int(qtype_) % 2 == 0) ? SpatialQueryType(int(qtype_)+1) : SpatialQueryType(int(qtype_)-1);
     }
 
     /**
@@ -108,17 +76,17 @@ public:
     */
     static SpatialIndexQuery::Ptr withinBoxOf(entity::Geometry::Ptr geometry)
     {
-        return SpatialIndexQuery::createBoxQuery(geometry, SpatialIndexQuery::WITHIN);
+        return SpatialIndexQuery::createBoxQuery(geometry, SpatialQueryType::WITHIN);
     }
 
     static SpatialIndexQuery::Ptr containsBoxOf(entity::Geometry::Ptr geometry)
     {
-        return SpatialIndexQuery::createBoxQuery(geometry, SpatialIndexQuery::CONTAINS);
+        return SpatialIndexQuery::createBoxQuery(geometry, SpatialQueryType::CONTAINS);
     }
 
     static SpatialIndexQuery::Ptr intersectsBoxOf(entity::Geometry::Ptr geometry)
     {
-        return SpatialIndexQuery::createBoxQuery(geometry, SpatialIndexQuery::INTERSECTS);
+        return SpatialIndexQuery::createBoxQuery(geometry, SpatialQueryType::INTERSECTS);
     }
 
 
@@ -126,19 +94,19 @@ public:
         Query for everything within the bbox specified. Explicit coordinate system.
         This creates a new GeometryCollection that is used for the query.
      */
-    static SpatialIndexQuery::Ptr withinBox(const EigenVector& lower, const EigenVector& upper, entity::SpatialReference::Ptr cs)
+    static SpatialIndexQuery::Ptr withinBox(const Vector& lower, const Vector& upper, entity::SpatialReference::Ptr cs)
     {
-        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialIndexQuery::WITHIN);
+        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::WITHIN);
     }
 
-    static SpatialIndexQuery::Ptr containsBox(  const EigenVector& lower, const EigenVector& upper, entity::SpatialReference::Ptr cs)
+    static SpatialIndexQuery::Ptr containsBox(  const Vector& lower, const Vector& upper, entity::SpatialReference::Ptr cs)
     {
-        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialIndexQuery::CONTAINS);
+        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::CONTAINS);
     }
 
-    static SpatialIndexQuery::Ptr intersectsBox(const EigenVector& lower, const EigenVector& upper, entity::SpatialReference::Ptr cs)
+    static SpatialIndexQuery::Ptr intersectsBox(const Vector& lower, const Vector& upper, entity::SpatialReference::Ptr cs)
     {
-        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialIndexQuery::INTERSECTS);
+        return SpatialIndexQuery::createBoxQuery(lower, upper, cs, SpatialQueryType::INTERSECTS);
     }
 
     // TODO Disjoint and Overlaps
@@ -146,7 +114,7 @@ public:
 private:
 
     // the actual type
-    QueryType qtype_;
+    SpatialQueryType qtype_;
 
     // the reference pair of bounding box and geometry
     ValuePair refPair_;
@@ -157,7 +125,7 @@ private:
     // use static methods to construct queries
     SpatialIndexQuery() {}
 
-    void setupPair(const EigenVector& lower, const EigenVector& upper, entity::Geometry::Ptr geo, entity::SpatialReference::Ptr cs)
+    void setupPair(const Vector& lower, const Vector& upper, entity::Geometry::Ptr geo, entity::SpatialReference::Ptr cs)
     {
         ValuePair pair;
         pair.first = createBox(lower, upper);
@@ -167,25 +135,27 @@ private:
         this->referenceCS_ = cs;
     }
 
-    Box createBox(const EigenVector& min, const EigenVector& max)
+    Box createBox(const Vector& min, const Vector& max)
     {
-        return Box(toPoint(min), toPoint(max));
+        auto minP = SpatialIndexBase::toPoint(min);
+        auto maxP = SpatialIndexBase::toPoint(max);
+        return Box(minP, maxP);
     }
 
     // helper: create query from geo or upper/lower and a type
-    static SpatialIndexQuery::Ptr createBoxQuery(entity::Geometry::Ptr geometry, QueryType type)
+    static SpatialIndexQuery::Ptr createBoxQuery(entity::Geometry::Ptr geometry, SpatialQueryType type)
     {
         geos::geom::Coordinate min, max;
         geometry->findEnvelope(min, max);
 
-        auto lower = toVector(min);
-        auto upper = toVector(max);
+        auto lower = SpatialIndexBase::toEigen(min);
+        auto upper = SpatialIndexBase::toEigen(max);
 
         return createBoxQuery(lower, upper, geometry->getCS(), type);
     }
 
-    static SpatialIndexQuery::Ptr createBoxQuery(const EigenVector& min, const EigenVector& max,
-                                        entity::SpatialReference::Ptr cs, QueryType type)
+    static SpatialIndexQuery::Ptr createBoxQuery(const Vector& min, const Vector& max,
+                                        entity::SpatialReference::Ptr cs, SpatialQueryType type)
     {
          if (!cs) return SpatialIndexQuery::Ptr();
 
@@ -193,36 +163,6 @@ private:
         query->setupPair(min, max, nullptr, cs);
         query->mode(type);
         return query;
-    }
-
-    static Point toPoint(const EigenVector& vec)
-    {
-        if (dim == 2)
-        {
-            return Point(vec[0], vec[1]);
-        }
-        else if (dim == 3)
-        {
-            return Point(vec[0], vec[1], vec[2]);
-        }
-        return Point();
-    }
-
-    static EigenVector toVector(const geos::geom::Coordinate& coord)
-    {
-        EigenVector vec;
-
-        if (dim >= 2)
-        {
-            vec[0] = coord.x;
-            vec[1] = coord.y;
-        }
-        if (dim >= 3)
-        {
-            vec[3] = coord.z;
-        }
-
-        return vec;
     }
 
 };
