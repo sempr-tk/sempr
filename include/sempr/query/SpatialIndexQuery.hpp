@@ -59,6 +59,7 @@ public:
     typedef typename processing::SpatialIndexBase<dim>::Point Point;
     typedef typename processing::SpatialIndexBase<dim>::ValuePair ValuePair;
     typedef Eigen::Matrix<double, dim, 1> EigenVector;
+    
 
     using Ptr = std::shared_ptr< SpatialIndexQuery<dim> >;
     ~SpatialIndexQuery() {}
@@ -198,11 +199,11 @@ private:
     {
         if (dim == 2)
         {
-            return Point(vec.x(), vec.y());
+            return Point(vec[0], vec[1]);
         }
         else if (dim == 3)
         {
-            return Point(vec.x(), vec.y(), vec.z());
+            return Point(vec[0], vec[1], vec[2]);
         }
         return Point();
     }
@@ -213,12 +214,12 @@ private:
 
         if (dim >= 2)
         {
-            vec.x() = coord.x;
-            vec.y() = coord.y;
+            vec[0] = coord.x;
+            vec[1] = coord.y;
         }
         if (dim >= 3)
         {
-            vec.z() = coord.z;
+            vec[3] = coord.z;
         }
 
         return vec;
