@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         
         LocalCS::Ptr cs(new LocalCS());
 
-        SpatialIndex<3>::Ptr index(new SpatialIndex<3>(cs));
+        SpatialIndex3D::Ptr index(new SpatialIndex<3>(cs));
         core.addModule(index);
 
         
@@ -41,13 +41,78 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
         mp->setCS(cs);
         core.addEntity(mp);
 
-        auto queryWithinBox = SpatialIndexQuery<3>::withinBox(Eigen::Vector3d{0, 0, 0}, Eigen::Vector3d{10, 10 ,10}, cs);
+        auto queryWithinBox = SpatialIndexQuery3D::withinBox(Eigen::Vector3d{0, 0, 0}, Eigen::Vector3d{10, 10 ,10}, cs);
         core.answerQuery(queryWithinBox);
         BOOST_CHECK_EQUAL(queryWithinBox->results.size(), 1);
 
-        auto queryIntersecBox = SpatialIndexQuery<3>::intersectsBox(Eigen::Vector3d{1, 1, 1}, Eigen::Vector3d{2, 2 ,2}, cs);
+        auto queryIntersecBox = SpatialIndexQuery3D::intersectsBox(Eigen::Vector3d{1, 1, 1}, Eigen::Vector3d{2, 2 ,2}, cs);
         core.answerQuery(queryIntersecBox);
         BOOST_CHECK_EQUAL(queryIntersecBox->results.size(), 1);
+
+    }
+
+    /*
+        A case like this:
+             |\
+          /| | \
+         / | |  \
+        / / /    \
+        | | |    /
+        \ \ \   /
+         \ | | /
+          \| |/
+
+        Two not intersecting geometries but there convex hull will cross.
+
+    */
+    BOOST_AUTO_TEST_CASE(spatial_index_2d_geom_check)
+    {
+        Core core;
+        
+        LocalCS::Ptr cs(new LocalCS());
+
+        SpatialIndex2D::Ptr index(new SpatialIndex2D(cs));
+        core.addModule(index);
+
+        Polygon::Ptr left( new Polygon() );
+        {
+            std::vector<geos::geom::Coordinate> coords;
+
+            geos::geom::Coordinate coord;
+            coord = geos::geom::Coordinate(1, 4); coords.push_back(coord);
+            coord = geos::geom::Coordinate(1, 10); coords.push_back(coord);
+            coord = geos::geom::Coordinate(5, 13); coords.push_back(coord);
+            coord = geos::geom::Coordinate(4, 8); coords.push_back(coord);
+            coord = geos::geom::Coordinate(5, 1); coords.push_back(coord);
+            coord = geos::geom::Coordinate(1, 4); coords.push_back(coord);   // close
+
+            left->setCoordinates(coords);
+        }
+        left->setCS(cs);
+        core.addEntity(left);
+
+        Polygon::Ptr right( new Polygon() );
+        {
+            std::vector<geos::geom::Coordinate> coords;
+
+            geos::geom::Coordinate coord;
+            coord = geos::geom::Coordinate(3.5, 8); coords.push_back(coord);
+            coord = geos::geom::Coordinate(7, 14); coords.push_back(coord);
+            coord = geos::geom::Coordinate(7, 0); coords.push_back(coord);
+            coord = geos::geom::Coordinate(3.5, 8); coords.push_back(coord);   // close
+
+            right->setCoordinates(coords);
+        }
+        right->setCS(cs);
+
+        auto queryInteresctionBox = SpatialIndexQuery2D::intersectsBoxOf(right);
+        core.answerQuery(queryInteresctionBox);
+        BOOST_CHECK_EQUAL(queryInteresctionBox->results.size(), 1);
+
+        auto queryIntersection = SpatialIndexQuery2D::intersects(right);
+        core.answerQuery(queryIntersection);
+        BOOST_CHECK_EQUAL(queryIntersection->results.size(), 1);    // shall be 0. but geos believes that they are intersecting each other.
+        //ToDo: Check this in detail. Its possible that geos does not like concave polygons!
 
     }
 

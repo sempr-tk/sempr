@@ -107,6 +107,26 @@ public:
 
 
     /**
+        Query for everything within the 'geometry'. 
+        Passes the Envelope3D of the geometry to 'withinBox' to speed up the query.
+    */
+    static SpatialIndexQuery::Ptr within(entity::Geometry::Ptr geometry)
+    {
+        return SpatialIndexQuery::createQuery(geometry, SpatialQueryType::WITHIN);
+    }
+
+    static SpatialIndexQuery::Ptr contains(entity::Geometry::Ptr geometry)
+    {
+        return SpatialIndexQuery::createQuery(geometry, SpatialQueryType::CONTAINS);
+    }
+
+    static SpatialIndexQuery::Ptr intersects(entity::Geometry::Ptr geometry)
+    {
+        return SpatialIndexQuery::createQuery(geometry, SpatialQueryType::INTERSECTS);
+    }
+
+
+    /**
         Query for everything within the bbox specified. Explicit coordinate system.
         This creates a new GeometryCollection that is used for the query.
      */
@@ -170,6 +190,23 @@ private:
         auto minP = SpatialIndexBase::toPoint(min);
         auto maxP = SpatialIndexBase::toPoint(max);
         return Box(minP, maxP);
+    }
+
+    static SpatialIndexQuery::Ptr createQuery(entity::Geometry::Ptr geometry, SpatialQueryType type)
+    {
+        auto cs = geometry->getCS();
+        if (!cs) return SpatialIndexQuery::Ptr();
+
+        geos::geom::Coordinate minCoord, maxCoord;
+        geometry->findEnvelope(minCoord, maxCoord);
+
+        auto min = SpatialIndexBase::toEigen(minCoord);
+        auto max = SpatialIndexBase::toEigen(maxCoord);
+
+        SpatialIndexQuery::Ptr query(new SpatialIndexQuery());
+        query->setupPair(min, max, geometry, cs);
+        query->mode(type);
+        return query;
     }
 
     // helper: create query from geo or upper/lower and a type

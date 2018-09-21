@@ -180,16 +180,6 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
 
         core.answerQuery(queryNDS);
         BOOST_CHECK_EQUAL(queryNDS->results.size(), 3); // Osna and Bremen are in NDS if the query use a box. But in real Bremen is no part of NDS.
-        
-        /*
-        auto queryWithinBox = SpatialIndexQuery::withinBox(Eigen::Vector3d{0, 0, 0}, Eigen::Vector3d{10, 10 ,10}, cs);
-        core.answerQuery(queryWithinBox);
-        BOOST_CHECK_EQUAL(queryWithinBox->results.size(), 1);
-
-        auto queryIntersecBox = SpatialIndexQuery::intersectsBox(Eigen::Vector3d{1, 1, 1}, Eigen::Vector3d{2, 2 ,2}, cs);
-        core.answerQuery(queryIntersecBox);
-        BOOST_CHECK_EQUAL(queryIntersecBox->results.size(), 1);
-        */
 
     }
 
