@@ -14,6 +14,8 @@
 
 #include <sempr/query/SpatialIndexQuery.hpp>
 
+#include <sempr/processing/SpatialIndexBase.hpp>
+
 #include <Geometry_odb.h>   // required for EntityEvent<Geometry>
 #include <SpatialReference_odb.h>   // required for EntityEvent<SpatialReference>
 
@@ -77,38 +79,39 @@ public:
 
         try
         {
-            // ToDo: Transform Box and Geom of the Pair into the root ref system.
+            // Transform Box and Geom of the Pair into the root ref system of the index.
+            auto transformedPair = transformToRoot(query->refBoxGeometryPair(), query->refCS());
 
-            Box region = query->refBoxGeometryPair().first;
+            Box region = transformedPair.first;
 
-            typedef query::SpatialIndexQuery<3>::QueryType QueryType;
+            //typedef query::SpatialIndexQuery<3>::QueryType QueryType;
             switch (query->mode()) {
 
-                case QueryType::WITHIN:
+                case SpatialQueryType::WITHIN:
                     rtree_.query(bgi::within(region), std::back_inserter(tmpResults));
                     break;
-                case QueryType::NOTWITHIN:
+                case SpatialQueryType::NOTWITHIN:
                     rtree_.query(!bgi::within(region), std::back_inserter(tmpResults));
                     break;
 
                 // TODO: contains is introduced in boost 1.55, but ros indigo needs 1.54.
                 // maybe its time for me to upgrade to 16.04 and kinetic...
-                case QueryType::CONTAINS:
+                case SpatialQueryType::CONTAINS:
                     rtree_.query(bgi::contains(region), std::back_inserter(tmpResults));
                     break;
-                case QueryType::NOTCONTAINS:
+                case SpatialQueryType::NOTCONTAINS:
                     rtree_.query(!bgi::contains(region), std::back_inserter(tmpResults));
                     break;
 
-                case QueryType::INTERSECTS:
+                case SpatialQueryType::INTERSECTS:
                     rtree_.query(bgi::intersects(region), std::back_inserter(tmpResults));
                     break;
-                case QueryType::NOTINTERSECTS:
+                case SpatialQueryType::NOTINTERSECTS:
                     rtree_.query(!bgi::intersects(region), std::back_inserter(tmpResults));
                     break;
                 
                 default:
-                    std::cout << "SpatialIndex: Mode " << query->mode() << " not implemented." << '\n';
+                    std::cout << "SpatialIndex: Mode " << int(query->mode()) << " not implemented." << '\n';
             }
 
         }
@@ -123,7 +126,6 @@ public:
         }
 
     }
-
 
     const std::map<entity::Geometry::Ptr, ValuePair>& getGeoBoxes() const { return geo2box_; }
 
@@ -214,7 +216,7 @@ private:
         // skip geometry with a wrong coordinate dimension
         if (geo->getGeometry()->getCoordinateDimension() != dim) 
         {
-            std::cout << "2D Geometry in 3D Index! -- skips this!" << std::endl;
+            std::cout << "2D Geometry in 3D Index! -- skip this!" << std::endl;
             return;
         }
 
@@ -264,83 +266,11 @@ private:
         // get the 3D envelope of the geometry.
         geos::geom::Coordinate geoMin, geoMax;
         geo->findEnvelope(geoMin, geoMax);
-/*
-        if (dim == 3) && ( (geoMin.z != geoMin.z) || (geoMax.z != geoMax.z) )
-            throw TransformException("2D Geometry in " + type() + " but marked as " + std::to_string(dim) + "D coordinate."); //throw exception otherwise boost rtree will throw a confusion one!
-            */
-        // this envelope is in the coordinate system of the geometry. But what we need is an envelope
-        // that is axis aligned with the root reference system. We could transform the geometry to root,
-        // take the envelope and transform it back, but that is just ridiculus. Instead: Create a
-        // bounding-box-geometry (8 points, one for each corner), transform it, and take its envelope.
-        //
-        // Note z-coordinate by default is NaN in 2D (defined by geos::geom)
-        // ---
-        // create a geometry with the matching extends: 8 point, every corner must be checked!
-        
-        std::vector<geos::geom::Coordinate> cornerCoordinates;
 
-        if (dim == 2)
-        {
-            geos::geom::Coordinate coord;
-            coord = geos::geom::Coordinate(geoMin.x, geoMin.y); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMin.x, geoMax.y); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMax.x, geoMin.y); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMax.x, geoMax.y); cornerCoordinates.push_back(coord);
-        }
+        // build and transform a the envelope as
+        entity::MultiPoint::Ptr mpEntity = buildGeometryBox(geoMin, geoMax, geo->getCS());
 
-        if (dim == 3)
-        {
-            geos::geom::Coordinate coord;
-            coord = geos::geom::Coordinate(geoMin.x, geoMin.y, geoMin.z); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMin.x, geoMin.y, geoMax.z); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMin.x, geoMax.y, geoMin.z); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMin.x, geoMax.y, geoMax.z); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMax.x, geoMin.y, geoMin.z); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMax.x, geoMin.y, geoMax.z); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMax.x, geoMax.y, geoMin.z); cornerCoordinates.push_back(coord);
-            coord = geos::geom::Coordinate(geoMax.x, geoMax.y, geoMax.z); cornerCoordinates.push_back(coord);
-        }
-
-        entity::MultiPoint::Ptr mpEntity( new entity::MultiPoint() );    // Note: this wast IDs - recommended to use a factory in future
-
-        mpEntity->setCoordinates(cornerCoordinates);
-        mpEntity->setCS(geo->getCS());
-
-        // transfrom it to the reference system of the R-Tree
-        mpEntity->transformToCS(rootCS_);   //could throw an exception if there is no transformation from geo cs to root cs
-
-        /*  // really strange happenings - this is different to the manually apply of the env filter!!!
-        geos::geom::Coordinate mpMin, mpMax;
-        geo->findEnvelope(mpMin, mpMax);
-
-        // create the bBox out of bPoints.
-        bBox box(
-            bPoint(mpMin.x, mpMin.y, mpMin.z),
-            bPoint(mpMax.x, mpMax.y, mpMax.z)
-        );
-
-        */
-
-        EnvelopeFilter ef;
-        mpEntity->getGeometry()->apply_ro(ef);
-
-        // create the bBox out of bPoints.
-        Box box;
-
-        if (dim == 2)
-        {
-            box = Box(
-                Point(ef.getMin().x, ef.getMin().y),
-                Point(ef.getMax().x, ef.getMax().y)
-            );
-        }
-        if (dim == 3)
-        {
-            box = Box(
-                Point(ef.getMin().x, ef.getMin().y, ef.getMin().z),
-                Point(ef.getMax().x, ef.getMax().y, ef.getMax().z)
-            );
-        }
+        Box box = buildBox(mpEntity);
 
         // create a transformed copy of the geometry.
         auto geom = geo->clone();
@@ -359,6 +289,76 @@ private:
         }
 
         return nullptr;
+    }
+
+    ValuePair transformToRoot(const ValuePair& pair, entity::SpatialReference::Ptr cs) const
+    {
+        ValuePair transPair;
+
+        if (pair.second)
+        {
+            transPair.second = pair.second->clone();
+            transPair.second->transformToCS(rootCS_);
+        }
+
+        // Transform the box by the geometry of the box
+        auto min = this->toCoordinate(pair.first.min_corner());
+        auto max = this->toCoordinate(pair.first.max_corner());
+        auto boxGeom = buildGeometryBox(min, max, cs);
+        transPair.first = buildBox(boxGeom);
+
+        return transPair;
+    }
+
+    entity::MultiPoint::Ptr buildGeometryBox(const geos::geom::Coordinate& geoMin, const geos::geom::Coordinate& geoMax, entity::SpatialReference::Ptr srcCS) const
+    {
+        /*
+        if (dim == 3) && ( (geoMin.z != geoMin.z) || (geoMax.z != geoMax.z) )
+            throw TransformException("2D Geometry in " + type() + " but marked as " + std::to_string(dim) + "D coordinate."); //throw exception otherwise boost rtree will throw a confusion one!
+        */
+
+        // this envelope is in the coordinate system of the geometry. But what we need is an envelope
+        // that is axis aligned with the root reference system. We could transform the geometry to root,
+        // take the envelope and transform it back, but that is just ridiculus. Instead: Create a
+        // bounding-box-geometry (8 points, one for each corner), transform it, and take its envelope.
+        //
+        // Note z-coordinate by default is NaN in 2D (defined by geos::geom)
+        // ---
+        // create a geometry with the matching extends: 8 point, every corner must be checked!
+
+        entity::MultiPoint::Ptr mpEntity( new entity::MultiPoint() );    // Note: this wast IDs - recommended to use a factory in future
+
+        std::vector<geos::geom::Coordinate> cornerCoordinates = this->buildCorners(geoMin, geoMax);
+        mpEntity->setCoordinates(cornerCoordinates);
+        mpEntity->setCS(srcCS);
+
+        // transfrom it to the reference system of the R-Tree
+        mpEntity->transformToCS(rootCS_);   //could throw an exception if there is no transformation from geo cs to root cs
+
+        return mpEntity;
+    }
+
+    Box buildBox(entity::Geometry::Ptr geomBox) const
+    {
+        /*  
+        // really strange happenings - this is different to the manually apply of the env filter!!!
+        geos::geom::Coordinate mpMin, mpMax;
+        geo->findEnvelope(mpMin, mpMax);
+
+        // create the bBox out of bPoints.
+        bBox box(
+            bPoint(mpMin.x, mpMin.y, mpMin.z),
+            bPoint(mpMax.x, mpMax.y, mpMax.z)
+        );
+
+        */
+
+        EnvelopeFilter ef;
+        geomBox->getGeometry()->apply_ro(ef);
+
+        auto min = this->toPoint(ef.getMin());
+        auto max = this->toPoint(ef.getMax());
+        return Box(min, max);
     }
 
 };
