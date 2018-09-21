@@ -84,7 +84,8 @@ public:
 
             Box region = transformedPair.first;
 
-            switch (query->mode()) {
+            switch (query->mode()) 
+            {
                 case SpatialQueryType::NEAREST:
                     rtree_.query(bgi::nearest(region, 1), std::back_inserter(tmpResults));  // Note: could be more than only the nearest one!
                     break;
@@ -127,8 +128,12 @@ public:
                     break;
                 
                 default:
-                    std::cout << "SpatialIndex: Mode " << int(query->mode()) << " not implemented." << '\n';
+                    std::cout << "SpatialIndex: Mode " << int(query->mode()) << " not implemented." << std::endl;
             }
+
+            // Also check if the founded pairs will pass the geometry and not only the box check.
+            // Only changes if the search contains a reference geometry.
+            checkGeometry(transformedPair, query->mode(), tmpResults);
 
         }
         catch (const TransformException& ex)
@@ -306,6 +311,72 @@ private:
 
         return nullptr;
     }
+
+
+    // check if a given pre-set of results also match the geometry based test.
+    void checkGeometry(const ValuePair& ref, SpatialQueryType queryType, std::vector<ValuePair>& results)
+    {
+        if (ref.second)
+        {
+            switch (queryType) 
+            {
+                case SpatialQueryType::WITHIN:
+                {
+                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                        if (!ref.second->getGeometry()->within(resultIt->second->getGeometry()))
+                            resultIt = results.erase(resultIt);
+
+                    break;
+                }
+                case SpatialQueryType::NOT_WITHIN:
+                {
+                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                        if (ref.second->getGeometry()->within(resultIt->second->getGeometry()))
+                            resultIt = results.erase(resultIt);
+                            
+                    break;
+                }
+
+                case SpatialQueryType::CONTAINS:
+                {
+                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                        if (!ref.second->getGeometry()->contains(resultIt->second->getGeometry()))
+                            resultIt = results.erase(resultIt);
+                            
+                    break;
+                }
+                case SpatialQueryType::NOT_CONTAINS:
+                {
+                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                        if (ref.second->getGeometry()->contains(resultIt->second->getGeometry()))
+                            resultIt = results.erase(resultIt);
+                            
+                    break;
+                }
+
+                case SpatialQueryType::INTERSECTS:
+                {
+                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                        if (!ref.second->getGeometry()->intersects(resultIt->second->getGeometry()))
+                            resultIt = results.erase(resultIt);
+                            
+                    break;
+                }
+                case SpatialQueryType::NOT_INTERSECTS:
+                {
+                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                        if (ref.second->getGeometry()->intersects(resultIt->second->getGeometry()))
+                            resultIt = results.erase(resultIt);
+                            
+                    break;
+                }
+                
+                default:
+                    std::cout << "SpatialIndex: Mode " << int(queryType) << " no Geometry Check implemented." << std::endl;
+            }
+        }
+    }
+
 
     ValuePair transformToRoot(const ValuePair& pair, entity::SpatialReference::Ptr cs) const
     {
