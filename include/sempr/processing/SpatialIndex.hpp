@@ -28,7 +28,7 @@ namespace sempr { namespace processing {
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
 
-template <class SpatialEntity>
+template < std::size_t dim, class SpatialEntity>
 class SpatialConclusion;
 
 
@@ -151,7 +151,7 @@ public:
     const std::map<entity::Geometry::Ptr, ValuePair>& getGeoBoxes() const { return geo2box_; }
 
 private:
-    template <class SpatialEntity>
+    template < std::size_t dimension, class SpatialEntity>
     friend class SpatialConclusion;
 
     /**

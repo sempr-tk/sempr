@@ -37,6 +37,7 @@
 
 #include <sempr/entity/spatial/SpatialObject.hpp>
 #include <SpatialObject_odb.h>
+#include <SpatialThing_odb.h>
 
 
 // reference systems

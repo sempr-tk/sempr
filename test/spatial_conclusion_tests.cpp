@@ -38,11 +38,11 @@ std::vector<geos::geom::Coordinate> getOsnaCoords()
 {
     std::vector<geom::Coordinate> osnaCorner;
     
-    osnaCorner.emplace_back(53.029056, 8.858612);
+    osnaCorner.emplace_back(52.245902, 8.087810);
     osnaCorner.emplace_back(52.302939, 8.034527);
     osnaCorner.emplace_back(52.297650, 8.107368);
-    osnaCorner.emplace_back(52.245902, 8.087810);
-    osnaCorner.emplace_back(53.029056, 8.858612); //close the ring
+    osnaCorner.emplace_back(52.245900, 8.087793);
+    osnaCorner.emplace_back(52.245902, 8.087810); //close the ring
 
     return osnaCorner;
 }
@@ -146,40 +146,45 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
         SpatialIndex2D::Ptr index(new SpatialIndex2D(globalCS));
         core.addModule(index);
 
-        //SpatialConclusion<SpatialObject>::Ptr conclusion(new SpatialConclusion<SpatialObject>(index));
-        //core.addModule(conclusion);
+        SpatialConclusion2D<SpatialThing>::Ptr conclusion(new SpatialConclusion2D<SpatialThing>(index));
+        core.addModule(conclusion);
 
-        //build up a quadrangle
-        {
-            Polygon::Ptr osna( new Polygon() );
-            osna->setCoordinates(getOsnaCoords());
-            osna->setCS(globalCS);
-            core.addEntity(osna);
-        }
+        SopranoModule::Ptr soprano(new SopranoModule());
+        core.addModule(soprano);
 
+        SpatialThing::Ptr osna( new SpatialThing() );
         {
-            Polygon::Ptr bremen( new Polygon() );
-            bremen->setCoordinates(getBremenCoords());
-            bremen->setCS(globalCS);
-            core.addEntity(bremen);
-        }
+            Polygon::Ptr osnaPolygon( new Polygon() );
+            osnaPolygon->setCoordinates(getOsnaCoords());
+            osnaPolygon->setCS(globalCS);
+            core.addEntity(osnaPolygon);    //will not be added by the super object!
 
-        {
-            Polygon::Ptr vechta( new Polygon() );
-            vechta->setCoordinates(getVechtaCoords());
-            vechta->setCS(globalCS);
-            core.addEntity(vechta);
+            osna->geometry() = osnaPolygon;
         }
+        core.addEntity(osna);
+
+        SpatialThing::Ptr bremen( new SpatialThing() );
+        {
+            Polygon::Ptr bremenPolygon( new Polygon() );
+            bremenPolygon->setCoordinates(getBremenCoords());
+            bremenPolygon->setCS(globalCS);
+            core.addEntity(bremenPolygon);  //will not be added by the super object!
+
+            bremen->geometry() = bremenPolygon;
+        }
+        core.addEntity(bremen);
 
         Polygon::Ptr nds( new Polygon() );
         nds->setCoordinates(getNDSCoords());
         nds->setCS(globalCS);
-        //auto queryNDS = SpatialIndexQuery2D::containsBoxOf(nds);
-        auto queryNDS = SpatialIndexQuery2D::withinBoxOf(nds);
-        //auto queryNDS = SpatialIndexQuery2D::intersectsBoxOf(nds);
+        auto queryNDS = SpatialIndexQuery2D::intersects(nds);
 
         core.answerQuery(queryNDS);
-        BOOST_CHECK_EQUAL(queryNDS->results.size(), 3); // Osna and Bremen are in NDS if the query use a box. But in real Bremen is no part of NDS.
+        BOOST_CHECK_EQUAL(queryNDS->results.size(), 1); // Osna and Bremen are in NDS if the query use a box. But in real Bremen is no part of NDS.
+
+        auto osnaContext = conclusion->getConclusion(osna);
+
+        BOOST_CHECK_EQUAL(osnaContext->size(), 2);  // Osna is in the south west of bremen - so there shall be two triple.
 
     }
 

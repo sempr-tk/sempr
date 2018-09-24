@@ -29,14 +29,10 @@ namespace sempr { namespace processing {
  * 
  * @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
  * @prefix ogc: <http://www.opengis.net/ont/geosparql#>
- * ogc:sfEquals
- * ogc:sfDisjoint   //b
- * ogc:sfIntersects //b
- * ogc:sfTouches    //?
- * ogc:sfWithin     //b
- * ogc:sfContains   //b
- * ogc:sfOverlaps   //b
- * ogc:sfCrosses    //only for multipoint/polygon, multipoint/linestring, linestring/linestring, linestring/polygon, and linestring/multipolygon comparisons.
+ * ogc:sfIntersects
+ * ogc:sfWithin
+ * ogc:sfContains
+ * ogc:sfOverlaps
  * 
  * @prefix spatial: <http://jena.apache.org/spatial#>
  * spatial:north
@@ -44,7 +40,7 @@ namespace sempr { namespace processing {
  * spatial:west
  * spatial:east
  * 
- * Note: To fullfill the GeoSPARQL Entity the SpatialEntity have to be makred in RDF as SubClassOf ogc:SpatialObject and the depending geometry as ogc:Geometry
+ * Note: To fullfill the GeoSPARQL Entity the SpatialEntity have to be marked in RDF as SubClassOf ogc:SpatialObject and the depending geometry as ogc:Geometry
  * 
  * Note: Other JenaSpatial relations like nearby, withinCircle, withinBox and intersectBox are only covered by SpatialIndexQuery
  * 
@@ -55,7 +51,12 @@ namespace sempr { namespace processing {
  * below
  * on       (like above but connected!)
  * under    (like below but connected!)
- * 
+ *
+ * Relations in discussion:
+ * ogc:sfEquals
+ * ogc:sfTouches
+ * ogc:sfDisjoint   // negation of intersects
+ * ogc:sfCrosses    // only for multipoint/polygon, multipoint/linestring, linestring/linestring, linestring/polygon, and linestring/multipolygon comparisons
  * 
  * The SpatialEntity have to implement a geometry() method to get a geometry object pointer.
  * 
@@ -63,17 +64,19 @@ namespace sempr { namespace processing {
  */
 
 
-template <class SpatialEntity>
+template < std::size_t dim, class SpatialEntity>
 class SpatialConclusion : public Module< core::EntityEvent<SpatialEntity>, core::EntityEvent<entity::SpatialReference> >
 {
 public:
-    using Ptr = std::shared_ptr< SpatialConclusion<SpatialEntity> >;
+    using Ptr = std::shared_ptr< SpatialConclusion<dim, SpatialEntity> >;
+
+    typedef typename processing::SpatialIndexBase<dim>::ValuePair ValuePair;
 
     // isGlobal is set if both geometries are transformed in the same global reference system
-    typedef std::function<bool(const SpatialIndex<3>::Box& self,const SpatialIndex<3>::Box& other, bool isGlobal)> CheckBoxFunction;
-    typedef std::function<bool(const entity::Geometry::Ptr& self,const entity::Geometry::Ptr& other, bool isGlobal)> CheckGeometryFunction;
+    //typedef std::function<bool(const SpatialIndex<dim>::Box& self,const SpatialIndex<dim>::Box& other, bool isGlobal)> CheckBoxFunction;
+    typedef std::function<bool(const ValuePair& self, const ValuePair& other, bool isGlobal)> CheckFunction;
 
-    SpatialConclusion(const std::weak_ptr< SpatialIndex<3> >& spatialIndex) :
+    SpatialConclusion(const std::weak_ptr< SpatialIndex<dim> >& spatialIndex) :
         index_(spatialIndex)
     { 
         globalRoot_ = false;
@@ -116,19 +119,19 @@ public:
         // todo found and update the based enities
     }   
 
-    void registerCheckFunction(const std::string& relationPredicate, const CheckBoxFunction& checker)
+    void registerCheckFunction(const std::string& relationPredicate, const CheckFunction& checker)
     {
-        checkBoxFunctions_[relationPredicate] = checker;
+        checkFunctions_[relationPredicate] = checker;
     }
 
-    void registerCheckFunction(const std::string& relationPredicate, const CheckGeometryFunction& checker)
+    entity::RDFVector::Ptr getConclusion(const std::shared_ptr<SpatialEntity>& entity)
     {
-        checkGeomFunctions_[relationPredicate] = checker;
+        return rdfMap_.at(entity->id());
     }
 
 
 private:
-    std::weak_ptr< SpatialIndex<3> > index_;
+    std::weak_ptr< SpatialIndex<dim> > index_;
 
     std::map<entity::Geometry::Ptr, std::string> spatialGeometry_;
 
@@ -136,8 +139,7 @@ private:
 
     bool globalRoot_;
 
-    std::map<std::string, CheckBoxFunction> checkBoxFunctions_;
-    std::map<std::string, CheckGeometryFunction> checkGeomFunctions_;
+    std::map<std::string, CheckFunction> checkFunctions_;
 
 
     void removeEntity(const std::shared_ptr<SpatialEntity>& entity)
@@ -212,7 +214,7 @@ private:
 
     void removeBackRelation(const std::string& id)
     {
-        std::string objID = sempr::baseURI() + id;
+        std::string objID = "<" + sempr::baseURI() + id + ">";
 
         for (auto rdfIt = rdfMap_.begin(); rdfIt != rdfMap_.end(); ++rdfIt)
         {
@@ -249,66 +251,38 @@ private:
         auto idx = index_.lock();
         if (idx)
         {
-            auto selfBox = idx->geo2box_[self].first;
+            auto selfPair = idx->geo2box_[self];
 
             std::set<entity::RDFVector::Ptr> changedRDF;    //set for all changed RDFVectors by this method
 
             // check every registered box check function 
-            for (auto checkBoxIt = checkBoxFunctions_.begin(); checkBoxIt != checkBoxFunctions_.end(); ++checkBoxIt)
+            for (auto checkBoxIt = checkFunctions_.begin(); checkBoxIt != checkFunctions_.end(); ++checkBoxIt)
             {
 
                 for (auto other : idx->geo2box_)
                 {
                     //check from self to others
-                    bool selfRelated = checkBoxIt->second(selfBox, other.second.first, globalRoot_);
+                    bool selfRelated = checkBoxIt->second(selfPair, other.second, globalRoot_);
                     if (selfRelated)
                     {
                         // Build Triple: SelfId, Function predicate, OtherID
-                        entity::Triple t(sempr::baseURI() + id, checkBoxIt->first, sempr::baseURI() + spatialGeometry_.at(other.first));
+                        entity::Triple t(   "<" + sempr::baseURI() + id + ">",
+                                            "<" + checkBoxIt->first + ">",
+                                            "<" + sempr::baseURI() + spatialGeometry_.at(other.first) + ">");
                         rdfMap_[id]->addTriple(t, true);
                     }
 
                     //check from others to self
-                    bool otherRelated = checkBoxIt->second(other.second.first, selfBox, globalRoot_);
+                    bool otherRelated = checkBoxIt->second(other.second, selfPair, globalRoot_);
                     if (otherRelated)
                     {
                         auto otherID = spatialGeometry_.at(other.first);
                         // Build Triple: OtherID, Function predicate, SelfId
-                        entity::Triple t(sempr::baseURI() + otherID, checkBoxIt->first, sempr::baseURI() + id);
+                        entity::Triple t(   "<" + sempr::baseURI() + otherID+ ">",
+                                            "<" + checkBoxIt->first + ">",
+                                            "<" + sempr::baseURI() + id+ ">");
                         rdfMap_[otherID]->addTriple(t, true);
-                        changedRDF.insert(rdfMap_[otherID]);    //mark vactor as changed
-                    }
-                }
-
-            }
-
-
-            auto selfGeometry = idx->geo2box_[self].second;
-
-            // check every registered geom check function 
-            for (auto checkGeomIt = checkGeomFunctions_.begin(); checkGeomIt != checkGeomFunctions_.end(); ++checkGeomIt)
-            {
-
-                for (auto other : idx->geo2box_)
-                {
-                    //check from self to others
-                    bool selfRelated = checkGeomIt->second(selfGeometry, other.second.second, globalRoot_);
-                    if (selfRelated)
-                    {
-                        // Build Triple: SelfId, Function predicate, OtherID
-                        entity::Triple t(sempr::baseURI() + id, checkGeomIt->first, sempr::baseURI() + spatialGeometry_.at(other.first));
-                        rdfMap_[id]->addTriple(t, true);
-                    }
-
-                    //check from others to self
-                    bool otherRelated = checkGeomIt->second(other.second.second, selfGeometry, globalRoot_);
-                    if (otherRelated)
-                    {
-                        auto otherID = spatialGeometry_.at(other.first);
-                        // Build Triple: OtherID, Function predicate, SelfId
-                        entity::Triple t(sempr::baseURI() + otherID, checkGeomIt->first, sempr::baseURI() + id);
-                        rdfMap_[otherID]->addTriple(t, true);
-                        changedRDF.insert(rdfMap_[otherID]);    //mark vactor as changed
+                        changedRDF.insert(rdfMap_[otherID]);    //mark vector as changed
                     }
                 }
 
@@ -330,17 +304,17 @@ private:
     }
 
 
-    static bool check2D(const SpatialIndex<3>::Box& test)
-    {
-        double h = abs(test.min_corner().get<2>() - test.max_corner().get<2>());
-        return h < 0.00001; // objects with a high less than 0.1mm 
-    }
 
-    static bool checkNorthOf(const SpatialIndex<3>::Box& self, const SpatialIndex<3>::Box& other, bool isGlobal)
+    static bool checkNorthOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
     {
         if (isGlobal)
         {
-            return self.min_corner().get<0>() >= other.max_corner().get<0>(); // x coordinate is lat (only in WGS84)
+            auto selfBox = self.first;
+            auto selfMinX = bg::get<0>(selfBox.min_corner());
+
+            auto otherBox = other.first;
+            auto otherMaxX = bg::get<0>(otherBox.max_corner());
+            return selfMinX >= otherMaxX; // x coordinate is lat (only in WGS84)
         }
         else
         {
@@ -348,11 +322,16 @@ private:
         }
     }
 
-    static bool checkSouthOf(const SpatialIndex<3>::Box& self, const SpatialIndex<3>::Box& other, bool isGlobal)
+    static bool checkSouthOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
     {
         if (isGlobal)
         {
-            return self.max_corner().get<0>() <= other.min_corner().get<0>(); // x coordinate is lat (only in WGS84)
+            auto selfBox = self.first;
+            auto selfMaxX = bg::get<0>(selfBox.max_corner());
+
+            auto otherBox = other.first;
+            auto otherMinX = bg::get<0>(otherBox.min_corner());
+            return selfMaxX <= otherMinX; // x coordinate is lat (only in WGS84)
         }
         else
         {
@@ -360,11 +339,16 @@ private:
         }
     }
 
-    static bool checkEastOf(const SpatialIndex<3>::Box& self, const SpatialIndex<3>::Box& other, bool isGlobal)
+    static bool checkEastOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
     {
         if (isGlobal)
         {
-            return self.min_corner().get<1>() >= other.max_corner().get<1>(); // y coordinate is lon (only in WGS84)
+            auto selfBox = self.first;
+            auto selfMinY = bg::get<1>(selfBox.min_corner());
+
+            auto otherBox = other.first;
+            auto otherMaxY = bg::get<1>(otherBox.max_corner());
+            return selfMinY >= otherMaxY; // y coordinate is lon (only in WGS84)
         }
         else
         {
@@ -372,23 +356,33 @@ private:
         }
     }
 
-    static bool checkWestOf(const SpatialIndex<3>::Box& self, const SpatialIndex<3>::Box& other, bool isGlobal)
+    static bool checkWestOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
     {
         if (isGlobal)
         {
-            return self.max_corner().get<1>() <= other.min_corner().get<1>(); // y coordinate is lon (only in WGS84)
+            auto selfBox = self.first;
+            auto selfMaxY = bg::get<1>(selfBox.max_corner());
+
+            auto otherBox = other.first;
+            auto otherMinY = bg::get<1>(otherBox.min_corner());
+            return selfMaxY <= otherMinY; // y coordinate is lon (only in WGS84)
         }
         else
         {
             return false;
         }
     }
-
 
 
 };
 
+template <class SpatialEntity>
+using SpatialConclusion2D = SpatialConclusion<2, SpatialEntity>;
 
-}}
+template <class SpatialEntity>
+using SpatialConclusion3D = SpatialConclusion<3, SpatialEntity>;
+
+
+    }}
 
 #endif /* end of include guard SEMPR_PROCESSING_SPATIAL_CONCLUSION_HPP_ */
