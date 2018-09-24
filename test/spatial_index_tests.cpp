@@ -1,3 +1,4 @@
+#include <geos/geom/GeometryFactory.h>
 #include "test_utils.hpp"
 using namespace testing;
 
@@ -80,10 +81,10 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
 
             geos::geom::Coordinate coord;
             coord = geos::geom::Coordinate(1, 4); coords.push_back(coord);
-            coord = geos::geom::Coordinate(1, 10); coords.push_back(coord);
-            coord = geos::geom::Coordinate(5, 13); coords.push_back(coord);
-            coord = geos::geom::Coordinate(4, 8); coords.push_back(coord);
-            coord = geos::geom::Coordinate(5, 1); coords.push_back(coord);
+            coord = geos::geom::Coordinate(3, 7); coords.push_back(coord);
+            coord = geos::geom::Coordinate(2, 5); coords.push_back(coord);
+            coord = geos::geom::Coordinate(2, 3); coords.push_back(coord);
+            coord = geos::geom::Coordinate(3, 1); coords.push_back(coord);
             coord = geos::geom::Coordinate(1, 4); coords.push_back(coord);   // close
 
             left->setCoordinates(coords);
@@ -96,10 +97,10 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
             std::vector<geos::geom::Coordinate> coords;
 
             geos::geom::Coordinate coord;
-            coord = geos::geom::Coordinate(3.5, 8); coords.push_back(coord);
-            coord = geos::geom::Coordinate(7, 14); coords.push_back(coord);
-            coord = geos::geom::Coordinate(7, 0); coords.push_back(coord);
-            coord = geos::geom::Coordinate(3.5, 8); coords.push_back(coord);   // close
+            coord = geos::geom::Coordinate(2.5, 4); coords.push_back(coord);
+            coord = geos::geom::Coordinate(5.0, 8); coords.push_back(coord);
+            coord = geos::geom::Coordinate(5.0, 0); coords.push_back(coord);
+            coord = geos::geom::Coordinate(2.5, 4); coords.push_back(coord);   // close
 
             right->setCoordinates(coords);
         }
@@ -111,8 +112,7 @@ BOOST_AUTO_TEST_SUITE(spatial_index)
 
         auto queryIntersection = SpatialIndexQuery2D::intersects(right);
         core.answerQuery(queryIntersection);
-        BOOST_CHECK_EQUAL(queryIntersection->results.size(), 1);    // shall be 0. but geos believes that they are intersecting each other.
-        //ToDo: Check this in detail. Its possible that geos does not like concave polygons!
+        BOOST_CHECK_EQUAL(queryIntersection->results.size(), 0);    // shall be 0.
 
     }
 
