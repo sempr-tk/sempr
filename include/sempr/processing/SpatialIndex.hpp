@@ -322,51 +322,64 @@ private:
             {
                 case SpatialQueryType::WITHIN:
                 {
-                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                    for (auto resultIt = results.begin(); resultIt != results.end();)
                         if (!ref.second->getGeometry()->within(resultIt->second->getGeometry()))
                             resultIt = results.erase(resultIt);
+                        else
+                            ++resultIt;
 
                     break;
                 }
                 case SpatialQueryType::NOT_WITHIN:
                 {
-                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                    for (auto resultIt = results.begin(); resultIt != results.end();)
                         if (ref.second->getGeometry()->within(resultIt->second->getGeometry()))
                             resultIt = results.erase(resultIt);
+                        else
+                            ++resultIt;
                             
                     break;
                 }
 
                 case SpatialQueryType::CONTAINS:
                 {
-                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                    for (auto resultIt = results.begin(); resultIt != results.end();)
                         if (!ref.second->getGeometry()->contains(resultIt->second->getGeometry()))
                             resultIt = results.erase(resultIt);
+                        else
+                            ++resultIt;
                             
                     break;
                 }
                 case SpatialQueryType::NOT_CONTAINS:
                 {
-                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                    for (auto resultIt = results.begin(); resultIt != results.end();)
                         if (ref.second->getGeometry()->contains(resultIt->second->getGeometry()))
                             resultIt = results.erase(resultIt);
+                        else
+                            ++resultIt;
                             
                     break;
                 }
 
                 case SpatialQueryType::INTERSECTS:
                 {
-                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                    for (auto resultIt = results.begin(); resultIt != results.end();)
+                    {
                         if (!ref.second->getGeometry()->intersects(resultIt->second->getGeometry()))
                             resultIt = results.erase(resultIt);
-                            
+                        else
+                            ++resultIt;
+                    }
                     break;
                 }
                 case SpatialQueryType::NOT_INTERSECTS:
                 {
-                    for (auto resultIt = results.begin(); resultIt != results.end(); ++resultIt)
+                    for (auto resultIt = results.begin(); resultIt != results.end();)
                         if (ref.second->getGeometry()->intersects(resultIt->second->getGeometry()))
                             resultIt = results.erase(resultIt);
+                        else
+                            ++resultIt;
                             
                     break;
                 }
