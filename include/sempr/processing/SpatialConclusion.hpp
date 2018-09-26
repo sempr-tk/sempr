@@ -119,8 +119,11 @@ public:
         // todo found and update the based enities
     }   
 
+    // register a new check function for a given predicate like north or east.
+    // The check functions could assume that the geometries are already converted in the same coordinate system!
     void registerCheckFunction(const std::string& relationPredicate, const CheckFunction& checker)
     {
+        // ToDo: check that the pedicate is a complete uri and now shortcut!
         checkFunctions_[relationPredicate] = checker;
     }
 
@@ -266,9 +269,9 @@ private:
                     if (selfRelated)
                     {
                         // Build Triple: SelfId, Function predicate, OtherID
-                        entity::Triple t(   "<" + sempr::baseURI() + id + ">",
-                                            "<" + checkBoxIt->first + ">",
-                                            "<" + sempr::baseURI() + spatialGeometry_.at(other.first) + ">");
+                        entity::Triple t(   toURI(id),
+                                            checkBoxIt->first,
+                                            toURI(spatialGeometry_.at(other.first)) );
                         rdfMap_[id]->addTriple(t, true);
                     }
 
@@ -278,9 +281,9 @@ private:
                     {
                         auto otherID = spatialGeometry_.at(other.first);
                         // Build Triple: OtherID, Function predicate, SelfId
-                        entity::Triple t(   "<" + sempr::baseURI() + otherID+ ">",
-                                            "<" + checkBoxIt->first + ">",
-                                            "<" + sempr::baseURI() + id+ ">");
+                        entity::Triple t(   toURI(otherID),
+                                            checkBoxIt->first,
+                                            toURI(id)                       );
                         rdfMap_[otherID]->addTriple(t, true);
                         changedRDF.insert(rdfMap_[otherID]);    //mark vector as changed
                     }
@@ -295,16 +298,24 @@ private:
 
     }
 
+    // register the default set of check functions
     void initDefaultChecker()
     {
-        registerCheckFunction("spatial:north", checkNorthOf);
-        registerCheckFunction("spatial:south", checkSouthOf);
-        registerCheckFunction("spatial:east", checkEastOf);
-        registerCheckFunction("spatial:west", checkWestOf);
+        registerCheckFunction("<http://jena.apache.org/spatial#north>", checkNorthOf);
+        registerCheckFunction("<http://jena.apache.org/spatial#south>", checkSouthOf);
+        registerCheckFunction("<http://jena.apache.org/spatial#east>", checkEastOf);
+        registerCheckFunction("<http://jena.apache.org/spatial#west>", checkWestOf);
     }
 
+    std::string toURI(const std::string& id)
+    {
+        return "<" + sempr::baseURI() + id + ">";
+    }
+
+    //ToDo: Add checks for ogc:sfIntersects, ogc:sfWithin, ogc:sfContains, ogc:sfOverlaps
 
 
+    //ToDo: Checks the coordinate Systems for this conditions. For WGS84 and ENU/LTG the x axis points to the north. In ECEF its depends on the z axis and for a projection the y axis points to north and x to the east!
     static bool checkNorthOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
     {
         if (isGlobal)

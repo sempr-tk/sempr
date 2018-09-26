@@ -163,6 +163,17 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
         }
         core.addEntity(osna);
 
+        SpatialThing::Ptr vechta( new SpatialThing() );
+        {
+            Polygon::Ptr vechtaPolygon( new Polygon() );
+            vechtaPolygon->setCoordinates(getVechtaCoords());
+            vechtaPolygon->setCS(globalCS);
+            core.addEntity(vechtaPolygon);    //will not be added by the super object!
+
+            vechta->geometry() = vechtaPolygon;
+        }
+        core.addEntity(vechta);
+
         SpatialThing::Ptr bremen( new SpatialThing() );
         {
             Polygon::Ptr bremenPolygon( new Polygon() );
@@ -180,11 +191,18 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
         auto queryNDS = SpatialIndexQuery2D::intersects(nds);
 
         core.answerQuery(queryNDS);
-        BOOST_CHECK_EQUAL(queryNDS->results.size(), 1); // Osna and Bremen are in NDS if the query use a box. But in real Bremen is no part of NDS.
+        BOOST_CHECK_EQUAL(queryNDS->results.size(), 2); // Osna, Vechta and Bremen are in NDS if the query use a box. But in real Bremen is no a part of NDS.
 
-        auto osnaContext = conclusion->getConclusion(osna);
+        auto vechtaContext = conclusion->getConclusion(vechta);
 
-        BOOST_CHECK_EQUAL(osnaContext->size(), 2);  // Osna is in the south west of bremen - so there shall be two triple.
+        BOOST_CHECK_EQUAL(vechtaContext->size(), 4);  // In the view of Vechta, Bremen is in the north east and Osna in the south west.
+
+        SPARQLQuery::Ptr query(new SPARQLQuery());
+        query->prefixes["spatial"] = "http://jena.apache.org/spatial#";
+        query->query = "SELECT ?o WHERE { ?o spatial:south " + sempr::baseURI()+ bremen->id() + " . }";
+        core.answerQuery(query);
+
+        BOOST_CHECK_EQUAL(query->results.size(), 2);    // Vechta and Osnabrück are in the south of Bremen.
 
     }
 
