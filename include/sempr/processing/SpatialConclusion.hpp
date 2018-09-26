@@ -121,10 +121,16 @@ public:
 
     // register a new check function for a given predicate like north or east.
     // The check functions could assume that the geometries are already converted in the same coordinate system!
-    void registerCheckFunction(const std::string& relationPredicate, const CheckFunction& checker)
+    bool registerCheckFunction(const std::string& relationPredicate, const CheckFunction& checker)
     {
-        // ToDo: check that the pedicate is a complete uri and now shortcut!
-        checkFunctions_[relationPredicate] = checker;
+        if (checkURI(relationPredicate))
+        {
+            checkFunctions_[relationPredicate] = checker;
+            return true;
+        } else
+        {
+            return false;
+        }
     }
 
     entity::RDFVector::Ptr getConclusion(const std::shared_ptr<SpatialEntity>& entity)
@@ -217,7 +223,7 @@ private:
 
     void removeBackRelation(const std::string& id)
     {
-        std::string objID = "<" + sempr::baseURI() + id + ">";
+        std::string objURI = sempr::buildURI(id);
 
         for (auto rdfIt = rdfMap_.begin(); rdfIt != rdfMap_.end(); ++rdfIt)
         {
@@ -226,7 +232,7 @@ private:
             for (auto tIt = rdfIt->second->begin(); tIt != rdfIt->second->end(); ++tIt)
             {
                 // search for object id in back linked rfd triple
-                if ((*tIt).object == objID)
+                if ((*tIt).object == objURI)
                 {
                     toRemove.emplace_back(*tIt);
                 }
@@ -269,9 +275,9 @@ private:
                     if (selfRelated)
                     {
                         // Build Triple: SelfId, Function predicate, OtherID
-                        entity::Triple t(   toURI(id),
+                        entity::Triple t(   sempr::buildURI(id),
                                             checkBoxIt->first,
-                                            toURI(spatialGeometry_.at(other.first)) );
+                                            sempr::buildURI(spatialGeometry_.at(other.first)) );
                         rdfMap_[id]->addTriple(t, true);
                     }
 
@@ -281,9 +287,9 @@ private:
                     {
                         auto otherID = spatialGeometry_.at(other.first);
                         // Build Triple: OtherID, Function predicate, SelfId
-                        entity::Triple t(   toURI(otherID),
+                        entity::Triple t(   sempr::buildURI(otherID),
                                             checkBoxIt->first,
-                                            toURI(id)                       );
+                                            sempr::buildURI(id)                       );
                         rdfMap_[otherID]->addTriple(t, true);
                         changedRDF.insert(rdfMap_[otherID]);    //mark vector as changed
                     }
@@ -298,6 +304,36 @@ private:
 
     }
 
+    bool checkURI(const std::string& uri)
+    {
+        bool isURI = true;
+
+        try {
+            isURI = isURI && uri.at(0) == '<';
+            isURI = isURI && uri.at(uri.length() - 1) == '>';
+            isURI = isURI && uri.find(':') != std::string::npos;
+        } catch (const std::out_of_range& oor) {
+            return false;
+        }
+
+        return isURI;
+    }
+
+    bool checkShortcut(const std::string& uri)
+    {
+        bool isShortcut = true;
+        try {
+            isShortcut = isShortcut && uri.at(0) != '<';
+            isShortcut = isShortcut && uri.at(uri.length() - 1) != '>';
+            isShortcut = isShortcut && uri.find(':') != std::string::npos; // a shortcut need a ':' between prefix and id.
+            isShortcut = isShortcut && uri.find('#') == std::string::npos; // a shortcut will not contain a hash symbol.
+        } catch (const std::out_of_range& oor) {
+            return false;
+        }
+        
+        return isShortcut;
+    }
+
     // register the default set of check functions
     void initDefaultChecker()
     {
@@ -305,11 +341,6 @@ private:
         registerCheckFunction("<http://jena.apache.org/spatial#south>", checkSouthOf);
         registerCheckFunction("<http://jena.apache.org/spatial#east>", checkEastOf);
         registerCheckFunction("<http://jena.apache.org/spatial#west>", checkWestOf);
-    }
-
-    std::string toURI(const std::string& id)
-    {
-        return "<" + sempr::baseURI() + id + ">";
     }
 
     //ToDo: Add checks for ogc:sfIntersects, ogc:sfWithin, ogc:sfContains, ogc:sfOverlaps

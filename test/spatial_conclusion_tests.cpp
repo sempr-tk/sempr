@@ -137,6 +137,16 @@ std::vector<geos::geom::Coordinate> getNDSCoords()
 BOOST_AUTO_TEST_SUITE(spatial_conclusion)
     std::string dbfile = "test_spatial_conclusion_sqlite.db";
 
+    BOOST_AUTO_TEST_CASE(spatial_conclusion_id_uri)
+    {
+        SpatialThing::Ptr farfaraway( new SpatialThing() );
+
+        auto uri = sempr::buildURI(farfaraway->id());
+        auto id = sempr::extractID(uri);
+
+        BOOST_CHECK_EQUAL(id, farfaraway->id());
+    }
+
     BOOST_AUTO_TEST_CASE(spatial_conclusion_cities)
     {
         Core core;
@@ -199,7 +209,7 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
 
         SPARQLQuery::Ptr query(new SPARQLQuery());
         query->prefixes["spatial"] = "http://jena.apache.org/spatial#";
-        query->query = "SELECT ?o WHERE { ?o spatial:south " + sempr::baseURI()+ bremen->id() + " . }";
+        query->query = "SELECT ?o WHERE { ?o spatial:south " + sempr::buildURI(bremen->id()) + " . }";
         core.answerQuery(query);
 
         BOOST_CHECK_EQUAL(query->results.size(), 2);    // Vechta and Osnabrück are in the south of Bremen.
