@@ -65,7 +65,7 @@ void Polygon::setCoordinates(const geom::CoordinateSequence& seq)
     setGeometry(polygon);
 }
 
-Polygon::Ptr Polygon::clone() const
+Polygon::Ptr Polygon::clone() const 
 {
     // raw clone is virtual! :)
     return Polygon::Ptr(raw_clone());

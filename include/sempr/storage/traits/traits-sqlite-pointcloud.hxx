@@ -377,7 +377,7 @@ public:
     static void
     set_value(value_type& channel, const image_type& b, std::size_t n, bool is_null)
     {
-
+        
         if (!is_null) {
             std::string tmp(b.data(), n);
             std::stringstream ss(tmp);
@@ -487,8 +487,8 @@ public:
                 channel = ch;
             }
 
-        }
-
+        } 
+        
     }
 
     static void
@@ -510,7 +510,7 @@ public:
             b.capacity(n);
         }
         std::memcpy(b.data(), tmp.data(), n);
-
+        
     }
 
 

@@ -60,7 +60,7 @@ public:
     inline T& operator[](std::size_t idx) override {return channel_[idx];};
     inline const T& operator[](std::size_t idx) const override {return channel_[idx];};
 
-    inline void add(const T& value) { channel_.push_back(value); };
+    inline void add(const T& value) { channel_.push_back(value); }; 
 
     inline T* data() { return channel_.data(); };
 
@@ -88,14 +88,14 @@ private:
 
 // Could be changed to std::variant in C++17
 typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
-                        Channel<int16_t>,
-                        Channel<int32_t>,
-                        Channel<int64_t>,
-                        Channel<uint8_t>,
-                        Channel<uint16_t>,
-                        Channel<uint32_t>,
-                        Channel<uint64_t>,
-                        Channel<float>,
+                        Channel<int16_t>, 
+                        Channel<int32_t>, 
+                        Channel<int64_t>, 
+                        Channel<uint8_t>, 
+                        Channel<uint16_t>, 
+                        Channel<uint32_t>, 
+                        Channel<uint64_t>, 
+                        Channel<float>, 
                         Channel<double>      > ChannelVariant;
 
 
@@ -160,7 +160,7 @@ public:
 
         return boost::get< Channel<T> >(channels_[type]);
     }
-
+    
     template<typename T>
     const AbstractChannel<T>& getChannel(int type) const
     {
@@ -182,7 +182,7 @@ public:
     virtual std::size_t size() const
     {
         // each point is a geometry so the num of geometries shall be equal to the num of points!
-        return getGeometry()->getNumGeometries();
+        return getGeometry()->getNumGeometries(); 
     }
 
     virtual const AbstractPoint<double>::Ptr operator[](std::size_t idx) const
@@ -236,7 +236,7 @@ private:
     virtual PointCloud* raw_clone() const;
 };
 
-
+    
 }}
 
 #endif /* end of include guard: SEMPR_ENTITY_SPATIAL_POINTCLOUD_HPP_ */

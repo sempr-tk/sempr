@@ -5,7 +5,5 @@
 #include <sempr/storage/traits/traits-sqlite-geom-geometry.hxx>
 #include <sempr/storage/traits/traits-sqlite-pointcloud.hxx>
 #include <sempr/storage/traits/traits-sqlite-eigen.hxx>
-#include <sempr/storage/traits/traits-sqlite-spatial-reference.hxx>
-#include <sempr/storage/traits/traits-sqlite-pointcloud.hxx>
 
 #endif /* end of include guard: SEMPR_TRAITS_SQLITE_HXX */

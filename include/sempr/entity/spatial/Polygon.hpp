@@ -27,7 +27,7 @@ public:
 
     /**
      * @brief Set the shell coordindates. Will overwrite the polygon geometry (including the holes)!
-     *
+     * 
      * @note the coordinates have to define a closed linear ring. so the first and last coordinates have to be equal.
      */
     void setCoordinates(const std::vector<geom::Coordinate>& coordinates);

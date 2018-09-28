@@ -88,7 +88,7 @@ public:
     // image from geometry (--> save into database)
     template <class G, typename = typename std::enable_if<std::is_base_of<geom::Geometry, G>::value, G>::type>
     static void
-    set_image(image_type& b, std::size_t& n, bool& is_null, const G*& geometry)
+    set_image(image_type& b, std::size_t& n, bool& is_null, G* const& geometry)
     {
         if (geometry == NULL) {
             is_null = true;

@@ -7,12 +7,12 @@ namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(PointCloud)
 
-PointCloud::PointCloud() :
+PointCloud::PointCloud() : 
     PointCloud(new sempr::core::IDGen<PointCloud>())
 {
 }
 
-PointCloud::PointCloud(const sempr::core::IDGenBase* idgen) :
+PointCloud::PointCloud(const sempr::core::IDGenBase* idgen) : 
     Entity(idgen)
 {
     setDiscriminator<PointCloud>();
@@ -51,7 +51,7 @@ void PointCloud::setPoints(const std::vector<geom::Coordinate>& coordinates)
     setGeometry(geom::GeometryFactory::getDefaultInstance()->createMultiPoint(coordinates));
 }
 
-PointCloud::Ptr PointCloud::clone() const
+PointCloud::Ptr PointCloud::clone() const 
 {
     // raw clone is virtual! :)
     return PointCloud::Ptr(raw_clone());
@@ -66,16 +66,16 @@ PointCloud* PointCloud::raw_clone() const
 
     // copy the geometry
     newInstance->setGeometry( dynamic_cast<geom::MultiPoint*>(geometry_->clone()) );
-
+    
     return newInstance;
 }
 
-void PointCloud::setCS(SpatialReference::Ptr cs)
+void PointCloud::setCS(SpatialReference::Ptr cs) 
 {
     referenceFrame_ = cs;
 }
 
-SpatialReference::Ptr PointCloud::getCS() const
+SpatialReference::Ptr PointCloud::getCS() const 
 {
     return referenceFrame_;
 }
