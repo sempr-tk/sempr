@@ -116,13 +116,28 @@ void SopranoModule::process(query::SPARQLQuery::Ptr query)
 
     while (results.next())
     {
-        std::map<std::string, std::string> bindings;
+        query::SPARQLQuery::Bindings bindings;
+
         auto bset = results.currentBindings();
         QStringList names = bset.bindingNames();
         for (int i = 0; i < names.size(); i++) {
-            bindings[names[i].toStdString()] = bset[names[i]].toString().toStdString();
+            query::SPARQLQuery::Value val;
+
+            const auto& b = bset[names[i]];
+
+            // add type of the bound value
+            if (b.isResource())     val.first = query::SPARQLQuery::RESOURCE;
+            else if (b.isLiteral()) val.first = query::SPARQLQuery::LITERAL;
+            else if (b.isBlank())   val.first = query::SPARQLQuery::BLANK;
+
+            // add bound value
+            val.second = b.toString().toStdString();
+
+            // add binding to result
+            bindings[names[i].toStdString()] = val;
         }
 
+        // ad result to list of results
         query->results.push_back(bindings);
     }
 }
