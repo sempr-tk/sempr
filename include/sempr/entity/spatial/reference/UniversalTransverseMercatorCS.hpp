@@ -20,7 +20,7 @@ public:
     UniversalTransverseMercatorCS(int zone, bool north = true);
     UniversalTransverseMercatorCS(int zone, bool north, const core::IDGenBase*);
 
-    bool isEqual(const GlobalCS::Ptr other) override;
+    bool isEqual(const GlobalCS::Ptr other) const override;
 
     int getZone() const override;
     bool isNorth() const override;

@@ -57,7 +57,7 @@ std::string MilitaryGridReferenceSystem::getGZDSquareID() const
     return zoneStr + designator_ + squareID_;
 }
 
-bool MilitaryGridReferenceSystem::isEqual(const GlobalCS::Ptr other)
+bool MilitaryGridReferenceSystem::isEqual(const GlobalCS::Ptr other) const
 {
     auto otherMGRS = std::dynamic_pointer_cast<MilitaryGridReferenceSystem>(other);
 

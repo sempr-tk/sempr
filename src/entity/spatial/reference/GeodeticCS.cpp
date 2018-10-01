@@ -18,7 +18,7 @@ GeodeticCS::GeodeticCS(const core::IDGenBase* idgen)
     this->setDiscriminator<GeodeticCS>();
 }
 
-FilterList GeodeticCS::to(const GlobalCS::Ptr other)
+FilterList GeodeticCS::to(const GlobalCS::Ptr other) const
 {
 
     if (isEqual(other))

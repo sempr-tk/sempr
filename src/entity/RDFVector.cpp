@@ -51,7 +51,7 @@ void RDFVector::getTriples(std::vector<Triple> &triples) const
     triples.insert(triples.end(), triples_.begin(), triples_.end());
 }
 
-Triple& RDFVector::getTripleAt(const size_t &index)
+const Triple& RDFVector::getTripleAt(const size_t index)
 {
     return triples_[index];
 }
@@ -67,7 +67,7 @@ bool RDFVector::addTriple(const sempr::entity::Triple &triple)
 
     // but add anyway, necessary for RDFPropertyMap etc
     triples_.push_back(triple);
-    this->changed();
+    //this->changed();
 
     return st.isValid();
 }
@@ -78,18 +78,19 @@ bool RDFVector::removeTriple(const sempr::entity::Triple &triple)
     if (newEnd == triples_.end()) return false;
 
     triples_.erase(newEnd, triples_.end());
-    this->changed();
+    //this->changed();
     return true;
 }
 
-void RDFVector::removeTripleAt(const size_t& index) {
+void RDFVector::removeTripleAt(const size_t index) {
     triples_.erase(triples_.begin() + index);
+    //this->changed();
 }
 
 void RDFVector::clear()
 {
     triples_.clear();
-    this->changed();
+    //this->changed();
 }
 
 size_t RDFVector::size() const {

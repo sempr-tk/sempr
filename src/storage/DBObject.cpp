@@ -8,11 +8,22 @@ DBObject::DBObject()
 {
 }
 
-DBObject::DBObject(const core::IDGenBase* idgen)
-    : persisted_(false), idgenerator_(idgen)
+DBObject::DBObject(const core::IDGenBase* idgen, bool temporary)
+    : persisted_(false), idgenerator_(idgen), temporary_(temporary)
 {
     id_ = idgen->generate();
     setDiscriminator<DBObject>();
+}
+
+
+void DBObject::setTemporary(bool tmp)
+{
+    if (tmp == temporary_) return;
+    if (tmp && persisted()) throw std::exception();
+    temporary_ = tmp;
+
+    // TODO: Making a temporary object persistent is problematic, too...
+    // think about IDs.
 }
 
 

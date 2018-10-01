@@ -20,7 +20,7 @@ ProjectionCS::ProjectionCS(const core::IDGenBase* idgen) :
     this->setDiscriminator<ProjectionCS>();
 }
 
-FilterList ProjectionCS::to(const GlobalCS::Ptr other)
+FilterList ProjectionCS::to(const GlobalCS::Ptr other) const
 {
     //transform from this (Geodetic)
     auto otherGeodetic = std::dynamic_pointer_cast<GeodeticCS>(other);
