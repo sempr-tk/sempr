@@ -9,7 +9,7 @@
 
 namespace sempr { namespace entity {
 
-// A list of channel type recommendations. Feel free to use own or additional type identifications in your usecase.
+// A list of channel type recommendations. Feel free to use own or additional type identifications in your use-case.
 enum ChannelType  // Note: Strong typed enum classes do not allow an implicit downcast to int.
 {
     N_X = 0,    // Normale in X                     (double)
@@ -25,8 +25,11 @@ enum ChannelType  // Note: Strong typed enum classes do not allow an implicit do
     // e.g. H_0 + 10 = Hyperspectral Channel 10
 };
 
-// The realization of the AbstractPoint shall be mapper to a specific type and the mapper will only deref. to the real values.
-// So the AbstractPoint may not be pure virtual!
+
+/**
+ * The AbstractPoint interface defines how the access the components (X, Y, Z) of a point.
+ * The realization of this interface shall map there datastructure with speciftic types to this methodes. 
+ */
 template<typename T>
 class AbstractPoint
 {
@@ -40,6 +43,11 @@ public:
     virtual const T& operator[](std::size_t idx) const = 0;
 };
 
+
+/**
+ * The AbstractChannel interface defines how to access the additional information for every point.
+ * It allows an read and write access to all elements and shall the same size than the pointcloud has.
+ */
 template<typename T>
 class AbstractChannel
 {
@@ -87,6 +95,13 @@ public:
     iterator end() { return iterator(this, size()); };
 };
 
+
+/**
+ * The AbstractPointCloud is an interface that defines how to access the elements of a point cloud (channels and points)
+ * In future a PointCloud implementation have to fullfill this interface.
+ * 
+ * Note: For now there is only readable access to the points of the PointCloud. If you like to modify the point you have to grab them and put they into a new PointCloud object.
+ */
 template<typename T>
 class AbstractPointCloud
 {
@@ -120,9 +135,6 @@ public:
     virtual std::size_t size() const = 0;
 
     virtual const std::shared_ptr< AbstractPoint<T> > operator[](std::size_t idx) const = 0;
-
-    // ToDo:
-    //virtual void apply(std::function<void(AbstractPoint&)>) = 0;
 
     class const_iterator
     {

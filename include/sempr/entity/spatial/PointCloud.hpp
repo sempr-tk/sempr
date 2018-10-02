@@ -19,7 +19,10 @@ namespace sempr { namespace entity {
 
 namespace geom = geos::geom;
 
-// Wrapper for GOES::GEOM Coordinate to AbstractPoint
+/**
+ * The CoordinatePoint is a Wrapper of a geos::geom Coordinate to an AbstractPoint of the AbstractPointCloud.
+ * It allows a implicit type casting from a coordinate.
+ */
 class CoordinatePoint : public AbstractPoint<double>, public geom::Coordinate
 {
 public:
@@ -45,7 +48,15 @@ public:
 };
 
 
-// No pragma db value to force odb to use the trait.
+
+/**
+ * A channel will store additional information for every point of a PointCloud.
+ * The channel information could have different types e.g. unsigned char for red green and blue or float for the intensity.#pragma endregion
+ * 
+ * The size of a channel have to equal the size of the depending point cloud!
+ * 
+ * Note: It has no pragma as db value to force odb to use the trait.
+ */
 template<typename T>
 class Channel : public AbstractChannel<T>
 {
@@ -81,12 +92,17 @@ public:
 
 private:
     friend class odb::access;
-    //friend class odb::sqlite::value_traits<sempr::entity::ChannelVariant, id_text>;
 
     std::vector<T> channel_;
 };
 
-// Could be changed to std::variant in C++17
+/**
+ * This variant allows to store channels of different "simple" types in one list of channels.
+ * 
+ * Based on compiler conflicts a boolean channel is not supported. Please use a int8 value otherwise. (A boolean also need a at least 8bit to be stored!)
+ * 
+ * Note: The boost variant could be replaced with the std::variant in a future C++17 build.
+ */
 typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
                         Channel<int16_t>, 
                         Channel<int32_t>, 
@@ -99,11 +115,15 @@ typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
                         Channel<double>      > ChannelVariant;
 
 
-#pragma db object
 /**
- * @brief The PointCloud class is a Entity that represents a Pointcloud
- * Currently stored as text - shall be a bin blob
+ * The PointCloud Entity allows wo store a set of points with an optional list of channels for additional information of every point.
+ * All points and channels will be stored as binary blob.
+ * 
+ * The PointCloud is build like a geometry object but it still is no geometry by its one. It only contains a geometry multi point object.
+ * 
+ * Note: Since it is currently not possible to have multiple inheritance for entities, the PointCloud class will not derive from the AbstractPointCloud but fullfill all there methodes.
  */
+#pragma db object
 class PointCloud : public Entity /*,public AbstractPointCloud<double> */
 {
     SEMPR_ENTITY
@@ -122,7 +142,9 @@ public:
         return it != channels_.end();
     }
 
-    //check if the pointcloud hold a channel of the given channel and data type.
+    /**
+     * Check if the PointCloud holds a channel of the given channel and type of data.
+     */
     template<typename T>
     bool checkType(int type) const
     {
@@ -170,8 +192,14 @@ public:
         return boost::get< Channel<T> >(channels_.at(type));
     }
 
+    /**
+     * Get a specific channel.
+     * Will throw an out_of_range exception if the is no channel or the type and datatype of the channel do not match.
+     * 
+     * Note: This shall override all defined channel getter of the AbstractPointCloud.
+     */
     template<typename T>
-    void getChannel(int type, AbstractChannel<T>& channel) const   // will this work and override the base class methods?
+    void getChannel(int type, AbstractChannel<T>& channel) const
     {
         if (!hasChannel(type))
             throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
@@ -188,7 +216,7 @@ public:
     virtual const AbstractPoint<double>::Ptr operator[](std::size_t idx) const
     {
         // Note: this is an ineffective way to it because for each call it will create a copy of the coordinate on the heap!
-        // But this version is safe!
+        // But this version is safe! Dynamicly type remapping could easily cause undefined behaviour.
         return std::make_shared<CoordinatePoint>(*getGeometry()->getGeometryN(idx)->getCoordinate());
     }
 
@@ -223,13 +251,15 @@ private:
     #pragma db type("BLOB")
     geom::MultiPoint* geometry_;
 
+    // odb will not solve it with a map with an self defined struct.
+    // so this a workaround to tell odb how to handle this map.
     #pragma db table("PointCloud_channels")      \
              id_column("object_id")   \
              key_type("INT") \
              key_column("type")        \
              value_type("BLOB")     \
              value_column("channel")
-    std::map< int, ChannelVariant > channels_;     //workaround because odb will not solve std container in std container.
+    std::map< int, ChannelVariant > channels_;
 
     SpatialReference::Ptr referenceFrame_;
 
