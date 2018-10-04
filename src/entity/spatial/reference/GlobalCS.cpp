@@ -59,6 +59,11 @@ FilterPtr GlobalCS::reverse() const
     return FilterPtr(nullptr);
 }
 
+std::size_t GlobalCS::directionDimension(const CardinalDirection& direction) const
+{
+    assert(1);
+    return 0;
+}
 
 
 }}

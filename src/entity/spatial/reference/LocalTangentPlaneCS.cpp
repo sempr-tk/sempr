@@ -54,6 +54,22 @@ bool LocalTangentPlaneCS::isEqual(const SpatialReference::Ptr other) const
     }
 }
 
+std::size_t LocalTangentPlaneCS::directionDimension(const CardinalDirection& direction) const
+{
+    // ENU / LTG (East-North-Up)
+    switch (direction)
+    {
+        case NORTH:
+        case SOUTH:
+            return 1;   //y
+        case EAST:
+        case WEST:
+            return 0;   //x
+    }
+
+    return 0;
+}
+
 FilterPtr LocalTangentPlaneCS::forward() const
 {
     return FilterPtr(new LTGForwardFilter(lat0_, lon0_, h0_, GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f()));

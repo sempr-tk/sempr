@@ -22,6 +22,8 @@ public:
 
     FilterList to(const GlobalCS::Ptr other) const override;
 
+    virtual std::size_t directionDimension(const CardinalDirection& direction) const override;
+
 protected:
     FilterPtr forward() const override;
     FilterPtr reverse() const override;

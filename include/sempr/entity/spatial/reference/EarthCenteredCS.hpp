@@ -21,6 +21,8 @@ public:
     EarthCenteredCS();
     EarthCenteredCS(const core::IDGenBase*);
 
+    virtual std::size_t directionDimension(const CardinalDirection& direction) const override;
+    
 protected:
 
     virtual FilterPtr forward() const override;
