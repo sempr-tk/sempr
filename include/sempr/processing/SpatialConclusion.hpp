@@ -40,7 +40,7 @@ namespace sempr { namespace processing {
  * spatial:west
  * spatial:east
  * 
- * Note: To fullfill the GeoSPARQL Entity the SpatialEntity have to be marked in RDF as SubClassOf ogc:SpatialObject and the depending geometry as ogc:Geometry
+ * Note: To fullfill the GeoSPARQL the SpatialEntity have to be marked in RDF as SubClassOf ogc:SpatialObject and the depending geometry as ogc:Geometry
  * 
  * Note: Other JenaSpatial relations like nearby, withinCircle, withinBox and intersectBox are only covered by SpatialIndexQuery
  * 
@@ -51,6 +51,7 @@ namespace sempr { namespace processing {
  * below
  * on       (like above but connected!)
  * under    (like below but connected!)
+ * perpendicular
  *
  * Relations in discussion:
  * ogc:sfEquals
@@ -74,20 +75,11 @@ public:
 
     // isGlobal is set if both geometries are transformed in the same global reference system
     //typedef std::function<bool(const SpatialIndex<dim>::Box& self,const SpatialIndex<dim>::Box& other, bool isGlobal)> CheckBoxFunction;
-    typedef std::function<bool(const ValuePair& self, const ValuePair& other, bool isGlobal)> CheckFunction;
+    typedef std::function<bool(const ValuePair& self, const ValuePair& other, const entity::SpatialReference::Ptr& ref)> CheckFunction;
 
     SpatialConclusion(const std::weak_ptr< SpatialIndex<dim> >& spatialIndex) :
         index_(spatialIndex)
     { 
-        globalRoot_ = false;
-        if (auto idx = index_.lock())
-        {
-            auto globalTest = std::dynamic_pointer_cast<entity::GlobalCS>(idx->rootCS_);
-            if(globalTest)
-                globalRoot_ = true;
-        }
-
-
         initDefaultChecker();
     };
 
@@ -145,8 +137,6 @@ private:
     std::map<entity::Geometry::Ptr, std::string> spatialGeometry_;
 
     std::map<std::string, entity::RDFVector::Ptr> rdfMap_;  // temporary rdf vector for every entity (mapped by id)
-
-    bool globalRoot_;
 
     std::map<std::string, CheckFunction> checkFunctions_;
 
@@ -250,7 +240,6 @@ private:
 
         }
 
-
     }
 
 
@@ -271,7 +260,7 @@ private:
                 for (auto other : idx->geo2box_)
                 {
                     //check from self to others
-                    bool selfRelated = checkBoxIt->second(selfPair, other.second, globalRoot_);
+                    bool selfRelated = checkBoxIt->second(selfPair, other.second, index_.lock()->rootCS_);
                     if (selfRelated)
                     {
                         // Build Triple: SelfId, Function predicate, OtherID
@@ -282,14 +271,14 @@ private:
                     }
 
                     //check from others to self
-                    bool otherRelated = checkBoxIt->second(other.second, selfPair, globalRoot_);
+                    bool otherRelated = checkBoxIt->second(other.second, selfPair, index_.lock()->rootCS_);
                     if (otherRelated)
                     {
                         auto otherID = spatialGeometry_.at(other.first);
                         // Build Triple: OtherID, Function predicate, SelfId
                         entity::Triple t(   sempr::buildURI(otherID),
                                             checkBoxIt->first,
-                                            sempr::buildURI(id)                       );
+                                            sempr::buildURI(id)     );
                         rdfMap_[otherID]->addTriple(t, true);
                         changedRDF.insert(rdfMap_[otherID]);    //mark vector as changed
                     }
@@ -330,90 +319,53 @@ private:
         } catch (const std::out_of_range& oor) {
             return false;
         }
-        
+
         return isShortcut;
     }
 
     // register the default set of check functions
     void initDefaultChecker()
     {
-        registerCheckFunction("<http://jena.apache.org/spatial#north>", checkNorthOf);
-        registerCheckFunction("<http://jena.apache.org/spatial#south>", checkSouthOf);
-        registerCheckFunction("<http://jena.apache.org/spatial#east>", checkEastOf);
-        registerCheckFunction("<http://jena.apache.org/spatial#west>", checkWestOf);
+        registerCheckFunction("<http://jena.apache.org/spatial#north>", directionCheck<0>);
+        registerCheckFunction("<http://jena.apache.org/spatial#east>", directionCheck<1>);
+        registerCheckFunction("<http://jena.apache.org/spatial#south>", directionCheck<2>);
+        registerCheckFunction("<http://jena.apache.org/spatial#west>", directionCheck<3>);
     }
 
     //ToDo: Add checks for ogc:sfIntersects, ogc:sfWithin, ogc:sfContains, ogc:sfOverlaps
 
-
-    //ToDo: Checks the coordinate Systems for this conditions. For WGS84 and ENU/LTG the x axis points to the north. In ECEF its depends on the z axis and for a projection the y axis points to north and x to the east!
-    static bool checkNorthOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
+    // A generic direction check function for north east south west relations. The direction is equal to the GlobalCS direction enum.
+    template <std::size_t direction>
+    static bool directionCheck(const ValuePair& self, const ValuePair& other, const entity::SpatialReference::Ptr& ref)
     {
-        if (isGlobal)
+        auto globalRef = std::dynamic_pointer_cast<entity::GlobalCS>(ref);
+
+        const std::size_t axis = direction % 2;    // quick hack to get the dim of the direction for wgs84.
+
+        if (globalRef)
         {
+            bool positive = direction <= 1; // North and East are the positive directions
+
             auto selfBox = self.first;
-            auto selfMinX = bg::get<0>(selfBox.min_corner());
-
             auto otherBox = other.first;
-            auto otherMaxX = bg::get<0>(otherBox.max_corner());
-            return selfMinX >= otherMaxX; // x coordinate is lat (only in WGS84)
+
+            if (positive)
+            {
+                auto selfMin = bg::get<axis>(selfBox.min_corner());
+                auto otherMax = bg::get<axis>(otherBox.max_corner());
+                return selfMin >= otherMax;
+            }
+            else
+            {
+                auto selfMax = bg::get<axis>(selfBox.max_corner());
+                auto otherMin = bg::get<axis>(otherBox.min_corner());
+                return selfMax <= otherMin;
+            }
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
-
-    static bool checkSouthOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
-    {
-        if (isGlobal)
-        {
-            auto selfBox = self.first;
-            auto selfMaxX = bg::get<0>(selfBox.max_corner());
-
-            auto otherBox = other.first;
-            auto otherMinX = bg::get<0>(otherBox.min_corner());
-            return selfMaxX <= otherMinX; // x coordinate is lat (only in WGS84)
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    static bool checkEastOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
-    {
-        if (isGlobal)
-        {
-            auto selfBox = self.first;
-            auto selfMinY = bg::get<1>(selfBox.min_corner());
-
-            auto otherBox = other.first;
-            auto otherMaxY = bg::get<1>(otherBox.max_corner());
-            return selfMinY >= otherMaxY; // y coordinate is lon (only in WGS84)
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    static bool checkWestOf(const ValuePair& self, const ValuePair& other, bool isGlobal)
-    {
-        if (isGlobal)
-        {
-            auto selfBox = self.first;
-            auto selfMaxY = bg::get<1>(selfBox.max_corner());
-
-            auto otherBox = other.first;
-            auto otherMinY = bg::get<1>(otherBox.min_corner());
-            return selfMaxY <= otherMinY; // y coordinate is lon (only in WGS84)
-        }
-        else
-        {
-            return false;
-        }
-    }
+    //ToDo: Checks the coordinate Systems for this conditions. For WGS84 the x axis points to the north. In ECEF its depends on the z axis and for a projection and ENU/LTG the y axis points to north and x to the east!
 
 
 };
@@ -425,6 +377,6 @@ template <class SpatialEntity>
 using SpatialConclusion3D = SpatialConclusion<3, SpatialEntity>;
 
 
-    }}
+}}
 
 #endif /* end of include guard SEMPR_PROCESSING_SPATIAL_CONCLUSION_HPP_ */
