@@ -74,6 +74,11 @@ struct SpatialIndexBase<2>
         return Vector(coord.x, coord.y);
     }
 
+    static Vector toEigen(const Point& point)
+    {
+        return Vector(bg::get<0>(point), bg::get<1>(point));
+    }
+
     static std::vector<geos::geom::Coordinate> buildCorners(const geos::geom::Coordinate& min, const geos::geom::Coordinate& max)
     {
         std::vector<geos::geom::Coordinate> cornerCoordinates;
@@ -117,6 +122,11 @@ struct SpatialIndexBase<3>
     static Vector toEigen(const geos::geom::Coordinate& coord)
     {
         return Vector(coord.x, coord.y, coord.z);
+    }
+
+    static Vector toEigen(const Point& point)
+    {
+        return Vector(bg::get<0>(point), bg::get<1>(point), bg::get<2>(point));
     }
 
     static std::vector<geos::geom::Coordinate> buildCorners(const geos::geom::Coordinate& min, const geos::geom::Coordinate& max)

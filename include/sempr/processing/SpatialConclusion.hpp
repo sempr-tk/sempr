@@ -72,6 +72,7 @@ public:
     using Ptr = std::shared_ptr< SpatialConclusion<dim, SpatialEntity> >;
 
     typedef typename processing::SpatialIndexBase<dim>::ValuePair ValuePair;
+    typedef typename processing::SpatialIndexBase<dim>::Box Box;
 
     // isGlobal is set if both geometries are transformed in the same global reference system
     //typedef std::function<bool(const SpatialIndex<dim>::Box& self,const SpatialIndex<dim>::Box& other, bool isGlobal)> CheckBoxFunction;
@@ -326,24 +327,24 @@ private:
     // register the default set of check functions
     void initDefaultChecker()
     {
-        registerCheckFunction("<http://jena.apache.org/spatial#north>", directionCheck<0>);
-        registerCheckFunction("<http://jena.apache.org/spatial#east>", directionCheck<1>);
-        registerCheckFunction("<http://jena.apache.org/spatial#south>", directionCheck<2>);
-        registerCheckFunction("<http://jena.apache.org/spatial#west>", directionCheck<3>);
+        registerCheckFunction("<http://jena.apache.org/spatial#north>", directionCheck<entity::GlobalCS::NORTH>);
+        registerCheckFunction("<http://jena.apache.org/spatial#east>",  directionCheck<entity::GlobalCS::EAST>);
+        registerCheckFunction("<http://jena.apache.org/spatial#south>", directionCheck<entity::GlobalCS::SOUTH>);
+        registerCheckFunction("<http://jena.apache.org/spatial#west>",  directionCheck<entity::GlobalCS::WEST>);
     }
 
     //ToDo: Add checks for ogc:sfIntersects, ogc:sfWithin, ogc:sfContains, ogc:sfOverlaps
 
-    // A generic direction check function for north east south west relations. The direction is equal to the GlobalCS direction enum.
-    template <std::size_t direction>
+    // A generic direction check function for north east south west relations. The direction is equal to the GlobalCS direction enum. 
+    // The test assume that both pairs are in the same global spatial reference system.
+    template <entity::GlobalCS::CardinalDirection direction>
     static bool directionCheck(const ValuePair& self, const ValuePair& other, const entity::SpatialReference::Ptr& ref)
     {
         auto globalRef = std::dynamic_pointer_cast<entity::GlobalCS>(ref);
 
-        const std::size_t axis = direction % 2;    // quick hack to get the dim of the direction for wgs84.
-
         if (globalRef)
         {
+            const std::size_t axis = globalRef->directionDimension(direction);
             bool positive = direction <= 1; // North and East are the positive directions
 
             auto selfBox = self.first;
@@ -351,14 +352,14 @@ private:
 
             if (positive)
             {
-                auto selfMin = bg::get<axis>(selfBox.min_corner());
-                auto otherMax = bg::get<axis>(otherBox.max_corner());
+                auto selfMin = getMin(selfBox, axis);
+                auto otherMax = getMax(otherBox, axis);
                 return selfMin >= otherMax;
             }
             else
             {
-                auto selfMax = bg::get<axis>(selfBox.max_corner());
-                auto otherMin = bg::get<axis>(otherBox.min_corner());
+                auto selfMax = getMax(selfBox, axis);
+                auto otherMin = getMin(otherBox, axis);
                 return selfMax <= otherMin;
             }
         }
@@ -366,6 +367,18 @@ private:
         return false;
     }
     //ToDo: Checks the coordinate Systems for this conditions. For WGS84 the x axis points to the north. In ECEF its depends on the z axis and for a projection and ENU/LTG the y axis points to north and x to the east!
+
+    static double getMin(const Box& box, const std::size_t axis)
+    {
+        //return bg::get<axis>(box.min_corner()); //constexpr. error!
+        return processing::SpatialIndexBase<dim>::toEigen(box.min_corner())[axis];
+    }
+
+    static double getMax(const Box& box, const std::size_t axis)
+    {
+        //return bg::get<axis>(box.max_corner()); //constexpr. error
+        return processing::SpatialIndexBase<dim>::toEigen(box.max_corner())[axis];
+    }
 
 
 };

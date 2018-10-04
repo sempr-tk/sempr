@@ -23,6 +23,8 @@ public:
 
     bool isEqual(const SpatialReference::Ptr other) const override;
 
+    virtual std::size_t directionDimension(const CardinalDirection& direction) const override;
+
 protected:
     LocalTangentPlaneCS();
 

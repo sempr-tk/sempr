@@ -29,5 +29,20 @@ FilterPtr EarthCenteredCS::reverse() const
     return FilterPtr(new ECEFReverseFilter(GeographicLib::Constants::WGS84_a(), GeographicLib::Constants::WGS84_f()));
 }
 
+std::size_t EarthCenteredCS::directionDimension(const CardinalDirection& direction) const
+{
+    switch (direction)
+    {
+        case NORTH:
+        case SOUTH:
+            return 2;   //z
+        case EAST:
+        case WEST:
+            return 1;   //y
+    }
+
+    return 0;
+}
+
 
 }}

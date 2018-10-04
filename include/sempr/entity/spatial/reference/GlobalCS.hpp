@@ -4,13 +4,11 @@
 #include <sempr/entity/spatial/reference/SpatialReference.hpp>
 #include <geos/geom/CoordinateFilter.h>
 
-//#include <ogr_spatialref.h>
-
 namespace sempr { namespace entity {
 
 /**
     Simple base class for ProjectionCS and GeographicCS, as both are root, and both need to
-    be able to create an OGRCoordinateTransformation to the other. It provides implementations of
+    be able to create a transformation to the other. It provides implementations of
     transformation[To|From]Root (which only return identity-matrices), getRoot (which returns this),
     and a method to compute the transformation from this to another global coordinate system.
 */
@@ -27,6 +25,21 @@ public:
 
     //from this to other
     virtual FilterList to(const GlobalCS::Ptr other) const;
+
+    enum CardinalDirection
+    {
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
+    };
+
+    /**
+     * @brief Find the dimension that representate the cardinal direction.
+     * 
+     * @return std::size_t The dimension (X = 0, Y = 1, Z = 2)
+     */
+    virtual std::size_t directionDimension(const CardinalDirection& direction) const;
 
 protected:
     GlobalCS();
@@ -51,10 +64,6 @@ protected:
 
     // Allow reverse call from childs
     inline FilterPtr reverse(const GlobalCS::Ptr other) const { return other->reverse(); }
-
-    /// used by both projection and geographic coordinate systems.
-    //#pragma db type("TEXT")
-    //OGRSpatialReference frame_;
 
 private:
     friend class odb::access;

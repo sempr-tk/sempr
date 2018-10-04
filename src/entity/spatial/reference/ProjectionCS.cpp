@@ -74,6 +74,21 @@ bool ProjectionCS::isNorth() const
     return true;
 }
 
+std::size_t ProjectionCS::directionDimension(const CardinalDirection& direction) const
+{
+    switch (direction)
+    {
+        case NORTH:
+        case SOUTH:
+            return 1;   //y
+        case EAST:
+        case WEST:
+            return 0;   //x
+    }
+
+    return 0;
+}
+
 
 ProjectionCS::Ptr ProjectionCS::importZone(const std::string& zonestr)
 {
