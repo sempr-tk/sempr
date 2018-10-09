@@ -29,6 +29,13 @@ std::string RegisteredPropertyBase::predicate() const
     return predicate_;
 }
 
+bool RegisteredPropertyBase::operator==(const RegisteredPropertyBase& other) const
+{
+    return  hasSubject_ == other.hasSubject_ &&
+            subject_ == other.subject_ &&
+            predicate_ == other.predicate_ &&
+            object() == other.object() ;
+}
 
 /// SemanticEntity iterator
 SemanticEntityIterator::SemanticEntityIterator(SemanticEntityIterator::ConstIterator it, SemanticEntityIterator::ConstIterator end, const SemanticEntity* entity)
@@ -98,6 +105,15 @@ SemanticEntity::~SemanticEntity()
     }
 }
 
+std::vector<RegisteredPropertyBase*>::iterator SemanticEntity::findProperty(const RegisteredPropertyBase& prop)
+{
+    for (auto it = properties_.begin(); it != properties_.end(); ++it)
+    {
+        if ( (*it) && *(*it) == prop)
+            return it;
+    }
+    return properties_.end();
+}
 
 TripleIteratorWrapper SemanticEntity::begin() const
 {
