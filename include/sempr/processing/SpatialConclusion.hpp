@@ -260,6 +260,9 @@ private:
 
                 for (auto other : idx->geo2box_)
                 {
+                    if (selfPair.second == other.second.second)
+                        continue;   //skip conclusion if self == other!
+
                     //check from self to others
                     bool selfRelated = checkBoxIt->second(selfPair, other.second, index_.lock()->rootCS_);
                     if (selfRelated)
@@ -331,9 +334,13 @@ private:
         registerCheckFunction("<http://jena.apache.org/spatial#east>",  directionCheck<entity::GlobalCS::EAST>);
         registerCheckFunction("<http://jena.apache.org/spatial#south>", directionCheck<entity::GlobalCS::SOUTH>);
         registerCheckFunction("<http://jena.apache.org/spatial#west>",  directionCheck<entity::GlobalCS::WEST>);
-    }
 
-    //ToDo: Add checks for ogc:sfIntersects, ogc:sfWithin, ogc:sfContains, ogc:sfOverlaps
+        registerCheckFunction("<http://www.opengis.net/ont/geosparql#sfIntersects>",  intersectionCheck);
+        registerCheckFunction("<http://www.opengis.net/ont/geosparql#sfWithin>",      withinCheck);
+        registerCheckFunction("<http://www.opengis.net/ont/geosparql#sfContains>",    containsCheck);
+        registerCheckFunction("<http://www.opengis.net/ont/geosparql#sfOverlaps>",    overlapsCheck);
+
+    }
 
     // A generic direction check function for north east south west relations. The direction is equal to the GlobalCS direction enum. 
     // The test assume that both pairs are in the same global spatial reference system.
@@ -366,7 +373,59 @@ private:
 
         return false;
     }
-    //ToDo: Checks the coordinate Systems for this conditions. For WGS84 the x axis points to the north. In ECEF its depends on the z axis and for a projection and ENU/LTG the y axis points to north and x to the east!
+
+    static bool intersectionCheck(const ValuePair& self, const ValuePair& other, const entity::SpatialReference::Ptr& ref)
+    {
+        if (boost::geometry::intersects(self.first, other.first))
+        {
+            if (self.second && other.second)
+            {
+                return self.second->getGeometry()->intersects(other.second->getGeometry());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    static bool withinCheck(const ValuePair& self, const ValuePair& other, const entity::SpatialReference::Ptr& ref)
+    {
+        if (boost::geometry::within(self.first, other.first))
+        {
+            if (self.second && other.second)
+            {
+                return self.second->getGeometry()->within(other.second->getGeometry());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    static bool containsCheck(const ValuePair& self, const ValuePair& other, const entity::SpatialReference::Ptr& ref)
+    {
+        if (boost::geometry::within(self.first, other.first))
+        {
+            if (self.second && other.second)
+            {
+                return self.second->getGeometry()->contains(other.second->getGeometry());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    static bool overlapsCheck(const ValuePair& self, const ValuePair& other, const entity::SpatialReference::Ptr& ref)
+    {
+        if (boost::geometry::overlaps(self.first, other.first))
+        {
+            if (self.second && other.second)
+            {
+                return self.second->getGeometry()->overlaps(other.second->getGeometry());
+            }
+            return true;
+        }
+        return false;
+    }
+
 
     static double getMin(const Box& box, const std::size_t axis)
     {

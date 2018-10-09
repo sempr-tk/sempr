@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
 
     BOOST_AUTO_TEST_CASE(spatial_conclusion_id_uri)
     {
-        SpatialThing::Ptr farfaraway( new SpatialThing() );
+        GeometricObject::Ptr farfaraway( new GeometricObject() );
 
         auto uri = sempr::buildURI(farfaraway->id());
         auto id = sempr::extractID(uri);
@@ -156,42 +156,42 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
         SpatialIndex2D::Ptr index(new SpatialIndex2D(globalCS));
         core.addModule(index);
 
-        SpatialConclusion2D<SpatialThing>::Ptr conclusion(new SpatialConclusion2D<SpatialThing>(index));
+        SpatialConclusion2D<GeometricObject>::Ptr conclusion(new SpatialConclusion2D<GeometricObject>(index));
         core.addModule(conclusion);
 
         SopranoModule::Ptr soprano(new SopranoModule());
         core.addModule(soprano);
 
-        SpatialThing::Ptr osna( new SpatialThing() );
+        GeometricObject::Ptr osna( new GeometricObject() );
         {
             Polygon::Ptr osnaPolygon( new Polygon() );
             osnaPolygon->setCoordinates(getOsnaCoords());
             osnaPolygon->setCS(globalCS);
             core.addEntity(osnaPolygon);    //will not be added by the super object!
 
-            osna->geometry() = osnaPolygon;
+            osna->geometry(osnaPolygon);
         }
         core.addEntity(osna);
 
-        SpatialThing::Ptr vechta( new SpatialThing() );
+        GeometricObject::Ptr vechta( new GeometricObject() );
         {
             Polygon::Ptr vechtaPolygon( new Polygon() );
             vechtaPolygon->setCoordinates(getVechtaCoords());
             vechtaPolygon->setCS(globalCS);
             core.addEntity(vechtaPolygon);    //will not be added by the super object!
 
-            vechta->geometry() = vechtaPolygon;
+            vechta->geometry(vechtaPolygon);
         }
         core.addEntity(vechta);
 
-        SpatialThing::Ptr bremen( new SpatialThing() );
+        GeometricObject::Ptr bremen( new GeometricObject() );
         {
             Polygon::Ptr bremenPolygon( new Polygon() );
             bremenPolygon->setCoordinates(getBremenCoords());
             bremenPolygon->setCS(globalCS);
             core.addEntity(bremenPolygon);  //will not be added by the super object!
 
-            bremen->geometry() = bremenPolygon;
+            bremen->geometry(bremenPolygon);
         }
         core.addEntity(bremen);
 
