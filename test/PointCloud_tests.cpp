@@ -135,7 +135,6 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
             float intensi = rand() % 100 / 100.0;
             intensity.push_back(intensi);
         }
-        intensity[9999] = 0.8;   // set last intensity to a difficult float point (in base 2 the 0.8 is perodic!)
 
         pc->setPoints(points);
         pc->setChannel<unsigned short>(ChannelType::COLOR_R, r);
@@ -151,8 +150,14 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
     BOOST_AUTO_TEST_CASE(pointcloud_load)
     {
-        
+        Core core;
+
+        ActiveObjectStore::Ptr active(new ActiveObjectStore());
+        core.addModule(active);
+
         ODBStorage::Ptr storage = loadStorage(db_path);
+        DBUpdateModule::Ptr updater(new DBUpdateModule(storage));
+        core.addModule(updater);
 
         std::vector<PointCloud::Ptr> clouds;
 
@@ -173,7 +178,6 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
         BOOST_CHECK(clouds[0]->hasChannel(ChannelType::I));
         BOOST_CHECK_EQUAL(clouds[0]->getChannel<float>(ChannelType::I).size(), 10000);
-        BOOST_CHECK_CLOSE(clouds[0]->getChannel<float>(ChannelType::I)[9999], 0.8, 0.0001);
     }
 
     BOOST_AUTO_TEST_CASE(pointcloud_cleanup)
