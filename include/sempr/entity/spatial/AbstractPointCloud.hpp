@@ -12,14 +12,15 @@ namespace sempr { namespace entity {
 // A list of channel type recommendations. Feel free to use own or additional type identifications in your use-case.
 enum ChannelType  // Note: Strong typed enum classes do not allow an implicit downcast to int.
 {
-    N_X = 0,    // Normale in X                     (double)
-    N_Y = 1,    // Normale in Y                     (double)
-    N_Z = 2,    // Normale in Z                     (double)
-    V = 4,      // Velocity in normal direction     (float)
-    I = 5,      // Intensity, normalized            (float)
-    R = 10,     // Red                              (uint8_t)
-    G = 11,     // Green                            (uint8_t)
-    B = 12,     // Blue                             (uint8_t)
+    N_X = 0,         // Normale in X                     (double)
+    N_Y = 1,         // Normale in Y                     (double)
+    N_Z = 2,         // Normale in Z                     (double)
+    V = 4,           // Velocity in normal direction     (float)
+    I = 5,           // Intensity, normalized            (float)
+    COLOR_RGB = 10,  // RGB Channel                      (uint32_t)
+    COLOR_R = 11,    // Red                              (uint8_t)
+    COLOR_G = 12,    // Green                            (uint8_t)
+    COLOR_B = 13,    // Blue                             (uint8_t)
     
     H_0 = 100   // Hyperspectral Channel 0
     // e.g. H_0 + 10 = Hyperspectral Channel 10
@@ -119,18 +120,19 @@ public:
      * typename std::enable_if<std::is_fundamental<D>::value>
      * virtual AbstractChannel<D>& getChannel(int type) = 0;
      */
-    virtual void getChannel(int type, AbstractChannel<int8_t>& channel) const = 0;
-    virtual void getChannel(int type, AbstractChannel<int16_t>& channel) const = 0;
-    virtual void getChannel(int type, AbstractChannel<int32_t>& channel) const = 0;
-    virtual void getChannel(int type, AbstractChannel<int64_t>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<int8_t>&& channel) = 0;
+    virtual void getChannel(int type, AbstractChannel<int16_t>&& channel) = 0;
+    virtual void getChannel(int type, AbstractChannel<int32_t>&& channel) = 0;
+    virtual void getChannel(int type, AbstractChannel<int64_t>&& channel) = 0;
 
-    virtual void getChannel(int type, AbstractChannel<uint8_t>& channel) const = 0;
-    virtual void getChannel(int type, AbstractChannel<uint16_t>& channel) const = 0;
-    virtual void getChannel(int type, AbstractChannel<uint32_t>& channel) const = 0;
-    virtual void getChannel(int type, AbstractChannel<uint64_t>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<uint8_t>&& channel) = 0;
+    virtual void getChannel(int type, AbstractChannel<uint16_t>&& channel) = 0;
+    virtual void getChannel(int type, AbstractChannel<uint32_t>&& channel) = 0;
+    virtual void getChannel(int type, AbstractChannel<uint64_t>&& channel) = 0;
 
-    virtual void getChannel(int type, AbstractChannel<float>& channel) const = 0;
-    virtual void getChannel(int type, AbstractChannel<double>& channel) const = 0;
+    virtual void getChannel(int type, AbstractChannel<float>&& channel) = 0;
+    virtual void getChannel(int type, AbstractChannel<double>&& channel) = 0;
+    
 
     virtual std::size_t size() const = 0;
 

@@ -3,7 +3,7 @@
 
 #include <sempr/entity/spatial/AbstractPointCloud.hpp>
 
-#include <sempr/entity/spatial/Collection.hpp>
+#include <sempr/entity/spatial/Geometry.hpp>
 #include <geos/geom/MultiPoint.h>
 
 #include <stdexcept>
@@ -51,7 +51,7 @@ public:
 
 /**
  * A channel will store additional information for every point of a PointCloud.
- * The channel information could have different types e.g. unsigned char for red green and blue or float for the intensity.#pragma endregion
+ * The channel information could have different types e.g. unsigned char for red green and blue or float for the intensity.
  * 
  * The size of a channel have to equal the size of the depending point cloud!
  * 
@@ -62,7 +62,7 @@ class Channel : public AbstractChannel<T>
 {
 public:
     Channel() {};
-    Channel(const std::vector<T>& channel) : channel_(channel) {}; //allows impecit type cast
+    Channel(const std::vector<T>& channel) : channel_(channel) {}; //allows implicit type cast
 
     // Pre init the channel with the size e.g. of a the point cloud
     Channel(std::size_t size) : channel_(std::vector<T>(size)) {};
@@ -124,7 +124,7 @@ typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
  * Note: Since it is currently not possible to have multiple inheritance for entities, the PointCloud class will not derive from the AbstractPointCloud but fullfill all there methodes.
  */
 #pragma db object
-class PointCloud : public Entity /*,public AbstractPointCloud<double> */
+class PointCloud : public Geometry, public AbstractPointCloud<double> //ToDo Change to Geometry!
 {
     SEMPR_ENTITY
 public:
@@ -146,7 +146,7 @@ public:
      * Check if the PointCloud holds a channel of the given channel and type of data.
      */
     template<typename T>
-    bool checkType(int type) const
+    bool checkChannel(int type) const
     {
         if (hasChannel(type))
         {
@@ -192,20 +192,19 @@ public:
         return boost::get< Channel<T> >(channels_.at(type));
     }
 
-    /**
-     * Get a specific channel.
-     * Will throw an out_of_range exception if the is no channel or the type and datatype of the channel do not match.
-     * 
-     * Note: This shall override all defined channel getter of the AbstractPointCloud.
-     */
-    template<typename T>
-    void getChannel(int type, AbstractChannel<T>& channel) const
-    {
-        if (!hasChannel(type))
-            throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
+    virtual void getChannel(int type, AbstractChannel<int8_t>&& channel) override { channel = getChannel<int8_t>(type); };
+    
+    virtual void getChannel(int type, AbstractChannel<int16_t>&& channel) override { channel = getChannel<int16_t>(type); };
+    virtual void getChannel(int type, AbstractChannel<int32_t>&& channel) override { channel = getChannel<int32_t>(type);};
+    virtual void getChannel(int type, AbstractChannel<int64_t>&& channel) override { channel = getChannel<int64_t>(type); };
 
-        channel = boost::get< Channel<T> >(channels_.at(type));
-    }
+    virtual void getChannel(int type, AbstractChannel<uint8_t>&& channel) override { channel = getChannel<uint8_t>(type); };
+    virtual void getChannel(int type, AbstractChannel<uint16_t>&& channel) override { channel = getChannel<uint16_t>(type); };
+    virtual void getChannel(int type, AbstractChannel<uint32_t>&& channel) override { channel = getChannel<uint32_t>(type); };
+    virtual void getChannel(int type, AbstractChannel<uint64_t>&& channel) override { channel = getChannel<uint64_t>(type); };
+
+    virtual void getChannel(int type, AbstractChannel<float>&& channel) override { channel = getChannel<float>(type); };
+    virtual void getChannel(int type, AbstractChannel<double>&& channel) override { channel = getChannel<double>(type); };
 
     virtual std::size_t size() const
     {
@@ -236,10 +235,6 @@ public:
 
     void setPoints(const std::vector<geom::Coordinate>& coordinates);
 
-    void setCS(SpatialReference::Ptr cs);
-
-    SpatialReference::Ptr getCS() const;
-
     PointCloud::Ptr clone() const;
 
 protected:
@@ -260,8 +255,6 @@ private:
              value_type("BLOB")     \
              value_column("channel")
     std::map< int, ChannelVariant > channels_;
-
-    SpatialReference::Ptr referenceFrame_;
 
     virtual PointCloud* raw_clone() const;
 };

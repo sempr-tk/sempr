@@ -24,15 +24,15 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
         pc->setPoints(points);
 
-        pc->setChannel<uint8_t>(ChannelType::R, r);
-        pc->setChannel<uint8_t>(ChannelType::G, g);
-        pc->setChannel<uint8_t>(ChannelType::B, b);
+        pc->setChannel<uint8_t>(ChannelType::COLOR_R, r);
+        pc->setChannel<uint8_t>(ChannelType::COLOR_G, g);
+        pc->setChannel<uint8_t>(ChannelType::COLOR_B, b);
 
-        BOOST_CHECK(pc->hasChannel(ChannelType::G));
-        BOOST_CHECK(pc->getChannel<uint8_t>(ChannelType::G)[0] == 0);
+        BOOST_CHECK(pc->hasChannel(ChannelType::COLOR_G));
+        BOOST_CHECK(pc->getChannel<uint8_t>(ChannelType::COLOR_G)[0] == 0);
 
         //check iterator
-        for (auto red : pc->getChannel<uint8_t>(ChannelType::R))
+        for (auto red : pc->getChannel<uint8_t>(ChannelType::COLOR_R))
         {
             BOOST_CHECK_EQUAL(red, 255);
         }
@@ -64,18 +64,18 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
         pc->setPoints(points);
 
-        pc->setChannel<uint8_t>(ChannelType::R, r);
-        pc->setChannel<uint8_t>(ChannelType::G, g);
-        pc->setChannel<uint8_t>(ChannelType::B, b);
+        pc->setChannel<uint8_t>(ChannelType::COLOR_R, r);
+        pc->setChannel<uint8_t>(ChannelType::COLOR_G, g);
+        pc->setChannel<uint8_t>(ChannelType::COLOR_B, b);
 
         pc->setChannel<float>(ChannelType::I, i);
         pc->setChannel<double>(ChannelType::V, v);
 
-        BOOST_CHECK(pc->hasChannel(ChannelType::G));
-        BOOST_CHECK_EQUAL(pc->getChannel<uint8_t>(ChannelType::G)[0], 0);
+        BOOST_CHECK(pc->hasChannel(ChannelType::COLOR_G));
+        BOOST_CHECK_EQUAL(pc->getChannel<uint8_t>(ChannelType::COLOR_G)[0], 0);
 
         //check iterator
-        for (auto red : pc->getChannel<uint8_t>(ChannelType::R))
+        for (auto red : pc->getChannel<uint8_t>(ChannelType::COLOR_R))
         {
             BOOST_CHECK_EQUAL(red, 255);
         }
@@ -138,9 +138,9 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         intensity[9999] = 0.8;   // set last intensity to a difficult float point (in base 2 the 0.8 is perodic!)
 
         pc->setPoints(points);
-        pc->setChannel<unsigned short>(ChannelType::R, r);
-        pc->setChannel<unsigned short>(ChannelType::G, g);
-        pc->setChannel<unsigned short>(ChannelType::B, b);
+        pc->setChannel<unsigned short>(ChannelType::COLOR_R, r);
+        pc->setChannel<unsigned short>(ChannelType::COLOR_G, g);
+        pc->setChannel<unsigned short>(ChannelType::COLOR_B, b);
         pc->setChannel<float>(ChannelType::I, intensity);
 
         // insert 
@@ -162,14 +162,14 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
         BOOST_CHECK_EQUAL(clouds[0]->size(), 10000);
 
-        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::R));
-        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::R).size(), 10000);
+        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::COLOR_R));
+        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::COLOR_R).size(), 10000);
 
-        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::G));
-        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::G).size(), 10000);
+        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::COLOR_G));
+        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::COLOR_G).size(), 10000);
 
-        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::B));
-        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::B).size(), 10000);
+        BOOST_CHECK(clouds[0]->hasChannel(ChannelType::COLOR_B));
+        BOOST_CHECK_EQUAL(clouds[0]->getChannel<unsigned short>(ChannelType::COLOR_B).size(), 10000);
 
         BOOST_CHECK(clouds[0]->hasChannel(ChannelType::I));
         BOOST_CHECK_EQUAL(clouds[0]->getChannel<float>(ChannelType::I).size(), 10000);
