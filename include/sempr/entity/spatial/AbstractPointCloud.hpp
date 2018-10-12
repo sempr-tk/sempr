@@ -119,20 +119,21 @@ public:
      * template<typename D>
      * typename std::enable_if<std::is_fundamental<D>::value>
      * virtual AbstractChannel<D>& getChannel(int type) = 0;
+     * 
+     * But C++ is C++ and so I have to introduce a bit strange nameing for it:
      */
-    virtual void getChannel(int type, AbstractChannel<int8_t>&& channel) = 0;
-    virtual void getChannel(int type, AbstractChannel<int16_t>&& channel) = 0;
-    virtual void getChannel(int type, AbstractChannel<int32_t>&& channel) = 0;
-    virtual void getChannel(int type, AbstractChannel<int64_t>&& channel) = 0;
+    virtual AbstractChannel<int8_t>& getChannelInt8(int type) = 0;
+    virtual AbstractChannel<int16_t>& getChannelInt16(int type) = 0;
+    virtual AbstractChannel<int32_t>& getChannelInt32(int type) = 0;
+    virtual AbstractChannel<int64_t>& getChannelInt64(int type) = 0;
 
-    virtual void getChannel(int type, AbstractChannel<uint8_t>&& channel) = 0;
-    virtual void getChannel(int type, AbstractChannel<uint16_t>&& channel) = 0;
-    virtual void getChannel(int type, AbstractChannel<uint32_t>&& channel) = 0;
-    virtual void getChannel(int type, AbstractChannel<uint64_t>&& channel) = 0;
+    virtual AbstractChannel<uint8_t>& getChannelUInt8(int type) = 0;
+    virtual AbstractChannel<uint16_t>& getChannelUInt16(int type) = 0;
+    virtual AbstractChannel<uint32_t>& getChannelUInt32(int type) = 0;
+    virtual AbstractChannel<uint64_t>& getChannelUInt64(int type) = 0;
 
-    virtual void getChannel(int type, AbstractChannel<float>&& channel) = 0;
-    virtual void getChannel(int type, AbstractChannel<double>&& channel) = 0;
-    
+    virtual AbstractChannel<float>& getChannelFloat(int type) = 0;
+    virtual AbstractChannel<double>& getChannelDouble(int type) = 0;
 
     virtual std::size_t size() const = 0;
 

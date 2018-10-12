@@ -196,19 +196,18 @@ public:
         return boost::get< Channel<T> >(channels_.at(type));
     }
 
-    virtual void getChannel(int type, AbstractChannel<int8_t>&& channel) override { channel = getChannel<int8_t>(type); };
-    
-    virtual void getChannel(int type, AbstractChannel<int16_t>&& channel) override { channel = getChannel<int16_t>(type); };
-    virtual void getChannel(int type, AbstractChannel<int32_t>&& channel) override { channel = getChannel<int32_t>(type);};
-    virtual void getChannel(int type, AbstractChannel<int64_t>&& channel) override { channel = getChannel<int64_t>(type); };
+    virtual AbstractChannel<int8_t>& getChannelInt8(int type) { return getChannel<int8_t>(type); };
+    virtual AbstractChannel<int16_t>& getChannelInt16(int type) { return getChannel<int16_t>(type); };
+    virtual AbstractChannel<int32_t>& getChannelInt32(int type) { return getChannel<int32_t>(type); };
+    virtual AbstractChannel<int64_t>& getChannelInt64(int type) { return getChannel<int64_t>(type); };
 
-    virtual void getChannel(int type, AbstractChannel<uint8_t>&& channel) override { channel = getChannel<uint8_t>(type); };
-    virtual void getChannel(int type, AbstractChannel<uint16_t>&& channel) override { channel = getChannel<uint16_t>(type); };
-    virtual void getChannel(int type, AbstractChannel<uint32_t>&& channel) override { channel = getChannel<uint32_t>(type); };
-    virtual void getChannel(int type, AbstractChannel<uint64_t>&& channel) override { channel = getChannel<uint64_t>(type); };
+    virtual AbstractChannel<uint8_t>& getChannelUInt8(int type) { return getChannel<uint8_t>(type); };
+    virtual AbstractChannel<uint16_t>& getChannelUInt16(int type) { return getChannel<uint16_t>(type); };
+    virtual AbstractChannel<uint32_t>& getChannelUInt32(int type) { return getChannel<uint32_t>(type); };
+    virtual AbstractChannel<uint64_t>& getChannelUInt64(int type) { return getChannel<uint64_t>(type); };
 
-    virtual void getChannel(int type, AbstractChannel<float>&& channel) override { channel = getChannel<float>(type); };
-    virtual void getChannel(int type, AbstractChannel<double>&& channel) override { channel = getChannel<double>(type); };
+    virtual AbstractChannel<float>& getChannelFloat(int type) { return getChannel<float>(type); };
+    virtual AbstractChannel<double>& getChannelDouble(int type) { return getChannel<double>(type); };
 
     virtual std::size_t size() const
     {
