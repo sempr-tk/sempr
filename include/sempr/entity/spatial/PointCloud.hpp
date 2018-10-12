@@ -25,12 +25,8 @@ namespace geom = geos::geom;
  */
 class CoordinatePoint : public AbstractPoint<double>
 {
-private:
-    geom::Coordinate& coord;
-
 public:
     CoordinatePoint(geom::Coordinate& coord) : coord(coord) {}; //allows implicit type cast
-    CoordinatePoint(const geom::Coordinate& coord) : coord(const_cast<geom::Coordinate&>(coord)) {}; //allows implicit type cast
 
     inline double& x() override {return coord.x;};
     inline double& y() override {return coord.y;};
@@ -49,6 +45,9 @@ public:
 
         return coord.z;
     }
+
+private:
+    geom::Coordinate& coord;
 };
 
 
@@ -128,7 +127,7 @@ typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
  * Note: Since it is currently not possible to have multiple inheritance for entities, the PointCloud class will not derive from the AbstractPointCloud but fullfill all there methodes.
  */
 #pragma db object
-class PointCloud : public Geometry, public AbstractPointCloud<double> //ToDo Change to Geometry!
+class PointCloud : public Geometry, public AbstractPointCloud<double>
 {
     SEMPR_ENTITY
 public:
@@ -219,12 +218,13 @@ public:
     {
         // Note: this is an ineffective way to it because for each call it will create a copy of the coordinate on the heap!
         // But this version is safe! Dynamicly type remapping could easily cause undefined behaviour.
-        return std::make_shared<CoordinatePoint>(*getGeometry()->getGeometryN(idx)->getCoordinate());
+        // So far a const cast is used to get writeable access to the coordinate without any outstanding programming effort (like filters)
+        return std::make_shared<CoordinatePoint>(*const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate()));
     }
 
     const CoordinatePoint at(std::size_t idx) const
     {
-        return CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());
+        return CoordinatePoint(*const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate()));
     }
 
     virtual AbstractPoint<double>::Ptr operator[](std::size_t idx)
