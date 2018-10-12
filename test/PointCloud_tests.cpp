@@ -142,6 +142,9 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         pc->setChannel<unsigned short>(ChannelType::COLOR_B, b);
         pc->setChannel<float>(ChannelType::I, intensity);
 
+        pc->at(0).x = 7;    //direct geom access to change coordinate
+        (*pc)[0]->x() = 5;  //abstract way to access the coordinate
+
         // insert 
         core.addEntity(pc);
         
@@ -178,6 +181,8 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
         BOOST_CHECK(clouds[0]->hasChannel(ChannelType::I));
         BOOST_CHECK_EQUAL(clouds[0]->getChannel<float>(ChannelType::I).size(), 10000);
+
+        BOOST_CHECK_EQUAL(clouds[0]->at(0).x, 5);
     }
 
     BOOST_AUTO_TEST_CASE(pointcloud_cleanup)

@@ -23,27 +23,31 @@ namespace geom = geos::geom;
  * The CoordinatePoint is a Wrapper of a geos::geom Coordinate to an AbstractPoint of the AbstractPointCloud.
  * It allows a implicit type casting from a coordinate.
  */
-class CoordinatePoint : public AbstractPoint<double>, public geom::Coordinate
+class CoordinatePoint : public AbstractPoint<double>
 {
-public:
-    CoordinatePoint(const geom::Coordinate& coord) : geom::Coordinate(coord.x, coord.y, coord.z) {}; //allows implicit type cast
+private:
+    geom::Coordinate& coord;
 
-    inline double getX() override {return x;};
-    inline double getY() override {return y;};
-    inline double getZ() override {return z;};
+public:
+    CoordinatePoint(geom::Coordinate& coord) : coord(coord) {}; //allows implicit type cast
+    CoordinatePoint(const geom::Coordinate& coord) : coord(const_cast<geom::Coordinate&>(coord)) {}; //allows implicit type cast
+
+    inline double& x() override {return coord.x;};
+    inline double& y() override {return coord.y;};
+    inline double& z() override {return coord.z;};
 
     const double& operator[](std::size_t idx) const override
     {
         if (idx == 0)
-            return x;
+            return coord.x;
         else if (idx == 1)
-            return y;
+            return coord.y;
         else if (idx == 2)
-            return z;
+            return coord.z;
         else
             throw std::out_of_range(""); // Out of boundary!
 
-        return z;
+        return coord.z;
     }
 };
 
@@ -222,6 +226,11 @@ public:
     const CoordinatePoint at(std::size_t idx) const
     {
         return CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());
+    }
+
+    virtual AbstractPoint<double>::Ptr operator[](std::size_t idx)
+    {
+        return std::make_shared<CoordinatePoint>(at(idx));
     }
 
     geom::Coordinate& at(std::size_t idx)

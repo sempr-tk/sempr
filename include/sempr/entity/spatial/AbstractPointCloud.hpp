@@ -37,9 +37,9 @@ class AbstractPoint
 public:
     using Ptr = std::shared_ptr< AbstractPoint<T> >;
 
-    virtual T getX() = 0;
-    virtual T getY() = 0;
-    virtual T getZ() = 0;
+    virtual T& x() = 0;
+    virtual T& y() = 0;
+    virtual T& z() = 0;
 
     virtual const T& operator[](std::size_t idx) const = 0;
 };
@@ -63,7 +63,7 @@ public:
         iterator(AbstractChannel* ptr, std::size_t index = 0) : ptr_(ptr), index_(index) { }
         iterator operator++() { iterator i = *this; index_++; return i; }
         iterator operator++(int junk) { index_++; return *this; }
-        T& operator*() { return (*ptr_)[index_]; }
+        T& operator*() { return (*ptr_)[index_]; }  // access element
         T* operator->() { return &operator*(); }
         bool operator==(const iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
         bool operator!=(const iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
@@ -78,7 +78,7 @@ public:
         const_iterator(const AbstractChannel* ptr, std::size_t index = 0) : ptr_(ptr), index_(index) { }
         const_iterator operator++() { const_iterator i = *this; index_++; return i; }
         const_iterator operator++(int junk) { index_++; return *this; }
-        const T& operator*() { return (*ptr_)[index_]; }
+        const T& operator*() { return (*ptr_)[index_]; }    // access element
         const T* operator->() { return &operator*(); }
         bool operator==(const const_iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
         bool operator!=(const const_iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
@@ -136,15 +136,31 @@ public:
 
     virtual std::size_t size() const = 0;
 
+    virtual std::shared_ptr< AbstractPoint<T> > operator[](std::size_t idx) = 0;
     virtual const std::shared_ptr< AbstractPoint<T> > operator[](std::size_t idx) const = 0;
 
+
+    class iterator
+    {
+    public:
+        iterator(AbstractPointCloud* ptr, std::size_t index = 0) : ptr_(ptr), index_(index) { }
+        iterator operator++() { iterator i = *this; index_++; return i; }
+        iterator operator++(int junk) { index_++; return *this; }
+        AbstractPoint<T>& operator*() { return (*ptr_)[index_]; }   // access element
+        AbstractPoint<T>* operator->() { return &operator*(); }
+        bool operator==(const iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
+        bool operator!=(const iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
+    private:
+        AbstractPointCloud* const ptr_;
+        std::size_t index_;
+    };
     class const_iterator
     {
     public:
         const_iterator(const AbstractPointCloud* ptr, std::size_t index = 0) : ptr_(ptr), index_(index) { }
         const_iterator operator++() { const_iterator i = *this; index_++; return i; }
         const_iterator operator++(int junk) { index_++; return *this; }
-        const AbstractPoint<T>& operator*() { return *(*ptr_)[index_]; }
+        const AbstractPoint<T>& operator*() { return *(*ptr_)[index_]; }    // access element
         const AbstractPoint<T>* operator->() { return &operator*(); }
         bool operator==(const const_iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
         bool operator!=(const const_iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
@@ -155,9 +171,11 @@ public:
 
     const_iterator cbegin() { return const_iterator(this, 0); };
     const_iterator begin() const { return const_iterator(this, 0); };
+    iterator begin() { return iterator(this, 0); };
 
     const_iterator cend() { return const_iterator(this, size()); }; 
     const_iterator end() const { return const_iterator(this, size()); };
+    iterator end() { return iterator(this, size()); };
 
 };
 
