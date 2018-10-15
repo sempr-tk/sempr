@@ -4,6 +4,7 @@
 #include <sempr/entity/Entity.hpp>
 #include <sempr/entity/spatial/Geometry.hpp>
 #include <sempr/entity/SemanticEntity.hpp>
+#include <sempr/core/RDF.hpp>
 #include <odb/core.hxx>
 
 #include <string>
@@ -17,19 +18,20 @@ class GeometricObject : public SemanticEntity {
 public:
     using Ptr = std::shared_ptr<GeometricObject>;
 
-    GeometricObject();  //ToDo Allow temporary!!
-    GeometricObject(const core::IDGenBase*);
+    GeometricObject();
+    GeometricObject(bool temporary);
+    GeometricObject(const core::IDGenBase*, bool temporary = false);
 
     const Geometry::Ptr geometry() const { return geometry_; }
     void geometry(const Geometry::Ptr geometry);
 
     const std::string type() const { return type_; }
-    //void type(const std::string& type) { updateProperty(type_, "rdf:type", type); }
+    void type(const std::string& type);
 
-    //void registerProperty(const std::string& predicate, const std::string& object);
+    void registerProperty(const std::string& predicate, const std::string& object);
 
     // Gives all related object by a known predicate. (could be empty for all related objects)
-    //std::vector<std::string> related(const std::string& predicate = "");
+    std::set<std::string> related(const std::string& predicate = "");
 
 private:
     friend class odb::access;
@@ -37,18 +39,6 @@ private:
     Geometry::Ptr geometry_;
 
     std::string type_;
-/*
-    template<class T>
-    void updateProperty(T& ref, const std::string predicate, const T& value)
-    {
-        removeProperty(predicate, value);   // will remove the first equal one!
-
-        ref = value;
-
-        registerProperty(predicate, value);
-
-        changed();
-    }*/
 };
 
 }}

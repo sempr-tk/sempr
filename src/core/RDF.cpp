@@ -19,17 +19,17 @@ namespace sempr {
     /**
         Build a URI based on the sempr::baseURI and the given string in "<baseURI::ID>" format.
      */
-    const std::string buildURI(const std::string& id) {
-        return std::string( "<" + baseURI() + id + ">" );
+    const std::string buildURI(const std::string& id, const std::string& baseURI) {
+        return std::string( "<" + baseURI + id + ">" );
     }
 
     /**
         Extract the ID of a given sempr URI
      */
-    const std::string extractID(const std::string& uri) {
-        auto pos = uri.find(baseURI());
+    const std::string extractID(const std::string& uri, const std::string& baseURI) {
+        auto pos = uri.find(baseURI);
         if (pos != std::string::npos) {
-            auto id = uri.substr(pos + baseURI().length(), uri.length()-pos-baseURI().length()-1);
+            auto id = uri.substr(pos + baseURI.length(), uri.length()-pos-baseURI.length()-1);
             return id;
         }
         else

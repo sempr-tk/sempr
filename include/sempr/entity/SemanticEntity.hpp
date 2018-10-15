@@ -255,8 +255,10 @@ class SemanticEntity : public RDFEntity {
     std::vector<RegisteredPropertyBase*>::iterator findProperty(const RegisteredPropertyBase& prop);
 
 protected:
-    SemanticEntity(const core::IDGenBase*);
     SemanticEntity();
+    SemanticEntity(bool temporary);
+    SemanticEntity(const core::IDGenBase*, bool temporary = false);
+    
 
     /**
         Registers the property at this semantic entity. This will provide the RDF-Triple:

@@ -109,7 +109,24 @@ public:
 
     void process(core::EntityEvent<entity::SpatialReference>::Ptr refEvent) override
     {
-        // todo found and update the based enities
+        typedef core::EntityEvent<entity::SpatialReference>::EventType EType; //Will ony be could if the spatial reference itself is changed
+
+        switch (refEvent->what()) 
+        {
+            case EType::CREATED:
+            case EType::LOADED:
+                // nothing to do.
+                break;
+            case EType::CHANGED:
+                // check which geometries are affected and update them.
+                processChangedCS(refEvent->getEntity());
+                break;
+            case EType::REMOVED:
+                // well...
+                // what happens if we remove a SpatialReference that some geometry is pointing to?
+                // (why would be do that? how can we prevent that?)
+                break;
+        }
     }   
 
     // register a new check function for a given predicate like north or east.
@@ -144,35 +161,56 @@ private:
 
     void removeEntity(const std::shared_ptr<SpatialEntity>& entity)
     {
-        rdfMap_[entity->id()]->removed();   // fire remove event
-
-        removeGeometryLink(entity->id());
-
-        rdfMap_.erase(entity->id());        // remove rdf vector for the entity
-        removeBackRelation(entity->id());   // remove linked back relations ot his entity
+        removeEntity(entity->id());
     }
 
+    void removeEntity(const std::string& id)
+    {
+        rdfMap_[id]->removed();   // fire remove event
+
+        removeGeometryLink(id);
+
+        rdfMap_.erase(id);        // remove rdf vector for the entity
+        removeBackRelation(id);   // remove linked back relations ot his entity
+    }
+
+    void processChangedCS(entity::SpatialReference::Ptr cs)
+    {
+        // we need to check every geometry currently in the index, if it is affected.
+        for (auto entry : spatialGeometry_)
+        {
+            if (entry.first->getCS()->isChildOf(cs))
+            {
+                // well, in that case update it.
+                updateEntity(entry.first, entry.second);
+            }
+        }
+    }
 
     void addEntity(const std::shared_ptr<SpatialEntity>& entity, bool change = false)
     {
-        if (indexedGeometry(entity->geometry()))
+        addEntity(entity->geometry(), entity->id(), change);
+    }
+
+    void addEntity(const std::shared_ptr<entity::Geometry>& geometry, const std::string& id, bool change = false)
+    {
+        if (indexedGeometry(geometry))
         {
             if (!change)
             {   // new Entity
-                rdfMap_[entity->id()] = entity::RDFVector::Ptr(new entity::RDFVector(true)); // not persistant Entity
-                rdfMap_[entity->id()]->created();
+                rdfMap_[id] = entity::RDFVector::Ptr(new entity::RDFVector(true)); // not persistant Entity
+                rdfMap_[id]->created();
             }
             else
             {   // changed Entity
-                rdfMap_[entity->id()]->clear();
-                rdfMap_[entity->id()]->changed();
+                rdfMap_[id]->clear();
+                rdfMap_[id]->changed();
             }
 
-            spatialGeometry_[entity->geometry()] = entity->id();    // build up geometry link
-            checkEntity(entity->id(), entity->geometry());
+            spatialGeometry_[geometry] = id;    // build up geometry link
+            checkEntity(id, geometry);
         }
         //otherwise skip this entity!
-
     }
 
     bool indexedGeometry(const std::shared_ptr<entity::Geometry>& geometry)
@@ -201,20 +239,23 @@ private:
 
     void updateEntity(const std::shared_ptr<SpatialEntity>& entity)
     {
+        updateEntity(entity->geometry(), entity->id());
+    }
+
+    void updateEntity(const std::shared_ptr<entity::Geometry>& geometry, const std::string& id)
+    {
         // There are two alternative way to handle this case:
         // 1. remove the old entity and add the updated one (easy but with many overhat)
         // 2. check that have be changed and check specific for the changes. (not easy but efficient)
         // For now we take the first option
-
-        removeGeometryLink(entity->id());
-        removeBackRelation(entity->id());
-        addEntity(entity, true);
+        removeGeometryLink(id);
+        removeBackRelation(id);
+        addEntity(geometry, id, true);
     }
-
 
     void removeBackRelation(const std::string& id)
     {
-        std::string objURI = sempr::buildURI(id);
+        std::string objURI = sempr::buildURI(id, sempr::baseURI());
 
         for (auto rdfIt = rdfMap_.begin(); rdfIt != rdfMap_.end(); ++rdfIt)
         {
@@ -268,9 +309,9 @@ private:
                     if (selfRelated)
                     {
                         // Build Triple: SelfId, Function predicate, OtherID
-                        entity::Triple t(   sempr::buildURI(id),
+                        entity::Triple t(   sempr::buildURI(id, sempr::baseURI()),
                                             checkBoxIt->first,
-                                            sempr::buildURI(spatialGeometry_.at(other.first)) );
+                                            sempr::buildURI(spatialGeometry_.at(other.first), sempr::baseURI()) );
                         rdfMap_[id]->addTriple(t, true);
                     }
 
@@ -280,9 +321,9 @@ private:
                     {
                         auto otherID = spatialGeometry_.at(other.first);
                         // Build Triple: OtherID, Function predicate, SelfId
-                        entity::Triple t(   sempr::buildURI(otherID),
+                        entity::Triple t(   sempr::buildURI(otherID, sempr::baseURI()),
                                             checkBoxIt->first,
-                                            sempr::buildURI(id)     );
+                                            sempr::buildURI(id, sempr::baseURI()) );
                         rdfMap_[otherID]->addTriple(t, true);
                         changedRDF.insert(rdfMap_[otherID]);    //mark vector as changed
                     }
