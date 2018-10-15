@@ -58,6 +58,14 @@ public:
 
     bool temporary() const { return temporary_; }
 
+    /**
+        Set the DBObject to be temporary or persistent.
+        This *must* be done *before* announcing it to the system.
+        Throws an exception if you try to make an object that is already 
+        persisted temporary.
+    */
+    void setTemporary(bool);
+
     std::string id() const { return id_; }
 
     /**
