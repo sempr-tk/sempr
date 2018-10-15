@@ -3,12 +3,13 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
 namespace sempr {
     const std::string& baseURI();
 
-    const std::string buildURI(const std::string& id);
-    const std::string extractID(const std::string& uri);
+    const std::string buildURI(const std::string& id, const std::string& baseURI);
+    const std::string extractID(const std::string& uri, const std::string& baseURI);
 
     namespace core {
 
@@ -22,6 +23,7 @@ namespace sempr {
         }
 
         namespace rdfs {
+            const std::string& baseURI();
         #   define RDFS(name) const std::string& (name)();
             RDFS(baseURI)
             RDFS(Resource)
@@ -34,6 +36,7 @@ namespace sempr {
         }
 
         namespace owl {
+            const std::string& baseURI();
         #   define OWL(name) const std::string& (name)();
             OWL(baseURI)
             OWL(Class)

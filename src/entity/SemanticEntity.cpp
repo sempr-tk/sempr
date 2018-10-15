@@ -86,16 +86,23 @@ void SemanticEntityIterator::makeValid()
 /// SemanticEntity
 SEMPR_ENTITY_SOURCE(SemanticEntity);
 
-SemanticEntity::SemanticEntity(const core::IDGenBase* idgen)
-    : RDFEntity(idgen)
+SemanticEntity::SemanticEntity() : 
+    SemanticEntity(new core::IDGen<SemanticEntity>())
+{
+}
+
+SemanticEntity::SemanticEntity(bool temporary) : 
+    SemanticEntity(new core::IDGen<SemanticEntity>(), temporary)
+{
+}
+
+SemanticEntity::SemanticEntity(const core::IDGenBase* idgen, bool temporary) : 
+    RDFEntity(idgen, temporary)
 {
     this->setDiscriminator<SemanticEntity>();
 }
 
-SemanticEntity::SemanticEntity()
-    : SemanticEntity(new core::IDGen<SemanticEntity>())
-{
-}
+
 
 SemanticEntity::~SemanticEntity()
 {

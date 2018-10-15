@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
     {
         GeometricObject::Ptr farfaraway( new GeometricObject() );
 
-        auto uri = sempr::buildURI(farfaraway->id());
-        auto id = sempr::extractID(uri);
+        auto uri = sempr::buildURI(farfaraway->id(), sempr::baseURI());
+        auto id = sempr::extractID(uri, sempr::baseURI());
 
         BOOST_CHECK_EQUAL(id, farfaraway->id());
     }
@@ -195,10 +195,10 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
         }
         core.addEntity(bremen);
 
-        Polygon::Ptr nds( new Polygon() );
-        nds->setCoordinates(getNDSCoords());
-        nds->setCS(globalCS);
-        auto queryNDS = SpatialIndexQuery2D::intersects(nds);
+        Polygon::Ptr ndsPolygon( new Polygon() );
+        ndsPolygon->setCoordinates(getNDSCoords());
+        ndsPolygon->setCS(globalCS);
+        auto queryNDS = SpatialIndexQuery2D::intersects(ndsPolygon);
 
         core.answerQuery(queryNDS);
         BOOST_CHECK_EQUAL(queryNDS->results.size(), 2); // Osna, Vechta and Bremen are in NDS if the query use a box. But in real Bremen is no a part of NDS.
@@ -209,10 +209,28 @@ BOOST_AUTO_TEST_SUITE(spatial_conclusion)
 
         SPARQLQuery::Ptr query(new SPARQLQuery());
         query->prefixes["spatial"] = "http://jena.apache.org/spatial#";
-        query->query = "SELECT ?o WHERE { ?o spatial:south " + sempr::buildURI(bremen->id()) + " . }";
+        query->query = "SELECT ?o WHERE { ?o spatial:south " + sempr::buildURI(bremen->id(), sempr::baseURI()) + " . }";
         core.answerQuery(query);
 
         BOOST_CHECK_EQUAL(query->results.size(), 2);    // Vechta and Osnabrück are in the south of Bremen.
+
+        // Add NDS as GeometricObject
+        GeometricObject::Ptr nds( new GeometricObject() );
+        nds->geometry(ndsPolygon);
+        core.addEntity(ndsPolygon);
+        core.addEntity(nds);
+
+        // Get current context of Vechta
+        vechtaContext = conclusion->getConclusion(vechta);
+        BOOST_CHECK_EQUAL(vechtaContext->size(), 4+2);  // In is within and intersects nds
+
+        // Remove Bremen
+        bremen->geometry()->removed();
+        bremen->removed();
+        //delete bremen.get();
+
+        vechtaContext = conclusion->getConclusion(vechta);
+        BOOST_CHECK_EQUAL(vechtaContext->size(), 4);  // In is within and intersects nds
 
     }
 
