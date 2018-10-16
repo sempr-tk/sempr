@@ -33,8 +33,6 @@ void GeometricObject::geometry(const Geometry::Ptr geometry)
 
     if (geometry_)  // cover nullptr set case
         SemanticEntity::registerProperty(sempr::buildURI(geometry_->id(), sempr::baseURI()), sempr::buildURI("subClassOf", sempr::core::rdfs::baseURI()), "<http://www.opengis.net/ont/geosparql#Geometry>");
-
-    changed();
 }
 
 void GeometricObject::type(const std::string& type)
@@ -44,8 +42,6 @@ void GeometricObject::type(const std::string& type)
     type_ = type;
 
     SemanticEntity::registerProperty(sempr::buildURI("type", sempr::core::rdf::baseURI()), type_);
-
-    changed();
 }
 
 void GeometricObject::registerProperty(const std::string& predicate, const std::string& object)
