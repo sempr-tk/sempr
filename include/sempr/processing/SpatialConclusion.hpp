@@ -109,7 +109,7 @@ public:
 
     void process(core::EntityEvent<entity::SpatialReference>::Ptr refEvent) override
     {
-        typedef core::EntityEvent<entity::SpatialReference>::EventType EType; //Will ony be could if the spatial reference itself is changed
+        typedef core::EntityEvent<entity::SpatialReference>::EventType EType; // will ony be called if the spatial reference itself is changed
 
         switch (refEvent->what()) 
         {
