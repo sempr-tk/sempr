@@ -54,6 +54,7 @@
 #include <sempr/processing/SopranoModule.hpp>
 #include <sempr/processing/SpatialIndex.hpp>
 #include <sempr/processing/SpatialConclusion.hpp>
+#include <sempr/processing/SpatialRestrictor.hpp>
 
 using namespace sempr::core;
 using namespace sempr::storage;
