@@ -28,19 +28,29 @@ public:
     virtual entity::Geometry::Ptr operator()(const entity::Geometry::Ptr geo) const = 0;
 };
 
-template < std::size_t dim, class SpatialEntity>
+template <class SpatialEntity>
 class SpatialRestrictor : public Module< core::EntityEvent<SpatialEntity>, core::EntityEvent<entity::SpatialReference> >
 {
 public:
-    using Ptr = std::shared_ptr< SpatialRestrictor<dim, SpatialEntity> >;
+    using Ptr = std::shared_ptr< SpatialRestrictor<SpatialEntity> >;
+
+    // Returns the type of this processing unit
+    std::string type() const override { return "SpatialRestrictor"; }
 
     typedef std::vector<std::string> StringList;
 
-    SpatialRestrictor(const StringList& types, const RestrictionBuilder::Ptr restrictionBuilder, const StringList restrictions) :
-        types_(types),
-        restrictionBuilder_(restrictionBuilder),
-        restrictions_(restrictions)
-    { 
+    // The RestrictionTruple groups a list of types where the spatial striction is build on, the restriction geometry builder and a list of restriction rdf objects (the restrictor will build the URIs of this).
+    typedef std::tuple<StringList, const RestrictionBuilder::Ptr, StringList> RestrictionTruple;
+
+
+    /**
+     * Create a SpatialRestrictor
+     * 
+     * @param restrictionObjectType Type name of the restricting objects. (no URI)
+     */
+    SpatialRestrictor(const std::string& restrictionObjectType = "RestrictionArea") :
+        restrictionObjectType_(sempr::buildURI(restrictionObjectType , sempr::baseURI()))
+    {
     };
 
     void process(std::shared_ptr< core::EntityEvent<SpatialEntity> > event) override
@@ -77,7 +87,7 @@ public:
                 break;
             case EType::CHANGED:
                 // check which geometries are affected and update them.
-                //processChangedCS(refEvent->getEntity());
+                processChangedCS(refEvent->getEntity());
                 break;
             case EType::REMOVED:
                 // well...
@@ -85,26 +95,77 @@ public:
                 // (why would be do that? how can we prevent that?)
                 break;
         }
-    }   
+    }
+
+    /**
+     * Register a new restriction.
+     * 
+     * The truple shall look like:
+     *  0 : StringList for the relevant types of the restriction. (empty means for all)
+     *  1 : RestrictionBuilder
+     *  2 : Restriction object as rdf object value of this restriction. 
+     * 
+     * The predicate is used to build up the rdf truple of the restricting geometries.
+     */
+    void registerRestriction(const RestrictionTruple& truple, std::string predicate = "restriction")
+    {
+        restrictionTruples_.push_back(std::make_pair(truple, predicate));
+    }
+
+
+    std::vector<entity::GeometricObject::Ptr> getRestrictions() const
+    {
+        std::vector<entity::GeometricObject::Ptr> results;
+
+        for (auto resPair : restrictionMap_)
+        {
+            results.insert(std::end(results), std::begin(resPair.second), std::end(resPair.second));
+        }
+
+        return results;
+    }
+
+    std::vector<entity::GeometricObject::Ptr> getRestrictions(const std::shared_ptr<SpatialEntity>& spatialEntity) const
+    {
+        try
+        {
+            return restrictionMap_.at(spatialEntity);
+        } 
+        catch (const std::exception& ex)
+        { 
+            // nothing to do. Only catch the exception and return an empty vector.
+        }
+        return std::vector<entity::GeometricObject::Ptr>();
+    }
+
 
 private:
-    StringList types_;
-    const RestrictionBuilder::Ptr restrictionBuilder_;
-    StringList restrictions_;
+    const std::string restrictionObjectType_;
 
-    // Maps the ID of the SpatialEntity to a restriction
-    std::map<const std::shared_ptr<SpatialEntity>, entity::GeometricObject::Ptr> restrictionMap_;
+    std::vector< std::pair<RestrictionTruple, std::string> > restrictionTruples_;
 
-
+    // maps a SpatialEntity to restriction geometries
+    std::map<const std::shared_ptr<SpatialEntity>, std::vector<entity::GeometricObject::Ptr> > restrictionMap_;
+    
     bool removeEntity(const std::shared_ptr<SpatialEntity>& spatialEntity, bool notify = true)
     {
         if (restrictionMap_.find(spatialEntity) != restrictionMap_.end())
         {
+            auto geometries = restrictionMap_.at(spatialEntity);
+
             //notify removed geometry in any case:
-            restrictionMap_.at(spatialEntity)->geometry()->removed();
+            for (auto geom : geometries)
+            {
+                geom->geometry()->removed();
+            }
 
             if (notify)
-                restrictionMap_.at(spatialEntity)->removed();
+            {
+                for (auto geom : geometries)
+                {
+                    geom->removed();
+                }
+            }
         }
 
         return restrictionMap_.erase(spatialEntity);
@@ -112,32 +173,36 @@ private:
 
     bool addEntity(const std::shared_ptr<SpatialEntity>& spatialEntity, bool notify = true)
     {
-        if (checkType(spatialEntity))
+        bool added = false;
+
+        for ( auto truplePair : restrictionTruples_ )
         {
-            auto restri = buildRestrictionGeo(spatialEntity);
-            if (restri)
+            if ( checkType( spatialEntity, std::get<0>(truplePair.first) ) )
             {
-                restrictionMap_[spatialEntity] = restri;
+                auto restri = buildRestrictionGeo(spatialEntity, std::get<1>(truplePair.first), std::get<2>(truplePair.first), truplePair.second);
 
-                // notify the new geometry in any case:
-                restri->geometry()->created();
+                if (restri)
+                {
+                    restrictionMap_[spatialEntity].push_back(restri);
 
-                if (notify)
-                    restri->created();
+                    // notify the new geometry in any case:
+                    restri->geometry()->created();
 
-                return true;
+                    if (notify)
+                        restri->created();
+
+                    added = true;
+                }
             }
         }
-        return false;
+
+        return added;
     }
 
     void updateEntity(const std::shared_ptr<SpatialEntity>& spatialEntity)
     {
-        removeEntity(spatialEntity, false);
-        addEntity(spatialEntity, false);
-
-        if (restrictionMap_.find(spatialEntity) != restrictionMap_.end())
-            restrictionMap_.at(spatialEntity)->changed();
+        removeEntity(spatialEntity);
+        addEntity(spatialEntity);
     }
 
     void processChangedCS(entity::SpatialReference::Ptr cs)
@@ -147,25 +212,24 @@ private:
         {
             if (entry.first->geometry()->getCS()->isChildOf(cs))
             {
-                // well, in that case update it.
                 updateEntity(entry.first);
             }
         }
     }
 
-    bool checkType(const std::shared_ptr<SpatialEntity>& spatialEntity)
+    bool checkType(const std::shared_ptr<SpatialEntity>& spatialEntity, const StringList& types) const
     {
-        if (types_.empty())
+        if (types.empty())
             return true;    //empty typelist will passthough all spatial enities
 
-        auto find = std::find(types_.begin(), types_.end(), spatialEntity->type());
+        auto find = std::find(types.begin(), types.end(), spatialEntity->type());
 
-        return find != types_.end(); //type of spatial Entity is found in the type list
+        return find != types.end(); //type of spatial Entity is found in the type list
     }
 
-    entity::GeometricObject::Ptr buildRestrictionGeo(const std::shared_ptr<SpatialEntity>& spatialEntity)
+    entity::GeometricObject::Ptr buildRestrictionGeo(const std::shared_ptr<SpatialEntity>& spatialEntity, const RestrictionBuilder::Ptr restrictionBuilder, const StringList& restrictions, const std::string& predicate) const
     {
-        auto geo = (*restrictionBuilder_)(spatialEntity->geometry());   // call the restriction builder
+        auto geo = (*restrictionBuilder)(spatialEntity->geometry());   // call the restriction builder
 
         if (geo)
         {
@@ -173,11 +237,11 @@ private:
 
             entity::GeometricObject::Ptr geomObject(new entity::GeometricObject(true)); //build a temporary geometric object
             geomObject->geometry(geo);
-            geomObject->type(sempr::buildURI("RestrictionArea" , sempr::baseURI()));
+            geomObject->type(restrictionObjectType_);
 
-            for (auto restriction : restrictions_)
+            for (auto restriction : restrictions)
             {
-                geomObject->registerProperty(sempr::buildURI("restriction" , sempr::baseURI()), restriction);
+                geomObject->registerProperty(sempr::buildURI(predicate , sempr::baseURI()), restriction);
             }
 
             return geomObject;
@@ -190,20 +254,12 @@ private:
 
 };
 
-
-template <class SpatialEntity>
-using SpatialRestrictor2D = SpatialRestrictor<2, SpatialEntity>;
-
-template <class SpatialEntity>
-using SpatialRestrictor3D = SpatialRestrictor<3, SpatialEntity>;
-
-
-
 //CentroidCircle
-class CentroidCircle : public RestrictionBuilder
+// If the extended radius is 0 than this builder will only create a bounding sphere (not minimal!) of the geometry.
+class CentroidCircleBuilder : public RestrictionBuilder
 {
 public:
-    CentroidCircle( double extendedRadius ) : rExt_(extendedRadius) {}
+    CentroidCircleBuilder( double extendedRadius ) : rExt_(extendedRadius) {}
 
     virtual entity::Geometry::Ptr operator()(const entity::Geometry::Ptr geo) const override
     {
@@ -255,8 +311,15 @@ private:
 
 };
 
-//ExtendedHull
-
+//ExtendedHullBuilder
+// If the distance is 0 this builder will pass through the convex hull of the geometry.
+class ExtendedHullBuilder : public RestrictionBuilder
+{
+    virtual entity::Geometry::Ptr operator()(const entity::Geometry::Ptr geo) const override
+    {
+        return nullptr; //ToDo
+    }
+};
 
 }}
 
