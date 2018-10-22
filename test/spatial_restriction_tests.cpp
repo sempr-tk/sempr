@@ -2,10 +2,6 @@
 using namespace testing;
 
 
-
-
-
-
 BOOST_AUTO_TEST_SUITE(spatial_restriction)
     std::string dbfile = "test_spatial_restriction_sqlite.db";
 
@@ -13,7 +9,7 @@ BOOST_AUTO_TEST_SUITE(spatial_restriction)
     {
         Core core;
         
-        SpatialRestrictor2D<GeometricObject>::Ptr spatialRes = SpatialRestrictor2D<GeometricObject>::Ptr( new SpatialRestrictor2D<GeometricObject>( {}, std::make_shared<CentroidCircle>(3.), {} ) );
+        SpatialRestrictor<GeometricObject>::Ptr spatialRes( new SpatialRestrictor<GeometricObject>() );
 
     }
 
