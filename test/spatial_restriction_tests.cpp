@@ -11,6 +11,10 @@ BOOST_AUTO_TEST_SUITE(spatial_restriction)
         
         SpatialRestrictor<GeometricObject>::Ptr spatialRes( new SpatialRestrictor<GeometricObject>() );
 
+        auto restrictionTuple = SpatialRestrictor<GeometricObject>::RestrictionTruple({}, BufferBuilder(3), {});
+
+        spatialRes->registerRestriction(restrictionTuple);
+
     }
 
     BOOST_AUTO_TEST_CASE(spatial_conclusion_cleanup)
