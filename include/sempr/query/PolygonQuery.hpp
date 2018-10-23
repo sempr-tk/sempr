@@ -17,9 +17,9 @@ namespace sempr { namespace query {
     public:
         using Ptr = std::shared_ptr<PolygonQuery>;
 
-        PolygonQuery(const geom::Polygon *poly);
+        PolygonQuery(const geom::Polygon *poly, const double low, const double high);
         PolygonQuery(entity::agri::AgriEntity::Ptr &agri);
-        PolygonQuery(entity::Polygon::Ptr &polygon);
+        PolygonQuery(entity::Polygon::Ptr &polygon, const double low, const double high);
 
         ~PolygonQuery();
 
@@ -30,11 +30,16 @@ namespace sempr { namespace query {
 
         const geom::Polygon* geometry() const { return m_poly; }
 
+        const double low() const { return m_low; }
+        const double high() const { return m_high; }
+
     private:
 
         PolygonQuery();
 
         const geom::Polygon *m_poly;
+        double m_low;
+        double m_high;
 
     };
 }}

@@ -5,6 +5,7 @@
 
 #include <sempr/entity/Entity.hpp>
 #include <sempr/entity/spatial/Polygon.hpp>
+#include <sempr/entity/RDFPropertyMap.hpp>
 
 #include <sempr/core/IDGenUtil.hpp>
 
@@ -24,13 +25,25 @@ public:
 
     AgriEntity();
     AgriEntity(const sempr::core::IDGenBase*);
+    AgriEntity(RDFPropertyMap::Ptr properties, const sempr::core::IDGenBase*);
 
     Polygon::Ptr polygon() { return m_polygon; }
+    RDFPropertyMap::Ptr properties() { return m_properties; }
+
+    double low() { return m_low; }
+    double high() { return m_high; }
+    void low(double low) { m_low = low; }
+    void high(double high) { m_high = high; }
+
     virtual ~AgriEntity();
 protected:
     friend class odb::access;
 
     Polygon::Ptr m_polygon;
+    RDFPropertyMap::Ptr m_properties;
+
+    double m_low;
+    double m_high;
 };
 
 }}}

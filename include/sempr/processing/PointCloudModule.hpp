@@ -25,11 +25,16 @@ public:
 
     /* Get the internal Points of an Polygon. Points can be from MultiPoint or PointCloud */
     void process(query::PolygonQuery::Ptr query) override;
+    
 
 private:
     int checkIntersection(geom::Coordinate v11, geom::Coordinate v12, geom::Coordinate v21, geom::Coordinate v22);
 
     void calculatePoints(const entity::PointCloud::Ptr cloud, query::PolygonQuery::Ptr query);
+    
+    void calculatePoints(const entity::PointCloud::Ptr cloud, std::vector <geos::geom::Coordinate> coords);
+    
+    bool intersect(std::vector<geom::Coordinate> c, std::vector <geom::Coordinate> p);
 };
 
 }}
