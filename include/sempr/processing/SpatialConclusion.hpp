@@ -26,6 +26,7 @@ namespace sempr { namespace processing {
 /**
  * The SpatialConclusion is an extension to the SpatialIndex.
  * It will provide RDF Triple for a set of spatial relations to allow Spatial SPARQL queries.
+ * The relations are pre assigned by this processing unit.
  * 
  * @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
  * @prefix ogc: <http://www.opengis.net/ont/geosparql#>
@@ -40,7 +41,7 @@ namespace sempr { namespace processing {
  * spatial:west
  * spatial:east
  * 
- * Note: To fullfill the GeoSPARQL the SpatialEntity have to be marked in RDF as SubClassOf ogc:SpatialObject and the depending geometry as ogc:Geometry
+ * Note: To fullfill the GeoSPARQL like queries the SpatialEntity have to be marked in RDF as SubClassOf ogc:SpatialObject and the depending geometry as ogc:Geometry
  * 
  * Note: Other JenaSpatial relations like nearby, withinCircle, withinBox and intersectBox are only covered by SpatialIndexQuery
  * 
@@ -59,17 +60,17 @@ namespace sempr { namespace processing {
  * ogc:sfDisjoint   // negation of intersects
  * ogc:sfCrosses    // only for multipoint/polygon, multipoint/linestring, linestring/linestring, linestring/polygon, and linestring/multipolygon comparisons
  * 
- * The SpatialEntity have to implement a geometry() method to get a geometry object pointer.
+ * The SpatialEntity have to implement a geometry() method to get a geometry entity pointer.
  * 
  * The ODB header for the SpatialEntity (*_odb.h) have to be included before this module get included.
  */
-
 
 template < std::size_t dim, class SpatialEntity>
 class SpatialConclusion : public Module< core::EntityEvent<SpatialEntity>, core::EntityEvent<entity::SpatialReference> >
 {
 public:
     using Ptr = std::shared_ptr< SpatialConclusion<dim, SpatialEntity> >;
+    std::string type() const override { return "SpatialConclusion" + std::to_string(dim) + "D"; }
 
     typedef typename processing::SpatialIndexBase<dim>::ValuePair ValuePair;
     typedef typename processing::SpatialIndexBase<dim>::Box Box;
