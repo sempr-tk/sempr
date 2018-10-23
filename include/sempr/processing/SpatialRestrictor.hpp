@@ -28,6 +28,7 @@ public:
     virtual entity::Geometry::Ptr operator()(const entity::Geometry::Ptr geo) const = 0;
 };
 
+// The SpatialEntity have to implement a geometry() method to get a geometry entity pointer and a type() method to get the type information as string.
 template <class SpatialEntity>
 class SpatialRestrictor : public Module< core::EntityEvent<SpatialEntity>, core::EntityEvent<entity::SpatialReference> >
 {
