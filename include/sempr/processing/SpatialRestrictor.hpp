@@ -276,7 +276,10 @@ public:
 
         r += rExt_;  // extend the radius
 
-        return buildPolygonCircle(centroid, r);
+        auto builded = buildPolygonCircle(centroid, r);
+        builded->setCS(geo->getCS());
+
+        return builded;
     }
 
 private:
@@ -312,13 +315,71 @@ private:
 
 };
 
-//ExtendedHullBuilder
-// If the distance is 0 this builder will pass through the convex hull of the geometry.
-class ExtendedHullBuilder : public RestrictionBuilder
+/**
+ * @brief A RestrictionBuilder based on the GEOS GEOM buffer() method.
+ */
+class BufferBuilder : public RestrictionBuilder
 {
+public:
+    BufferBuilder(double distance) : distance_(distance) {}
+
     virtual entity::Geometry::Ptr operator()(const entity::Geometry::Ptr geo) const override
     {
-        return nullptr; //ToDo
+        auto buffered = geo->getGeometry()->buffer(distance_); // set buffered geometry
+
+        auto builded = buildGeometry(buffered);
+        builded->setCS(geo->getCS());
+
+        return builded;
+    }
+private:
+    const double distance_;
+
+    entity::Geometry::Ptr buildGeometry(geos::geom::Geometry* buffered) const
+    {
+        auto geoType = buffered->getGeometryTypeId();
+        switch (geoType)
+        {
+            case geos::geom::GEOS_POINT:
+            {
+                entity::Point::Ptr point(new entity::Point());
+                point->setGeometry( dynamic_cast<geos::geom::Point*>(buffered) );
+                return point;
+            }
+            case geos::geom::GEOS_LINESTRING:
+            {
+                entity::LineString::Ptr ls(new entity::LineString());
+                ls->setGeometry( dynamic_cast<geos::geom::LineString*>(buffered) );
+                return ls;
+            }
+            case geos::geom::GEOS_LINEARRING:
+            {
+                entity::LinearRing::Ptr lr(new entity::LinearRing());
+                lr->setGeometry( dynamic_cast<geos::geom::LinearRing*>(buffered) );
+                return lr;
+            }
+            case geos::geom::GEOS_POLYGON:
+            {
+                entity::Polygon::Ptr poly(new entity::Polygon());
+                poly->setGeometry( dynamic_cast<geos::geom::Polygon*>(buffered) );
+                return poly;
+            }
+            case geos::geom::GEOS_MULTIPOINT:
+            {
+                entity::MultiPoint::Ptr mp(new entity::MultiPoint());
+                mp->setGeometry( dynamic_cast<geos::geom::MultiPoint*>(buffered) );
+                return mp;
+            }
+            case geos::geom::GEOS_GEOMETRYCOLLECTION:
+            case geos::geom::GEOS_MULTIPOLYGON:
+            case geos::geom::GEOS_MULTILINESTRING:
+            {
+                entity::GeometryCollection::Ptr collection(new entity::GeometryCollection());
+                collection->setGeometry( dynamic_cast<geos::geom::GeometryCollection*>(buffered) );
+                return collection;
+            }
+        }
+        return nullptr;
     }
 };
 
