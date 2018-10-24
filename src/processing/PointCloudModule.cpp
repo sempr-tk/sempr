@@ -29,7 +29,8 @@ void PointCloudModule::process(query::PolygonQuery::Ptr query)
         
         const std::vector <geom::Coordinate>* coords_ptr = query->geometry()->getCoordinates()->toVector();
         const std::vector <geom::Coordinate>& coords = *coords_ptr;
-        
+
+
         geom::Geometry* geom = cloud->getGeometry()->convexHull();
         std::cout << "Boundary NP " << geom->getNumPoints() << std::endl;
     
@@ -295,7 +296,7 @@ bool PointCloudModule::intersect(std::vector<geom::Coordinate> c, std::vector <g
     }
 
     for(i = 1; i < c.size() - 1; i++)
-    {
+    {getCoordinate(
         if(c[i].x < cminX)
             cminX = c[i].x;
         if(c[i].z < cminZ)
