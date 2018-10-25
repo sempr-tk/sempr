@@ -29,6 +29,15 @@ public:
 };
 
 // The SpatialEntity have to implement a geometry() method to get a geometry entity pointer and a type() method to get the type information as string.
+/**
+ * @brief The first Version of the SpatialRestrictor. This Version will trigger on events of SpatialEntity. The SpatialEntity have to implement a geometry() and type() method.
+ * The restrictor creates spatial restricting geometry based on the type of the SpatialEntities.
+ * 
+ * @todo:   In the next version the restrictor shall only trigger on RDF triples which could be build up by a reasoner or a SPARQL query. 
+ *          For this the RDFStore (Soprano) should do their processing before this unit before and this processing unit shall only be triggered by a specfic rdf pattern.
+ * 
+ * @tparam SpatialEntity A template parameter that could be placed somewhere in the inheritacne hierachie to select a strict type (e.g. a Tree class or a SpatialObject class only if it represents the type "tree" )
+ */
 template <class SpatialEntity>
 class SpatialRestrictor : public Module< core::EntityEvent<SpatialEntity>, core::EntityEvent<entity::SpatialReference> >
 {
@@ -235,6 +244,7 @@ private:
         if (geo)
         {
             geo->setCS(spatialEntity->geometry()->getCS()); // set the cs of the generated geometry to the source one.
+            geo->created();
 
             entity::GeometricObject::Ptr geomObject(new entity::GeometricObject(true)); //build a temporary geometric object
             geomObject->geometry(geo);
@@ -276,10 +286,7 @@ public:
 
         r += rExt_;  // extend the radius
 
-        auto builded = buildPolygonCircle(centroid, r);
-        builded->setCS(geo->getCS());
-
-        return builded;
+        return buildPolygonCircle(centroid, r);
     }
 
 private:
@@ -327,11 +334,9 @@ public:
     {
         auto buffered = geo->getGeometry()->buffer(distance_); // set buffered geometry
 
-        auto builded = buildGeometry(buffered);
-        builded->setCS(geo->getCS());
-
-        return builded;
+        return buildGeometry(buffered);
     }
+
 private:
     const double distance_;
 

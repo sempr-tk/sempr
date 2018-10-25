@@ -23,7 +23,7 @@ public:
     GeometricObject(const core::IDGenBase*, bool temporary = false);
 
     const Geometry::Ptr geometry() const { return geometry_; }
-    void geometry(const Geometry::Ptr geometry);
+    void geometry(const Geometry::Ptr geometry);    // takes the ownership of the given geometry entity
 
     const std::string type() const { return type_; }
     void type(const std::string& type);
