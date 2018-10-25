@@ -1,5 +1,5 @@
-#ifndef SEMPR_QUERY_SPATIALQUERY_HPP_
-#define SEMPR_QUERY_SPATIALQUERY_HPP_
+#ifndef SEMPR_QUERY_SPATIALINDEXQUERY_HPP_
+#define SEMPR_QUERY_SPATIALINDEXQUERY_HPP_
 
 #include <sempr/query/Query.hpp>
 #include <sempr/processing/SpatialIndexBase.hpp>
@@ -32,7 +32,8 @@ namespace sempr { namespace query {
     by the user or a specialized processing module.
 */
 template<std::size_t dim = 3>
-class SpatialIndexQuery : public Query, public core::OType< SpatialIndexQuery<dim> > {
+class SpatialIndexQuery : public Query, public core::OType< SpatialIndexQuery<dim> > 
+{
 public:
     typedef processing::SpatialQueryType SpatialQueryType;
     typedef processing::SpatialIndexBase<dim> SpatialIndexBase;
@@ -239,4 +240,4 @@ typedef SpatialIndexQuery<3> SpatialIndexQuery3D;
 
 }}
 
-#endif /* end of include guard SEMPR_QUERY_SPATIALQUERY_HPP_ */
+#endif /* end of include guard SEMPR_QUERY_SPATIALINDEXQUERY_HPP_ */

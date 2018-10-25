@@ -27,7 +27,10 @@ GeometricObject::GeometricObject(const core::IDGenBase* idgen, bool temporary) :
 void GeometricObject::geometry(const Geometry::Ptr geometry)
 {
     if (geometry_)
+    {
         SemanticEntity::removeProperty(sempr::buildURI(geometry_->id(), sempr::baseURI()), sempr::buildURI("subClassOf", sempr::core::rdfs::baseURI()), "<http://www.opengis.net/ont/geosparql#Geometry>");
+        geometry_->removed();
+    }
 
     geometry_ = geometry;
 
