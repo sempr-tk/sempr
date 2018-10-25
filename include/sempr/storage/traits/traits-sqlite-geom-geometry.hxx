@@ -55,7 +55,8 @@ public:
             // since thats the type of pointer that is persisted for the class it's stored in.
 
             // parse the geometry from wkb
-            std::basic_string<char> buffer((char*)(b.data()));
+            //std::basic_string<char> buffer((char*)(b.data()));
+            std::basic_string<char> buffer(b.data(), n);
             auto tmpGeom = sempr::entity::Geometry::importFromWKB(buffer);
 
             // (Let's assume that the entities create an empty geometry in their ctor and assign
@@ -87,7 +88,7 @@ public:
     // image from geometry (--> save into database)
     template <class G, typename = typename std::enable_if<std::is_base_of<geom::Geometry, G>::value, G>::type>
     static void
-    set_image(image_type& b, std::size_t& n, bool& is_null, const G*& geometry)
+    set_image(image_type& b, std::size_t& n, bool& is_null, G* const& geometry)
     {
         if (geometry == NULL) {
             is_null = true;

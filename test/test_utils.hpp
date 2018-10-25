@@ -33,6 +33,8 @@
 #include <Polygon_odb.h>
 #include <MultiPoint_odb.h>
 
+#include <PointCloud_odb.h>
+
 // reference systems
 #include <sempr/entity/spatial/reference/LocalCS.hpp>
 #include <sempr/entity/spatial/reference/GeodeticCS.hpp>

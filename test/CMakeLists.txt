@@ -50,6 +50,10 @@ if(Boost_FOUND)
   target_link_libraries(sempr_semanticentity_tests ${DEPENDENCIES})
   add_test(NAME sempr_semanticentity_tests COMMAND sempr_semanticentity_tests)
 
+  add_executable(sempr_pointcloud_tests SEMPR_tests.cpp PointCloud_tests.cpp)
+  target_link_libraries(sempr_pointcloud_tests ${DEPENDENCIES})
+  add_test(NAME sempr_pointcloud_tests COMMAND sempr_pointcloud_tests)
+
   #todo: add a macro to reduce the line of command here!
 
 endif()

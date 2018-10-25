@@ -63,6 +63,69 @@ BOOST_AUTO_TEST_SUITE(geometries)
     }
 
 
+    BOOST_AUTO_TEST_CASE(geometries_well_known_polygon)
+    {
+        // set up ring
+        //
+        //           B
+        //         /   \ .
+        //  ls ---/- m  \ .
+        //      A ------ C
+        LinearRing::Ptr linearRing(new LinearRing());
+        std::vector<geom::Coordinate> ring;
+        ring.push_back(geom::Coordinate(-1, -1));
+        ring.push_back(geom::Coordinate(+0, +1));
+        ring.push_back(geom::Coordinate(+1, -1));
+        ring.push_back(geom::Coordinate(-1, -1));   //needed to close the ring!
+        linearRing->setCoordinates(ring);
+
+        // set up polygon from ring
+        Polygon::Ptr polygon(new Polygon());
+        polygon->setCoordinates(ring);
+
+        auto bufferWKB = Geometry::exportToWKB(polygon->getGeometry());
+        auto importedWKB = Geometry::importFromWKB(bufferWKB);
+
+        BOOST_CHECK(importedWKB->equals(polygon->getGeometry()));
+
+
+        auto bufferWKT = Geometry::exportToWKT(polygon->getGeometry());
+        auto importedWKT = Geometry::importFromWKT(bufferWKT);
+
+        BOOST_CHECK(importedWKT->equals(polygon->getGeometry()));
+    }
+
+    BOOST_AUTO_TEST_CASE(geometries_well_known_multipoint)
+    {
+        
+         // create a bunch of geometries
+        MultiPoint::Ptr multiPoint(new MultiPoint());
+
+        std::vector<geom::Coordinate> coords;
+        for(int i = 0; i < 10000; i++)
+        {
+            // Random numbers: Min i ... Max 10 + 1
+            double x = rand() % (10 + i) + i;
+            double y = rand() % (10 + i) + i;
+            double z = rand() % (10 + i) + i;
+            coords.push_back(geom::Coordinate(x, y, z));
+        }
+
+        multiPoint->setCoordinates(coords);
+
+        auto bufferWKB = Geometry::exportToWKB(multiPoint->getGeometry());
+        auto importedWKB = Geometry::importFromWKB(bufferWKB);
+
+        BOOST_CHECK(importedWKB->equals(multiPoint->getGeometry()));
+
+
+        auto bufferWKT = Geometry::exportToWKT(multiPoint->getGeometry());
+        auto importedWKT = Geometry::importFromWKT(bufferWKT);
+
+        BOOST_CHECK(importedWKT->equals(multiPoint->getGeometry()));
+    }
+
+
     BOOST_AUTO_TEST_CASE(geometries_insertion)
     {
         Core core;
