@@ -35,10 +35,10 @@
 
 #include <PointCloud_odb.h>
 
+
 #include <sempr/entity/spatial/SpatialObject.hpp>
 #include <SpatialObject_odb.h>
 #include <GeometricObject_odb.h>
-
 
 // reference systems
 #include <sempr/entity/spatial/reference/LocalCS.hpp>

@@ -2,6 +2,7 @@
 #define SEMPR_ENTITY_RDFVECTOR_H_
 
 #include <odb/core.hxx>
+
 #include <sempr/entity/RDFEntity.hpp>
 
 #include <vector>
