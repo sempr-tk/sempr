@@ -19,54 +19,105 @@ std::string PointCloudModule::type() const {
 
 void PointCloudModule::process(query::PolygonQuery::Ptr query)
 {
+    m_c.clear();
+    m_r.clear();
+    m_g.clear();
+    m_b.clear();
+    m_colors = false;
+
     query::ObjectQuery<entity::PointCloud>::Ptr clouds(new query::ObjectQuery<entity::PointCloud>() );
 
+
     ask(clouds);
+    int i = 0;
 
     for (auto const& cloud : clouds->results)
     {
         cloud->loaded();
         
-        const std::vector <geom::Coordinate>* coords_ptr = query->geometry()->getCoordinates()->toVector();
-        const std::vector <geom::Coordinate>& coords = *coords_ptr;
+        //const std::vector <geom::Coordinate>* coords_ptr = query->geometry()->getCoordinates()->toVector();
+        //const std::vector <geom::Coordinate>& coords = *coords_ptr;
 
 
-        geom::Geometry* geom = cloud->getGeometry()->convexHull();
-        std::cout << "Boundary NP " << geom->getNumPoints() << std::endl;
+        //geom::Geometry* geom = cloud->getGeometry()->convexHull();
+        //std::cout << "Boundary NP " << geom->getNumPoints() << std::endl;
     
-        const std::vector<geos::geom::Coordinate>* bounds_ptr = geom->getCoordinates()->toVector();
-        const std::vector<geos::geom::Coordinate>& bounds = *bounds_ptr;
+        //const std::vector<geos::geom::Coordinate>* bounds_ptr = geom->getCoordinates()->toVector();
+        //const std::vector<geos::geom::Coordinate>& bounds = *bounds_ptr;
         
-        if(intersect(bounds, coords) == true)
+
+
+        //if(intersect(bounds, coords) == true)
+        //{
+            //std::cout << "true" << std::endl;
+            //calculatePoints(cloud, query);
+        //}
+        //std::cout << i++ << std::endl;
+    }
+
+    std::cout << "done" << std::endl;
+
+    auto spatial = query::SpatialIndexQuery::intersectsBoxOf(query->entity());
+    ask(spatial);
+
+
+    entity::PointCloud::Ptr entity = entity::PointCloud::Ptr(new entity::PointCloud());
+
+    std::cout << "Size of points " << m_c.size() << std::endl;
+
+
+
+    //std::set<entity::Geometry::Ptr> set = spatial->results();
+
+    //for (std::set<entity::Geometry::Ptr>::iterator c = set.begin(); c != set.end(); ++c)
+    for(auto& c : spatial->results)
+    {
+        if(c->discriminator() == "sempr::entity::PointCloud")
         {
-            std::cout << "true" << std::endl;
+            entity::PointCloud::Ptr cloud = std::static_pointer_cast<entity::PointCloud>(c);
             calculatePoints(cloud, query);
+            std::cout << i++ << std::endl;
         }
     }
+
+    entity->setCoordinates(m_c);
+    if(m_colors == true)
+    {
+        std::cout << "Set Colors" << std::endl;
+        entity->setChannel(10, m_r);
+        entity->setChannel(11, m_g);
+        entity->setChannel(12, m_b);
+    }
+
+    query->results = entity;
+    // this is a really bad running time, isnt it? .. O(NumberOfClouds) * O(NumberOfPointsInEachCloud) * O(NumberOfVerticesInPolygon) * O(calculating) ... :(
+
+
+    std::cout << "done2" << std::endl;
+
+    //std::cout << "Spatial Index Result: " << spatial->results.size() << std::endl;
 }
 
 void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, query::PolygonQuery::Ptr query)
 {
     unsigned int i, j;
-    bool colors = false;
 
     double low = query->low();
     double high = query->high();
 
-    const std::vector <geom::Coordinate>* coords_ptr = query->geometry()->getCoordinates()->toVector();
+    const std::vector <geom::Coordinate>* coords_ptr = query->entity()->getGeometry()->getCoordinates()->toVector();
     const std::vector <geom::Coordinate>& coords = *coords_ptr;
     
     if(cloud->hasChannel(10) && cloud->hasChannel(11) && cloud->hasChannel(12))
     {
         std::cout << "we have color" << std::endl;
 
-        colors = true;
+        m_colors = true;
     }
-
-    std::vector<geom::Coordinate> c;
-    std::vector<double> r;
-    std::vector<double> g;
-    std::vector<double> b;
+    else
+    {
+        m_colors = false;
+    }
 
     double minX = coords[0].x;
     double minZ = coords[0].z;
@@ -112,12 +163,12 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
             {
                 if(cloud_coords[j].y >= low && cloud_coords[j].y <= high)
                 {
-                    c.push_back(cloud_coords[j]);
-                    if(colors == true)
+                    m_c.push_back(cloud_coords[j]);
+                    if(m_colors == true)
                     {
-                        r.emplace_back(cloud->getChannel(10)[j]);
-                        g.emplace_back(cloud->getChannel(11)[j]);
-                        b.emplace_back(cloud->getChannel(12)[j]);
+                        m_r.emplace_back(cloud->getChannel(10)[j]);
+                        m_g.emplace_back(cloud->getChannel(11)[j]);
+                        m_b.emplace_back(cloud->getChannel(12)[j]);
                     }
                 }
             }
@@ -126,21 +177,6 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
         }
 
     }
-
-    entity::PointCloud::Ptr entity = entity::PointCloud::Ptr(new entity::PointCloud());
-
-    entity->setCoordinates(c);
-    if(colors == true)
-    {
-        std::cout << "Set Colors" << std::endl;
-        entity->setChannel(10, r);
-        entity->setChannel(11, g);
-        entity->setChannel(12, b);
-    }
-
-    query->results = entity;
-    // this is a really bad running time, isnt it? .. O(NumberOfClouds) * O(NumberOfPointsInEachCloud) * O(NumberOfVerticesInPolygon) * O(calculating) ... :(
-
 }
 
 /*
@@ -296,7 +332,7 @@ bool PointCloudModule::intersect(std::vector<geom::Coordinate> c, std::vector <g
     }
 
     for(i = 1; i < c.size() - 1; i++)
-    {getCoordinate(
+    {
         if(c[i].x < cminX)
             cminX = c[i].x;
         if(c[i].z < cminZ)

@@ -7,6 +7,7 @@
 #include <sempr/processing/Module.hpp>
 #include <sempr/query/ObjectQuery.hpp>
 #include <sempr/query/PolygonQuery.hpp>
+#include <sempr/query/SpatialIndexQuery.hpp>
 #include <PointCloud_odb.h>
 #include <AgriEntity_odb.h>
 
@@ -35,6 +36,13 @@ private:
     void calculatePoints(const entity::PointCloud::Ptr cloud, std::vector <geos::geom::Coordinate> coords);
     
     bool intersect(std::vector<geom::Coordinate> c, std::vector <geom::Coordinate> p);
+
+    std::vector<geom::Coordinate> m_c;
+    std::vector<double> m_r;
+    std::vector<double> m_g;
+    std::vector<double> m_b;
+
+    bool m_colors = true;
 };
 
 }}
