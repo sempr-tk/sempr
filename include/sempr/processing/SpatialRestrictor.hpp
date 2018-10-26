@@ -5,13 +5,14 @@
 
 #include <sempr/processing/Module.hpp>
 #include <sempr/processing/SpatialIndex.hpp>
-
+#include <sempr/query/SpatialRestrictionQuery.hpp>
 
 #include <sempr/entity/spatial/Geometry.hpp>
 #include <sempr/entity/spatial/reference/GeodeticCS.hpp>
 
 #include <sempr/entity/RDFVector.hpp>
 
+#include <GeometricObject_odb.h>
 #include <Geometry_odb.h>           // required for EntityEvent<Geometry>
 #include <SpatialReference_odb.h>   // required for EntityEvent<SpatialReference>
 
@@ -36,10 +37,10 @@ public:
  * @todo:   In the next version the restrictor shall only trigger on RDF triples which could be build up by a reasoner or a SPARQL query. 
  *          For this the RDFStore (Soprano) should do their processing before this unit before and this processing unit shall only be triggered by a specfic rdf pattern.
  * 
- * @tparam SpatialEntity A template parameter that could be placed somewhere in the inheritacne hierachie to select a strict type (e.g. a Tree class or a SpatialObject class only if it represents the type "tree" )
+ * @tparam SpatialEntity A template parameter that could be placed somewhere in the inheritacne hierarchy to select a strict type (e.g. a Tree class or a SpatialObject class only if it represents the type "tree" )
  */
-template <class SpatialEntity>
-class SpatialRestrictor : public Module< core::EntityEvent<SpatialEntity>, core::EntityEvent<entity::SpatialReference> >
+template < EXTENDS_CLASS(SpatialEntity, entity::AbstractSpatialObject) >
+class SpatialRestrictor : public Module< core::EntityEvent<SpatialEntity>, core::EntityEvent<entity::SpatialReference>, query::SpatialRestrictionQuery >
 {
 public:
     using Ptr = std::shared_ptr< SpatialRestrictor<SpatialEntity> >;
@@ -50,7 +51,7 @@ public:
     typedef std::vector<std::string> StringList;
 
     // The RestrictionTruple groups a list of types where the spatial striction is build on, the restriction geometry builder and a list of restriction rdf objects (the restrictor will build the URIs of this).
-    typedef std::tuple<StringList, const RestrictionBuilder::Ptr, StringList> RestrictionTruple;
+    typedef std::tuple<StringList, const RestrictionBuilder::Ptr, StringList> RestrictionTuple;
 
 
     /**
@@ -107,6 +108,11 @@ public:
         }
     }
 
+    void process(std::shared_ptr< query::SpatialRestrictionQuery > query) override
+    {
+        //ToDo
+    }
+
     /**
      * Register a new restriction.
      * 
@@ -117,9 +123,9 @@ public:
      * 
      * The predicate is used to build up the rdf truple of the restricting geometries.
      */
-    void registerRestriction(const RestrictionTruple& truple, std::string predicate = "restriction")
+    void registerRestriction(const RestrictionTuple& truple, std::string predicate = "restriction")
     {
-        restrictionTruples_.push_back(std::make_pair(truple, predicate));
+        restrictionTuples_.push_back(std::make_pair(truple, predicate));
     }
 
 
@@ -152,7 +158,7 @@ public:
 private:
     const std::string restrictionObjectType_;
 
-    std::vector< std::pair<RestrictionTruple, std::string> > restrictionTruples_;
+    std::vector< std::pair<RestrictionTuple, std::string> > restrictionTuples_;
 
     // maps a SpatialEntity to restriction geometries
     std::map<const std::shared_ptr<SpatialEntity>, std::vector<entity::GeometricObject::Ptr> > restrictionMap_;
@@ -185,11 +191,11 @@ private:
     {
         bool added = false;
 
-        for ( auto truplePair : restrictionTruples_ )
+        for ( auto tuplePair : restrictionTuples_ )
         {
-            if ( checkType( spatialEntity, std::get<0>(truplePair.first) ) )
+            if ( checkType( spatialEntity, std::get<0>(tuplePair.first) ) )
             {
-                auto restri = buildRestrictionGeo(spatialEntity, std::get<1>(truplePair.first), std::get<2>(truplePair.first), truplePair.second);
+                auto restri = buildRestrictionGeo(spatialEntity, std::get<1>(tuplePair.first), std::get<2>(tuplePair.first), tuplePair.second);
 
                 if (restri)
                 {

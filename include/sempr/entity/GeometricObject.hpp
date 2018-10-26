@@ -8,12 +8,23 @@
 #include <odb/core.hxx>
 
 #include <string>
+#include <memory>
+
+#define EXTENDS_CLASS(T, EXTENDS) class T, typename std::enable_if<std::is_base_of<EXTENDS, T>::value>::type* = nullptr
 
 namespace sempr { namespace entity {
 
+class AbstractSpatialObject {
+public:
+    using Ptr = std::shared_ptr<AbstractSpatialObject>;
+
+    virtual const Geometry::Ptr geometry() const = 0;
+    virtual const std::string type() const = 0;
+};
+
 
 #pragma db object
-class GeometricObject : public SemanticEntity {
+class GeometricObject : public SemanticEntity, public AbstractSpatialObject {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<GeometricObject>;

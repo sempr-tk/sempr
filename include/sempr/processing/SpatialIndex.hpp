@@ -53,8 +53,8 @@ class SpatialConclusion;
 template< std::size_t dim = 3 >
 class SpatialIndex : 
     public Module<  core::EntityEvent<entity::Geometry>,
-                     core::EntityEvent<entity::SpatialReference>,
-                     query::SpatialIndexQuery<dim> >,
+                    core::EntityEvent<entity::SpatialReference>,
+                    query::SpatialIndexQuery<dim>               >,
     SpatialIndexBase<dim>
 {
 public:
