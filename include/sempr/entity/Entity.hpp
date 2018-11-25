@@ -77,7 +77,8 @@ namespace entity {
 class Entity : public storage::DBObject, public std::enable_shared_from_this<Entity>  {
 public:
     Entity();
-    Entity(const core::IDGenBase* idgen);
+
+    Entity(const core::IDGenBase* idgen, bool temporary = false);
 
     virtual ~Entity(){}
 

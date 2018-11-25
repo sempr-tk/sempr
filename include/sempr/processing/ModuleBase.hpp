@@ -24,9 +24,14 @@ class ModuleBase : public core::Observer {
     friend class core::Core;
 protected:
     /**
-        Allows modules to ask queries.
-    */
+     * Allows modules to ask queries.
+     */
     void ask(query::Query::Ptr q);
+
+    /**
+     * Return the pointer to the registered core
+     */
+    core::Core* core();
 
 public:
     using Ptr = std::shared_ptr<ModuleBase>;

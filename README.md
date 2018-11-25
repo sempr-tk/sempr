@@ -4,7 +4,7 @@ As the development of SEMPR just started recently, please do not expect a fully 
 
 ## Installation
 
-SEMPR currently relies on a few other libraries: ODB for the object relational mapping, sqlite3 for a database connection, boost for uuids, soprano for SPARQL queries, qt4 for soprano, and a recent version of gdal with geos support for more geometric operations.
+SEMPR currently relies on a few other libraries: ODB for the object relational mapping, sqlite3 for a database connection, boost for uuids, soprano for SPARQL queries, qt4 for soprano, and a recent version of geos and boost geometry for more geometric operations.
 
 ### ODB, GeographicLib, soprano, boost, geos 
 For a start, install the odb compiler and the required odb-libraries. If you are on Ubuntu 16.04 you can install them easily:
@@ -20,7 +20,7 @@ sudo apt-get install libboost-all-dev
 ```
 The boost-part is a bit overkill, but I don't really know which part of boost is needed. You could try `libboost-dev`...
 
-**If you need qt5** instead, you will need a customized build of soprano: SEMPR uses Soprano, and qt to work with it. Whatever version of qt is used by soprano will also be used by SEMPR, as it is propagated through pkg-config. Compiling soprano with qt5-support can be a bit tricky, especially if you are simultaneously using `libcurl4-openssl-dev`, e.g. if you have ROS installed. But don't worry, everything is explained in detail at the wiki page on [how to enable qt5 support](https://github.com/sempr-tk/sempr/wiki/soprano_qt5).
+**If you need qt5** instead, you will need a customized build of soprano: SEMPR uses Soprano, and qt to work with it. Whatever version of qt is used by soprano will also be used by SEMPR, as it is propagated through pkg-config. Compiling soprano with qt5-support can be a bit tricky, especially if you are simultaneously using `libcurl4-openssl-dev`, e.g. if you have ROS installed. But don't worry, everything is explained in detail at the wiki page on [how to enable qt5 support](https://github.com/sempr-tk/sempr/wiki/SEMPR-with-Qt5).
 
 For the spatial geometries you also need GEOS and the GeographicLib to transform from and to global coordinate systems:
 
@@ -719,8 +719,6 @@ But: Version `1.` needs two heap allocations, version `2.` only one. But, as the
 - Load subset from database
   - Be aware of the session caching everything that's loaded!
 - Add entities
-  - semantic object
-  - geometric object
   - general object (to be wrapped by use-case-classes, plus factory, to avoid the odb compiler)
 - Add processing modules
   - something tf-like (use envire)

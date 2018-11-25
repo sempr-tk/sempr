@@ -54,6 +54,8 @@ Geometry* Geometry::raw_clone() const
 void Geometry::setCS(SpatialReference::Ptr cs) 
 {
     referenceFrame_ = cs;
+
+    //this->changed();
 }
 
 SpatialReference::Ptr Geometry::getCS() const 
@@ -108,6 +110,8 @@ void Geometry::transformToCS(SpatialReference::Ptr cs)
         // geometry = toOther * fromThis * geometry
         LocalTransformationFilter tf(toOther * fromThis);
         apply(tf);
+
+        //this->changed();
     }
 
     // 2. the geometries have different roots but both a global (e.g., one is on WGS84,
@@ -139,6 +143,8 @@ void Geometry::transformToCS(SpatialReference::Ptr cs)
             auto rootToCS = cs->transformationFromRoot();
             LocalTransformationFilter tfToCS(rootToCS);
             apply(tfToCS);
+
+            //this->changed();
         }
         else
         {

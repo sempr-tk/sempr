@@ -7,92 +7,71 @@ namespace sempr { namespace entity {
 
 SEMPR_ENTITY_SOURCE(PointCloud)
 
-const double& CoordinatePoint::operator[](std::size_t idx) const
-{
-    if (idx == 0)
-        return x;
-    else if (idx == 1)
-        return y;
-    else if (idx == 2)
-        return z;
-    else
-        throw std::out_of_range(""); // Out of boundary!
-
-    return z;
-}
-
-
 PointCloud::PointCloud() : 
     PointCloud(new sempr::core::IDGen<PointCloud>())
 {
 }
 
 PointCloud::PointCloud(const sempr::core::IDGenBase* idgen) : 
-    sempr::entity::MultiPoint(idgen)
+    Geometry(idgen)
 {
     setDiscriminator<PointCloud>();
-
+    geometry_ = factory_->createMultiPoint();
 }
 
 PointCloud::~PointCloud()
 {
-
+    if (geometry_)
+    {
+        factory_->destroyGeometry(geometry_);
+        geometry_ = nullptr;
+    }
 }
 
-
-bool PointCloud::hasChannel(int type) const
+const geom::MultiPoint* PointCloud::getGeometry() const
 {
-    auto it = channels_.find(type);
-
-    return it != channels_.end();
+    return geometry_;
 }
 
-void PointCloud::setChannel(int type, const Channel& channel)
+geom::MultiPoint* PointCloud::getGeometryMut()
 {
-    if(channel.size() != size())
-        throw std::exception(); // no equial size of points and channel information
-
-    channels_[type] = channel;
+    return geometry_;
 }
 
-AbstractChannel& PointCloud::getChannel(int type)
+void PointCloud::setGeometry(geom::MultiPoint* geometry)
 {
-    if (!hasChannel(type))
-        throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
+    if (geometry_)
+        factory_->destroyGeometry(geometry_);
 
-    return channels_[type];
+    geometry_ = geometry;
 }
 
-
-const AbstractChannel& PointCloud::getChannel(int type) const
+void PointCloud::setPoints(const std::vector<geom::Coordinate>& coordinates)
 {
-    if (!hasChannel(type))
-        throw std::out_of_range("Channel " + std::to_string(type) + " not existing.");
-
-    return channels_.at(type);
+    setGeometry(factory_->createMultiPoint(coordinates));
 }
 
-std::size_t PointCloud::size() const
+PointCloud::Ptr PointCloud::clone() const 
 {
-    return getGeometry()->getNumGeometries(); // each point is a geometry so the num of geometries shall be equal to the num of points!
+    // raw clone is virtual! :)
+    return PointCloud::Ptr(raw_clone());
 }
 
-
-const AbstractPoint::Ptr PointCloud::operator[](std::size_t idx) const
+PointCloud* PointCloud::raw_clone() const
 {
-    // Note: this is an ineffective way to it because for each call it will create a copy of the coordinate on the heap!
-    // But this version is safe!
-    return std::make_shared<CoordinatePoint>(*getGeometry()->getGeometryN(idx)->getCoordinate());
+    PointCloud* newInstance = new PointCloud();
+
+    // set the same reference frame
+    newInstance->setCS(this->getCS());
+
+    // copy the geometry
+    newInstance->setGeometry( dynamic_cast<geom::MultiPoint*>(geometry_->clone()) );
+
+    // copy channels by the copy assignment operator
+    newInstance->channels_ = channels_;
+    
+    return newInstance;
 }
 
-const CoordinatePoint PointCloud::at(std::size_t idx) const
-{
-    return CoordinatePoint(*getGeometry()->getGeometryN(idx)->getCoordinate());
-}
-
-geom::Coordinate& PointCloud::at(std::size_t idx)
-{
-    return *const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate());
-}
 
 }}

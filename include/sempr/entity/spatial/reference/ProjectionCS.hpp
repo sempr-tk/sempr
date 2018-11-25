@@ -22,7 +22,7 @@ class ProjectionCS : public GlobalCS {
 public:
     using Ptr = std::shared_ptr<ProjectionCS>;
 
-    virtual FilterList to(const GlobalCS::Ptr other) override;
+    virtual FilterList to(const GlobalCS::Ptr other) const override;
 
     virtual int getZone() const;
     virtual bool isNorth() const;
