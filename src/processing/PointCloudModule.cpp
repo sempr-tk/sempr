@@ -68,12 +68,13 @@ void PointCloudModule::process(query::PolygonQuery::Ptr query)
         }
     }
 
-    entity->setCoordinates(m_c);
+    entity->setPoints(m_c);
     if(m_colors == true)
     {
-        entity->setChannel(10, m_r);
-        entity->setChannel(11, m_g);
-        entity->setChannel(12, m_b);
+
+        entity->setChannel(11, entity::Channel<uint8_t>(m_r));
+        entity->setChannel(12, entity::Channel<uint8_t>(m_g));
+        entity->setChannel(13, entity::Channel<uint8_t>(m_b));
     }
 
     query->results = entity;
@@ -89,7 +90,7 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
     const std::vector <geom::Coordinate>* coords_ptr = query->entity()->getGeometry()->getCoordinates()->toVector();
     const std::vector <geom::Coordinate>& coords = *coords_ptr;
     
-    if(cloud->hasChannel(10) && cloud->hasChannel(11) && cloud->hasChannel(12))
+    if(cloud->hasChannel(11) && cloud->hasChannel(12) && cloud->hasChannel(13))
     {
         m_colors = true;
     }
@@ -143,9 +144,9 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
                     m_c.push_back(cloud_coords[j]);
                     if(m_colors == true)
                     {
-                        m_r.emplace_back(cloud->getChannel(10)[j]);
-                        m_g.emplace_back(cloud->getChannel(11)[j]);
-                        m_b.emplace_back(cloud->getChannel(12)[j]);
+                        m_r.emplace_back(cloud->getChannelUInt8(11)[j]);
+                        m_g.emplace_back(cloud->getChannelUInt8(12)[j]);
+                        m_b.emplace_back(cloud->getChannelUInt8(13)[j]);
                     }
                 }
             }

@@ -555,7 +555,6 @@ public:
             return "u8";
         }
         catch (const boost::exception& ex) {}
-        master
 
         try
         {
