@@ -8,39 +8,19 @@ AgriEntity::AgriEntity() : AgriEntity(new core::IDGen<AgriEntity>())
 {
 }
 
-AgriEntity::AgriEntity(const core::IDGenBase* idgen) : Entity(idgen)
+AgriEntity::AgriEntity(const core::IDGenBase* idgen) : AgriEntity("none", idgen)
 {
-    setDiscriminator<AgriEntity>();
-
-    m_polygon = Polygon::Ptr(new Polygon());
-    std::cout << id() << " created an Polygon, namely " << m_polygon->id() << '\n';
-
-    std::string str = this->discriminator() + "/";
-    //str.push_back("/");
-
-    m_properties = RDFPropertyMap::Ptr(new RDFPropertyMap("SemanticData", str));
-    std::cout << id() << " created an PropertyMap, namely " << m_properties->id() << '\n';
-
-    registerChildEntity(m_polygon);
-
-    registerChildEntity(m_properties);
 }
 
-AgriEntity::AgriEntity(RDFPropertyMap::Ptr properties, const core::IDGenBase* idgen) : Entity(idgen)
+AgriEntity::AgriEntity(std::string name, const core::IDGenBase* idgen) : _name(name), Entity(idgen)
 {
     setDiscriminator<AgriEntity>();
 
-    m_polygon = Polygon::Ptr(new Polygon());
-    std::cout << id() << " created an Polygon, namely " << m_polygon->id() << '\n';
+    _geometry = Polygon::Ptr(new Polygon());
+    _map = RDFPropertyMap::Ptr(new RDFPropertyMap("SemanticData", this->discriminator() + "/"));
 
-    std::string str = this->discriminator() + "/";
-    //str.push_back("/");
-
-    m_properties = properties;
-
-    registerChildEntity(m_polygon);
-
-    registerChildEntity(m_properties);
+    registerChildEntity(_geometry);
+    registerChildEntity(_map);
 }
 
 AgriEntity::~AgriEntity()

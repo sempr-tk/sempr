@@ -13,6 +13,14 @@ namespace spatial = sempr::entity;
 
 namespace sempr { namespace entity { namespace agri {
 
+enum AgriType{
+    AGRI = 0,
+    FIELD = 1,
+    ROAD = 5,
+    WATER = 6,
+    TREES = 7
+};
+
 #pragma db object
 /** 
  * @brief The AgriEntity class
@@ -25,25 +33,32 @@ public:
 
     AgriEntity();
     AgriEntity(const sempr::core::IDGenBase*);
-    AgriEntity(RDFPropertyMap::Ptr properties, const sempr::core::IDGenBase*);
+    AgriEntity(std::string name, const sempr::core::IDGenBase*);
 
-    Polygon::Ptr polygon() { return m_polygon; }
-    RDFPropertyMap::Ptr properties() { return m_properties; }
+    Polygon::Ptr geometry() { return _geometry; }
+    RDFPropertyMap::Ptr properties() { return _map; }
 
-    double low() { return m_low; }
-    double high() { return m_high; }
-    void low(double low) { m_low = low; }
-    void high(double high) { m_high = high; }
+    double low() { return _low; }
+    double high() { return _high; }
+    void low(double low) { _low = low; }
+    void high(double high) { _high = high; }
+
+    AgriType type() { return _type; }
+    std::string name() { return _name; }
+    void name(std::string name) { _name = name; }
 
     virtual ~AgriEntity();
 protected:
     friend class odb::access;
 
-    Polygon::Ptr m_polygon;
-    RDFPropertyMap::Ptr m_properties;
+    Polygon::Ptr _geometry;
+    RDFPropertyMap::Ptr _map;
+    std::string _name;
 
-    double m_low;
-    double m_high;
+    double _low;
+    double _high;
+
+    AgriType _type = AGRI;
 };
 
 }}}

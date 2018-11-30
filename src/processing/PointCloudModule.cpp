@@ -39,8 +39,10 @@ void PointCloudModule::process(query::PolygonQuery::Ptr query)
     }
 
 
+    //auto spatial = query::SpatialIndexQuery<3>::intersectsBoxOf(query->entity());
     auto spatial = query::SpatialIndexQuery::intersectsBoxOf(query->entity());
-    auto coords = *(spatial->refGeo()->getGeometry()->getCoordinates()->toVector());
+    //auto coords = *((std::get<1>(spatial->refBoxGeometryPair()))->getGeometry()->getCoordinates()->toVector());
+    auto coords = *((spatial->refGeo())->getGeometry()->getCoordinates()->toVector());
 
     //TODO: Use this coords for the calculatePoints() function
     coords[0].y = -DBL_MAX;
@@ -52,7 +54,9 @@ void PointCloudModule::process(query::PolygonQuery::Ptr query)
     coords[6].y = DBL_MAX;
     coords[7].y = DBL_MAX;
 
+    //std::static_pointer_cast<entity::MultiPoint>(std::get<1>(spatial->refBoxGeometryPair()))->setCoordinates(coords);
     std::static_pointer_cast<entity::MultiPoint>(spatial->refGeo())->setCoordinates(coords);
+
 
     ask(spatial);
 

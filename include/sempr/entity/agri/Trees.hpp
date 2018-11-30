@@ -17,18 +17,11 @@ public:
 
     Trees();
     Trees(const sempr::core::IDGenBase*);
-    Trees(std::string type, std::string identifier, const core::IDGenBase* idgen);
-
-    std::string type() { return m_type; }
-    std::string identifier() { return m_identifier; }
+    Trees(std::string name, const core::IDGenBase* idgen);
 
     virtual ~Trees();
 private:
     friend class odb::access;
-
-    std::string m_type;
-    std::string m_identifier;
-
 };
 
 } } }

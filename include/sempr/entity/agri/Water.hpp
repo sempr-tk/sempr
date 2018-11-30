@@ -17,18 +17,11 @@ public:
 
     Water();
     Water(const sempr::core::IDGenBase*);
-    Water(std::string type, std::string identifier, const core::IDGenBase* idgen);
-
-    std::string type() { return m_type; }
-    std::string identifier() { return m_identifier; }
+    Water(std::string name, const core::IDGenBase* idgen);
 
     virtual ~Water();
 private:
     friend class odb::access;
-
-    std::string m_identifier;
-    std::string m_type;
-
 };
 
 } } }

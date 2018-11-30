@@ -17,18 +17,16 @@ public:
 
     Field();
     Field(const sempr::core::IDGenBase*);
-    Field(std::string seed, std::string identifier, const core::IDGenBase* idgen);
+    Field(std::string seed, std::string name, const core::IDGenBase* idgen);
 
-    std::string seed() { return m_seed; }
-    std::string identifier() { return m_identifier; }
+    std::string seed() { return _seed; }
+    void seed(std::string seed) { _seed = seed; }
 
     virtual ~Field();
 private:
     friend class odb::access;
 
-    std::string m_seed;
-    std::string m_identifier;
-
+    std::string _seed;
 };
 
 } } }

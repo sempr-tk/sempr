@@ -12,12 +12,14 @@ Trees::Trees() : Trees(new core::IDGen<Trees>())
 Trees::Trees(const core::IDGenBase* idgen) : AgriEntity(idgen)
 {
     setDiscriminator<Trees>();
+    _type = TREES;
 }
 
-Trees::Trees(std::string type, std::string identifier, const core::IDGenBase* idgen) :
-    AgriEntity(idgen), m_type(type), m_identifier(identifier)
+Trees::Trees(std::string name, const core::IDGenBase* idgen) :
+    AgriEntity(name, idgen)
 {
     setDiscriminator<Trees>();
+    _type = TREES;
 }
 
 Trees::~Trees()
