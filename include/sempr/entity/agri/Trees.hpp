@@ -6,9 +6,7 @@
 namespace sempr { namespace entity { namespace agri {
 
 #pragma db object
-/**
- * @brief The Trees class
- */
+
 class Trees : public AgriEntity
 {
     SEMPR_ENTITY

@@ -38,10 +38,11 @@ public:
     Polygon::Ptr geometry() { return _geometry; }
     RDFPropertyMap::Ptr properties() { return _map; }
 
-    double low() { return _low; }
-    double high() { return _high; }
-    void low(double low) { _low = low; }
-    void high(double high) { _high = high; }
+    // TODO min_high / max_high
+    double minHeight() { return _min_height; }
+    double maxHeight() { return _max_height; }
+    void minHeight(double min_height) { _min_height = min_height; }
+    void maxHeight(double max_height) { _max_height = max_height; }
 
     AgriType type() { return _type; }
     std::string name() { return _name; }
@@ -55,8 +56,8 @@ protected:
     RDFPropertyMap::Ptr _map;
     std::string _name;
 
-    double _low;
-    double _high;
+    double _min_height;
+    double _max_height;
 
     AgriType _type = AGRI;
 };

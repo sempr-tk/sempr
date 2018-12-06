@@ -12,7 +12,7 @@ AgriEntity::AgriEntity(const core::IDGenBase* idgen) : AgriEntity("none", idgen)
 {
 }
 
-AgriEntity::AgriEntity(std::string name, const core::IDGenBase* idgen) : _name(name), Entity(idgen)
+AgriEntity::AgriEntity(std::string name, const core::IDGenBase* idgen) : Entity(idgen), _name(name)
 {
     setDiscriminator<AgriEntity>();
 

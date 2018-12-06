@@ -17,7 +17,7 @@ Field::Field(const core::IDGenBase* idgen) : AgriEntity(idgen)
 }
 
 Field::Field(std::string seed, std::string name, const core::IDGenBase* idgen) :
-    _seed(seed), AgriEntity(name, idgen)
+    AgriEntity(name, idgen), _seed(seed)
 {
     setDiscriminator<Field>();
     _type = FIELD;

@@ -1,37 +1,33 @@
-#include <sempr/processing/PointCloudModule.hpp>
+#include <sempr/processing/CalculatePointsModule.hpp>
 #include <limits>
 #include <sempr/entity/spatial/MultiPoint.hpp>
 
 namespace sempr { namespace processing {
 
-PointCloudModule::PointCloudModule()
-{
-    // nothing to do?
-    std::cout << "created PCM" << std::endl;
-}
-
-PointCloudModule::~PointCloudModule()
+CalculatePointsModule::CalculatePointsModule()
 {
     // nothing to do?
 }
 
-std::string PointCloudModule::type() const {
-    return "PointCloudModule";
+CalculatePointsModule::~CalculatePointsModule()
+{
+    // nothing to do?
 }
 
-void PointCloudModule::process(query::PolygonQuery::Ptr query)
+std::string CalculatePointsModule::type() const {
+    return "CalculatePointsModule";
+}
+
+void CalculatePointsModule::process(query::CalculatePointsQuery::Ptr query)
 {
     m_c.clear();
     m_r.clear();
     m_g.clear();
     m_b.clear();
-    m_colors = false;
 
     query::ObjectQuery<entity::PointCloud>::Ptr clouds(new query::ObjectQuery<entity::PointCloud>() );
 
-
     ask(clouds);
-    int i = 0;
 
     for (auto const& cloud : clouds->results)
     {
@@ -84,12 +80,13 @@ void PointCloudModule::process(query::PolygonQuery::Ptr query)
     query->results = entity;
 }
 
-void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, query::PolygonQuery::Ptr query)
+void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud, query::CalculatePointsQuery::Ptr query)
 {
-    unsigned int i, j;
+    m_colors = false;
 
-    double low = query->low();
-    double high = query->high();
+    unsigned int i, j;
+    double low = query->minHeight();
+    double high = query->maxHeight();
 
     const std::vector <geom::Coordinate>* coords_ptr = query->entity()->getGeometry()->getCoordinates()->toVector();
     const std::vector <geom::Coordinate>& coords = *coords_ptr;
@@ -97,10 +94,6 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
     if(cloud->hasChannel(11) && cloud->hasChannel(12) && cloud->hasChannel(13))
     {
         m_colors = true;
-    }
-    else
-    {
-        m_colors = false;
     }
 
     double minX = coords[0].x;
@@ -123,7 +116,7 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
 
     int intersections = 0;
 
-    geom::Coordinate outerPoint(minX - 10, 0, minZ - 10);
+    geom::Coordinate outerPoint(minX - 10, 0, minZ - 10);   // this can be random point that is not in the polygon
 
     const std::vector <geom::Coordinate>* cloud_coords_ptr = cloud->getGeometry()->getCoordinates()->toVector();
     const std::vector <geom::Coordinate>& cloud_coords = *cloud_coords_ptr;
@@ -141,7 +134,7 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
                 intersections += checkIntersection(coords[i - 1], coords[i], outerPoint, cloud_coords[j]);
             }
 
-            if((intersections & 1) == 1)
+            if((intersections & 0x1) == 1)
             {
                 if(cloud_coords[j].y >= low && cloud_coords[j].y <= high)
                 {
@@ -159,7 +152,7 @@ void PointCloudModule::calculatePoints(const entity::PointCloud::Ptr cloud, quer
     }
 }
 
-int PointCloudModule::checkIntersection(geom::Coordinate v11, geom::Coordinate v12, geom::Coordinate v21, geom::Coordinate v22)
+int CalculatePointsModule::checkIntersection(geom::Coordinate v11, geom::Coordinate v12, geom::Coordinate v21, geom::Coordinate v22)
 {
     double a1, a2;
     double b1, b2;
@@ -168,7 +161,7 @@ int PointCloudModule::checkIntersection(geom::Coordinate v11, geom::Coordinate v
 
     a1 = v12.z - v11.z;
     b1 = v11.x - v12.x;
-    c1 = (v12.x * v11.z) - (v11.x * v12.z); //cross-product?
+    c1 = (v12.x * v11.z) - (v11.x * v12.z);
 
     d1 = (a1 * v21.x) + (b1 * v21.z) + c1;
     d2 = (a1 * v22.x) + (b1 * v22.z) + c1;
@@ -180,7 +173,7 @@ int PointCloudModule::checkIntersection(geom::Coordinate v11, geom::Coordinate v
 
     a2 = v22.z - v21.z;
     b2 = v21.x - v22.x;
-    c2 = (v22.x * v21.z) - (v21.x * v22.z); //cross-product?
+    c2 = (v22.x * v21.z) - (v21.x * v22.z);
 
     d1 = (a2 * v11.x) + (b2 * v11.z) + c2;
     d2 = (a2 * v12.x) + (b2 * v12.z) + c2;
