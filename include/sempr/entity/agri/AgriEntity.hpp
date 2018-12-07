@@ -7,9 +7,9 @@
 #include <sempr/entity/spatial/Polygon.hpp>
 #include <sempr/entity/RDFPropertyMap.hpp>
 
-#include <sempr/core/IDGenUtil.hpp>
+#include <map>
 
-namespace spatial = sempr::entity;
+#include <sempr/core/IDGenUtil.hpp>
 
 namespace sempr { namespace entity { namespace agri {
 
@@ -19,6 +19,15 @@ enum AgriType{
     ROAD = 5,
     WATER = 6,
     TREES = 7
+};
+
+static std::map<AgriType, std::string> TypeString =
+{
+    {AGRI, "AgriEntity"},
+    {FIELD, "Field"},
+    {ROAD, "Road"},
+    {WATER, "Water"},
+    {TREES, "Trees"}
 };
 
 #pragma db object
@@ -33,20 +42,21 @@ public:
 
     AgriEntity();
     AgriEntity(const sempr::core::IDGenBase*);
-    AgriEntity(std::string name, const sempr::core::IDGenBase*);
+    AgriEntity(const std::string& name, const sempr::core::IDGenBase*);
 
     Polygon::Ptr geometry() { return _geometry; }
     RDFPropertyMap::Ptr properties() { return _map; }
 
-    // TODO min_high / max_high
     double minHeight() { return _min_height; }
     double maxHeight() { return _max_height; }
     void minHeight(double min_height) { _min_height = min_height; }
     void maxHeight(double max_height) { _max_height = max_height; }
 
+    std::string typeName() { return TypeString.find(_type)->second; }
     AgriType type() { return _type; }
+    // TODO Typ-String
     std::string name() { return _name; }
-    void name(std::string name) { _name = name; }
+    void name(const std::string& name) { _name = name; }
 
     virtual ~AgriEntity();
 protected:
@@ -59,7 +69,7 @@ protected:
     double _min_height;
     double _max_height;
 
-    AgriType _type = AGRI;
+    AgriType _type = AgriType::AGRI;
 };
 
 }}}

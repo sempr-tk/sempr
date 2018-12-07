@@ -12,15 +12,15 @@ Field::Field() : Field(new core::IDGen<Field>())
 Field::Field(const core::IDGenBase* idgen) : AgriEntity(idgen)
 {
     setDiscriminator<Field>();
-    _type = FIELD;
+    _type = AgriType::FIELD;
 
 }
 
-Field::Field(std::string seed, std::string name, const core::IDGenBase* idgen) :
+Field::Field(const std::string &seed, const std::string &name, const core::IDGenBase* idgen) :
     AgriEntity(name, idgen), _seed(seed)
 {
     setDiscriminator<Field>();
-    _type = FIELD;
+    _type = AgriType::FIELD;
 
 }
 

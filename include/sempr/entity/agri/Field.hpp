@@ -17,10 +17,10 @@ public:
 
     Field();
     Field(const sempr::core::IDGenBase*);
-    Field(std::string seed, std::string name, const core::IDGenBase* idgen);
+    Field(const std::string& seed, const std::string& name, const core::IDGenBase* idgen);
 
     std::string seed() { return _seed; }
-    void seed(std::string seed) { _seed = seed; }
+    void seed(const std::string& seed) { _seed = seed; }
 
     virtual ~Field();
 private:

@@ -17,7 +17,7 @@ public:
 
     Water();
     Water(const sempr::core::IDGenBase*);
-    Water(std::string name, const core::IDGenBase* idgen);
+    Water(const std::string &name, const core::IDGenBase* idgen);
 
     virtual ~Water();
 private:

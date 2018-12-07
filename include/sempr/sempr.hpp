@@ -14,7 +14,6 @@
 #include <sempr/processing/ActiveObjectStore.hpp>
 #include <sempr/processing/DBUpdateModule.hpp>
 #include <sempr/processing/DebugModule.hpp>
-#include <sempr/processing/PointCloudModule.hpp>
 
 // query
 

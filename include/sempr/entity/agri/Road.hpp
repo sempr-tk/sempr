@@ -17,7 +17,7 @@ public:
 
     Road();
     Road(const sempr::core::IDGenBase*);
-    Road(std::string name, const core::IDGenBase* idgen);
+    Road(const std::string &name, const core::IDGenBase* idgen);
 
     virtual ~Road();
 private:

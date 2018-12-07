@@ -15,7 +15,7 @@ public:
 
     Trees();
     Trees(const sempr::core::IDGenBase*);
-    Trees(std::string name, const core::IDGenBase* idgen);
+    Trees(const std::string& name, const core::IDGenBase* idgen);
 
     virtual ~Trees();
 private:

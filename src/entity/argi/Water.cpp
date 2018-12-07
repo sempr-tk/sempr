@@ -12,14 +12,14 @@ Water::Water() : Water(new core::IDGen<Water>())
 Water::Water(const core::IDGenBase* idgen) : AgriEntity(idgen)
 {
     setDiscriminator<Water>();
-    _type = WATER;
+    _type = AgriType::WATER;
 }
 
-Water::Water(std::string name, const core::IDGenBase* idgen) :
+Water::Water(const std::string& name, const core::IDGenBase* idgen) :
     AgriEntity(name, idgen)
 {
     setDiscriminator<Water>();
-    _type = WATER;
+    _type = AgriType::WATER;
 }
 
 Water::~Water()

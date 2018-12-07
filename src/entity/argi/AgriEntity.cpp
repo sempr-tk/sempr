@@ -1,4 +1,5 @@
 #include <AgriEntity_odb.h>
+#include <sempr/entity/agri/AgriEntity.hpp>
 
 namespace sempr { namespace entity{ namespace agri {
 
@@ -12,7 +13,7 @@ AgriEntity::AgriEntity(const core::IDGenBase* idgen) : AgriEntity("none", idgen)
 {
 }
 
-AgriEntity::AgriEntity(std::string name, const core::IDGenBase* idgen) : Entity(idgen), _name(name)
+AgriEntity::AgriEntity(const std::string& name, const core::IDGenBase* idgen) : Entity(idgen), _name(name)
 {
     setDiscriminator<AgriEntity>();
 

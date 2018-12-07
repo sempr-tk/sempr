@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 #include <functional>
-
 #include <cstdint>
 
 
@@ -65,6 +64,7 @@ public:
         iterator operator++() { iterator i = *this; index_++; return i; }
         iterator operator++(int junk) { index_++; return *this; }
         T& operator*() { return (*ptr_)[index_]; }  // access element
+        T* operator->() { return &operator*(); }
         bool operator==(const iterator& rhs) { return ptr_ == rhs.ptr_ && index_ == rhs.index_; }
         bool operator!=(const iterator& rhs) { return ptr_ != rhs.ptr_ || index_ != rhs.index_;; }
     private:
