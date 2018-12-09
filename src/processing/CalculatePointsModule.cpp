@@ -20,13 +20,11 @@ std::string CalculatePointsModule::type() const {
 
 void CalculatePointsModule::process(query::CalculatePointsQuery::Ptr query)
 {
-    m_c.clear();
-    m_r.clear();
-    m_g.clear();
-    m_b.clear();
+    std::vector<geom::Coordinate> p;
+    std::vector<uint8_t> r, g, b;
+    bool colors;
 
     query::ObjectQuery<entity::PointCloud>::Ptr clouds(new query::ObjectQuery<entity::PointCloud>() );
-
     ask(clouds);
 
     for (auto const& cloud : clouds->results)
@@ -34,28 +32,18 @@ void CalculatePointsModule::process(query::CalculatePointsQuery::Ptr query)
         cloud->loaded();
     }
 
-
     //auto spatial = query::SpatialIndexQuery<3>::intersectsBoxOf(query->entity());
     auto spatial = query::SpatialIndexQuery::intersectsBoxOf(query->entity());
     //auto coords = *((std::get<1>(spatial->refBoxGeometryPair()))->getGeometry()->getCoordinates()->toVector());
     auto coords = *((spatial->refGeo())->getGeometry()->getCoordinates()->toVector());
 
-    //TODO: Use this coords for the calculatePoints() function
-    coords[0].y = -DBL_MAX;
-    coords[1].y = -DBL_MAX;
-    coords[2].y = DBL_MAX;
-    coords[3].y = DBL_MAX;
-    coords[4].y = -DBL_MAX;
-    coords[5].y = -DBL_MAX;
-    coords[6].y = DBL_MAX;
-    coords[7].y = DBL_MAX;
+    // TODO: Use this coords for the calculatePoints() function
+    coords[0].y = coords[1].y = coords[4].y = coords[5].y = -DBL_MAX;
+    coords[2].y = coords[3].y = coords[6].y = coords[7].y = DBL_MAX;
 
     //std::static_pointer_cast<entity::MultiPoint>(std::get<1>(spatial->refBoxGeometryPair()))->setCoordinates(coords);
     std::static_pointer_cast<entity::MultiPoint>(spatial->refGeo())->setCoordinates(coords);
-
-
     ask(spatial);
-
     entity::PointCloud::Ptr entity = entity::PointCloud::Ptr(new entity::PointCloud());
 
     for(auto& c : spatial->results)
@@ -63,27 +51,23 @@ void CalculatePointsModule::process(query::CalculatePointsQuery::Ptr query)
         if(c->discriminator() == "sempr::entity::PointCloud")
         {
             entity::PointCloud::Ptr cloud = std::static_pointer_cast<entity::PointCloud>(c);
-
-            calculatePoints(cloud, query);
+            calculatePoints(cloud, query, p, r, g, b, colors);
         }
     }
 
-    entity->setPoints(m_c);
-    if(m_colors == true)
+    entity->setPoints(p);
+    if(colors == true)
     {
 
-        entity->setChannel(11, entity::Channel<uint8_t>(m_r));
-        entity->setChannel(12, entity::Channel<uint8_t>(m_g));
-        entity->setChannel(13, entity::Channel<uint8_t>(m_b));
+        entity->setChannel(11, entity::Channel<uint8_t>(r));
+        entity->setChannel(12, entity::Channel<uint8_t>(g));
+        entity->setChannel(13, entity::Channel<uint8_t>(b));
     }
-
     query->results = entity;
 }
 
-void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud, query::CalculatePointsQuery::Ptr query)
+void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud, query::CalculatePointsQuery::Ptr query, std::vector<geos::geom::Coordinate>& p, std::vector<uint8_t>& r, std::vector<uint8_t>& g, std::vector<uint8_t>& b, bool& colors)
 {
-    m_colors = false;
-
     unsigned int i, j;
     double low = query->minHeight();
     double high = query->maxHeight();
@@ -93,7 +77,11 @@ void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud,
     
     if(cloud->hasChannel(11) && cloud->hasChannel(12) && cloud->hasChannel(13))
     {
-        m_colors = true;
+        colors = true;
+    }
+    else
+    {
+        colors = false;
     }
 
     double minX = coords[0].x;
@@ -138,12 +126,12 @@ void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud,
             {
                 if(cloud_coords[j].y >= low && cloud_coords[j].y <= high)
                 {
-                    m_c.push_back(cloud_coords[j]);
-                    if(m_colors == true)
+                    p.push_back(cloud_coords[j]);
+                    if(colors == true)
                     {
-                        m_r.emplace_back(cloud->getChannelUInt8(11)[j]);
-                        m_g.emplace_back(cloud->getChannelUInt8(12)[j]);
-                        m_b.emplace_back(cloud->getChannelUInt8(13)[j]);
+                        r.emplace_back(cloud->getChannelUInt8(11)[j]);
+                        g.emplace_back(cloud->getChannelUInt8(12)[j]);
+                        b.emplace_back(cloud->getChannelUInt8(13)[j]);
                     }
                 }
             }

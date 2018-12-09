@@ -31,18 +31,18 @@ public:
 private:
     int checkIntersection(geom::Coordinate v11, geom::Coordinate v12, geom::Coordinate v21, geom::Coordinate v22);
 
-    void calculatePoints(const entity::PointCloud::Ptr cloud, query::CalculatePointsQuery::Ptr query);
+    void calculatePoints(const entity::PointCloud::Ptr cloud, query::CalculatePointsQuery::Ptr query, std::vector<geos::geom::Coordinate> &p, std::vector<uint8_t> &r, std::vector<uint8_t> &g, std::vector<uint8_t> &b, bool &color);
     
     void calculatePoints(const entity::PointCloud::Ptr cloud, std::vector <geos::geom::Coordinate> coords);
     
     bool intersect(std::vector<geom::Coordinate> c, std::vector <geom::Coordinate> p);
 
-    std::vector<geom::Coordinate> m_c;
-    std::vector<uint8_t> m_r;
-    std::vector<uint8_t> m_g;
-    std::vector<uint8_t> m_b;
+//    std::vector<geom::Coordinate> m_c;
+//    std::vector<uint8_t> m_r;
+//    std::vector<uint8_t> m_g;
+//    std::vector<uint8_t> m_b;
 
-    bool m_colors = true;
+//    bool m_colors = true;
 };
 
 }}
