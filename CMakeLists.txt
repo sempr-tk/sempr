@@ -11,6 +11,10 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 # allow includes of current dir.
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+set(SEMPR_VERSION_MAJOR 0)
+set(SEMPR_VERSION_MINOR 1)
+set(SEMPR_VERSION_PATCH 0)
+
 ##
 # find packages that are used in src and test:
 ##

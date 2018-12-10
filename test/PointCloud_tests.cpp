@@ -152,7 +152,6 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
 
         // insert 
         core.addEntity(pc);
-        
     }
 
 

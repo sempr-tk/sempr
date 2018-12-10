@@ -87,13 +87,13 @@ public:
         std::size_t index_;
     };
 
-    const_iterator cbegin() { return const_iterator(this, 0); };
-    const_iterator begin() const { return const_iterator(this, 0); };
-    iterator begin() { return iterator(this, 0); };
+    const_iterator cbegin() { return const_iterator(this, 0); }
+    const_iterator begin() const { return const_iterator(this, 0); }
+    iterator begin() { return iterator(this, 0); }
 
-    const_iterator cend() { return const_iterator(this, size()); }; 
-    const_iterator end() const { return const_iterator(this, size()); };
-    iterator end() { return iterator(this, size()); };
+    const_iterator cend() { return const_iterator(this, size()); }
+    const_iterator end() const { return const_iterator(this, size()); }
+    iterator end() { return iterator(this, size()); }
 };
 
 
@@ -170,14 +170,13 @@ public:
         std::size_t index_;
     };
 
-    const_iterator cbegin() { return const_iterator(this, 0); };
-    const_iterator begin() const { return const_iterator(this, 0); };
-    iterator begin() { return iterator(this, 0); };
+    const_iterator cbegin() { return const_iterator(this, 0); }
+    const_iterator begin() const { return const_iterator(this, 0); }
+    iterator begin() { return iterator(this, 0); }
 
-    const_iterator cend() { return const_iterator(this, size()); }; 
-    const_iterator end() const { return const_iterator(this, size()); };
-    iterator end() { return iterator(this, size()); };
-
+    const_iterator cend() { return const_iterator(this, size()); }
+    const_iterator end() const { return const_iterator(this, size()); }
+    iterator end() { return iterator(this, size()); }
 };
 
 

@@ -26,11 +26,11 @@ namespace geom = geos::geom;
 class CoordinatePoint : public AbstractPoint<double>
 {
 public:
-    CoordinatePoint(geom::Coordinate& coord) : coord(coord) {}; //allows implicit type cast
+    CoordinatePoint(geom::Coordinate& coord) : coord(coord) {} //allows implicit type cast
 
-    inline double& x() override {return coord.x;};
-    inline double& y() override {return coord.y;};
-    inline double& z() override {return coord.z;};
+    inline double& x() override {return coord.x;}
+    inline double& y() override {return coord.y;}
+    inline double& z() override {return coord.z;}
 
     const double& operator[](std::size_t idx) const override
     {
@@ -64,21 +64,21 @@ template<typename T>
 class Channel : public AbstractChannel<T>
 {
 public:
-    Channel() {};
-    Channel(const std::vector<T>& channel) : channel_(channel) {}; //allows implicit type cast
+    Channel() {}
+    Channel(const std::vector<T>& channel) : channel_(channel) {} //allows implicit type cast
 
     // Pre init the channel with the size e.g. of a the point cloud
-    Channel(std::size_t size) : channel_(std::vector<T>(size)) {};
+    Channel(std::size_t size) : channel_(std::vector<T>(size)) {}
 
-    inline std::size_t size() const override {return channel_.size();};
-    inline T& operator[](std::size_t idx) override {return channel_[idx];};
-    inline const T& operator[](std::size_t idx) const override {return channel_[idx];};
+    inline std::size_t size() const override {return channel_.size();}
+    inline T& operator[](std::size_t idx) override {return channel_[idx];}
+    inline const T& operator[](std::size_t idx) const override {return channel_[idx];}
 
-    inline void add(const T& value) { channel_.push_back(value); }; 
+    inline void add(const T& value) { channel_.push_back(value); }
 
-    inline T* data() { return channel_.data(); };
+    inline T* data() { return channel_.data(); }
 
-    inline void resize(std::size_t size) { channel_.resize(size); };
+    inline void resize(std::size_t size) { channel_.resize(size); }
 
     friend std::ostream& operator<< (std::ostream& stream, const Channel<T>& channel)
     {
@@ -195,18 +195,18 @@ public:
         return boost::get< Channel<T> >(channels_.at(type));
     }
 
-    virtual AbstractChannel<int8_t>& getChannelInt8(int type) { return getChannel<int8_t>(type); };
-    virtual AbstractChannel<int16_t>& getChannelInt16(int type) { return getChannel<int16_t>(type); };
-    virtual AbstractChannel<int32_t>& getChannelInt32(int type) { return getChannel<int32_t>(type); };
-    virtual AbstractChannel<int64_t>& getChannelInt64(int type) { return getChannel<int64_t>(type); };
+    virtual AbstractChannel<int8_t>& getChannelInt8(int type) { return getChannel<int8_t>(type); }
+    virtual AbstractChannel<int16_t>& getChannelInt16(int type) { return getChannel<int16_t>(type); }
+    virtual AbstractChannel<int32_t>& getChannelInt32(int type) { return getChannel<int32_t>(type); }
+    virtual AbstractChannel<int64_t>& getChannelInt64(int type) { return getChannel<int64_t>(type); }
 
-    virtual AbstractChannel<uint8_t>& getChannelUInt8(int type) { return getChannel<uint8_t>(type); };
-    virtual AbstractChannel<uint16_t>& getChannelUInt16(int type) { return getChannel<uint16_t>(type); };
-    virtual AbstractChannel<uint32_t>& getChannelUInt32(int type) { return getChannel<uint32_t>(type); };
-    virtual AbstractChannel<uint64_t>& getChannelUInt64(int type) { return getChannel<uint64_t>(type); };
+    virtual AbstractChannel<uint8_t>& getChannelUInt8(int type) { return getChannel<uint8_t>(type); }
+    virtual AbstractChannel<uint16_t>& getChannelUInt16(int type) { return getChannel<uint16_t>(type); }
+    virtual AbstractChannel<uint32_t>& getChannelUInt32(int type) { return getChannel<uint32_t>(type); }
+    virtual AbstractChannel<uint64_t>& getChannelUInt64(int type) { return getChannel<uint64_t>(type); }
 
-    virtual AbstractChannel<float>& getChannelFloat(int type) { return getChannel<float>(type); };
-    virtual AbstractChannel<double>& getChannelDouble(int type) { return getChannel<double>(type); };
+    virtual AbstractChannel<float>& getChannelFloat(int type) { return getChannel<float>(type); }
+    virtual AbstractChannel<double>& getChannelDouble(int type) { return getChannel<double>(type); }
 
     virtual std::size_t size() const
     {
