@@ -496,7 +496,6 @@ public:
     {
         is_null = false;
         std::stringstream ss;
-
         std::string type = findTypeID(channel);
 
         ss << type << " "; //write typeID
