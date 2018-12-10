@@ -194,6 +194,9 @@ std::basic_string<char> Geometry::exportToWKB(const geom::Geometry* geom)
 {
     auto wkbWriter = geos::io::WKBWriter();
 
+    auto dim = geom->getCoordinateDimension();
+    wkbWriter.setOutputDimension(dim);
+
     std::basic_ostringstream<char> oss;
 
     try {

@@ -145,12 +145,13 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         pc->at(0).x = 7;    //direct geom access to change coordinate
         (*pc)[0]->x() = 5;  //abstract way to access the coordinate
 
+        pc->at(1).z = 42;
+
         auto& i = pc->getChannelFloat(ChannelType::I);
         i[0] = 0.5;
 
         // insert 
         core.addEntity(pc);
-        
     }
 
 
@@ -189,6 +190,8 @@ BOOST_AUTO_TEST_SUITE(pointcloud)
         BOOST_CHECK_EQUAL(i[0], clouds[0]->getChannel<float>(ChannelType::I)[0]);
 
         BOOST_CHECK_EQUAL(clouds[0]->at(0).x, 5);
+
+        BOOST_CHECK_EQUAL(clouds[0]->at(1).z, 42);
     }
 
     BOOST_AUTO_TEST_CASE(pointcloud_cleanup)

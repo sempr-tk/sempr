@@ -49,7 +49,10 @@ BOOST_AUTO_TEST_SUITE(queries)
             for (auto r : query->results) {
                 // std::cout << "Query Result: " << r["p"] << " of age " << r["age"] << " is " << r["height"] << " m high." << '\n';
                 for (auto b : r) {
-                    std::cout << b.first << "=" << b.second << "  |  ";
+                    std::cout << b.first << "=" << b.second.second << " (" <<
+                        (b.second.first == SPARQLQuery::RESOURCE ? "resource" :
+                            (b.second.first == SPARQLQuery::LITERAL ? "literal" : "blank"))
+                     << ") |  ";
                 }
                 std::cout << std::endl;
             }
