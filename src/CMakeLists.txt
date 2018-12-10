@@ -53,10 +53,10 @@ endif()
 # X_CPP_OPTION (passed to underlying c++ compiler): -fPIC for Qt5-support!
 odb_compile(ODB_GENERATED
     FILES ${ODB_FILES}
+    HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
     INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
     # PROFILE boost/uuid
     PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/include
-    HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
     X_CPP_OPTION -fPIC
     DB ${DATABASE} GENERATE_QUERY GENERATE_SESSION GENERATE_SCHEMA STANDARD c++11)
 
