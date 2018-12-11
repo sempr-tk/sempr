@@ -5,9 +5,9 @@
 
 namespace sempr { namespace processing {
 
-SopranoModule::SopranoModule()
+SopranoModule::SopranoModule(bool reasoning) :
+    reasoningEnabled_(reasoning)
 {
-    reasoningEnabled_ = false;
     model_ = Soprano::createModel();
     infmodel_ = new Soprano::Inference::InferenceModel(model_);
 }
@@ -19,9 +19,9 @@ SopranoModule::~SopranoModule()
 }
 
 
-void SopranoModule::enableReasoning(bool reason)
+bool SopranoModule::reasoningEnabled()
 {
-    reasoningEnabled_ = reason;
+    return reasoningEnabled_;
 }
 
 void SopranoModule::process(core::EntityEvent<entity::RDFEntity>::Ptr event)

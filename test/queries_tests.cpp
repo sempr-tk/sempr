@@ -74,7 +74,6 @@ BOOST_AUTO_TEST_SUITE(queries)
         SopranoModule::Ptr semantic(new SopranoModule());
         core.addModule(active);
         core.addModule(semantic);
-        semantic->enableReasoning(true);
 
         // query anything, there should be nothing
         {
