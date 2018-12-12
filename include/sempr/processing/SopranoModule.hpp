@@ -45,7 +45,7 @@ namespace sempr { namespace processing {
         void process(query::SPARQLQuery::Ptr query) override;
 
         /**
-            Set if soprano shall be used for reasoning. Default is "true".
+            Get true if soprano is used for reasoning. Default is "true".
         */
         bool reasoningEnabled();
 
