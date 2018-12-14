@@ -2,6 +2,8 @@
 #define SEMPR_ENTITY_SPATIAL_ABSTRACTPOINTCLOUD_HPP_
 
 #include <vector>
+#include <map>
+#include <set>
 #include <memory>
 #include <functional>
 #include <cstdint>
@@ -110,6 +112,8 @@ public:
     using Ptr = std::shared_ptr<AbstractPointCloud>;
 
     virtual bool hasChannel(int type) const = 0;
+
+    virtual std::set<ChannelType> channels(std::function<bool(ChannelType)> filter = [](ChannelType){return true;}) = 0;
 
     /**
      * It isnt possible to declare a template to a virtual method.

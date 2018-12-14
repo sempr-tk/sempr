@@ -120,7 +120,7 @@ typedef boost::variant< Channel<int8_t>,    // shall be used for boolean values
 
 /**
  * The PointCloud Entity allows wo store a set of points with an optional list of channels for additional information of every point.
- * All points and channels will be stored as binary blob.
+ * All points and channels will be stored as binarvirtual std::set<ChannelType> channels(std::function<bool(ChannelType)> filter = [](ChannelType){return true;}) = 0;y blob.
  * 
  * The PointCloud is build like a geometry object but it still is no geometry by its one. It only contains a geometry multi point object.
  * 
@@ -143,6 +143,21 @@ public:
         auto it = channels_.find(type);
 
         return it != channels_.end();
+    }
+
+    virtual std::set<ChannelType> channels(std::function<bool(ChannelType)> filter = [](ChannelType){return true;})
+    {
+        std::set<ChannelType> keys;
+
+        for (auto ch : channels_)
+        {
+            ChannelType type = static_cast<ChannelType>(ch.first);
+            if (filter(type))
+                keys.insert(type);
+            //otherwise skip this key
+        }
+
+        return keys;
     }
 
     /**
