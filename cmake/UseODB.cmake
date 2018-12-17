@@ -37,7 +37,7 @@ function(odb_compile outvar)
 
 	#list(APPEND ODB_ARGS -x "${CMAKE_CXX_COMPILER}")
 
-	list(APPEND ODB_ARGS --show-sloc)
+	#list(APPEND ODB_ARGS --show-sloc)
 
 	if(PARAM_MULTI_DATABASE)
 		list(APPEND ODB_ARGS --multi-database "${PARAM_MULTI_DATABASE}")
