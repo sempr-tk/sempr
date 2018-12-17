@@ -113,7 +113,7 @@ public:
 
     virtual bool hasChannel(int type) const = 0;
 
-    virtual std::set<ChannelType> channels(/*std::function<bool(ChannelType)> filter = [](ChannelType){return true;}*/) = 0;
+    virtual std::set<ChannelType> channels() = 0;
 
     /**
      * It isnt possible to declare a template to a virtual method.

@@ -145,16 +145,14 @@ public:
         return it != channels_.end();
     }
 
-    virtual std::set<ChannelType> channels(/*std::function<bool(ChannelType)> filter = [](ChannelType){return true;}*/)
+    virtual std::set<ChannelType> channels()
     {
         std::set<ChannelType> keys;
 
         for (auto ch : channels_)
         {
             ChannelType type = static_cast<ChannelType>(ch.first);
-            /*if (filter(type))*/
-                keys.insert(type);
-            //otherwise skip this key
+            keys.insert(type);
         }
 
         return keys;
