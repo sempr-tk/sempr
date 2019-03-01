@@ -24,7 +24,7 @@ namespace sempr { namespace processing {
                          query::SPARQLQuery > {
     public:
         using Ptr = std::shared_ptr<SopranoModule>;
-        SopranoModule();
+        SopranoModule(bool reasoning = true);
         ~SopranoModule();
 
         std::string type() const override { return "SopranoModule"; }
@@ -44,6 +44,11 @@ namespace sempr { namespace processing {
         */
         void process(query::SPARQLQuery::Ptr query) override;
 
+        /**
+            Get true if soprano is used for reasoning. Default is "true".
+        */
+        bool reasoningEnabled();
+
     private:
         /// all updates take place inside the base model
         Soprano::Model* model_;
@@ -52,6 +57,8 @@ namespace sempr { namespace processing {
         /// if model and infmodel are out of sync, this flag is set and the next sparqlquery
         /// triggers a performInference
         bool dirty_;
+
+        const bool reasoningEnabled_;
 
         /// a mapping between RuleSet-entities (string id) and their rules
         std::map<std::string, std::vector<Soprano::Inference::Rule> > ruleMap_;

@@ -49,6 +49,16 @@ public:
     /** return the type with highest confidence, optionally return the confidence in the given pointer */
     std::string type(double* confidence = nullptr) const;
 
+    /**
+        Clear all type information.
+    */
+    void clearTypes();
+
+    /**
+        Returns all type information in a map.
+    */
+    std::map<std::string, double> getTypes() const;
+
     /** set the confidence for a given type */
     void type(const std::string&, double confidence);
 
