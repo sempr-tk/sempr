@@ -55,6 +55,19 @@ void SpatialObject::type(const std::string& type, double confidence)
     property_->changed();
 }
 
+void SpatialObject::clearTypes()
+{
+    types_.clear();
+    // (*property_)("type", core::rdf::baseURI()) = RDFResource("<" + this->type() + ">");
+    property_->removeProperty("type", core::rdf::baseURI());
+    property_->changed();
+}
+
+std::map<std::string, double> SpatialObject::getTypes() const
+{
+    return types_;
+}
+
 
 unsigned int SpatialObject::lastSeen() const
 {
