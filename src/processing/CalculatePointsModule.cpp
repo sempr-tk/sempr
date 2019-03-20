@@ -1,6 +1,7 @@
 #include <sempr/processing/CalculatePointsModule.hpp>
 #include <limits>
 #include <sempr/entity/spatial/MultiPoint.hpp>
+#include <sempr/entity/spatial/PointCloud.hpp>
 
 namespace sempr { namespace processing {
 
@@ -32,21 +33,32 @@ void CalculatePointsModule::process(query::CalculatePointsQuery::Ptr query)
         cloud->loaded();
     }
 
+    /* This works only with the one Westerberg pointcloud currently, so why to ask for a cloud you only know?
+     * In any case is this no final code, so short it up
+     */
+    /*
     auto spatial = query::SpatialIndexQuery3D::intersectsBoxOf(query->entity());
 
+    //set y value from -DBL_MAX to +DBL_MAX, this assume that the Y Axis is the height axis!
+    boost::geometry::set<1>(spatial->refBoxGeometryPair().first.min_corner(), -DBL_MAX);
+    boost::geometry::set<1>(spatial->refBoxGeometryPair().first.max_corner(), DBL_MAX);
+
+     */
+
+    //No MultiPoint Box geometry anymore since spatial index update
+    /*
     auto coords = *(spatial->refBoxGeometryPair().second->getGeometry()->getCoordinates()->toVector());
-
-
     // TODO: Use this coords for the calculatePoints() function -- Note this will only work if the y axis is the height!
     coords[0].y = coords[1].y = coords[4].y = coords[5].y = -DBL_MAX;
     coords[2].y = coords[3].y = coords[6].y = coords[7].y = DBL_MAX;
 
     std::static_pointer_cast<entity::MultiPoint>(spatial->refBoxGeometryPair().second)->setCoordinates(coords);
+    */
 
-    ask(spatial);
+    //ask(spatial);
     entity::PointCloud::Ptr entity = entity::PointCloud::Ptr(new entity::PointCloud());
 
-    for(auto& c : spatial->results)
+    for(auto& c : clouds->results)
     {
         if(c->discriminator() == "sempr::entity::PointCloud")   // could this be done by the dynmaic cast?
         {
@@ -68,7 +80,6 @@ void CalculatePointsModule::process(query::CalculatePointsQuery::Ptr query)
 
 void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud, query::CalculatePointsQuery::Ptr query, std::vector<geos::geom::Coordinate>& p, std::vector<uint8_t>& r, std::vector<uint8_t>& g, std::vector<uint8_t>& b, bool& colors)
 {
-    unsigned int i, j;
     double low = query->minHeight();
     double high = query->maxHeight();
 
@@ -90,7 +101,7 @@ void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud,
     double maxX = minX;
     double maxZ = minZ;
 
-    for(i = 1; i < coords.size() - 1; i++)
+    for(size_t i = 1; i < coords.size() - 1; i++)
     {
         if(coords[i].x < minX)
             minX = coords[i].x;
@@ -109,7 +120,7 @@ void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud,
     const std::vector <geom::Coordinate>* cloud_coords_ptr = cloud->getGeometry()->getCoordinates()->toVector();
     const std::vector <geom::Coordinate>& cloud_coords = *cloud_coords_ptr;
 
-    for (j = 0; j < cloud_coords.size(); j++)
+    for (size_t j = 0; j < cloud_coords.size(); j++)
     {
         if (cloud_coords[j].x < minX || cloud_coords[j].z < minZ || cloud_coords[j].x > maxX || cloud_coords[j].z > maxZ)
         {
@@ -117,7 +128,7 @@ void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud,
         }
         else
         {
-            for(i = 1; i < coords.size(); i++)
+            for(size_t i = 1; i < coords.size(); i++)
             {
                 intersections += checkIntersection(coords[i - 1], coords[i], outerPoint, cloud_coords[j]);
             }
