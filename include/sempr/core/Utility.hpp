@@ -4,6 +4,7 @@
 
 #include <type_traits>
 #include <odb/core.hxx> // odb::object_traits<T>::base_type
+#include <functional>
 
 namespace sempr {
 
@@ -110,6 +111,56 @@ namespace core {
     {
         static_assert(false_t<T>::value, "Type is derived from storage::DBObject but does not have a specialization for odb::object_traits. You forgot to #include <[...]_odb.h> !");
     };
+
+
+    /**
+        Working with tuples: Extract the type of the I'th entry in the tuple
+    */
+    template <size_t I, typename T1, typename... Ts>
+    struct index_type_pack : public index_type_pack<I-1, Ts...> {};
+
+    template <typename T1, typename... Ts>
+    struct index_type_pack<0, T1, Ts...> {
+        typedef T1 type;
+    };
+
+    template <typename T, size_t = 0>
+    struct extract_type {
+        typedef T type;
+    };
+
+    template <template <typename...> class V, size_t I, typename... Ts>
+    struct extract_type<V<Ts...>, I> : index_type_pack<I, Ts...> {};
+
+
+    /**
+        Function traits: Get the signature of a function, method, functor, .. as a std::function<...>
+        https://stackoverflow.com/a/21665705
+    */
+
+    // functors: delegate to 'operator()'
+    template <typename T>
+    struct function_traits
+        : public function_traits<decltype(&T::operator())>
+    {};
+
+    // pointer to member function
+    template <typename ClassType, typename ReturnType, typename... Args>
+    struct function_traits<ReturnType(ClassType::*)(Args...) const> {
+        typedef std::function<ReturnType(Args...)> f_type;
+        typedef ReturnType return_type;
+        typedef std::tuple<Args...> arg_types;
+    };
+
+    // function pointers
+    template <typename ReturnType, typename... Args>
+    struct function_traits<ReturnType (*)(Args...)> {
+        typedef std::function<ReturnType(Args...)> f_type;
+        typedef ReturnType return_type;
+        typedef std::tuple<Args...> arg_types;
+    };
+    
+
 
 } /* core */
 } /* sempr */
