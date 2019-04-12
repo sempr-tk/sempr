@@ -34,7 +34,7 @@ jobs:
       - run: apt-get install -y -qq g++ cmake
       - run: apt-get install -y -qq libboost-all-dev
       - run: apt-get install -y -qq pkg-config wget
-      - run: apt-get install -y -qq qt4-default
+      - run: apt-get install -y -qq qt5-default
       - run: apt-get install -y -qq libgeos-dev libgeos++-dev
       - run: apt-get install -y -qq libeigen3-dev
       - run: apt-get install -y -qq git
