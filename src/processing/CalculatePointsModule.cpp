@@ -32,23 +32,23 @@ void CalculatePointsModule::process(query::CalculatePointsQuery::Ptr query)
         cloud->loaded();
     }
 
-    auto spatial = query::SpatialIndexQuery3D::intersectsBoxOf(query->entity());
+    auto spatial = query::SpatialIndexQuery<3>::intersectsBoxOf(query->entity());
+    //auto spatial = query::SpatialIndexQuery::intersectsBoxOf(query->entity());
+    auto coords = *((std::get<1>(spatial->refBoxGeometryPair()))->getGeometry()->getCoordinates()->toVector());
+    //auto coords = *((spatial->refGeo())->getGeometry()->getCoordinates()->toVector());
 
-    auto coords = *(spatial->refBoxGeometryPair().second->getGeometry()->getCoordinates()->toVector());
-
-
-    // TODO: Use this coords for the calculatePoints() function -- Note this will only work if the y axis is the height!
+    // TODO: Use this coords for the calculatePoints() function
     coords[0].y = coords[1].y = coords[4].y = coords[5].y = -DBL_MAX;
     coords[2].y = coords[3].y = coords[6].y = coords[7].y = DBL_MAX;
 
-    std::static_pointer_cast<entity::MultiPoint>(spatial->refBoxGeometryPair().second)->setCoordinates(coords);
-
+    std::static_pointer_cast<entity::MultiPoint>(std::get<1>(spatial->refBoxGeometryPair()))->setCoordinates(coords);
+    //std::static_pointer_cast<entity::MultiPoint>(spatial->refGeo())->setCoordinates(coords);
     ask(spatial);
     entity::PointCloud::Ptr entity = entity::PointCloud::Ptr(new entity::PointCloud());
 
     for(auto& c : spatial->results)
     {
-        if(c->discriminator() == "sempr::entity::PointCloud")   // could this be done by the dynmaic cast?
+        if(c->discriminator() == "sempr::entity::PointCloud")
         {
             entity::PointCloud::Ptr cloud = std::static_pointer_cast<entity::PointCloud>(c);
             calculatePoints(cloud, query, p, r, g, b, colors);
@@ -59,9 +59,9 @@ void CalculatePointsModule::process(query::CalculatePointsQuery::Ptr query)
     if(colors == true)
     {
 
-        entity->setChannel(entity::COLOR_R, entity::Channel<uint8_t>(r));
-        entity->setChannel(entity::COLOR_G, entity::Channel<uint8_t>(g));
-        entity->setChannel(entity::COLOR_B, entity::Channel<uint8_t>(b));
+        entity->setChannel(11, entity::Channel<uint8_t>(r));
+        entity->setChannel(12, entity::Channel<uint8_t>(g));
+        entity->setChannel(13, entity::Channel<uint8_t>(b));
     }
     query->results = entity;
 }
@@ -75,7 +75,7 @@ void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud,
     const std::vector <geom::Coordinate>* coords_ptr = query->entity()->getGeometry()->getCoordinates()->toVector();
     const std::vector <geom::Coordinate>& coords = *coords_ptr;
     
-    if(cloud->hasChannel(entity::COLOR_R) && cloud->hasChannel(entity::COLOR_G) && cloud->hasChannel(entity::COLOR_B))
+    if(cloud->hasChannel(11) && cloud->hasChannel(12) && cloud->hasChannel(13))
     {
         colors = true;
     }
@@ -129,9 +129,9 @@ void CalculatePointsModule::calculatePoints(const entity::PointCloud::Ptr cloud,
                     p.push_back(cloud_coords[j]);
                     if(colors == true)
                     {
-                        r.emplace_back(cloud->getChannelUInt8(entity::COLOR_R)[j]);
-                        g.emplace_back(cloud->getChannelUInt8(entity::COLOR_G)[j]);
-                        b.emplace_back(cloud->getChannelUInt8(entity::COLOR_B)[j]);
+                        r.emplace_back(cloud->getChannelUInt8(11)[j]);
+                        g.emplace_back(cloud->getChannelUInt8(12)[j]);
+                        b.emplace_back(cloud->getChannelUInt8(13)[j]);
                     }
                 }
             }

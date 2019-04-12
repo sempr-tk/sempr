@@ -145,6 +145,19 @@ public:
         return it != channels_.end();
     }
 
+    virtual std::set<ChannelType> channels()
+        {
+            std::set<ChannelType> keys;
+
+            for (auto ch : channels_)
+            {
+                ChannelType type = static_cast<ChannelType>(ch.first);
+                keys.insert(type);
+            }
+
+            return keys;
+    }
+
     /**
      * Check if the PointCloud holds a channel of the given channel and type of data.
      */
