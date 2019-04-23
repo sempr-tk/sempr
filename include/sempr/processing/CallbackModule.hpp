@@ -20,12 +20,12 @@ namespace processing {
 template <class ObservableType>
 class CallbackModule : public Module<ObservableType> {
 public:
-    typedef std::function<void(std::shared_ptr<ObservableType>)> callback_t;
-    callback_t callback_;
+    typedef std::function<void(std::shared_ptr<ObservableType>)> observable_cb;
+    observable_cb callback_;
 public:
     using Ptr = std::shared_ptr<CallbackModule>;
 
-    CallbackModule(callback_t callback)
+    CallbackModule(observable_cb callback)
         : callback_(callback)
     {
     }
