@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build_and_test_xenial_qt4:
     docker:
       - image: ubuntu:xenial
     environment:
@@ -21,5 +21,43 @@ jobs:
       - run: mkdir build
       - run: cd build && cmake .. && make -j2
       - run: cd build && ctest --output-on-failure
+      
+  build_and_test_bionic_qt5:
+    docker:
+      - image: ubuntu:bionic
+    environment:
+      LD_LIBRARY_PATH=/usr/local/lib
+    steps:
+      - checkout
+      - run: apt-get update -qq
+      - run: apt-get install -y -qq odb libodb-dev libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev
+      - run: apt-get install -y -qq g++ cmake
+      - run: apt-get install -y -qq libboost-all-dev
+      - run: apt-get install -y -qq pkg-config wget
+      - run: apt-get install -y -qq qt5-default
+      - run: apt-get install -y -qq libgeos-dev libgeos++-dev
+      - run: apt-get install -y -qq libeigen3-dev
+      - run: apt-get install -y -qq git
+      - run: apt-get install -y -qq libgeographic-dev
+      - run: apt-get install -y -qq gcc-5 g++-5
+      - run: apt-get install -y -qq librdf0-dev
+      - run: wget http://de.archive.ubuntu.com/ubuntu/pool/universe/o/odb/odb_2.4.0-4build1_amd64.deb
+      - run: dpkg -i odb_2.4.0-4build1_amd64.deb
+      - run: apt-mark hold odb
+      - run: rm odb_2.4.0-4build1_amd64.deb
+      - run: git clone https://github.com/sempr-tk/soprano_qt5.git
+      - run: cd soprano_qt5 && mkdir build
+      - run: cd soprano_qt5/build && cmake .. -DQT5_BUILD=true && make -j2 install
+      - run: mkdir build
+      - run: cd build && cmake .. -DCMAKE_C_COMPILER=/usr/bin/gcc-5 -DCMAKE_CXX_COMPILER=/usr/bin/g++-5
+      - run: cd build && make -j2
+      - run: cd build && ctest --output-on-failure
+      
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build_and_test_xenial_qt4
+      - build_and_test_bionic_qt5
 
 
