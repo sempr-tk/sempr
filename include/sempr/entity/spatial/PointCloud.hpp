@@ -138,14 +138,14 @@ public:
 
     virtual ~PointCloud();
 
-    virtual bool hasChannel(int type) const
+    virtual bool hasChannel(int type) const override
     {
         auto it = channels_.find(type);
 
         return it != channels_.end();
     }
 
-    virtual std::set<ChannelType> channels()
+    virtual std::set<ChannelType> channels() override
     {
         std::set<ChannelType> keys;
 
@@ -208,26 +208,26 @@ public:
         return boost::get< Channel<T> >(channels_.at(type));
     }
 
-    virtual AbstractChannel<int8_t>& getChannelInt8(int type) { return getChannel<int8_t>(type); }
-    virtual AbstractChannel<int16_t>& getChannelInt16(int type) { return getChannel<int16_t>(type); }
-    virtual AbstractChannel<int32_t>& getChannelInt32(int type) { return getChannel<int32_t>(type); }
-    virtual AbstractChannel<int64_t>& getChannelInt64(int type) { return getChannel<int64_t>(type); }
+    virtual AbstractChannel<int8_t>& getChannelInt8(int type)   override { return getChannel<int8_t>(type); }
+    virtual AbstractChannel<int16_t>& getChannelInt16(int type) override { return getChannel<int16_t>(type); }
+    virtual AbstractChannel<int32_t>& getChannelInt32(int type) override { return getChannel<int32_t>(type); }
+    virtual AbstractChannel<int64_t>& getChannelInt64(int type) override { return getChannel<int64_t>(type); }
 
-    virtual AbstractChannel<uint8_t>& getChannelUInt8(int type) { return getChannel<uint8_t>(type); }
-    virtual AbstractChannel<uint16_t>& getChannelUInt16(int type) { return getChannel<uint16_t>(type); }
-    virtual AbstractChannel<uint32_t>& getChannelUInt32(int type) { return getChannel<uint32_t>(type); }
-    virtual AbstractChannel<uint64_t>& getChannelUInt64(int type) { return getChannel<uint64_t>(type); }
+    virtual AbstractChannel<uint8_t>& getChannelUInt8(int type)   override { return getChannel<uint8_t>(type); }
+    virtual AbstractChannel<uint16_t>& getChannelUInt16(int type) override { return getChannel<uint16_t>(type); }
+    virtual AbstractChannel<uint32_t>& getChannelUInt32(int type) override { return getChannel<uint32_t>(type); }
+    virtual AbstractChannel<uint64_t>& getChannelUInt64(int type) override { return getChannel<uint64_t>(type); }
 
-    virtual AbstractChannel<float>& getChannelFloat(int type) { return getChannel<float>(type); }
-    virtual AbstractChannel<double>& getChannelDouble(int type) { return getChannel<double>(type); }
+    virtual AbstractChannel<float>& getChannelFloat(int type)   override { return getChannel<float>(type); }
+    virtual AbstractChannel<double>& getChannelDouble(int type) override { return getChannel<double>(type); }
 
-    virtual std::size_t size() const
+    virtual std::size_t size() const override
     {
         // each point is a geometry so the num of geometries shall be equal to the num of points!
         return getGeometry()->getNumGeometries(); 
     }
 
-    virtual const AbstractPoint<double>::Ptr operator[](std::size_t idx) const
+    virtual const AbstractPoint<double>::Ptr operator[](std::size_t idx) const override
     {
         // Note: this is an ineffective way to it because for each call it will create a copy of the coordinate on the heap!
         // But this version is safe! Dynamicly type remapping could easily cause undefined behaviour.
@@ -240,7 +240,7 @@ public:
         return CoordinatePoint(*const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate()));
     }
 
-    virtual AbstractPoint<double>::Ptr operator[](std::size_t idx)
+    virtual AbstractPoint<double>::Ptr operator[](std::size_t idx) override
     {
         return std::make_shared<CoordinatePoint>(at(idx));
     }
@@ -250,7 +250,7 @@ public:
         return *const_cast<geom::Coordinate*>(getGeometry()->getGeometryN(idx)->getCoordinate());
     }
 
-    const geom::MultiPoint* getGeometry() const;
+    const geom::MultiPoint* getGeometry() const override;
 
     void setGeometry(geom::MultiPoint* geometry);
 
@@ -259,7 +259,7 @@ public:
     PointCloud::Ptr clone() const;
 
 protected:
-    geom::MultiPoint* getGeometryMut();
+    geom::MultiPoint* getGeometryMut() override;
 
 private:
     friend class odb::access;
@@ -277,7 +277,7 @@ private:
              value_column("channel")
     std::map< int, ChannelVariant > channels_;
 
-    virtual PointCloud* raw_clone() const;
+    virtual PointCloud* raw_clone() const override;
 };
 
     
