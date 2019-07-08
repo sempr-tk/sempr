@@ -31,13 +31,20 @@ namespace sempr { namespace query {
     */
     template <class T>
     class LoadingQuery : public LoadingQueryBase, public core::OType<LoadingQuery<T>> {
+        std::string specificID_;
     public:
         using Ptr = std::shared_ptr<LoadingQuery<T> >;
         std::vector<std::shared_ptr<T> > results;
 
+        LoadingQuery() : specificID_("") {}
+        LoadingQuery(const std::string& id) : specificID_(id) {}
+
         void loadFrom(storage::ODBStorage::Ptr storage) override
         {
-            storage->loadAll(this->results);
+            if (specificID_.empty())
+                storage->loadAll(this->results);
+            else
+                this->results.push_back(storage->load<T>(specificID_));
         }
 
     };
