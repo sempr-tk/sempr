@@ -34,14 +34,14 @@ bool RDFVectorIterator::operator==(const TripleIterator& other) const
 
 SEMPR_ENTITY_SOURCE(RDFVector)
 
-RDFVector::RDFVector(const core::IDGenBase* idgen)
-    : RDFEntity(idgen)
+RDFVector::RDFVector(const core::IDGenBase* idgen, bool temporary)
+    : RDFEntity(idgen, temporary)
 {
     setDiscriminator<RDFVector>();
 }
 
 
-RDFVector::RDFVector() : RDFVector(new core::IDGen<RDFVector>())
+RDFVector::RDFVector(bool temporary) : RDFVector(new core::IDGen<RDFVector>(), temporary)
 {
 }
 

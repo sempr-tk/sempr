@@ -50,8 +50,8 @@ TripleIterator::~TripleIterator()
 SEMPR_ENTITY_SOURCE(RDFEntity);
 
 
-RDFEntity::RDFEntity(const core::IDGenBase* idgen)
-    : Entity(idgen)
+RDFEntity::RDFEntity(const core::IDGenBase* idgen, bool temporary)
+    : Entity(idgen, temporary)
 {
 }
 

@@ -33,8 +33,8 @@ class RDFVector : public RDFEntity {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<RDFVector>;
-    RDFVector();
-    RDFVector(const core::IDGenBase*);
+    RDFVector(bool temporary = false);
+    RDFVector(const core::IDGenBase*, bool temporary = false);
     virtual ~RDFVector(){}
 
     void getTriples(std::vector<Triple>& triples) const;
