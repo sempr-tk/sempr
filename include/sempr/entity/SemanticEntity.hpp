@@ -149,6 +149,8 @@ public:
     std::string predicate() const;
     virtual std::string object() const = 0;
     virtual bool isValid() const = 0;
+
+    bool operator==(const RegisteredPropertyBase& other) const;
 };
 
 /**
@@ -234,7 +236,7 @@ class RegisteredProperty : public RegisteredPropertyBase {
 
     public:
         MyEntity() {
-            registerPropetry("<http://some.ontology/somePredicate>", myInt_);
+            registerProperty("<http://some.ontology/somePredicate>", myInt_);
             registerProperty("<http://some.ontology/someSubject>", "<http://some.ontology/somePredicate>", myFloat_);
         }
     };
@@ -250,9 +252,13 @@ class SemanticEntity : public RDFEntity {
     #pragma db transient
     std::vector<RegisteredPropertyBase*> properties_;
 
+    std::vector<RegisteredPropertyBase*>::iterator findProperty(const RegisteredPropertyBase& prop);
+
 protected:
-    SemanticEntity(const core::IDGenBase*);
     SemanticEntity();
+    SemanticEntity(bool temporary);
+    SemanticEntity(const core::IDGenBase*, bool temporary = false);
+    
 
     /**
         Registers the property at this semantic entity. This will provide the RDF-Triple:
@@ -269,11 +275,25 @@ protected:
     }
 
     template <class T>
+    void removeProperty(const std::string& predicate, T& property)
+    {
+        auto prop = findProperty(RegisteredProperty<T>(predicate, property));
+        properties_.erase(prop);
+    }
+
+    template <class T>
     void registerPropertyPlain(const std::string& predicate, T& property)
     {
         RegisteredPropertyBase* rprop =
             new RegisteredProperty<T, sempr::rdf::traits::plain_string>(predicate, property);
         properties_.push_back(rprop);
+    }
+
+    template <class T>
+    void removePropertyPlain(const std::string& predicate, T& property)
+    {
+        auto prop = findProperty(RegisteredProperty<T, sempr::rdf::traits::plain_string>(predicate, property));
+        properties_.erase(prop);
     }
 
     /**
@@ -283,11 +303,17 @@ protected:
         Assumes the given property is a member of this SemanticEntity.
     */
     template <class T>
-    void registerProperty(const std::string& subject, const std::string& predicate,
-                          T& property)
+    void registerProperty(const std::string& subject, const std::string& predicate, T& property)
     {
         RegisteredPropertyBase* rprop = new RegisteredProperty<T>(subject, predicate, property);
         properties_.push_back(rprop);
+    }
+
+    template <class T>
+    void removeProperty(const std::string& subject, const std::string& predicate, T& property)
+    {
+        auto prop = findProperty(RegisteredProperty<T>(subject, predicate, property));
+        properties_.erase(prop);
     }
 
     template <class T>
@@ -296,6 +322,13 @@ protected:
         RegisteredPropertyBase* rprop =
             new RegisteredProperty<T, sempr::rdf::traits::plain_string>(subject, predicate, property);
         properties_.push_back(rprop);
+    }
+
+    template <class T>
+    void removePropertyPlain(const std::string& subject, const std::string& predicate, T& property)
+    {
+        auto prop = findProperty(RegisteredProperty<T, sempr::rdf::traits::plain_string>(subject, predicate, property));
+        properties_.erase(prop);
     }
 
 public:

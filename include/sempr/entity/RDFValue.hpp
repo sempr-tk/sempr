@@ -2,7 +2,10 @@
 #define SEMPR_ENTITY_RDFVALUE_HPP_
 
 #include <memory>
+#include <string>
+#include <tuple>
 #include <type_traits>
+
 #include <Soprano/Soprano>
 #include <odb/core.hxx>
 #include <sempr/entity/Entity.hpp>

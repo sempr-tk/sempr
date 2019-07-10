@@ -1,7 +1,7 @@
 #ifndef SEMPR_ENTITY_RDFPROPERTYMAP_HPP_
 #define SEMPR_ENTITY_RDFPROPERTYMAP_HPP_
 
-#include <sempr/entity/RDFVector.hpp>
+#include <sempr/entity/RDFEntity.hpp>
 #include <sempr/entity/RDFValue.hpp>
 #include <Soprano/Soprano> // for conversion to rdf-literals.
 

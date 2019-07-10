@@ -42,6 +42,10 @@ if(Boost_FOUND)
   target_link_libraries(sempr_spatial_index_tests ${DEPENDENCIES})
   add_test(NAME sempr_spatial_index_tests COMMAND sempr_spatial_index_tests)
   
+  add_executable(sempr_spatial_conclusion_tests SEMPR_tests.cpp spatial_conclusion_tests.cpp)
+  target_link_libraries(sempr_spatial_conclusion_tests ${DEPENDENCIES})
+  add_test(NAME sempr_spatial_conclusion_tests COMMAND sempr_spatial_conclusion_tests)
+  
   add_executable(sempr_entity_tests SEMPR_tests.cpp Entity_tests.cpp)
   target_link_libraries(sempr_entity_tests ${DEPENDENCIES})
   add_test(NAME sempr_entity_tests COMMAND sempr_entity_tests)

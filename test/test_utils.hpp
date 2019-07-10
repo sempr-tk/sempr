@@ -35,6 +35,11 @@
 
 #include <PointCloud_odb.h>
 
+
+#include <sempr/entity/spatial/SpatialObject.hpp>
+#include <SpatialObject_odb.h>
+#include <GeometricObject_odb.h>
+
 // reference systems
 #include <sempr/entity/spatial/reference/LocalCS.hpp>
 #include <sempr/entity/spatial/reference/GeodeticCS.hpp>
@@ -48,6 +53,7 @@
 
 #include <sempr/processing/SopranoModule.hpp>
 #include <sempr/processing/SpatialIndex.hpp>
+#include <sempr/processing/SpatialConclusion.hpp>
 
 using namespace sempr::core;
 using namespace sempr::storage;

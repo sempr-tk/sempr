@@ -35,6 +35,12 @@ public:
     virtual SpatialReference::Ptr getRoot();
 
     /**
+     * Check if this and the other cs are equal. (not the same!)
+     * Note: This have to be override by derived class with attributes!
+     */
+    virtual bool isEqual(const SpatialReference::Ptr other) const;
+
+    /**
         Check if this SpatialReference is the child of another one. This is usefull to check if
         we need to recompute e.g. a Geometry based on the change of some arbitrary frame, as
         currently no changed()-events are emitted for child-frames (or their connected geometries).

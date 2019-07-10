@@ -2,12 +2,8 @@
 #define SEMPR_ENTITY_RDFVECTOR_H_
 
 #include <odb/core.hxx>
-#include <sempr/core/RDF.hpp>
-#include <sempr/entity/Entity.hpp>
-#include <sempr/entity/Triple.hpp>
-#include <sempr/entity/RDFEntity.hpp>
 
-#include <sempr/core/EntityEvent.hpp>
+#include <sempr/entity/RDFEntity.hpp>
 
 #include <vector>
 
@@ -26,20 +22,19 @@ class RDFVectorIterator : public TripleIterator {
     bool operator == (const TripleIterator& other) const override;
 };
 
-
-
 #pragma db object
 class RDFVector : public RDFEntity {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<RDFVector>;
     RDFVector();
-    RDFVector(const core::IDGenBase*);
+    RDFVector(bool temporary);
+    RDFVector(const core::IDGenBase*, bool temporary = false);
     virtual ~RDFVector(){}
 
     void getTriples(std::vector<Triple>& triples) const;
     const Triple& getTripleAt(const size_t index);
-    bool addTriple(const Triple& triple);
+    bool addTriple(const Triple& triple, bool replace = false);     // if replace than an equal triple will be removed before, otherwise there a multiple entries possible
     bool removeTriple(const Triple& triple);
     void removeTripleAt(const size_t index);
     void clear();
@@ -48,10 +43,14 @@ public:
     TripleIteratorWrapper begin() const override;
     TripleIteratorWrapper end() const override;
 
+    bool validity(const Triple& triple) const;
+
 protected:
     friend class odb::access;
     std::vector<Triple> triples_;
 };
+
+
 
 }}
 

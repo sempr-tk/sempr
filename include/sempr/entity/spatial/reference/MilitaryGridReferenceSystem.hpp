@@ -21,7 +21,7 @@ public:
     MilitaryGridReferenceSystem(int zone, char designator, const std::string& squareID);
     MilitaryGridReferenceSystem(int zone, char designator, const std::string& squareID, const core::IDGenBase*);
 
-    bool isEqual(const GlobalCS::Ptr other) const override;
+    bool isEqual(const SpatialReference::Ptr other) const override;
 
     int getZone() const override;
     bool isNorth() const override;

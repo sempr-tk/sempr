@@ -40,7 +40,7 @@ LocalTangentPlaneCS::LocalTangentPlaneCS(double lat0, double lon0, double h0, co
 
 }
 
-bool LocalTangentPlaneCS::isEqual(const GlobalCS::Ptr other) const
+bool LocalTangentPlaneCS::isEqual(const SpatialReference::Ptr other) const
 {
     auto otherLTG = std::dynamic_pointer_cast<LocalTangentPlaneCS>(other);
 
@@ -52,6 +52,22 @@ bool LocalTangentPlaneCS::isEqual(const GlobalCS::Ptr other) const
     {
         return false;
     }
+}
+
+std::size_t LocalTangentPlaneCS::directionDimension(const CardinalDirection& direction) const
+{
+    // ENU / LTG (East-North-Up)
+    switch (direction)
+    {
+        case NORTH:
+        case SOUTH:
+            return 1;   //y
+        case EAST:
+        case WEST:
+            return 0;   //x
+    }
+
+    return 0;
 }
 
 FilterPtr LocalTangentPlaneCS::forward() const

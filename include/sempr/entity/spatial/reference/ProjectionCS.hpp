@@ -27,6 +27,7 @@ public:
     virtual int getZone() const;
     virtual bool isNorth() const;
 
+    virtual std::size_t directionDimension(const CardinalDirection& direction) const override;
 
     // import or export a UTM/UPS zone string
     static ProjectionCS::Ptr importZone(const std::string& zonestr);

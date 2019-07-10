@@ -52,7 +52,20 @@ FilterPtr GeodeticCS::reverse() const
     return FilterPtr(nullptr);
 }
 
+std::size_t GeodeticCS::directionDimension(const CardinalDirection& direction) const
+{
+    switch (direction)
+    {
+        case NORTH:
+        case SOUTH:
+            return 0;   //x
+        case EAST:
+        case WEST:
+            return 1;   //y
+    }
 
+    return 0;
+}
 
 
 }}

@@ -34,14 +34,19 @@ bool RDFVectorIterator::operator==(const TripleIterator& other) const
 
 SEMPR_ENTITY_SOURCE(RDFVector)
 
-RDFVector::RDFVector(const core::IDGenBase* idgen)
-    : RDFEntity(idgen)
+RDFVector::RDFVector(const core::IDGenBase* idgen, bool temporary) : 
+    RDFEntity(idgen, temporary)
 {
     setDiscriminator<RDFVector>();
 }
 
+RDFVector::RDFVector(bool temporary) : 
+    RDFVector(new core::IDGen<RDFVector>(), temporary)
+{
+}
 
-RDFVector::RDFVector() : RDFVector(new core::IDGen<RDFVector>())
+RDFVector::RDFVector() : 
+    RDFVector(new core::IDGen<RDFVector>())
 {
 }
 
@@ -56,23 +61,36 @@ const Triple& RDFVector::getTripleAt(const size_t index)
     return triples_[index];
 }
 
-bool RDFVector::addTriple(const sempr::entity::Triple &triple)
+bool RDFVector::addTriple(const Triple& triple, bool replace)
 {
+    bool isValid = validity(triple);
+
+    if (isValid)
+    {
+        if (replace)
+            removeTriple(triple);
+
+        triples_.push_back(triple);
+        //this->changed();
+    }
+
+    return isValid;
+}
+
+bool RDFVector::validity(const Triple& triple) const
+{
+    Triple t = triple;
     // check if the triple is valid!
-    auto sub = Soprano::Node::fromN3(QString::fromStdString(triple.subject));
-    auto pred = Soprano::Node::fromN3(QString::fromStdString(triple.predicate));
-    auto obj = Soprano::Node::fromN3(QString::fromStdString(triple.object));
+    auto sub = Soprano::Node::fromN3(QString::fromStdString(t.subject));
+    auto pred = Soprano::Node::fromN3(QString::fromStdString(t.predicate));
+    auto obj = Soprano::Node::fromN3(QString::fromStdString(t.object));
 
     Soprano::Statement st(sub, pred, obj);
-
-    // but add anyway, necessary for RDFPropertyMap etc
-    triples_.push_back(triple);
-    //this->changed();
 
     return st.isValid();
 }
 
-bool RDFVector::removeTriple(const sempr::entity::Triple &triple)
+bool RDFVector::removeTriple(const Triple& triple)
 {
     auto newEnd = std::remove(triples_.begin(), triples_.end(), triple);
     if (newEnd == triples_.end()) return false;

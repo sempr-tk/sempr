@@ -56,8 +56,7 @@ RDFDocument::Ptr RDFDocument::FromFile(const std::string &file)
                 doc->addTriple(
                     Triple( (*statements).subject().toN3().toStdString(),
                             (*statements).predicate().toN3().toStdString(),
-                            (*statements).object().toN3().toStdString(),
-                            doc->id() )
+                            (*statements).object().toN3().toStdString() )
                 );
             }
 
