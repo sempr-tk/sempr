@@ -1,6 +1,7 @@
 #ifndef SEMPR_CORE_ENTITYALPHABUILDER_HPP_
 #define SEMPR_CORE_ENTITYALPHABUILDER_HPP_
 
+#include "Utility.hpp"
 #include "EntityAlphaNode.hpp"
 #include "EntityAccessor.hpp"
 #include <rete-reasoner/NodeBuilder.hpp>
@@ -14,6 +15,18 @@ namespace core {
 */
 template <class EntityType>
 class EntityAlphaBuilder : public rete::NodeBuilder {
+    static std::string discriminatorToShorthand(const std::string& str)
+    {
+        // "abc::def::g:h:i::foo" -> "foo"
+        size_t lastColon = str.find_last_of(":");
+        std::string result = str;
+        if (lastColon != std::string::npos)
+        {
+            result = str.substr(lastColon+1);
+        }
+        return result;
+    }
+
 public:
     /**
         Constructs a new NodeBuilder that creates EntityAlphaNodes from conditions with the given
@@ -25,6 +38,14 @@ public:
     */
     EntityAlphaBuilder(const std::string& name)
         : rete::NodeBuilder(name, BuilderType::ALPHA)
+    {
+    }
+
+    EntityAlphaBuilder()
+        : rete::NodeBuilder(
+            EntityAlphaBuilder::discriminatorToShorthand(
+                odb_discriminator<EntityType>::value
+            ), BuilderType::ALPHA)
     {
     }
 
@@ -43,7 +64,9 @@ public:
         if (!args[1].isVariable() || args[1].getAccessor() != nullptr)
             throw rete::NodeBuilderException("Arguments must be unbound variables");
 
-        typename EntityAlphaNode<EntityType>::Ptr node(new EntityAlphaNode<EntityType>());
+        typename EntityAlphaNode<EntityType>::Ptr node(
+                    new EntityAlphaNode<EntityType>(this->type())
+                );
         nodes.push_back(node);
 
         // create the entity accessors and bind the variables!

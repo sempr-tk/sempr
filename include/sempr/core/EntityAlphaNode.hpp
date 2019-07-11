@@ -24,16 +24,24 @@ namespace core {
 */
 template <class EntityType>
 class EntityAlphaNode : public rete::AlphaNode {
+    std::string name_;
+
     std::string getDOTAttr() const override
     {
-        return "[label=\"" + rete::util::dotEscape(odb_discriminator<EntityType>::value) + "\"]";
+        return "[label=\"" + rete::util::dotEscape(name_) + "\"]";
     }
 public:
     using Ptr = std::shared_ptr<EntityAlphaNode>;
 
-    EntityAlphaNode()
+    EntityAlphaNode(const std::string& name)
+        : name_(name)
     {
         static_assert(std::is_base_of<sempr::entity::Entity, EntityType>::value, "Tried to add a entity-type-check for a non-entity node!");
+    }
+
+    EntityAlphaNode()
+        : EntityAlphaNode(odb_discriminator<EntityType>::value)
+    {
     }
 
     /**
