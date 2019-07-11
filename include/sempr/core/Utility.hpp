@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <odb/core.hxx> // odb::object_traits<T>::base_type
 #include <functional>
+#include <memory>
 
 namespace sempr {
 
@@ -50,6 +51,16 @@ namespace core {
     // the variant with 'using' does not work correctly: the compiler is able to deduce that it is
     // always false, and complains when creating the precompiled header.
 
+
+    /**
+        Helper to get the odb discriminator for a class
+    */
+    template <class T>
+    struct odb_discriminator
+    {
+        static constexpr auto value =
+            odb::object_traits_impl<T, odb::id_common>::info.discriminator;
+    };
 
     /**
         type trait to access the base of a class.
@@ -159,7 +170,7 @@ namespace core {
         typedef ReturnType return_type;
         typedef std::tuple<Args...> arg_types;
     };
-    
+
 
 
 } /* core */
