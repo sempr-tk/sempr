@@ -95,7 +95,10 @@ public:
 */
 template <class EntityType, class ParentType = typename base_of<EntityType>::type>
 class EntityAccessor : public EntityAccessor<ParentType>,
-                       public rete::ValueAccessor<EntityType, EntityAccessor<EntityType>> {
+                       public rete::ValueAccessor<
+                                    std::shared_ptr<EntityType>,
+                                    EntityAccessor<EntityType>
+                                    > {
 public:
     using Ptr = std::shared_ptr<EntityAccessor>;
     EntityAccessor()
@@ -120,7 +123,7 @@ public:
 */
 template <>
 class EntityAccessor<storage::DBObject, void> : public EntityAccessorBase {
-private:
+protected:
     EntityAccessor() {}
 };
 
