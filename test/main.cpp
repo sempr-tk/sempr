@@ -55,7 +55,7 @@ int main(int argc, char** args)
         "[Entity(?e ?id), print(?id \"is an entity\") -> (<there is> <no> <result>)]\n"
         "[Geometry(?g ?id), print(?id \"is a Geometry\") -> (<there is> <no> <result>)]\n"
         "[Polygon(?p ?id), print(?id \"is a Polygon\") -> (<there is> <no> <result>)]\n"
-        "[Entity(?e ?id), Polygon(?e ?idb) -> (<this> <should> <fail>)]\n"
+//        "[Entity(?e ?id), Polygon(?e ?idb) -> (<this> <should> <fail>)]\n"
         ,
         reasoner.net()
     );
@@ -78,8 +78,16 @@ int main(int argc, char** args)
     wme = std::make_shared<EntityWME>(p1); reasoner.addEvidence(wme, assertion);
     wme = std::make_shared<EntityWME>(p2); reasoner.addEvidence(wme, assertion);
 
+    reasoner.performInference();
 
     save(reasoner.net(), "entity_rules.dot");
+
+    reasoner.removeEvidence(std::make_shared<EntityWME>(g1), assertion);
+    reasoner.removeEvidence(std::make_shared<EntityWME>(g2), assertion);
+
+    reasoner.performInference();
+
+    save(reasoner.net(), "entity_rules_retractedgeoms.dot");
 
     return 0;
 }
