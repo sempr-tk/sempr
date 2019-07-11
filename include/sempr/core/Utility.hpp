@@ -58,7 +58,7 @@ namespace core {
     template <class T>
     struct odb_discriminator
     {
-        static constexpr auto value =
+        static constexpr const std::string& value =
             odb::object_traits_impl<T, odb::id_common>::info.discriminator;
     };
 
