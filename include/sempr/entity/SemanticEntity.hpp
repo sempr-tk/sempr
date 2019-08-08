@@ -51,7 +51,7 @@ namespace traits {
         Specialization for std::strings (which don't work out of the box, but QStrings should)
     */
     template <>
-    struct n3_string<std::string, void>
+    struct n3_string<const std::string, void>
     {
         static std::string from(const std::string& str)
         {
@@ -60,6 +60,9 @@ namespace traits {
             return tmp.toN3().toStdString();
         }
     };
+
+    template <>
+    struct n3_string<std::string, void> : public n3_string<const std::string, void> {};
 
 
     /**
@@ -104,13 +107,16 @@ namespace traits {
         Specialization for strings
     */
     template <>
-    struct plain_string<std::string, void>
+    struct plain_string<const std::string, void>
     {
         static std::string from(const std::string& value)
         {
             return value;
         }
     };
+
+    template <>
+    struct plain_string<std::string, void> : public plain_string<const std::string, void> {};
 
 } /* traits */
 } /* rdf */

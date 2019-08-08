@@ -11,7 +11,7 @@ RuleSet::RuleSet(const core::IDGenBase* idgen)
     setDiscriminator<RuleSet>();
 
     using namespace sempr::core;
-    prefixes["rdf"] = rdf::baseURI();
+    prefixes["rdf"] = core::rdf::baseURI();
     prefixes["rdfs"] = rdfs::baseURI();
     prefixes["owl"] = owl::baseURI();
     prefixes["sempr"] = sempr::baseURI();

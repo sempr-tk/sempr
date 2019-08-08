@@ -2,7 +2,7 @@
 #define SEMPR_ENTITY_SPATIAL_SPATIALREFERENCE_HPP_
 
 #include <Eigen/Geometry>
-#include <sempr/entity/Entity.hpp>
+#include <sempr/entity/SemanticEntity.hpp>
 
 #include <geos/geom/CoordinateFilter.h>
 #include <geos/geom/CoordinateSequenceFilter.h>
@@ -25,7 +25,7 @@ TODO geometry: methods to assign / change ref systems
        system or a projection reference system.
 */
 #pragma db object
-class SpatialReference : public Entity {
+class SpatialReference : public SemanticEntity {
     SEMPR_ENTITY
 public:
     using Ptr = std::shared_ptr<SpatialReference>;

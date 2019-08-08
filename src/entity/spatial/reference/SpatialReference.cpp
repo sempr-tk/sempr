@@ -11,7 +11,7 @@ SpatialReference::SpatialReference()
 }
 
 SpatialReference::SpatialReference(const core::IDGenBase* idgen)
-    : Entity(idgen)
+    : SemanticEntity(idgen)
 {
 }
 
