@@ -12,6 +12,7 @@ namespace core {
     A wrapper class to allow insertion of arbitrary entities into the reasoner.
 */
 class EntityWME : public rete::WME {
+    static const std::string type_;
     std::shared_ptr<sempr::entity::Entity> entity_;
 public:
     using Ptr = std::shared_ptr<EntityWME>;
@@ -22,6 +23,8 @@ public:
 
     sempr::entity::Entity::Ptr entity() const;
     std::string toString() const override;
+
+    const std::string& type() const override;
 
     /**
         Comparison of entities is simple: As they are first class objects and not just

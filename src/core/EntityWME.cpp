@@ -12,6 +12,13 @@ Entity::Ptr EntityWME::entity() const
     return entity_;
 }
 
+const std::string EntityWME::type_("EntityWME");
+const std::string& EntityWME::type() const
+{
+    return EntityWME::type_;
+}
+
+
 std::string EntityWME::toString() const
 {
     return entity_->id();
