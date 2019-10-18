@@ -15,6 +15,19 @@ LocalCS::LocalCS(const core::IDGenBase* idgen)
 {
     this->transform_.setIdentity();
     this->setDiscriminator<LocalCS>();
+
+    // export parent to rdf
+    this->registerProperty(
+        "<" + sempr::baseURI() + "hasParent>",
+        parent_
+    );
+
+    // also the type
+    static const std::string type = "<" + sempr::baseURI() + "LocalCS>";
+    this->registerPropertyPlain(
+        core::rdf::type(),
+        type
+    );
 }
 
 
