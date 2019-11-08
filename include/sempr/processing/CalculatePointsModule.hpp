@@ -37,13 +37,15 @@ private:
     
     bool intersect(std::vector<geom::Coordinate> c, std::vector <geom::Coordinate> p);
 
-//    std::vector<geom::Coordinate> m_c;
-//    std::vector<uint8_t> m_r;
-//    std::vector<uint8_t> m_g;
-//    std::vector<uint8_t> m_b;
 
-//    bool m_colors = true;
+
 };
+
+
+
+
+
+
 
 }}
 
