@@ -18,13 +18,25 @@ if(OPENMP_FOUND)
 endif()
 
 
-file(GLOB_RECURSE SRC_FILES core/* data/* entity/* processing/* query/* storage/*)
-file(GLOB_RECURSE ODB_FILES
-    ../include/sempr/storage/DBObject.hpp
-    ../include/sempr/storage/History.hpp
-    ../include/sempr/storage/Dummy.hpp
-    ../include/sempr/data/*
-    ../include/sempr/entity/*
+#file(GLOB_RECURSE SRC_FILES core/* data/* entity/* processing/* query/* storage/*)
+#file(GLOB_RECURSE ODB_FILES
+#    ../include/sempr/storage/DBObject.hpp
+#    ../include/sempr/storage/History.hpp
+#    ../include/sempr/storage/Dummy.hpp
+#    ../include/sempr/data/*
+#    ../include/sempr/entity/*
+#)
+
+set(SRC_FILES
+    ./core/Core.cpp
+    ./core/RDF.cpp
+    ./entity/Entity.cpp
+    ./entity/Component.cpp
+)
+
+set(ODB_FILES
+    ../include/sempr/entity/Entity.hpp
+    ../include/sempr/entity/Component.hpp
 )
 
 # message( "found files: ${SRC_FILES}")
@@ -53,7 +65,7 @@ endif()
 # X_CPP_OPTION (passed to underlying c++ compiler): -fPIC for Qt5-support!
 odb_compile(ODB_GENERATED
     FILES ${ODB_FILES}
-    HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
+    #    HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
     INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
     # PROFILE boost/uuid
     PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/include
@@ -71,45 +83,6 @@ target_link_libraries(sempr_core ${ODB_LIBRARIES} ${Soprano_LIBRARIES} ${GEOS_LI
 target_compile_definitions(sempr_core PUBLIC -D${CONFIG_DATABASE})
 # target_include_directories(sempr_core
     # PRIVATE ${ODB_COMPILE_OUTPUT_DIR} )
-
-
-
-
-
-##
-## generate precompiled header (for autocomplete-clang)
-##
-# Define a list of headers to exclude from the pch. Use this while working on SEMPR to avoid
-# having to generate from scratch when adding a new function etc.
-file(GLOB_RECURSE EXCLUDE_FROM_PCH
-    # ../include/sempr/processing/SpatialIndex.hpp
-    # ../include/sempr/query/SpatialIndexQuery.hpp
-)
-
-
-# check if clang exists
-find_program(CLANG clang++)
-if (NOT CLANG)
-    message("clang not found, not generating pch.")
-else()
-    message("FOUND CLANG: ${CLANG}")
-    file(GLOB_RECURSE ALL_HEADERS ../include/*)
-    string(REPLACE ".cpp" ".h" ODB_GENERATED_HPP "${ODB_GENERATED}")
-    list(INSERT ALL_HEADERS ${ODB_GENERATED_HPP})
-
-    if (EXCLUDE_FROM_PCH)
-        list(REMOVE_ITEM ALL_HEADERS ${EXCLUDE_FROM_PCH})
-    endif()
-
-    include(${PROJECT_SOURCE_DIR}/cmake/PCH.cmake)
-    add_precompiled_header(sempr-core.pch ALL_HEADERS "-D${CONFIG_DATABASE}")
-    add_dependencies(sempr-core.pch_pch_target ODB_GENERATED_TARGET)
-
-    install(
-        FILES ${CMAKE_CURRENT_BINARY_DIR}/sempr-core.pch
-        DESTINATION include/sempr
-    )
-endif()
 
 
 ## install stuff
