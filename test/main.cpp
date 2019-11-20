@@ -16,121 +16,78 @@ using namespace sempr::query;
 #include <RuleSet_odb.h>
 
 #include <sempr/core/IncrementalIDGeneration.hpp>
-
-//#include <cpl_conv.h> // CPLFree for kml export of geometries
-
 #include <sempr/entity/spatial/reference/LocalCS.hpp>
 #include <chrono>
 
 #include <RDFDocument_odb.h>
 
-#include <array>
-
-#include <sempr/processing/DebugModule.hpp>
-#include <sempr/processing/DBUpdateModule.hpp>
-#include <sempr/processing/ActiveObjectStore.hpp>
-#include <sempr/processing/SopranoModule.hpp>
-#include <sempr/processing/SpatialIndex.hpp>
-using namespace sempr::processing;
-
-
 #include <sempr/sempr.hpp>
 using namespace sempr::storage;
 
+#include <rete-core/ReteCore.hpp>
+#include <rete-reasoner/RuleParser.hpp>
+#include <rete-reasoner/Reasoner.hpp>
 
-#ifndef M_PI
-#   define M_PI 3.141592653589793
-#endif
-/*
-void print(OGRGeometry* p)
+#include "sempr/core/EntityAlphaBuilder.hpp"
+#include "sempr/core/EntityWME.hpp"
+
+#include <fstream>
+void save(rete::Network& net, const std::string& filename)
 {
-    char* str;
-    p->exportToWkt(&str, wkbVariantIso);
-    std::cout << str << '\n';
-    CPLFree(str);
+    std::ofstream out(filename);
+    out << net.toDot();
+    out.close();
 }
-*/
-
-/*
-void setupQuadrangle(OGRPolygon* poly, const std::array<float, 3>& min, const std::array<float, 3>& max)
-{
-    // OGRLineString* ls = (OGRLineString*) OGRGeometryFactory::createGeometry(wkbLineString);
-    OGRLinearRing* lr = (OGRLinearRing*) OGRGeometryFactory::createGeometry(wkbLinearRing);
-    lr->addPoint(min[0], min[1], max[2]);
-    lr->addPoint(min[0], max[1], min[2]);
-    lr->addPoint(min[0], max[1], max[2]);
-    lr->addPoint(min[0], min[1], min[2]);
-    lr->addPoint(min[0], min[1], max[2]);
-    lr->addPoint(min[0], max[1], min[2]);
-    lr->addPoint(min[0], max[1], max[2]);
-    lr->addPoint(max[0], min[1], min[2]);
-    lr->addPoint(max[0], min[1], max[2]);
-    lr->addPoint(max[0], max[1], min[2]);
-    lr->addPoint(max[0], max[1], max[2]);
-    lr->closeRings();
-    poly->addRingDirectly(lr);
-}
-*/
-
 
 int main(int argc, char** args)
 {
-    /* ************* *
-     * SETUP
-     * ************** */
-    // ODBStorage::Ptr storage( new ODBStorage(":memory:") );
-    ODBStorage::Ptr storage( new ODBStorage() );
-    DBUpdateModule::Ptr updater( new DBUpdateModule(storage) );
+    // test the integration of entities into the reasoner -- standalone, not integrated in the core yet.
+    using namespace sempr::core;
 
-    DebugModule::Ptr debug(new DebugModule());
-    ActiveObjectStore::Ptr active( new ActiveObjectStore() );
-    SopranoModule::Ptr semantic( new SopranoModule() );
-    SpatialIndex::Ptr spatial( new SpatialIndex() );
+    rete::RuleParser parser;
+    parser.registerNodeBuilder<EntityAlphaBuilder<Entity>>();
+    parser.registerNodeBuilder<EntityAlphaBuilder<Geometry>>();
+    parser.registerNodeBuilder<EntityAlphaBuilder<Polygon>>();
 
-    sempr::core::IDGenerator::getInstance().setStrategy(
-        std::unique_ptr<sempr::core::IncrementalIDGeneration>( new sempr::core::IncrementalIDGeneration(storage) )
+    rete::Reasoner reasoner;
+
+    parser.parseRules(
+        "[Entity(?e ?id), print(?id \"is an entity\") -> (<there is> <no> <result>)]\n"
+        "[Geometry(?g ?id), print(?id \"is a Geometry\") -> (<there is> <no> <result>)]\n"
+        "[Polygon(?p ?id), print(?id \"is a Polygon\") -> (<there is> <no> <result>)]\n"
+//        "[Entity(?e ?id), Polygon(?e ?idb) -> (<this> <should> <fail>)]\n"
+        ,
+        reasoner.net()
     );
 
-    sempr::core::Core c;
-    c.addModule(active);
-    c.addModule(debug);
-    c.addModule(updater);
-    c.addModule(semantic);
-    c.addModule(spatial);
 
+    // create a few entities to test the alpha conditions.
+    auto e1 = std::make_shared<Entity>();
+    auto e2 = std::make_shared<Entity>();
+    auto g1 = std::make_shared<Geometry>();
+    auto g2 = std::make_shared<Geometry>();
+    auto p1 = std::make_shared<Polygon>();
+    auto p2 = std::make_shared<Polygon>();
 
-    /* ************* *
-     * TESTS
-     * ************** */
-     // add a spatial refernce
-     LocalCS::Ptr cs(new LocalCS());
-     c.addEntity(cs);
+    auto assertion = std::make_shared<rete::AssertedEvidence>("fact-group-1");
 
-     /*
-     // add a few geometries
-     for (float i = 0.1; i < 10; i++)
-     {
-         Polygon::Ptr p( new Polygon() );
-         setupQuadrangle(p->geometry(), {{i, 0, 0}}, {{i+1, 1, 1}});
-         p->setCS(cs);
-         c.addEntity(p);
-     }
-*/
+    auto wme = std::make_shared<EntityWME>(e1); reasoner.addEvidence(wme, assertion);
+    wme = std::make_shared<EntityWME>(e2); reasoner.addEvidence(wme, assertion);
+    wme = std::make_shared<EntityWME>(g1); reasoner.addEvidence(wme, assertion);
+    wme = std::make_shared<EntityWME>(g2); reasoner.addEvidence(wme, assertion);
+    wme = std::make_shared<EntityWME>(p1); reasoner.addEvidence(wme, assertion);
+    wme = std::make_shared<EntityWME>(p2); reasoner.addEvidence(wme, assertion);
 
-     // query for everything in a box.
-     Eigen::Vector3d lower{-0.1, -0.1, -0.1};
-     Eigen::Vector3d upper{5.2, 1.2, 1.2};
-     auto q = SpatialIndexQuery::withinBox(lower, upper, cs);
-     c.answerQuery(q);
-     for (auto r : q->results) {
-         std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
-     }
+    reasoner.performInference();
 
-     std::cout << "and inverted?" << '\n';
-     q->invert();
-     q->results.clear();
-     c.answerQuery(q);
-     for (auto r : q->results) {
-         std::cout << "SpatialIndexQuery result: " << r->id() << '\n';
-     }
+    save(reasoner.net(), "entity_rules.dot");
+
+    reasoner.removeEvidence(std::make_shared<EntityWME>(g1), assertion);
+    reasoner.removeEvidence(std::make_shared<EntityWME>(g2), assertion);
+
+    reasoner.performInference();
+
+    save(reasoner.net(), "entity_rules_retractedgeoms.dot");
+
+    return 0;
 }

@@ -47,13 +47,19 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 #find package geos
 find_package(GEOS)
 include_directories(${GEOS_INCLUDE_DIR})
-#link_directories(${GEOS_LIBRARY})  
+#link_directories(${GEOS_LIBRARY})
 
 #find pacakge GeographicLib
-set(GeographicLib_USE_STATIC_LIBS ON) 
+set(GeographicLib_USE_STATIC_LIBS ON)
 find_package (GeographicLib)
 include_directories (${GeographicLib_INCLUDE_DIRS})
 add_definitions (${GeographicLib_DEFINITIONS})
+
+# everything shall be connected through a rule based forward reasoner, based on the RETE algorithm
+pkg_check_modules(RETE REQUIRED rete)
+include_directories(${RETE_INCLUDE_DIRS})
+link_directories(${RETE_LIBRARY_DIRS})
+add_definitions(${RETE_CXX_FLAGS_OTHER})
 
 include_directories(include)
 
