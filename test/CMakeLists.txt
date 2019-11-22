@@ -24,44 +24,9 @@ if(Boost_FOUND)
     target_link_libraries(CoreTest ${DEPENDENCIES})
     add_test(NAME CoreTest COMMAND CoreTest)
 
-  #  add_executable(sempr_storage_test SEMPR_tests.cpp storage_tests.cpp)
-  #  target_link_libraries(sempr_storage_test ${DEPENDENCIES})
-  #  add_test(NAME sempr_storage_test COMMAND sempr_storage_test)
-  #
-  #  add_executable(sempr_RDFPropertymap_test SEMPR_tests.cpp RDFPropertymap_tests.cpp)
-  #  target_link_libraries(sempr_RDFPropertymap_test ${DEPENDENCIES})
-  #  add_test(NAME sempr_RDFPropertymap_test COMMAND sempr_RDFPropertymap_test)
-  #
-  #  add_executable(sempr_queries_test SEMPR_tests.cpp queries_tests.cpp)
-  #  target_link_libraries(sempr_queries_test ${DEPENDENCIES})
-  #  add_test(NAME sempr_queries_test COMMAND sempr_queries_test)
-  #
-  #  add_executable(sempr_geometries_tests SEMPR_tests.cpp geometries_tests.cpp)
-  #  target_link_libraries(sempr_geometries_tests ${DEPENDENCIES})
-  #  add_test(NAME sempr_geometries_tests COMMAND sempr_geometries_tests)
-  #
-  #  add_executable(sempr_spatial_index_tests SEMPR_tests.cpp spatial_index_tests.cpp)
-  #  target_link_libraries(sempr_spatial_index_tests ${DEPENDENCIES})
-  #  add_test(NAME sempr_spatial_index_tests COMMAND sempr_spatial_index_tests)
-  #  
-  #  add_executable(sempr_entity_tests SEMPR_tests.cpp Entity_tests.cpp)
-  #  target_link_libraries(sempr_entity_tests ${DEPENDENCIES})
-  #  add_test(NAME sempr_entity_tests COMMAND sempr_entity_tests)
-  #  
-  #  add_executable(sempr_semanticentity_tests SEMPR_tests.cpp SemanticEntity_tests.cpp)
-  #  target_link_libraries(sempr_semanticentity_tests ${DEPENDENCIES})
-  #  add_test(NAME sempr_semanticentity_tests COMMAND sempr_semanticentity_tests)
-  #
-  #  add_executable(sempr_pointcloud_tests SEMPR_tests.cpp PointCloud_tests.cpp)
-  #  target_link_libraries(sempr_pointcloud_tests ${DEPENDENCIES})
-  #  add_test(NAME sempr_pointcloud_tests COMMAND sempr_pointcloud_tests)
-
-  #  add_executable(sempr_mutablewme_tests SEMPR_tests.cpp MutableWME_tests.cpp)
-  #  target_link_libraries(sempr_mutablewme_tests ${DEPENDENCIES})
-  #  add_test(NAME sempr_mutablewme_tests COMMAND sempr_mutablewme_tests)
-  
-  #todo: add a macro to reduce the line of command here!
-
+    add_executable(EntityTest EntityTest.cpp)
+    target_link_libraries(EntityTest ${DEPENDENCIES})
+    add_test(NAME EntityTest COMMAND CoreTest)
 endif()
 
 

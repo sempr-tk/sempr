@@ -26,4 +26,12 @@ BOOST_AUTO_TEST_SUITE(CoreTest)
 
         BOOST_CHECK_THROW(core.addEntity(entity), sempr::Exception);
     }
+
+    BOOST_AUTO_TEST_CASE(add_remove)
+    {
+        sempr::core::Core core;
+        auto entity = std::make_shared<sempr::entity::Entity>();
+        core.addEntity(entity);
+        core.removeEntity(entity);
+    }
 BOOST_AUTO_TEST_SUITE_END()
