@@ -43,7 +43,27 @@ public:
     */
     void removeEntity(entity::Entity::Ptr entity);
 
-    // TODO add/remove single components to/from an entity?
+
+    /**
+        Notifies the reasoner that the entity has a new component
+        (with a given tag). This is automatically called by the entity.
+    */
+    void addedComponent(entity::Entity::Ptr, entity::Component::Ptr,
+                        const std::string&);
+
+    /**
+        Notifies the reasoner that the entity lost a component
+        (with a given tag). This is automatically called by the entity.
+    */
+    void removedComponent(entity::Entity::Ptr, entity::Component::Ptr,
+                          const std::string&);
+
+    /**
+        Notifies the reasoner that a component (with a given tag) of an entity
+        has changed. This is automatically called by the component.
+    */
+    void changedComponent(entity::Entity::Ptr, entity::Component::Ptr,
+                          const std::string&);
    
 
     // TODO: Add "modules"? Query-/Interface-Modules/-Nodes?

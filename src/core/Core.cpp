@@ -44,17 +44,11 @@ void Core::addEntity(entity::Entity::Ptr entity)
 
     // TODO: Persist the entity
     
-    // Create an "evidence" for the WMEs to be added.
-    auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
-
     // add the WMEs to the reasoner
     auto components = entity->getComponents<entity::Component>();
     for (auto& c : components)
     {
-        auto wme = std::make_shared<ECTWME>(entity, c.first, c.second);
-
-        // add the fact to the reasoner
-        reasoner_.addEvidence(wme, evidence);
+        addedComponent(entity, c.first, c.second);
     }
 }
 
@@ -76,6 +70,39 @@ void Core::removeEntity(entity::Entity::Ptr entity)
     entity->core_ = nullptr;
 }
 
+void Core::addedComponent(entity::Entity::Ptr entity,
+                          entity::Component::Ptr component,
+                          const std::string& tag)
+{
+    auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
+    auto wme = std::make_shared<ECTWME>(entity, component, tag);
+    reasoner_.addEvidence(wme, evidence);
+}
+
+void Core::removedComponent(entity::Entity::Ptr entity,
+                          entity::Component::Ptr component,
+                          const std::string& tag)
+{
+    auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
+    auto wme = std::make_shared<ECTWME>(entity, component, tag);
+    reasoner_.removeEvidence(wme, evidence);
+}
+
+void Core::changedComponent(entity::Entity::Ptr entity,
+                          entity::Component::Ptr component,
+                          const std::string& tag)
+{
+    // NOTE: You may have noticed that there are often new evidences and WMEs
+    // created, even for "removedComponent" and "changedComponent". This is okay
+    // since the WMEs evaluate to be identical (as they point to the same
+    // entities and components), and the rete engine handles this case in the
+    // AlphaMemories by propagating the pointer to the WME that was first
+    // added, and discards the new wme. The reasoner also compares WMEs by value
+    // to see if they are backed by evidence etc., so we should be good.
+   
+    auto wme = std::make_shared<ECTWME>(entity, component, tag);
+    reasoner_.net().getRoot()->activate(wme, rete::PropagationFlag::UPDATE);
+}
 
 //void Core::answerQuery(query::Query::Ptr q)
 //{
@@ -83,11 +110,6 @@ void Core::removeEntity(entity::Entity::Ptr entity)
 //    for (auto m : modules_) {
 //        // m->answer(q);
 //        m->doProcess(q);
-//    }
-//}
-//void Core::removeEntity(entity::Entity::Ptr entity) {
-//    if (entity.get()) {
-//        entity->removed();
 //    }
 //}
 //
