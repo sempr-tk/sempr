@@ -16,9 +16,13 @@ link_directories(${Soprano_LIBRARY_DIRS})
 #target_link_libraries(manual_test sempr_core ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
 if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
+    include_directories(${Boost_INCLUDE_DIRS})
+    set(DEPENDENCIES sempr_core ${Boost_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
-  set(DEPENDENCIES sempr_core ${Boost_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
+
+    add_executable(CoreTest CoreTest.cpp)
+    target_link_libraries(CoreTest ${DEPENDENCIES})
+    add_test(NAME CoreTest COMMAND CoreTest)
 
   #  add_executable(sempr_storage_test SEMPR_tests.cpp storage_tests.cpp)
   #  target_link_libraries(sempr_storage_test ${DEPENDENCIES})
@@ -52,9 +56,9 @@ if(Boost_FOUND)
   #  target_link_libraries(sempr_pointcloud_tests ${DEPENDENCIES})
   #  add_test(NAME sempr_pointcloud_tests COMMAND sempr_pointcloud_tests)
 
-  add_executable(sempr_mutablewme_tests SEMPR_tests.cpp MutableWME_tests.cpp)
-  target_link_libraries(sempr_mutablewme_tests ${DEPENDENCIES})
-  add_test(NAME sempr_mutablewme_tests COMMAND sempr_mutablewme_tests)
+  #  add_executable(sempr_mutablewme_tests SEMPR_tests.cpp MutableWME_tests.cpp)
+  #  target_link_libraries(sempr_mutablewme_tests ${DEPENDENCIES})
+  #  add_test(NAME sempr_mutablewme_tests COMMAND sempr_mutablewme_tests)
   
   #todo: add a macro to reduce the line of command here!
 
