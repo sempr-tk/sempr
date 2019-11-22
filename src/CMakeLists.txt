@@ -30,6 +30,7 @@ endif()
 set(SRC_FILES
     ./core/Core.cpp
     ./core/RDF.cpp
+    ./core/SimpleIncrementalIDGenerator.cpp
     ./entity/Entity.cpp
     ./entity/Component.cpp
 )
@@ -66,7 +67,7 @@ endif()
 odb_compile(ODB_GENERATED
     FILES ${ODB_FILES}
     #    HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
-    INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+    INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${RETE_INCLUDE_DIRS}
     # PROFILE boost/uuid
     PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/include
     X_CPP_OPTION -fPIC
