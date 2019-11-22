@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_SUITE(CoreTest)
     BOOST_AUTO_TEST_CASE(add_entity)
     {
         sempr::core::Core core;
-        auto entity = std::make_shared<sempr::entity::Entity>();
+        auto entity = sempr::entity::Entity::create();
         core.addEntity(entity);
 
         // entity now has an id
@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_SUITE(CoreTest)
     BOOST_AUTO_TEST_CASE(multi_add)
     {
         sempr::core::Core core;
-        auto entity = std::make_shared<sempr::entity::Entity>();
+        auto entity = sempr::entity::Entity::create();
         core.addEntity(entity);
 
         BOOST_CHECK_THROW(core.addEntity(entity), sempr::Exception);
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(CoreTest)
     BOOST_AUTO_TEST_CASE(add_remove)
     {
         sempr::core::Core core;
-        auto entity = std::make_shared<sempr::entity::Entity>();
+        auto entity = sempr::entity::Entity::create();
         core.addEntity(entity);
         core.removeEntity(entity);
     }

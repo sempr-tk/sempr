@@ -31,7 +31,7 @@ template <class C>
 
 TODO: Inherit rete::WME, or create a rete::WME that wraps Entity?
 */
-class Entity {
+class Entity : public std::enable_shared_from_this<Entity> {
     /// raw pointer, set and unset by the core when the entity is added/removed.
     core::Core* core_;
     std::string id_;
@@ -39,11 +39,19 @@ class Entity {
 
     friend class sempr::core::Core;
 
-public:
+protected:
+    /// protected ctor because entities must never be created on the stack
+    // (because they inherit std::enable_shared_from_this)
     Entity();
-    virtual ~Entity(){}
+public:
+    virtual ~Entity();
 
     using Ptr = std::shared_ptr<Entity>;
+
+    /**
+        Creates a new Entity.
+    */
+    static Entity::Ptr create();
 
     /**
         Get the entities id.

@@ -16,6 +16,8 @@ TODO: Inherit rete::WME, or create a rete::WME that wraps Component?
 class Component {
     /// a pointer to the entity that this component belongs to.
     Entity* entity_;
+
+    friend class Entity;
 public:
     Component();
     virtual ~Component();
