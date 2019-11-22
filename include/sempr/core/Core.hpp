@@ -32,38 +32,35 @@ public:
     ~Core();
 
     /**
-        Adds an entity by basically adding <Entity, Component, String-Tag>
+        Adds an entity by basically adding <Entity, Component>
         WMEs to the reasoner.
     */
     void addEntity(entity::Entity::Ptr entity);
 
     /**
         Removes the entity from the reasoner, by removing the evidence for the
-        <Entity, Component, String-Tag> WMEs.
+        <Entity, Component> WMEs.
     */
     void removeEntity(entity::Entity::Ptr entity);
 
 
     /**
-        Notifies the reasoner that the entity has a new component
-        (with a given tag). This is automatically called by the entity.
+        Notifies the reasoner that the entity has a new component.
+        This is automatically called by the entity.
     */
-    void addedComponent(entity::Entity::Ptr, entity::Component::Ptr,
-                        const std::string&);
+    void addedComponent(entity::Entity::Ptr, entity::Component::Ptr);
 
     /**
-        Notifies the reasoner that the entity lost a component
-        (with a given tag). This is automatically called by the entity.
+        Notifies the reasoner that the entity lost a component.
+        This is automatically called by the entity.
     */
-    void removedComponent(entity::Entity::Ptr, entity::Component::Ptr,
-                          const std::string&);
+    void removedComponent(entity::Entity::Ptr, entity::Component::Ptr);
 
     /**
-        Notifies the reasoner that a component (with a given tag) of an entity
-        has changed. This is automatically called by the component.
+        Notifies the reasoner that a component of an entity has changed.
+        This is automatically called by the component.
     */
-    void changedComponent(entity::Entity::Ptr, entity::Component::Ptr,
-                          const std::string&);
+    void changedComponent(entity::Entity::Ptr, entity::Component::Ptr);
    
 
     // TODO: Add "modules"? Query-/Interface-Modules/-Nodes?

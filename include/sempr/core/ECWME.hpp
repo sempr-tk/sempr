@@ -10,12 +10,12 @@
 namespace sempr { namespace core {
 
 /**
-    The ECTWME is the *only* SEMPR-specific WME that is added to the reasoner.
-    It is a simple wrapper that combines an entity with a component and a tag.
+    The ECWME is the *only* SEMPR-specific WME that is added to the reasoner.
+    It is a simple wrapper that combines an entity with a component.
     There will be different types of alpha nodes that differentiate between the
-    types of components inside the ECTWME.
+    types of components inside the ECWME.
 */
-typedef rete::TupleWME<entity::Entity::Ptr, entity::Component::Ptr, std::string> ECTWME;
+typedef rete::TupleWME<entity::Entity::Ptr, entity::Component::Ptr> ECWME;
 
 }}
 

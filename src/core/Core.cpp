@@ -1,5 +1,5 @@
 #include "sempr/core/Core.hpp"
-#include "sempr/core/ECTWME.hpp"
+#include "sempr/core/ECWME.hpp"
 #include "sempr/entity/Component.hpp"
 #include "sempr/core/Exception.hpp"
 #include "sempr/core/SimpleIncrementalIDGenerator.hpp"
@@ -48,7 +48,7 @@ void Core::addEntity(entity::Entity::Ptr entity)
     auto components = entity->getComponents<entity::Component>();
     for (auto& c : components)
     {
-        addedComponent(entity, c.first, c.second);
+        addedComponent(entity, c);
     }
 }
 
@@ -71,26 +71,23 @@ void Core::removeEntity(entity::Entity::Ptr entity)
 }
 
 void Core::addedComponent(entity::Entity::Ptr entity,
-                          entity::Component::Ptr component,
-                          const std::string& tag)
+                          entity::Component::Ptr component)
 {
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
-    auto wme = std::make_shared<ECTWME>(entity, component, tag);
+    auto wme = std::make_shared<ECWME>(entity, component);
     reasoner_.addEvidence(wme, evidence);
 }
 
 void Core::removedComponent(entity::Entity::Ptr entity,
-                          entity::Component::Ptr component,
-                          const std::string& tag)
+                          entity::Component::Ptr component)
 {
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
-    auto wme = std::make_shared<ECTWME>(entity, component, tag);
+    auto wme = std::make_shared<ECWME>(entity, component);
     reasoner_.removeEvidence(wme, evidence);
 }
 
 void Core::changedComponent(entity::Entity::Ptr entity,
-                          entity::Component::Ptr component,
-                          const std::string& tag)
+                          entity::Component::Ptr component)
 {
     // NOTE: You may have noticed that there are often new evidences and WMEs
     // created, even for "removedComponent" and "changedComponent". This is okay
@@ -100,7 +97,7 @@ void Core::changedComponent(entity::Entity::Ptr entity,
     // added, and discards the new wme. The reasoner also compares WMEs by value
     // to see if they are backed by evidence etc., so we should be good.
    
-    auto wme = std::make_shared<ECTWME>(entity, component, tag);
+    auto wme = std::make_shared<ECWME>(entity, component);
     reasoner_.net().getRoot()->activate(wme, rete::PropagationFlag::UPDATE);
 }
 

@@ -22,22 +22,7 @@ BOOST_AUTO_TEST_SUITE(EntityTest)
         entity->addComponent(component);
         auto l2 = entity->getComponents<Component>();
         BOOST_CHECK(l2.size() == 1);
-        BOOST_CHECK(l2[0].first == component);
-    }
-
-    BOOST_AUTO_TEST_CASE(add_component_tagged)
-    {
-        auto entity = Entity::create();
-        auto component = std::make_shared<Component>();
-
-        auto l1 = entity->getComponents<Component>();
-        BOOST_CHECK(l1.size() == 0);
-
-        entity->addComponent(component, "foo");
-        auto l2 = entity->getComponents<Component>();
-        BOOST_CHECK(l2.size() == 1);
-        BOOST_CHECK(l2[0].first == component);
-        BOOST_CHECK(l2[0].second == "foo");
+        BOOST_CHECK(l2[0] == component);
     }
 
     BOOST_AUTO_TEST_CASE(add_component_twice)
@@ -48,10 +33,6 @@ BOOST_AUTO_TEST_SUITE(EntityTest)
         entity->addComponent(component);
         BOOST_CHECK_THROW(
                 entity->addComponent(component), 
-                sempr::Exception);
-
-        BOOST_CHECK_THROW(
-                entity->addComponent(component, "foo"),
                 sempr::Exception);
 
         auto e2 = Entity::create();
@@ -73,7 +54,7 @@ BOOST_AUTO_TEST_SUITE(EntityTest)
 
         entity->removeComponent(c2);
         BOOST_CHECK(entity->getComponents<Component>().size() == 1);
-        BOOST_CHECK(entity->getComponents<Component>()[0].first == c1);
+        BOOST_CHECK(entity->getComponents<Component>()[0] == c1);
 
         BOOST_CHECK_THROW(
                 entity->removeComponent(c2),
