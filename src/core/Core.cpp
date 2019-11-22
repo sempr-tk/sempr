@@ -47,6 +47,7 @@ void Core::addEntity(entity::Entity::Ptr entity)
     // Create an "evidence" for the WMEs to be added.
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
 
+    // add the WMEs to the reasoner
     auto components = entity->getComponents<entity::Component>();
     for (auto& c : components)
     {
@@ -55,6 +56,24 @@ void Core::addEntity(entity::Entity::Ptr entity)
         // add the fact to the reasoner
         reasoner_.addEvidence(wme, evidence);
     }
+}
+
+
+void Core::removeEntity(entity::Entity::Ptr entity)
+{
+    if (entity->core_ != this)
+    {
+        throw sempr::Exception("Entity not part of this Core");
+    }
+
+    // TODO: Un-persist entity
+
+    // remove corresponding WMEs
+    auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
+    reasoner_.removeEvidence(evidence);
+
+    this->entities_.erase(entity);
+    entity->core_ = nullptr;
 }
 
 
