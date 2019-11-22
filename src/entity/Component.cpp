@@ -2,7 +2,7 @@
 
 namespace sempr { namespace entity {
 
-Component::Component()
+Component::Component() : entity_(nullptr)
 {
 }
 

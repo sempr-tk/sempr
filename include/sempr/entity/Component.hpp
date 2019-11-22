@@ -6,12 +6,16 @@
 namespace sempr {
 namespace entity {
 
+    class Entity;
+
 /**
     Components are the data-blobs that make up an entity.
 
 TODO: Inherit rete::WME, or create a rete::WME that wraps Component?
 */
 class Component {
+    /// a pointer to the entity that this component belongs to.
+    Entity* entity_;
 public:
     Component();
     virtual ~Component();
