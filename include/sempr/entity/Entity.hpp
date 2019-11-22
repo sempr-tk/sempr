@@ -32,13 +32,34 @@ template <class C>
 TODO: Inherit rete::WME, or create a rete::WME that wraps Entity?
 */
 class Entity {
-    std::weak_ptr<sempr::core::Core> core_;
+    /// raw pointer, set and unset by the core when the entity is added/removed.
+    core::Core* core_;
+    std::string id_;
     std::vector<Tagged<Component>> components_;
+
+    friend class sempr::core::Core;
+
 public:
     Entity();
     virtual ~Entity(){}
 
     using Ptr = std::shared_ptr<Entity>;
+
+    /**
+        Get the entities id.
+        Returns an empty string if the id is not yet set (i.e., the entity was
+        not added to the core, yet).
+    */
+    std::string id() const;
+
+    /**
+        Sets the entities id. Useful if you want to explicitely identify
+        specific entities and thus assign hard-coded ids.
+        If you don't set an ID, the persistence layer in the core will.
+
+        \throws an exception if the entity already has an id.
+    */
+    void setId(const std::string&);
 
     /**
         Adds a given component as a part of this entity.
@@ -70,8 +91,22 @@ public:
                 results.push_back({ptr, component.second});
             }
         }
+        return results;
     }
 };
+
+}}
+
+
+// Also: Add specialization for rete::util::to_string to be able to use it in
+// the rete::TupleWME
+
+#include <rete-core/Util.hpp>
+
+namespace rete { namespace util {
+
+template <> std::string to_string(const sempr::entity::Entity& e);
+template <> std::string to_string(const sempr::entity::Entity::Ptr& e);
 
 }}
 
