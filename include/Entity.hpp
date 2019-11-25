@@ -10,11 +10,7 @@
 
 
 namespace sempr {
-    namespace core {
-        class Core;
-    }
-
-namespace entity {
+    class Core;
 
 /**
     Collection of data with application-specific semantics.
@@ -25,11 +21,11 @@ TODO: Inherit rete::WME, or create a rete::WME that wraps Entity?
 */
 class Entity : public std::enable_shared_from_this<Entity> {
     /// raw pointer, set and unset by the core when the entity is added/removed.
-    core::Core* core_;
+    Core* core_;
     std::string id_;
     std::vector<Component::Ptr> components_;
 
-    friend class sempr::core::Core;
+    friend class Core;
 
 protected:
     /// protected ctor because entities must never be created on the stack
@@ -49,7 +45,7 @@ public:
         Returns a pointer to the currently set core of the entity.
 TODO: I'm not sure if this should be exposed here. I added it to allow the Component-class (which has a pointer to entity) to notify the core about an internal update. I could also make the component a friend of entity, but in that case every component can see all components added to the entity, which would be wrong, as it could lead to cross-dependencies.
     */
-    sempr::core::Core* core() const;
+    Core* core() const;
 
     /**
         Get the entities id.
@@ -99,7 +95,7 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
     }
 };
 
-}}
+}
 
 
 // Also: Add specialization for rete::util::to_string to be able to use it in
@@ -109,8 +105,8 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
 
 namespace rete { namespace util {
 
-template <> std::string to_string(const sempr::entity::Entity& e);
-template <> std::string to_string(const sempr::entity::Entity::Ptr& e);
+template <> std::string to_string(const sempr::Entity& e);
+template <> std::string to_string(const sempr::Entity::Ptr& e);
 
 }}
 

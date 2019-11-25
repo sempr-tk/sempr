@@ -1,12 +1,12 @@
-#include "sempr/core/Core.hpp"
-#include "sempr/core/ECWME.hpp"
-#include "sempr/entity/Component.hpp"
-#include "sempr/core/Exception.hpp"
-#include "sempr/core/SimpleIncrementalIDGenerator.hpp"
+#include "Core.hpp"
+#include "ECWME.hpp"
+#include "Component.hpp"
+#include "Exception.hpp"
+#include "SimpleIncrementalIDGenerator.hpp"
 
 #include <rete-reasoner/AssertedEvidence.hpp>
 
-namespace sempr { namespace core {
+namespace sempr {
 
 Core::Core(IDGenerator::Ptr idgen)
     : idgen_(idgen)
@@ -25,7 +25,7 @@ Core::~Core()
     }
 }
 
-void Core::addEntity(entity::Entity::Ptr entity)
+void Core::addEntity(Entity::Ptr entity)
 {
     // add it to the core if the entity wasn't added to one before
     if (entity->core_)
@@ -45,7 +45,7 @@ void Core::addEntity(entity::Entity::Ptr entity)
     // TODO: Persist the entity
     
     // add the WMEs to the reasoner
-    auto components = entity->getComponents<entity::Component>();
+    auto components = entity->getComponents<Component>();
     for (auto& c : components)
     {
         addedComponent(entity, c);
@@ -53,7 +53,7 @@ void Core::addEntity(entity::Entity::Ptr entity)
 }
 
 
-void Core::removeEntity(entity::Entity::Ptr entity)
+void Core::removeEntity(Entity::Ptr entity)
 {
     if (entity->core_ != this)
     {
@@ -70,24 +70,24 @@ void Core::removeEntity(entity::Entity::Ptr entity)
     entity->core_ = nullptr;
 }
 
-void Core::addedComponent(entity::Entity::Ptr entity,
-                          entity::Component::Ptr component)
+void Core::addedComponent(Entity::Ptr entity,
+                          Component::Ptr component)
 {
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
     auto wme = std::make_shared<ECWME>(entity, component);
     reasoner_.addEvidence(wme, evidence);
 }
 
-void Core::removedComponent(entity::Entity::Ptr entity,
-                          entity::Component::Ptr component)
+void Core::removedComponent(Entity::Ptr entity,
+                          Component::Ptr component)
 {
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
     auto wme = std::make_shared<ECWME>(entity, component);
     reasoner_.removeEvidence(wme, evidence);
 }
 
-void Core::changedComponent(entity::Entity::Ptr entity,
-                          entity::Component::Ptr component)
+void Core::changedComponent(Entity::Ptr entity,
+                          Component::Ptr component)
 {
     // NOTE: You may have noticed that there are often new evidences and WMEs
     // created, even for "removedComponent" and "changedComponent". This is okay
@@ -118,7 +118,5 @@ void Core::changedComponent(entity::Entity::Ptr entity,
 //
 //    eventBroker_->addObserver(module);
 //}
-
-} /* core */
 
 } /* sempr */

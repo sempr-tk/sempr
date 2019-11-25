@@ -3,7 +3,7 @@
 
 #include "IDGenerator.hpp"
 
-namespace sempr { namespace core {
+namespace sempr {
 
 /**
     IDGenerator that gives every entity a new numeric ID.
@@ -15,11 +15,11 @@ class SimpleIncrementalIDGenerator : public IDGenerator {
     size_t nextID_;
 public:
     SimpleIncrementalIDGenerator();
-    std::string createIDFor(entity::Entity::Ptr) override;
-    void releaseIDOf(entity::Entity::Ptr) override;
+    std::string createIDFor(Entity::Ptr) override;
+    void releaseIDOf(Entity::Ptr) override;
 };
 
 
-}}
+}
 
 #endif /* SEMPR_CORE_SIMPLEINCREMENTALIDGENERATOR_HPP_ */

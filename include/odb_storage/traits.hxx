@@ -3,7 +3,7 @@
 
 
 #if defined(DATABASE_SQLITE)
-#  include <sempr/storage/traits/traits-sqlite.hxx>
+#  include "traits/traits-sqlite.hxx"
 #elif defined(DATABASE_MYSQL)
 #   error no traits for DATABASE_MYSQL
 #elif defined(DATABASE_PGSQL)

@@ -2,8 +2,8 @@
 #define SEMPR_CORE_CORE_H_
 
 //#include <sempr/query/Query.hpp>
-#include "sempr/entity/Entity.hpp"
-#include "sempr/core/IDGenerator.hpp"
+#include "Entity.hpp"
+#include "IDGenerator.hpp"
 
 #include <rete-reasoner/Reasoner.hpp>
 //#include <sempr/storage/Storage.hpp>
@@ -14,7 +14,7 @@
 #include <memory>
 #include <vector>
 
-namespace sempr { namespace core {
+namespace sempr {
 
 class Core {
     /// The reasoner is the backbone of sempr, used for all kinds of event handling
@@ -22,7 +22,7 @@ class Core {
 
     /// a set of all added entities, in order to unset their Core* when the core
     // is deconstructed.
-    std::set<entity::Entity::Ptr> entities_;
+    std::set<Entity::Ptr> entities_;
 
     /// An id generator to assign ids to entities that are added to the core
     IDGenerator::Ptr idgen_;
@@ -35,32 +35,32 @@ public:
         Adds an entity by basically adding <Entity, Component>
         WMEs to the reasoner.
     */
-    void addEntity(entity::Entity::Ptr entity);
+    void addEntity(Entity::Ptr entity);
 
     /**
         Removes the entity from the reasoner, by removing the evidence for the
         <Entity, Component> WMEs.
     */
-    void removeEntity(entity::Entity::Ptr entity);
+    void removeEntity(Entity::Ptr entity);
 
 
     /**
         Notifies the reasoner that the entity has a new component.
         This is automatically called by the entity.
     */
-    void addedComponent(entity::Entity::Ptr, entity::Component::Ptr);
+    void addedComponent(Entity::Ptr, Component::Ptr);
 
     /**
         Notifies the reasoner that the entity lost a component.
         This is automatically called by the entity.
     */
-    void removedComponent(entity::Entity::Ptr, entity::Component::Ptr);
+    void removedComponent(Entity::Ptr, Component::Ptr);
 
     /**
         Notifies the reasoner that a component of an entity has changed.
         This is automatically called by the component.
     */
-    void changedComponent(entity::Entity::Ptr, entity::Component::Ptr);
+    void changedComponent(Entity::Ptr, Component::Ptr);
    
 
     // TODO: Add "modules"? Query-/Interface-Modules/-Nodes?
@@ -107,7 +107,7 @@ private:
 //    std::vector<processing::ModuleBase::Ptr> modules_;
 };
 
-}}
+}
 
 
 #endif /* end of include guard: SEMPR_CORE_CORE_H_ */

@@ -7,8 +7,6 @@
 namespace sempr {
     const std::string& baseURI();
 
-    namespace core {
-
 namespace xsd {
     const std::string& baseURI();
 }
@@ -61,9 +59,6 @@ namespace owl {
     OWL(unionOf)
 #   undef OWL
 }
-
-
-} /* core */
 
 } /* sempr */
 

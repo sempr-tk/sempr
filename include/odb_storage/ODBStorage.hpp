@@ -7,11 +7,11 @@
 #include <odb/sqlite/database.hxx>
 #include <odb/session.hxx>
 
-#include <sempr/storage/Storage.hpp>
+#include "../Storage.hpp"
 
 #include <memory>
 
-namespace sempr { namespace storage {
+namespace sempr { namespace odb_storage {
 
 /**
     Backend for storing entities and their data.
@@ -25,20 +25,20 @@ public:
     ~ODBStorage();
 
     /** save bulk data */
-    void save( std::vector<DBObject::Ptr>& data ) override;
+    void save( std::vector<Entity::Ptr>& data ) override;
 
     /** save data */
-    void save( DBObject::Ptr data ) override;
+    void save( Entity::Ptr data ) override;
 
     /** load a single object **/
-    DBObject::Ptr load( const std::string& id ) override;
+    Entity::Ptr load( const std::string& id ) override;
 
     /**
         load the object with the given id of type T.
     */
     template <typename T>
     std::shared_ptr<T> load( const std::string& id ) {
-        static_assert(std::is_base_of<DBObject, T>::value,"Classes that are to be loaded from ODBStorage must inherit from DBObject");
+        static_assert(std::is_base_of<Entity, T>::value,"Classes that are to be loaded from ODBStorage must inherit from Entity");
         odb::transaction t( db_->begin() );
         std::shared_ptr<T> o( db_->load<T>(id) );
         t.commit();
@@ -60,13 +60,13 @@ public:
     }
 
     /** load all objects **/
-    void loadAll( std::vector<DBObject::Ptr>& data ) override;
+    void loadAll( std::vector<Entity::Ptr>& data ) override;
 
     /** remove an object **/
-    void remove( DBObject::Ptr data ) override;
+    void remove( Entity::Ptr data ) override;
 
     /** remove a bunch of objects */
-    void remove( std::vector<DBObject::Ptr>& data ) override;
+    void remove( std::vector<Entity::Ptr>& data ) override;
 
 private:
     std::unique_ptr<odb::database> db_;

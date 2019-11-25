@@ -7,12 +7,7 @@
 #include <memory>
 
 namespace sempr {
-
-namespace entity {
     class Entity;
-} /* storage */
-
-namespace core {
 
     template <typename T>
     struct remove_shared_ptr {
@@ -99,8 +94,6 @@ namespace core {
     };
 
 
-
-} /* core */
 } /* sempr */
 
 

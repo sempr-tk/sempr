@@ -28,16 +28,16 @@ endif()
 #)
 
 set(SRC_FILES
-    ./core/Core.cpp
-    ./core/RDF.cpp
-    ./core/SimpleIncrementalIDGenerator.cpp
-    ./entity/Entity.cpp
-    ./entity/Component.cpp
+    Core.cpp
+    RDF.cpp
+    SimpleIncrementalIDGenerator.cpp
+    Entity.cpp
+    Component.cpp
 )
 
 set(ODB_FILES
-    ../include/sempr/entity/Entity.hpp
-    ../include/sempr/entity/Component.hpp
+    ../include/Entity.hpp
+    ../include/Component.hpp
 )
 
 # message( "found files: ${SRC_FILES}")
@@ -103,8 +103,8 @@ install(
     # .../include/sempr-agri
     # .../include/sempr-agri/...
 install(
-    DIRECTORY ../include/sempr
-    DESTINATION include
+    DIRECTORY ../include/
+    DESTINATION include/sempr
 )
 
 # odb-generated headers

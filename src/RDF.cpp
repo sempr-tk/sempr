@@ -1,4 +1,4 @@
-#include <sempr/core/RDF.hpp>
+#include "RDF.hpp"
 
 namespace sempr {
     const std::string& baseURI() {

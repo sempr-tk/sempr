@@ -4,8 +4,6 @@
 #include <memory>
 
 namespace sempr {
-namespace entity {
-
     class Entity;
 
 /**
@@ -47,7 +45,6 @@ public:
 };
 
 };
-};
 
 
 // also add a specialization for rete::util::to_string for Component to be able
@@ -58,8 +55,8 @@ public:
 
 namespace rete { namespace util {
 
-template <> std::string to_string(const sempr::entity::Component& c);
-template <> std::string to_string(const sempr::entity::Component::Ptr& c);
+template <> std::string to_string(const sempr::Component& c);
+template <> std::string to_string(const sempr::Component::Ptr& c);
 
 }}
 

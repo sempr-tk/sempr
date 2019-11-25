@@ -1,12 +1,12 @@
-#include "sempr/core/Exception.hpp"
-#include "sempr/entity/Entity.hpp"
-#include "sempr/core/Core.hpp"
+#include "Exception.hpp"
+#include "Entity.hpp"
+#include "Core.hpp"
 
 #include <cassert>
 #include <algorithm>
 //#include <Entity_odb.h>
 
-namespace sempr { namespace entity {
+namespace sempr {
 
 Entity::Entity() : core_(nullptr), id_("")
 {
@@ -21,7 +21,7 @@ Entity::Ptr Entity::create()
     return Entity::Ptr(new Entity());
 }
 
-core::Core* Entity::core() const
+Core* Entity::core() const
 {
     return core_;
 }
@@ -76,8 +76,6 @@ void Entity::removeComponent(Component::Ptr c)
     components_.erase(it);
 }
 
-
-} /* entity */
 } /* sempr */
 
 
@@ -86,13 +84,13 @@ void Entity::removeComponent(Component::Ptr c)
 namespace rete { namespace util {
 
 template <> 
-std::string to_string(const sempr::entity::Entity& e)
+std::string to_string(const sempr::Entity& e)
 {
     return e.id();
 }
 
 template <>
-std::string to_string(const sempr::entity::Entity::Ptr& e)
+std::string to_string(const sempr::Entity::Ptr& e)
 {
     if (!e) return "nullptr";
     return to_string(*e);

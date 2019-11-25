@@ -1,9 +1,9 @@
-#include "sempr/entity/Component.hpp"
-#include "sempr/entity/Entity.hpp"
-#include "sempr/core/Core.hpp"
-#include "sempr/core/Exception.hpp"
+#include "Component.hpp"
+#include "Entity.hpp"
+#include "Core.hpp"
+#include "Exception.hpp"
 
-namespace sempr { namespace entity {
+namespace sempr {
 
 Component::Component() : entity_(nullptr), tag_("")
 {
@@ -42,7 +42,7 @@ void Component::changed()
 }
 
 
-}}
+}
 
 
 
@@ -50,13 +50,13 @@ void Component::changed()
 namespace rete { namespace util {
 
 template <>
-std::string to_string(const sempr::entity::Component&)
+std::string to_string(const sempr::Component&)
 {
     return "Component"; // wow. // TODO
 }
 
 template <>
-std::string to_string(const sempr::entity::Component::Ptr& c)
+std::string to_string(const sempr::Component::Ptr& c)
 {
     if (!c) return "nullptr";
     return to_string(*c);
