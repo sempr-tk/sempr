@@ -1,24 +1,11 @@
-// core
-#include <sempr/core/Core.hpp>
-#include <sempr/core/Event.hpp>
-#include <sempr/core/EntityEvent.hpp>
-#include <sempr/core/EventBroker.hpp>
-#include <sempr/core/Observer.hpp>
-#include <sempr/core/RDF.hpp>
+#include "core/Core.hpp"
+#include "core/Exception.hpp"
+#include "core/SimpleIncrementalIDGenerator.hpp"
+#include "core/RDF.hpp"
+#include "core/Utility.hpp"
 
-// entity
-#include <sempr/entity/Entity.hpp>
+#include "entity/Entity.hpp"
+#include "entity/Component.hpp"
 
-// processing
-#include <sempr/processing/Module.hpp>
-#include <sempr/processing/ActiveObjectStore.hpp>
-#include <sempr/processing/DBUpdateModule.hpp>
-#include <sempr/processing/DebugModule.hpp>
-
-// query
-
-// storage
-#include <sempr/storage/DBObject.hpp>
-#include <sempr/storage/History.hpp>
-#include <sempr/storage/ODBStorage.hpp>
-#include <sempr/storage/Storage.hpp>
+#include "storage/Storage.hpp"
+#include "storage/ODBStorage.hpp"
