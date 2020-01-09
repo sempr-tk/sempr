@@ -28,11 +28,13 @@ BOOST_AUTO_TEST_SUITE(EntityTest)
         auto entity = Entity::create();
         auto component = std::make_shared<Component>();
 
+        // component added to one entity twice
         entity->addComponent(component);
         BOOST_CHECK_THROW(
                 entity->addComponent(component), 
                 sempr::Exception);
 
+        // component added to a second entity
         auto e2 = Entity::create();
         BOOST_CHECK_THROW(
                 e2->addComponent(component),
@@ -59,3 +61,4 @@ BOOST_AUTO_TEST_SUITE(EntityTest)
                 sempr::Exception);
     }
 BOOST_AUTO_TEST_SUITE_END()
+
