@@ -33,6 +33,8 @@ set(SRC_FILES
     SimpleIncrementalIDGenerator.cpp
     Entity.cpp
     Component.cpp
+    ./component/TripleContainer.cpp
+    ./component/TripleVector.cpp
 )
 
 set(ODB_FILES
