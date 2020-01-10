@@ -6,8 +6,8 @@
 
 #include <rete-rdf/Triple.hpp>
 
-#include "../Component.hpp"
-
+#include "Component.hpp"
+#include "Utility.hpp"
 
 namespace sempr {
 
@@ -119,6 +119,11 @@ public:
     virtual TripleIterator end() const = 0;
 };
 
+// register component name
+template <>
+struct ComponentName<TripleContainer> {
+    static constexpr const char* value = "TripleContainer";
+};
 
 };
 

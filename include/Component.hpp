@@ -2,6 +2,7 @@
 #define SEMPR_ENTITY_COMPONENT_HPP_
 
 #include <memory>
+#include "Utility.hpp"
 
 namespace sempr {
     class Entity;
@@ -26,7 +27,7 @@ public:
 
     /**
         Sets the tag for this component.
-        
+
         \throws sempr::Exception if the component has already been added to an
                 entity.
     */
@@ -44,7 +45,15 @@ public:
     void changed();
 };
 
+// specialization for sempr::ComponentName<class C>
+template <>
+struct ComponentName<Component> {
+    static constexpr const char* value = "Component";
 };
+
+};
+
+
 
 
 // also add a specialization for rete::util::to_string for Component to be able

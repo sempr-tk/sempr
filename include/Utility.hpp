@@ -8,6 +8,14 @@
 
 namespace sempr {
     class Entity;
+    class Component;
+
+    template <class C>
+    struct ComponentName {
+        // to be specified by component implementations
+        //static constexpr const char* value = "";
+    };
+
 
     template <typename T>
     struct remove_shared_ptr {
