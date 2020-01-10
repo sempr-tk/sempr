@@ -28,6 +28,9 @@ public:
         "TupleAccessor". No big deal.
     */
 
+    /// must be cloneable
+    EntityAccessor* clone() const override;
+
     /// for visualization
     std::string toString() const override;
 };
@@ -99,6 +102,13 @@ public:
         else                     optr->getValue(token, otherValue);
 
         return myValue == otherValue;
+    }
+
+
+    // must be cloneable
+    ComponentAccessor* clone() const override
+    {
+        return new ComponentAccessor(*this);
     }
 
 

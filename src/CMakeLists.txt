@@ -36,6 +36,8 @@ set(SRC_FILES
     Component.cpp
     ./component/TripleContainer.cpp
     ./component/TripleVector.cpp
+    ./nodes/ExtractTriples.cpp
+    ./nodes/ExtractTriplesBuilder.cpp
 )
 
 set(ODB_FILES
