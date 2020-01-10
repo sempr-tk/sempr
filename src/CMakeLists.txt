@@ -32,6 +32,7 @@ set(SRC_FILES
     RDF.cpp
     SimpleIncrementalIDGenerator.cpp
     Entity.cpp
+    ECAccessors.cpp
     Component.cpp
     ./component/TripleContainer.cpp
     ./component/TripleVector.cpp
