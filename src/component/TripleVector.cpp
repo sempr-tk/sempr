@@ -55,7 +55,7 @@ TripleIterator TripleVector::begin() const
 
 TripleIterator TripleVector::end() const
 {
-    return TripleIterator(new TripleVectorIterator(triples_.begin()));
+    return TripleIterator(new TripleVectorIterator(triples_.end()));
 }
 
 
