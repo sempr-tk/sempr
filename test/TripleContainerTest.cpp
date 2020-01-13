@@ -100,7 +100,9 @@ BOOST_AUTO_TEST_SUITE(EntityTest)
         // -------------------
         // remove a single entry from the TripleVector component
         container->removeTripleAt(0); // removes <a> <foo> <b>
-        container->changed();
+        container->changed(); // does nothing, we don't use a sempr::Core in this test
+        reasoner.net().getRoot()->activate(ecwme, rete::PropagationFlag::UPDATE); // hence this activation, manually
+
         reasoner.performInference();
         wmes = reasoner.getCurrentState().getWMEs();
 
