@@ -26,7 +26,11 @@ if(Boost_FOUND)
 
     add_executable(EntityTest EntityTest.cpp)
     target_link_libraries(EntityTest ${DEPENDENCIES})
-    add_test(NAME EntityTest COMMAND CoreTest)
+    add_test(NAME EntityTest COMMAND EntityTest)
+
+    add_executable(TripleContainerTest TripleContainerTest.cpp)
+    target_link_libraries(TripleContainerTest ${DEPENDENCIES})
+    add_test(NAME TripleContainerTest COMMAND TripleContainerTest)
 endif()
 
 
