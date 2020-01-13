@@ -79,4 +79,17 @@ class TripleVectorIterator : public TripleIteratorImpl {
 
 }
 
+
+// also, register a to_string function to display TripleContainer instances in
+// the rete network
+#include <rete-core/Util.hpp>
+namespace rete { namespace util {
+
+template <> std::string to_string(const sempr::TripleVector& c);
+template <> std::string to_string(const sempr::TripleVector::Ptr& c);
+
+}}
+
+
+
 #endif /* include guard: SEMPR_COMPONENT_TRIPLEVECTOR_HPP_ */

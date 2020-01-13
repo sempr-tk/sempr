@@ -87,6 +87,23 @@ bool TripleVectorIterator::operator == (const TripleIteratorImpl& other) const
     return o->vit_ == this->vit_;
 }
 
+} // ns sempr
 
 
+namespace rete { namespace util {
+
+template <>
+std::string to_string(const sempr::TripleVector& c)
+{
+    return "TripleVector(" + std::to_string(c.size()) + ")"; // printing the content would be too much
 }
+
+template <>
+std::string to_string(const sempr::TripleVector::Ptr& c)
+{
+    if (!c) return "nullptr";
+    return to_string(*c);
+}
+
+
+}}

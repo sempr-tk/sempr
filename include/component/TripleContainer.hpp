@@ -125,6 +125,18 @@ struct ComponentName<TripleContainer> {
     static constexpr const char* value = "TripleContainer";
 };
 
-};
+}
+
+
+// also, register a to_string function to display TripleContainer instances in
+// the rete network
+#include <rete-core/Util.hpp>
+namespace rete { namespace util {
+
+template <> std::string to_string(const sempr::TripleContainer& c);
+template <> std::string to_string(const sempr::TripleContainer::Ptr& c);
+
+}}
+
 
 #endif /* include guard: SEMPR_CORE_COMPONENT_TRIPLECONTAINER_HPP_ */

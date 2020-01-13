@@ -105,3 +105,22 @@ void TripleContainer::getTriples(std::vector<Triple>& triples) const
 }
 
 }
+
+
+namespace rete { namespace util {
+
+template <>
+std::string to_string(const sempr::TripleContainer& c)
+{
+    return "TripleContainer"; // printing the content would be too much
+}
+
+template <>
+std::string to_string(const sempr::TripleContainer::Ptr& c)
+{
+    if (!c) return "nullptr";
+    return to_string(*c);
+}
+
+
+}}

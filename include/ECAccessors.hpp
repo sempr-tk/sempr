@@ -114,7 +114,7 @@ public:
 
     std::string toString() const override
     {
-        return ComponentName<Component>::value + (index_ < 0 ? std::string("") : "[" + std::to_string(index_) + "]");
+        return ComponentName<C>::value + (index_ < 0 ? std::string("") : "[" + std::to_string(index_) + "]");
     }
 };
 
