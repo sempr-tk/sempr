@@ -32,6 +32,12 @@ public:
     ~Core();
 
     /**
+        Grant access to the internal reasoner, in order to register NodeBuilders
+        and load/unload rules.
+    */
+    rete::Reasoner& reasoner();
+
+    /**
         Adds an entity by basically adding <Entity, Component>
         WMEs to the reasoner.
     */
@@ -61,7 +67,7 @@ public:
         This is automatically called by the component.
     */
     void changedComponent(Entity::Ptr, Component::Ptr);
-   
+
 
     // TODO: Add "modules"? Query-/Interface-Modules/-Nodes?
 
@@ -111,3 +117,4 @@ private:
 
 
 #endif /* end of include guard: SEMPR_CORE_CORE_H_ */
+

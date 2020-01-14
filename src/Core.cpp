@@ -25,6 +25,13 @@ Core::~Core()
     }
 }
 
+
+rete::Reasoner& Core::reasoner()
+{
+    return reasoner_;
+}
+
+
 void Core::addEntity(Entity::Ptr entity)
 {
     // add it to the core if the entity wasn't added to one before
@@ -43,7 +50,7 @@ void Core::addEntity(Entity::Ptr entity)
     }
 
     // TODO: Persist the entity
-    
+
     // add the WMEs to the reasoner
     auto components = entity->getComponents<Component>();
     for (auto& c : components)
@@ -96,7 +103,7 @@ void Core::changedComponent(Entity::Ptr entity,
     // AlphaMemories by propagating the pointer to the WME that was first
     // added, and discards the new wme. The reasoner also compares WMEs by value
     // to see if they are backed by evidence etc., so we should be good.
-   
+
     auto wme = std::make_shared<ECWME>(entity, component);
     reasoner_.net().getRoot()->activate(wme, rete::PropagationFlag::UPDATE);
 }
