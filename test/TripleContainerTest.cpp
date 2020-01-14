@@ -41,7 +41,7 @@ bool contains(const std::vector<rete::WME::Ptr>& wmes,
 }
 
 
-BOOST_AUTO_TEST_SUITE(EntityTest)
+BOOST_AUTO_TEST_SUITE(TripleContainerTest)
     BOOST_AUTO_TEST_CASE(addTripleContainer)
     {
         rete::Reasoner reasoner;

@@ -118,5 +118,15 @@ public:
     }
 };
 
+/**
+    Accessor to get the tag of a component
+*/
+class ComponentTagAccessor : public rete::StringAccessor {
+    bool equals (const rete::Accessor& other) const override;
+public:
+    void getValue(rete::WME::Ptr wme, std::string& value) const override;
+    ComponentTagAccessor* clone() const override;
+};
+
 }
 #endif /* include guard: SEMPR_ECACCESSORS_HPP_ */

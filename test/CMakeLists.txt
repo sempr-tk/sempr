@@ -31,6 +31,10 @@ if(Boost_FOUND)
     add_executable(TripleContainerTest TripleContainerTest.cpp)
     target_link_libraries(TripleContainerTest ${DEPENDENCIES})
     add_test(NAME TripleContainerTest COMMAND TripleContainerTest)
+
+    add_executable(ECNodeTest ECNodeTest.cpp)
+    target_link_libraries(ECNodeTest ${DEPENDENCIES})
+    add_test(NAME ECNodeTest COMMAND ECNodeTest)
 endif()
 
 

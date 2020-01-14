@@ -5,6 +5,7 @@
 
 #include <rete-core/AlphaNode.hpp>
 #include <rete-core/Util.hpp>
+#include <rete-core/Accessors.hpp>
 
 #include "Component.hpp"
 #include "Utility.hpp"
@@ -13,7 +14,9 @@
 namespace sempr {
 
 /**
-    AlphaNodes for EC<Component>(?entity ?component) conditions
+    AlphaNodes for EC<Component>(?entity ?component [?tag]) conditions.
+    (Actually only for the Entity-Component part. The tag is checked in an
+    extra node).
 */
 template <class C>
 class ECNode : public rete::AlphaNode {
@@ -39,6 +42,7 @@ public:
         : ECNode(ComponentName<C>::value)
     {
     }
+
 
     /**
         Checks if a given WME is of type ECWME and if the component in the
@@ -78,6 +82,26 @@ public:
         }
         return false;
     }
+};
+
+
+
+/**
+    A node just to check for the tag of a component.
+    Configure with a string to check for;
+    Input a ECWME;
+    Output: Passes the wme if the tag of the component in the ECWME equals the
+    configured string to check for.
+*/
+class ComponentTagNode : public rete::AlphaNode {
+    std::string getDOTAttr() const override;
+
+    std::string tag_;
+public:
+    using Ptr = std::shared_ptr<ComponentTagNode>;
+    ComponentTagNode(const std::string& tag);
+    void activate(rete::WME::Ptr wme, rete::PropagationFlag flag) override;
+    bool operator == (const AlphaNode& other) const override;
 };
 
 }

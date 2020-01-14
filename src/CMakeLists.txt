@@ -36,6 +36,7 @@ set(SRC_FILES
     Component.cpp
     ./component/TripleContainer.cpp
     ./component/TripleVector.cpp
+    ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp
 )
