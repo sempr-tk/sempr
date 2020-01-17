@@ -6,8 +6,8 @@
 
 #include <rete-rdf/Triple.hpp>
 
-#include "Component.hpp"
-#include "Utility.hpp"
+#include "../Component.hpp"
+#include "../Utility.hpp"
 
 namespace sempr {
 

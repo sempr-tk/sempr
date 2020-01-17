@@ -7,9 +7,9 @@
 #include <rete-core/Util.hpp>
 #include <rete-core/Accessors.hpp>
 
-#include "Component.hpp"
-#include "Utility.hpp"
-#include "ECWME.hpp"
+#include "../Component.hpp"
+#include "../Utility.hpp"
+#include "../ECWME.hpp"
 
 namespace sempr {
 

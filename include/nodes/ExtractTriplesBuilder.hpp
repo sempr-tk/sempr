@@ -5,7 +5,7 @@
 #include <rete-reasoner/Exceptions.hpp>
 
 #include "ExtractTriples.hpp"
-#include "Utility.hpp"
+#include "../Utility.hpp"
 
 namespace sempr {
 

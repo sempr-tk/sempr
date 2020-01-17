@@ -5,8 +5,8 @@
 #include <rete-reasoner/Exceptions.hpp>
 
 #include "ECNode.hpp"
-#include "ECAccessors.hpp"
-#include "Utility.hpp"
+#include "../ECAccessors.hpp"
+#include "../Utility.hpp"
 
 namespace sempr {
 
