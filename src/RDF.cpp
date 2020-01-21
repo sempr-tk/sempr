@@ -16,8 +16,6 @@ namespace sempr {
         return t;
     }
 
-    namespace core {
-
 namespace xsd {
     const std::string& baseURI() {
         static const std::string t = "http://www.w3.org/2001/XMLSchema#";
@@ -95,8 +93,5 @@ namespace owl {
     OWL(unionOf)
 #   undef OWL
 }
-
-
-} /* core */
 
 } /* sempr */
