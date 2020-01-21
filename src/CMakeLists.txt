@@ -39,6 +39,8 @@ set(SRC_FILES
     ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp
+    ./nodes/SopranoModule.cpp
+    ./nodes/SopranoNodeBuilder.cpp
 )
 
 set(ODB_FILES

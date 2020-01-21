@@ -35,6 +35,10 @@ if(Boost_FOUND)
     add_executable(ECNodeTest ECNodeTest.cpp)
     target_link_libraries(ECNodeTest ${DEPENDENCIES})
     add_test(NAME ECNodeTest COMMAND ECNodeTest)
+
+    add_executable(SopranoTest SopranoTest.cpp)
+    target_link_libraries(SopranoTest ${DEPENDENCIES})
+    add_test(NAME SopranoTest COMMAND SopranoTest)
 endif()
 
 
