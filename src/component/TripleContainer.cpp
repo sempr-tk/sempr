@@ -110,7 +110,7 @@ void TripleContainer::getTriples(std::vector<Triple>& triples) const
 namespace rete { namespace util {
 
 template <>
-std::string to_string(const sempr::TripleContainer& c)
+std::string to_string(const sempr::TripleContainer&)
 {
     return "TripleContainer"; // printing the content would be too much
 }

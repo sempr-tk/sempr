@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project(sempr)
 set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
-add_definitions(-Wall -Wno-unknown-pragmas)
-
+add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor)
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-undefined")
 
 # compile-output-dir!
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")

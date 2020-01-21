@@ -51,7 +51,7 @@ struct ComponentName<Component> {
     static constexpr const char* value = "Component";
 };
 
-};
+}
 
 
 
