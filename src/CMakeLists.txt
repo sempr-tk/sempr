@@ -34,6 +34,7 @@ set(SRC_FILES
     Entity.cpp
     ECAccessors.cpp
     Component.cpp
+    ./component/GeosGeometry.cpp
     ./component/TripleContainer.cpp
     ./component/TripleVector.cpp
     ./nodes/ECNode.cpp
