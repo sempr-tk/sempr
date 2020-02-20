@@ -39,6 +39,10 @@ if(Boost_FOUND)
     add_executable(SopranoTest SopranoTest.cpp)
     target_link_libraries(SopranoTest ${DEPENDENCIES})
     add_test(NAME SopranoTest COMMAND SopranoTest)
+
+    add_executable(GeometryTest GeometryTest.cpp)
+    target_link_libraries(GeometryTest ${DEPENDENCIES})
+    add_test(NAME GeometryTest COMMAND GeometryTest)
 endif()
 
 
