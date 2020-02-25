@@ -38,6 +38,7 @@ set(SRC_FILES
     ./component/GeosGeometry.cpp
     ./component/TripleContainer.cpp
     ./component/TripleVector.cpp
+    ./nodes/AffineTransformNodes.cpp
     ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp
