@@ -39,5 +39,15 @@ struct ComponentName<AffineTransform> {
 
 }
 
+// register a to_string function to display AffineTransform in the rete network
+#include <rete-core/Util.hpp>
+namespace rete { namespace util {
+
+template <> std::string to_string(const sempr::AffineTransform& c);
+template <> std::string to_string(const sempr::AffineTransform::Ptr& c);
+
+}}
+
+
 #endif /* include guard: SEMPR_COMPONENT_AFFINETRANSFORM_HPP_ */
 
