@@ -5,6 +5,7 @@
 #include <rete-core/Util.hpp>
 #include <rete-core/Accessors.hpp>
 
+#include "component/AffineTransform.hpp"
 
 namespace sempr {
 
@@ -32,7 +33,50 @@ public:
     */
     rete::WME::Ptr process(rete::Token::Ptr) override;
 
+    /**
+        Equality-check for possible reusability of nodes
+    */
+    bool operator == (const rete::BetaNode& other) const override;
+};
 
+
+/**
+    Multiplication of AffineTransforms
+*/
+class AffineTransformMul : public rete::Builtin {
+    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> left_, right_;
+public:
+    // for multiplication of two AffineTransforms.
+    AffineTransformMul(
+        std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> left,
+        std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> right
+    );
+
+    rete::WME::Ptr process(rete::Token::Ptr) override;
+
+    /**
+        Equality-check for possible reusability of nodes
+    */
+    bool operator == (const rete::BetaNode& other) const override;
+
+};
+
+/**
+    Compute inverse
+*/
+class AffineTransformInv : public rete::Builtin {
+    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf_;
+public:
+    AffineTransformInv(
+        std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf
+    );
+
+    rete::WME::Ptr process(rete::Token::Ptr) override;
+
+    /**
+        Equality-check for possible reusability of nodes
+    */
+    bool operator == (const rete::BetaNode& other) const override;
 };
 
 }

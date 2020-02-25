@@ -14,6 +14,8 @@ namespace sempr {
 class AffineTransform : public Component {
     Eigen::Affine3d transform_;
 public:
+    using Ptr = std::shared_ptr<AffineTransform>;
+
     /// create identity
     AffineTransform();
     /// copy given transform
