@@ -1,7 +1,7 @@
 #ifndef SEMPR_ECACCESSORS_HPP_
 #define SEMPR_ECACCESSORS_HPP_
 
-#include <rete-core/TupleWMEAccessor.hpp>
+#include <rete-core/Accessors.hpp>
 #include "ECWME.hpp"
 #include "Utility.hpp"
 
@@ -38,15 +38,24 @@ public:
 /**
     ComponentAccessors are a bit more complicated, as we will want to differ
     between different component types.
+
+    NOTE: When writing nodes that expect a Component to work on, consider to
+    *not* expect a ComponentAccessor<MyComponent>, but rather a
+                   SpecificTypeAccessor<std::shared_ptr<MyComponent>>.
+    The latter is more general, and the ComponentAccessor already derives from
+    SpecificTypeAccessor. Therefore, if we have a builtin that creates a
+    component it can export it in a TupleWME, and the component can then be
+    used in your node. The ComponentAccessor would restrict it to components
+    that are part of an ECWME.
 */
 template <class C>
-class ComponentAccessor : public rete::TupleWMEAccessor<1, ECWME>,
+class ComponentAccessor : public rete::SpecificTypeAccessor<std::shared_ptr<C>>,
                           public rete::ValueAccessor<std::shared_ptr<C>, ComponentAccessor<C>> {
 public:
     using Ptr = std::shared_ptr<ComponentAccessor>;
     ComponentAccessor()
     {
-        registerType<ComponentAccessor>();
+        this->template registerType<ComponentAccessor>();
     }
 
     /**
@@ -69,18 +78,18 @@ public:
     */
     void getValue(rete::WME::Ptr wme, std::shared_ptr<C>& value) const override
     {
-        Component::Ptr component;
-        this->rete::TupleWMEAccessor<1, ECWME>::getValue(wme, component); // use the TupleWMEAccessors method to get it
-        // and just cast it to the desired type
-        // (static cast, because the node builder that created this accessor
-        // knows exactly what the node it inserted in the rete network returns)
+        // assume its a ECWME
+        auto ecwme = std::static_pointer_cast<ECWME>(wme);
+        // get the component
+        auto component = std::get<1>(ecwme->value_);
+        // assume its the type we want
         value = std::static_pointer_cast<C>(component);
     }
 
     /**
         Checks if the two accessors can compare their values
     */
-    bool canCompareValues(const Accessor& other) const override
+    bool canCompareValues(const rete::Accessor& other) const override
     {
         return other.canAs<ComponentAccessor>();
     }
@@ -88,14 +97,14 @@ public:
     /**
         Checks if the same component instance is referred to
     */
-    bool valuesEqual(Accessor& other,
+    bool valuesEqual(rete::Accessor& other,
                      rete::Token::Ptr token,
                      rete::WME::Ptr wme) override
     {
         auto optr = other.as<ComponentAccessor>();
         std::shared_ptr<C> myValue, otherValue;
 
-        if (index() == -1) this->getValue(wme, myValue);
+        if (this->index() == -1) this->getValue(wme, myValue);
         else               this->getValue(token, myValue);
 
         if (optr->index() == -1) optr->getValue(wme, otherValue);
@@ -114,7 +123,7 @@ public:
 
     std::string toString() const override
     {
-        return ComponentName<C>::value + (index_ < 0 ? std::string("") : "[" + std::to_string(index_) + "]");
+        return ComponentName<C>::value + (this->index_ < 0 ? std::string("") : "[" + std::to_string(this->index_) + "]");
     }
 };
 
