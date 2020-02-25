@@ -77,6 +77,46 @@ bool AffineTransformCreate::operator==(const rete::BetaNode& other) const
 }
 
 // ----------------------------------------------------------------------------
+// Get (extract parameters)
+// ----------------------------------------------------------------------------
+AffineTransformGet::AffineTransformGet(
+    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf
+    )
+    : rete::Builtin("tf:get"),
+        tf_(std::move(tf))
+{
+}
+
+rete::WME::Ptr AffineTransformGet::process(rete::Token::Ptr token)
+{
+    // get AffineTransform from token
+    AffineTransform::Ptr tf;
+    tf_->getValue(token, tf);
+
+    // compute translation and quaternion
+    auto t = tf->transform().translation();
+    Eigen::Quaterniond rot(tf->transform().rotation());
+
+    // put parameters into tuplewme
+    auto wme = std::make_shared<
+                rete::TupleWME<double, double, double,
+                               double, double, double, double>>(
+        t.x(), t.y(), t.z(),
+        rot.x(), rot.y(), rot.z(), rot.w()
+    );
+
+    return wme;
+}
+
+bool AffineTransformGet::operator==(const rete::BetaNode& other) const
+{
+    auto o = dynamic_cast<const AffineTransformGet*>(&other);
+    if (!o) return false;
+
+    return *(this->tf_) == *(o->tf_);
+}
+
+// ----------------------------------------------------------------------------
 // Multiply
 // ----------------------------------------------------------------------------
 AffineTransformMul::AffineTransformMul(
