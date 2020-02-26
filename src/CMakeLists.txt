@@ -34,9 +34,12 @@ set(SRC_FILES
     Entity.cpp
     ECAccessors.cpp
     Component.cpp
+    ./component/AffineTransform.cpp
     ./component/GeosGeometry.cpp
     ./component/TripleContainer.cpp
     ./component/TripleVector.cpp
+    ./nodes/AffineTransformNodes.cpp
+    ./nodes/AffineTransformBuilders.cpp
     ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp

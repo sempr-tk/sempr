@@ -43,6 +43,10 @@ if(Boost_FOUND)
     add_executable(GeometryTest GeometryTest.cpp)
     target_link_libraries(GeometryTest ${DEPENDENCIES})
     add_test(NAME GeometryTest COMMAND GeometryTest)
+
+    add_executable(AffineTransformTest AffineTransformTest.cpp)
+    target_link_libraries(AffineTransformTest ${DEPENDENCIES})
+    add_test(NAME AffineTransformTest COMMAND AffineTransformTest)
 endif()
 
 
