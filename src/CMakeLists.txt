@@ -39,6 +39,7 @@ set(SRC_FILES
     ./component/TripleContainer.cpp
     ./component/TripleVector.cpp
     ./nodes/AffineTransformNodes.cpp
+    ./nodes/AffineTransformBuilders.cpp
     ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp
