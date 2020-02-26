@@ -1,6 +1,6 @@
 # Semantic Environment Mapping, Processing and Reasoning (SEMPR)
 ## Status
-As the development of SEMPR just started recently, please do not expect a fully featured system. We are working on it. :)
+SEMPR is still under heavy development, so please expect things to change (and break). :)
 
 ## Installation
 
@@ -69,7 +69,113 @@ DFKI GmbH - Plan-Based Robot Control
 
 ## Usage
 
-==TODO==
+SEMPR is in itself not a ready-to-be-used executable, but rather a library, call it a framework if you like, that you are supposed to extend to your own needs, and integrate it into your own domain specific application.
+
+But of course, there are some reoccurring patterns in its usage, and this is where we take it look at those.
+
+One central part of SEMPR is the `sempr::Core`, though its functionality is quite limited. It owns an instance of `rete::Reasoner` and is responsible of notifying the it whenever data is added, removed or updated. Furthermore, it assigns an ID to the `sempr::Entity`s that are added.
+
+```c++
+#include <sempr/Core.hpp>
+//...
+sempr::Core core;
+auto entity = sempr::Entity::create();
+auto component = std::make_shared<MyComponent>(); // more on available components later
+
+// the order of adding entities to the core and components to the entity does not matter
+entity->addComponent(component);
+core.addEntity();
+
+// ... update some data of our imaginary MyComponent
+component->setValue(42);
+// upon internal changes of components, you need to inform the reasoner:
+component->changed();
+```
+
+Note that adding and removing components from an entity as well as calling `component->changed()` all trigger the rete network that is used inside the reasoner. That means that all relevant rules are (re-)evaluated, but the rules effect do not take place. In order to perform the reasoning for real, realizing effects and all consequences of those effects, you have to explicitely call:
+
+```c++
+core.reasoner().performInference();
+```
+
+At this point, this does not make any sense, as we did not add any rules yet. Normally you would do this right at the start, before adding entities to the system, but it is also possible to add (and remove) rules after data.
+
+Adding rules means extending the reasoners internal rete network. Since it is quite cumbersome to do this manually, we make use of a rule parser that transforms a textual representation of our rules into the pattern matching network. By default, the parser only understands basic RDD triple conditions and effects, but you can add additional node builders to extend its capabilities. E.g., to access our `MyComponent` in a rule we will need an instance of `sempr::ECNodeBuilder`:
+
+```c++
+#include <rete-reasoner/RuleParser.hpp>
+#include <sempr/ECNodeBuilder.hpp>
+
+rete::RuleParser parser;
+parser.registerNodeBuilder<sempr::ECNodeBuilder<MyComponent>>();
+
+parser.parseRules(
+    "[rule1: EC<MyComponent>(?entity ?component) -> (<foo> <bar> <baz>)]",
+    core.reasoner().net()
+);
+```
+
+The above rule simply infers an RDF triple `<foo> <bar> <baz>` for every existing entity-MyComponent-pair.
+
+After performing inference you might want to work with the inferred data. Theoretically, you can do this by accessing the internal state of the reasoner where you can iterate over all `rete::WME`s. But usually everything that happens with the data should be triggered by the reasoner, through a rule. Feel free to add your own effects! Even if you need to answer queries on demand, consider adding the updating logic as an effect for the reasoner. This is how it is done with the SopranoModule, which can answer SPARQL-queries on the rdf triples. In order to use it you will need to create the module itself, and a node builder that connects it with an effect of a rule:
+
+```c++
+#include <sempr/nodes/SopranoNodeBuilder.hpp>
+
+// create the module itself
+auto soprano = std::make_shared<sempr::SopranoModule>();
+// create a node builder for it
+std::unique_ptr<sempr::SopranoNodeBuilder> 
+    builder(new sempr::SopranoNodeBuilder(soprano));
+
+// add the node builder to the parser
+parser.registerNodeBuilder(std::move(builder));
+
+// use it in a rule
+parser.parserRules(
+    "[updateSoprano: (?s ?p ?o) -> SopranoModule(?s ?p ?o)]",
+    core.reasoner().net()
+);
+```
+
+This rule makes sure that all the triples are added to the soprano module (you could even limit it to certain triples, or manipulate them before adding them, if you so desire for whatever reason). Now (after `performInference()`, of course) you can let soprano answer your queries.
+
+```c++
+sempr::SPARQLQuery query;
+query.query = "SELECT * WHERE { ?a <ex:foobar> ?b . }";
+soprano->answer(query);
+for (auto result : query.results)
+{
+    // ...
+}
+```
+
+## Implemented functionality (so far)
+
+==TODO: Find a nice way to present the syntax of the implemented builtins==
+
+### Components
+
+- TripleCointainer (interface), TripleVector
+  Contain rdf triples.
+- GeosGeometry
+  Wraps a `geos::geom::Geometry*`
+- AffineTransform
+  Wraps a `Eigen::Affine3d` (access in rules is currently limited to translation and rotation)
+
+### Nodes/Builtins
+
+| syntax                                    | description                                                  | node builder                   | include                           |
+| ----------------------------------------- | ------------------------------------------------------------ | ------------------------------ | --------------------------------- |
+| `EC<ComponentName>( ?entity ?component )` | **Condition.** Matches entities ?entity that have a component ?component of type ComponentName. _Note: ComponentName == sempr::ComponentName\<ComponentType\>::value_ | `ECNodeBuilder<ComponentType>` | nodes/ECNodeBuilder.hpp           |
+| `ExtractTriples(?c)`                      | **Effect.** Extracts the triples from the TripleContainer ?c for direct usage in the reasoner. | `ExtractTriplesBuilder`        | nodes/ExtractTriplesBuilder.hpp   |
+| `SopranoModule(?s ?p ?o)`                 | **Effect.** Updates the underlying SopranoModule by adding the triple (?s ?p ?o). | `SopranoNodeBuilder`           | nodes/SopranoNodeBuilder.hpp      |
+| `tf:create(?tf ?x ?y ?z ?qx ?qy ?qz ?qw)` | **Builtin.** Creates a new AffineTransform ?tf with the given parameters for translation (?x ?y ?z) and rotation (as quaternion) (?qx ?qy ?qz ?qw). | `AffineTransformCreateBuilder` | nodes/AffineTransformBuilders.hpp |
+| `tf:get(?tf ?x [?y ?z ?qx ?qy ?qz ?qw])`  | **Builtin.** Extracts the parameters from the given AffineTransform ?tf. ?y to ?qw are optional. | `AffineTransformGetBuilder`    | nodes/AffineTransformBuilders.hpp |
+| `tf:mul(?result ?left ?right)`            | **Builtin.** Binds ?result to ?left * ?right, where ?left and ?right must be bound to AffineTransforms. | `AffineTransformMulBuilder`    | nodes/AffineTransformBuilders.hpp |
+| `tf:inv(?result ?input)`                  | **Builtin.** Binds ?result to the inverse of the AffineTransform given in ?input. | `AffineTransformInvBuilder`    | nodes/AffineTransformBuilders.hpp |
+
+
 
 ## Internal structure
 SEMPR follows an Entity-Component-System architecture: Information is stored in instances of `sempr::Entity`, which can be identified by a unique id. Entities are actually nothing more than that: An ID together with a list of `sempr::Component`, where the components can be geometries, rdf triples, or any other custom blob of data.
