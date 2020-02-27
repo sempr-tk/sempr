@@ -1,0 +1,59 @@
+image: buildpack-deps:xenial
+
+before_script:
+    - apt update -qq
+    - apt install -y -qq git g++ cmake
+    - apt install -y -qq odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libodb-dev
+    - apt install -y -qq libsoprano-dev qt4-default
+    - apt install -y -qq libgeos-dev libgeos++-dev
+    - apt install -y -qq libgeographic-dev libeigen3-dev
+    - apt install -y -qq libboost-all-dev
+
+stages:
+    - deps
+    - build
+    - test
+
+install_dependencies:
+    stage: deps
+    script:
+        - mkdir deps_install
+        - export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$(pwd)/deps_install/lib/pkgconfig
+        # pegamtite
+        - git clone https://github.com/niniemann/Pegmatite.git
+        - cd Pegmatite
+        - mkdir build && cd build
+        - cmake .. -DCMAKE_INSTALL_PREFIX=../../deps_install
+        - make -j8 install
+        # rete
+        - cd ../..
+        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.ni.dfki.de/sempr/rete.git
+        - cd rete
+        - mkdir build && cd build
+        - cmake .. -DCMAKE_INSTALL_PREFIX=../../deps_install
+        - make -j8
+        - make install
+    artifacts:
+        paths:
+            - deps_install
+        expire_in: 1 hour
+
+build:
+    stage: build
+    script:
+        - export PATH=${PATH}:$(pwd)/deps_install
+        - export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$(pwd)/deps_install/lib/pkgconfig
+        - mkdir build && cd build
+        - cmake ..
+        - make -j8
+    artifacts:
+        paths:
+            - build/
+        expire_in: 1 hour
+
+test:
+    stage: test
+    script:
+        - export PATH=${PATH}:$(pwd)/deps_install
+        - cd build
+        - make test
