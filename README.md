@@ -1,4 +1,7 @@
 # Semantic Environment Mapping, Processing and Reasoning (SEMPR)
+
+[![pipeline status](https://git.ni.dfki.de/sempr/sempr/badges/ecs/pipeline.svg)](https://git.ni.dfki.de/sempr/sempr/commits/ecs)
+
 ## Status
 SEMPR is still under heavy development, so please expect things to change (and break). :)
 
