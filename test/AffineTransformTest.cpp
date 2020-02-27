@@ -183,4 +183,43 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
         std::ofstream("affine_inv.dot") << core.reasoner().net().toDot();
     }
 
+
+    BOOST_AUTO_TEST_CASE(affine_combination)
+    {
+        rete::RuleParser parser;
+        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
+        parser.registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
+        parser.registerNodeBuilder<sempr::AffineTransformGetBuilder>();
+        parser.registerNodeBuilder<sempr::AffineTransformMulBuilder>();
+        parser.registerNodeBuilder<sempr::AffineTransformInvBuilder>();
+
+        sempr::Core core;
+
+        parser.parseRules(
+            "[EC<Transform>(?e ?tf), tf:inv(?inv ?tf), tf:mul(?id ?inv ?tf) -> (<foo> <bar> <baz>)]",
+            core.reasoner().net()
+        );
+
+        auto entity = sempr::Entity::create();
+        auto aff = Eigen::Affine3d::Identity();
+        aff.linear() = Eigen::Quaterniond(1, 2, 3, 4).toRotationMatrix();
+        aff.translation() = Eigen::Vector3d(1, 2, 3);
+        auto tf = std::make_shared<sempr::AffineTransform>(aff);
+        entity->addComponent(tf);
+
+        core.addEntity(entity);
+        core.reasoner().performInference();
+        auto wmes = core.reasoner().getCurrentState().getWMEs();
+
+        // there should be 2: ECWME for the entity-component relation, and
+        // the (<foo> <bar> <baz>) triple.
+        BOOST_CHECK(wmes.size() == 2);
+
+        // TODO: No way to infer a AffineTransform yet, hence difficult to check here.
+
+        std::ofstream("affine_comb.dot") << core.reasoner().net().toDot();
+    }
+
+
+
 BOOST_AUTO_TEST_SUITE_END()
