@@ -85,6 +85,9 @@ set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
 # (soprano with qt5 ...)
 if (DEFINED ENV{CI})
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+    # somehow SHLIBDEPS does not add rete as a dependency (but does not complain
+    # about not finding it, either), so add it manually.
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.0)")
 else()
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.0), libodb-dev, libodb-sqlite-2.4, libodb-boost-2.4, libsqlite3-dev, libsoprano-dev, libboost-all-dev, libgeos-dev, libgeos++-dev, libgeographic-dev, libeigen3-dev")
