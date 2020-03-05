@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.1] - 2020-03-05
+
+There has been a complete rework of the internal structure.
+Entities are only containers for components, which in turn
+represent (independent) data types. The core of sempr is a
+rule based rete reasoner, and entity-component pairs are made
+accessible to it. What has former been thought of as a
+processing module is now supposed to be implemented in a rule,
+as a combination of complex preconditions (previously implemented
+by listening to entity-events) and the rules effect (previously
+the body of the processEvent method).
 
 ## [0.2.0] - 2018-08-09
 
