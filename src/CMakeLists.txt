@@ -101,7 +101,7 @@ target_compile_definitions(sempr_core PUBLIC -D${CONFIG_DATABASE})
 ## install stuff
 install(
     TARGETS sempr_core
-    LIBRARY DESTINATION lib/sempr
+    LIBRARY DESTINATION lib/sempr COMPONENT common
 )
 # headers.
 # maybe having the "include/sempr" folder wasn't such a good idea, after all. Makes things a bit
@@ -116,7 +116,7 @@ install(
     # .../include/sempr-agri/...
 install(
     DIRECTORY ../include/
-    DESTINATION include/sempr
+    DESTINATION include/sempr COMPONENT common
 )
 
 # odb-generated headers
@@ -127,13 +127,23 @@ install(
 # and add the path to the include dirs in the config file
 install(
     DIRECTORY ${ODB_COMPILE_OUTPUT_DIR}
-    DESTINATION include/sempr
+    DESTINATION include/sempr COMPONENT common
     FILES_MATCHING PATTERN "*.h"
 )
 
 # pkg-config-file
+set(SEMPR_INSTALL_PREFIX "/usr")
 configure_file("sempr-core.pc.in" "sempr-core.pc" @ONLY)
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/sempr-core.pc"
     DESTINATION lib/pkgconfig
+    COMPONENT pkgconfig-deb
+)
+
+set(SEMPR_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+configure_file("sempr-core.pc.in" "sempr-core-dev.pc" @ONLY)
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/sempr-core-dev.pc"
+    DESTINATION lib/pkgconfig
+    COMPONENT pkgconfig-cmake
 )

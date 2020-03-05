@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
-project(sempr)
+project(sempr VERSION 0.3.0)
+
 set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
 add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor)
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
@@ -11,10 +12,6 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
 # allow includes of current dir.
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(SEMPR_VERSION_MAJOR 0)
-set(SEMPR_VERSION_MINOR 1)
-set(SEMPR_VERSION_PATCH 0)
 
 ##
 # find packages that are used in src and test:
@@ -69,3 +66,28 @@ add_subdirectory(src)
 
 enable_testing()
 add_subdirectory(test)
+
+
+# configure cpack
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "modular semantic environment representation based on a rete reasoner")
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Nils Niemann <nils.niemann@dfki.de>")
+set(CPACK_COMPONENTS_ALL "common;pkgconfig-deb") # excludes the sempr-core-dev.pc
+set(CPACK_DEB_COMPONENT_INSTALL ON)
+set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
+
+# when run in a CI environment, the deps should have been installed through
+# debian packages and SHLIBDEBS should work to find the dependencies.
+# Locally this lead to errors since I have a lot of stuff compiled from source
+# (soprano with qt5 ...)
+if (DEFINED ENV{CI})
+    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+else()
+    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.0), libodb-dev, libodb-sqlite-2.4, libodb-boost-2.4, libsqlite3-dev, libsoprano-dev, libboost-all-dev, libgeos-dev, libgeos++-dev, libgeographic-dev, libeigen3-dev")
+endif()
+
+include(CPack)
