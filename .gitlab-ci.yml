@@ -78,7 +78,7 @@ deploy-deb:
     only:
         - tags
     script:
-        - cp build/sempr*.deb /tmp/debiab-pkgs/
+        - cp build/sempr*.deb /tmp/debian-pkgs/
         - cd /tmp/debian-pkgs
         - ./update-pkg-list
         - git add --all
