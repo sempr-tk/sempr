@@ -1,6 +1,20 @@
 image: buildpack-deps:xenial
 
 before_script:
+    # setup private key to access nniemann/debian-pkgs
+    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan git.ni.dfki.de >> ~/.ssh/known_hosts
+    - git config --global user.email "gitlab-ci@git.ni.dfki.de"
+    - git config --global user.name "gitlab-CI/CD"
+    # clone nniemann/debian-pkgs. These are debian files for pegmatite, rete, sempr
+    - git clone git@git.ni.dfki.de:nniemann/debian-pkgs.git /tmp/debian-pkgs
+    - echo "deb [trusted=yes] file:/tmp/debian-pkgs ./" >> /etc/apt/sources.list
+
+    # install dependencies
     - apt update -qq
     - apt install -y -qq git g++ cmake
     - apt install -y -qq odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libodb-dev
@@ -8,44 +22,45 @@ before_script:
     - apt install -y -qq libgeos-dev libgeos++-dev
     - apt install -y -qq libgeographic-dev libeigen3-dev
     - apt install -y -qq libboost-all-dev
+    - apt install -y -qq rete
 
 stages:
-    - deps
+#    - deps # no longer needed, installed in before_script from deb pkgs
     - build
     - test
+    - deploy
 
-install_dependencies:
-    stage: deps
-    script:
-        - mkdir deps_install
-        - export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$(pwd)/deps_install/lib/pkgconfig
-        # pegamtite
-        - git clone https://github.com/niniemann/Pegmatite.git
-        - cd Pegmatite
-        - mkdir build && cd build
-        - cmake .. -DCMAKE_INSTALL_PREFIX=../../deps_install
-        - make -j8 install
-        # rete
-        - cd ../..
-        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.ni.dfki.de/sempr/rete.git
-        - cd rete
-        - mkdir build && cd build
-        - cmake .. -DCMAKE_INSTALL_PREFIX=../../deps_install
-        - make -j8
-        - make install
-    artifacts:
-        paths:
-            - deps_install
-        expire_in: 1 hour
+#install_dependencies:
+#    stage: deps
+#    script:
+#        - mkdir deps_install
+#        - export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$(pwd)/deps_install/lib/pkgconfig
+#        # pegamtite
+#        - git clone https://github.com/niniemann/Pegmatite.git
+#        - cd Pegmatite
+#        - mkdir build && cd build
+#        - cmake .. -DCMAKE_INSTALL_PREFIX=../../deps_install
+#        - make -j8 install
+#        # rete
+#        - cd ../..
+#        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.ni.dfki.de/sempr/rete.git
+#        - cd rete
+#        - mkdir build && cd build
+#        - cmake .. -DCMAKE_INSTALL_PREFIX=../../deps_install
+#        - make -j8
+#        - make install
+#    artifacts:
+#        paths:
+#            - deps_install
+#        expire_in: 1 hour
 
 build:
     stage: build
     script:
-        - export PATH=${PATH}:$(pwd)/deps_install
-        - export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$(pwd)/deps_install/lib/pkgconfig
         - mkdir build && cd build
         - cmake ..
         - make -j8
+        - make package
     artifacts:
         paths:
             - build/
@@ -57,3 +72,16 @@ test:
         - export PATH=${PATH}:$(pwd)/deps_install
         - cd build
         - make test
+
+deploy-deb:
+    stage: deploy
+    only:
+        - tags
+    script:
+        - cp build/sempr*.deb /tmp/debian-pkgs/
+        - cd /tmp/debian-pkgs
+        - ./update-pkg-list
+        - git add --all
+        - git commit -m "auto deployment of sempr $CI_COMMIT_REF_NAME"
+        - git push
+
