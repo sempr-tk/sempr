@@ -1,4 +1,5 @@
-image: buildpack-deps:xenial
+default:
+    image: buildpack-deps:xenial
 
 before_script:
     # setup private key to access nniemann/debian-pkgs
@@ -12,8 +13,8 @@ before_script:
     - git config --global user.name "gitlab-CI/CD"
     # clone nniemann/debian-pkgs. These are debian files for pegmatite, rete, sempr
     - git clone git@git.ni.dfki.de:nniemann/debian-pkgs.git /tmp/debian-pkgs
-    - echo "deb [trusted=yes] file:/tmp/debian-pkgs ./" >> /etc/apt/sources.list
-
+    # setup and install of rete will be done in the build phase, as it is
+    # distro-specific (bionic / xenial)
     # install dependencies
     - apt update -qq
     - apt install -y -qq git g++ cmake
@@ -22,55 +23,71 @@ before_script:
     - apt install -y -qq libgeos-dev libgeos++-dev
     - apt install -y -qq libgeographic-dev libeigen3-dev
     - apt install -y -qq libboost-all-dev
-    - apt install -y -qq rete
 
 stages:
-#    - deps # no longer needed, installed in before_script from deb pkgs
     - build
     - test
     - deploy
 
-#install_dependencies:
-#    stage: deps
-#    script:
-#        - mkdir deps_install
-#        - export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$(pwd)/deps_install/lib/pkgconfig
-#        # pegamtite
-#        - git clone https://github.com/niniemann/Pegmatite.git
-#        - cd Pegmatite
-#        - mkdir build && cd build
-#        - cmake .. -DCMAKE_INSTALL_PREFIX=../../deps_install
-#        - make -j8 install
-#        # rete
-#        - cd ../..
-#        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.ni.dfki.de/sempr/rete.git
-#        - cd rete
-#        - mkdir build && cd build
-#        - cmake .. -DCMAKE_INSTALL_PREFIX=../../deps_install
-#        - make -j8
-#        - make install
-#    artifacts:
-#        paths:
-#            - deps_install
-#        expire_in: 1 hour
 
-build:
+build-xenial:
     stage: build
+    image: buildpack-deps:xenial
     script:
-        - mkdir build && cd build
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/xenial ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # build sempr
+        - mkdir build_xenial && cd build_xenial
         - cmake ..
         - make -j8
         - make package
     artifacts:
         paths:
-            - build/
+            - build_xenial
         expire_in: 1 hour
 
-test:
-    stage: test
+build-bionic:
+    stage: build
+    image: buildpack-deps:bionic
     script:
-        - export PATH=${PATH}:$(pwd)/deps_install
-        - cd build
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/bionic ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # build sempr
+        - mkdir build_bionic && cd build_bionic
+        - cmake ..
+        - make -j8
+        - make package
+    artifacts:
+        paths:
+            - build_bionic
+        expire_in: 1 hour
+
+test-xenial:
+    stage: test
+    image: buildpack-deps:xenial
+    script:
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/xenial ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # test
+        - cd build_xenial
+        - make test
+
+test-bionic:
+    stage: test
+    image: buildpack-deps:bionic
+    script:
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/bionic ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # test
+        - cd build_bionic
         - make test
 
 deploy-deb:
@@ -78,7 +95,8 @@ deploy-deb:
     only:
         - tags
     script:
-        - cp build/sempr*.deb /tmp/debian-pkgs/
+        - cp build_xenial/sempr*.deb /tmp/debian-pkgs/xenial/
+        - cp build_bionic/sempr*.deb /tmp/debian-pkgs/bionic/
         - cd /tmp/debian-pkgs
         - ./update-pkg-list
         - git add --all
