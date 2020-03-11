@@ -68,6 +68,15 @@ BOOST_AUTO_TEST_SUITE(TriplePropertyMapTest)
         container->map_["sempr:name"] = "john smith";
         container->map_["sempr:resource"] = { "sempr:something", true };
 
+        // test retrieval of data
+        int i = container->map_["sempr:theAnswer"];
+        BOOST_CHECK(i == 42);
+        BOOST_CHECK_THROW(i = container->map_["sempr:pi"], sempr::Exception);
+        std::string name = container->map_["sempr:name"];
+        BOOST_CHECK(name == "john smith");
+        std::string type = container->map_["sempr:resource"];
+        BOOST_CHECK(type == "sempr:something");
+
         // ---
         std::cout << "Contents before adding it to an entity" << std::endl;
         for (auto t : *container)
