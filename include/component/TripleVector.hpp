@@ -70,11 +70,12 @@ class TripleVectorIterator : public TripleIteratorImpl {
     std::vector<Triple>::const_iterator vit_;
 
     TripleVectorIterator(std::vector<Triple>::const_iterator it);
-    ~TripleVectorIterator();
 
     const Triple operator * () const override;
     void operator ++ () override;
     bool operator == (const TripleIteratorImpl& other) const override;
+public:
+    ~TripleVectorIterator();
 };
 
 }

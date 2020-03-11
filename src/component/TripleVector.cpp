@@ -49,13 +49,13 @@ size_t TripleVector::size() const
 
 TripleIterator TripleVector::begin() const
 {
-    return TripleIterator(new TripleVectorIterator(triples_.begin()));
+    return TripleIterator(TripleIteratorImpl::Ptr(new TripleVectorIterator(triples_.begin())));
 }
 
 
 TripleIterator TripleVector::end() const
 {
-    return TripleIterator(new TripleVectorIterator(triples_.end()));
+    return TripleIterator(TripleIteratorImpl::Ptr(new TripleVectorIterator(triples_.end())));
 }
 
 
