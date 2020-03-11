@@ -66,16 +66,14 @@ public:
     An TripleIteratorImpl implementation for std::vector<Triple>
 */
 class TripleVectorIterator : public TripleIteratorImpl {
-    friend class TripleVector;
     std::vector<Triple>::const_iterator vit_;
-
+public:
     TripleVectorIterator(std::vector<Triple>::const_iterator it);
+    ~TripleVectorIterator();
 
     const Triple operator * () const override;
     void operator ++ () override;
     bool operator == (const TripleIteratorImpl& other) const override;
-public:
-    ~TripleVectorIterator();
 };
 
 }

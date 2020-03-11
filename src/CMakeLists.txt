@@ -37,6 +37,7 @@ set(SRC_FILES
     ./component/AffineTransform.cpp
     ./component/GeosGeometry.cpp
     ./component/TripleContainer.cpp
+    ./component/TripleDocument.cpp
     ./component/TriplePropertyMap.cpp
     ./component/TripleVector.cpp
     ./nodes/AffineTransformNodes.cpp
