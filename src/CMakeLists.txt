@@ -47,6 +47,7 @@ set(SRC_FILES
     ./nodes/ExtractTriplesBuilder.cpp
     ./nodes/SopranoModule.cpp
     ./nodes/SopranoNodeBuilder.cpp
+    ./util/FileWatcher.cpp
 )
 
 set(ODB_FILES
