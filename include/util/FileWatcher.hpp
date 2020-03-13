@@ -24,6 +24,7 @@ namespace sempr {
 class FileWatcher {
 public:
     enum Event { EXISTS, MODIFIED, NOT_EXISTS };
+    typedef std::function<void(FileWatcher::Event, std::shared_future<void>)> callback_t;
 private:
     /// The currently running thread.
     std::thread watcher_;
@@ -39,7 +40,7 @@ private:
         (re-)moved or modified. An EXISTS event is called as soon as the watch
         was aquired.
     */
-    void run(const std::string& path, std::shared_future<void> exitSignal, std::function<void(FileWatcher::Event)> callback);
+    void run(const std::string& path, std::shared_future<void> exitSignal, callback_t callback);
 
     /**
         The name speaks for itself: This method tries to get a watch on the file
@@ -59,10 +60,16 @@ public:
     /**
         Starts a thread that watches for the given file and calls the callback
         with the EXISTS/MODIFIED/NOT_EXISTS flags when said changes happen.
+        The callback also gets access to the exitSignal object to check for
+        itself if execution should be aborted. This can be useful if the watcher
+        thread is waiting in the callback for the main thread to release a
+        resource, but the main thread wants to close the watcher and thus waits
+        for the thread to finish (-> deadlock). If that might happen in your
+        case, just check for the exit signal in your callback.
 
         Stops any previously monitoring activity before starting the thread!
     */
-    void start(const std::string& path, std::function<void(Event)> callback);
+    void start(const std::string& path, callback_t callback);
 
     /**
         Stops the currently running thread.
