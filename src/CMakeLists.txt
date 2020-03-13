@@ -45,6 +45,7 @@ set(SRC_FILES
     ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp
+    ./nodes/FileMonitorNode.cpp
     ./nodes/SopranoModule.cpp
     ./nodes/SopranoNodeBuilder.cpp
     ./util/FileWatcher.cpp
