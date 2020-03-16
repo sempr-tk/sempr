@@ -49,6 +49,8 @@ set(SRC_FILES
     ./nodes/FileMonitorNodeBuilder.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
+    ./nodes/TripleDocumentFilenameNode.cpp
+    ./nodes/TripleDocumentFilenameBuilder.cpp
     ./nodes/SopranoModule.cpp
     ./nodes/SopranoNodeBuilder.cpp
     ./util/FileWatcher.cpp
