@@ -31,6 +31,10 @@ class FileMonitorNode : public rete::Builtin {
 
     // accessor for the filename
     std::unique_ptr<rete::StringAccessor> fileName_;
+
+    // starts a watcher for the given token.
+    void startWatcher(rete::Token::Ptr, const std::string& file);
+
 public:
     /**
         Creates a new FileMonitorNode. This will spawn a monitor for every
