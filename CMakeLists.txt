@@ -87,10 +87,10 @@ if (DEFINED ENV{CI})
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
     # somehow SHLIBDEPS does not add rete as a dependency (but does not complain
     # about not finding it, either), so add it manually.
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.0)")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.3)")
 else()
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.0), libodb-dev, libodb-sqlite-2.4, libodb-boost-2.4, libsqlite3-dev, libsoprano-dev, libboost-all-dev, libgeos-dev, libgeos++-dev, libgeographic-dev, libeigen3-dev")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.3), libodb-dev, libodb-sqlite-2.4, libodb-boost-2.4, libsqlite3-dev, libsoprano-dev, libboost-all-dev, libgeos-dev, libgeos++-dev, libgeographic-dev, libeigen3-dev")
 endif()
 
 include(CPack)
