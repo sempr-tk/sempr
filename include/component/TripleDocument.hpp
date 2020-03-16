@@ -1,48 +1,39 @@
 #ifndef SEMPR_COMPONENT_TRIPLEDOCUMENT_HPP_
 #define SEMPR_COMPONENT_TRIPLEDOCUMENT_HPP_
 
-#include "TripleContainer.hpp"
+#include "Component.hpp"
 
 namespace sempr {
 
 /**
-    The TripleDocument is a component that mirrors the content of a file.
-    It is not mutable other than through changing the contents of the file and
-    calling reload(), or pointing it to a different file.
+    The TripleDocument is a component that simply wraps a filename. It is
+    merely an annotation to say "this is a file that should be loaded to
+    obtain more information in the form of triples".
 */
-class TripleDocument : public TripleContainer {
+class TripleDocument : public Component {
     std::string file_; // name of the file
-    std::vector<Triple> triples_; // content of the file
 public:
+    using Ptr = std::shared_ptr<TripleDocument>;
     /**
-        Creates a TripleDocument pointing at the given file, but does not load
-        the file, yet. Call reload() to initialize the component.
+        Creates a TripleDocument pointing at the specified file.
     */
     TripleDocument(const std::string& file);
 
     /**
-        Clears the cached data an reloads the specified file.
-        Throws an exception if the file cannot be parsed. The old content will
-        be already gone by that point.
-    */
-    void reload();
-
-    /**
-        Clears the cached data and loads the contents of the (newly)
-        specified file.
+        Sets a new filename.
     */
     void setFile(const std::string& file);
 
-    /**
-        Allow iterating the the internal triple vector.
-    */
-    TripleIterator begin() const;
-    TripleIterator end() const;
+    std::string getFile() const;
 };
 
 
-}
+template <>
+struct ComponentName<TripleDocument> {
+    static constexpr const char* value = "TripleDocument";
+};
 
+}
 
 #endif /* include guard: SEMPR_COMPONENT_TRIPLEDOCUMENT_HPP_ */
 
