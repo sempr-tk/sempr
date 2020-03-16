@@ -4,6 +4,7 @@
 #include <functional>
 #include <thread>
 #include <future>
+#include <mutex>
 
 namespace sempr {
 
@@ -23,16 +24,28 @@ namespace sempr {
 */
 class FileWatcher {
 public:
-    enum Event { EXISTS, MODIFIED, NOT_EXISTS };
+    enum Event { EXISTS, MODIFIED, NOT_EXISTS, NONE };
     typedef std::function<void(FileWatcher::Event, std::shared_future<void>)> callback_t;
 private:
     /// The currently running thread.
     std::thread watcher_;
 
+    /// The currently watched path
+    std::string path_;
+
     /// A promise for an exit signal. The running thread checks this at some
     /// points in its execution through a std::future object. It is used to
     /// gracefully stop the thread.
     std::promise<void> exitSignal_;
+
+    /// A mutex for the lastEvent variable
+    mutable std::mutex lastEventMutex_;
+    /// A buffer for the last event. Can be retrieved to actively query for the
+    /// state of the file.
+    Event lastEvent_;
+
+
+    void setLastEvent(Event);
 
     /**
         The run method makes use of waitForExistAndGetWatch to aquire a watch
@@ -52,10 +65,18 @@ private:
     */
     int waitForExistAndGetWatch(int fd, const std::string& path, std::shared_future<void> exitSignal);
 public:
+    FileWatcher();
+
     /**
         Stops the monitoring thread (if running)
     */
     ~FileWatcher();
+
+    /**
+        Returns the last event issued by the watching thread. May be NONE if
+        called directly after starting the thread.
+    */
+    Event getLastEvent() const;
 
     /**
         Starts a thread that watches for the given file and calls the callback
@@ -70,6 +91,11 @@ public:
         Stops any previously monitoring activity before starting the thread!
     */
     void start(const std::string& path, callback_t callback);
+
+    /**
+        Returns the currently watched path, or an empty string
+    */
+    std::string getCurrentPath() const;
 
     /**
         Stops the currently running thread.

@@ -14,6 +14,24 @@
 
 namespace sempr {
 
+FileWatcher::FileWatcher()
+    : lastEvent_(Event::NONE)
+{
+}
+
+FileWatcher::Event FileWatcher::getLastEvent() const
+{
+    std::lock_guard<std::mutex> lg(lastEventMutex_);
+    Event e = lastEvent_;
+    return e;
+}
+
+void FileWatcher::setLastEvent(FileWatcher::Event e)
+{
+    std::lock_guard<std::mutex> lg(lastEventMutex_);
+    lastEvent_ = e;
+}
+
 FileWatcher::~FileWatcher()
 {
     stop();
@@ -24,16 +42,23 @@ void FileWatcher::stop()
     exitSignal_.set_value();
     if (watcher_.joinable())
         watcher_.join();
+    path_ = "";
 }
 
 void FileWatcher::start(const std::string& path, FileWatcher::callback_t callback)
 {
     stop();
+    setLastEvent(Event::NONE);
+    path_ = path;
     exitSignal_ = std::promise<void>();
     std::future<void> f = exitSignal_.get_future();
     watcher_ = std::thread(&FileWatcher::run, this, path, f.share(), callback);
 }
 
+std::string FileWatcher::getCurrentPath() const
+{
+    return path_;
+}
 
 
 // helper: discard any remaining events on the inotify descriptor
@@ -69,10 +94,12 @@ void FileWatcher::run(const std::string& path, std::shared_future<void> exitSign
                     IN_IGNORED | IN_MOVE_SELF);
     if (wd < 0) {
         callback(Event::NOT_EXISTS, exitSignal);
+        setLastEvent(Event::NOT_EXISTS);
     }
     else
     {
         callback(Event::EXISTS, exitSignal);
+        setLastEvent(Event::EXISTS);
     }
 
     // as long as we do not get the exit-signal
@@ -88,6 +115,7 @@ void FileWatcher::run(const std::string& path, std::shared_future<void> exitSign
             {
                 // success! this is worth an EXISTS event
                 callback(Event::EXISTS, exitSignal);
+                setLastEvent(Event::EXISTS);
             }
             else
             {
@@ -158,6 +186,7 @@ void FileWatcher::run(const std::string& path, std::shared_future<void> exitSign
                         // deleted. -> NOT_EXISTS, but stay alert for if it
                         // is created again
                         callback(Event::NOT_EXISTS, exitSignal);
+                        setLastEvent(Event::NOT_EXISTS);
                         // setting wd < 0 breaks the outer loop that works while the file exists
                         wd = -1;
                         // discard the remaining packets on the fd before moving on
@@ -168,6 +197,7 @@ void FileWatcher::run(const std::string& path, std::shared_future<void> exitSign
                     {
                         // the file was moved away.
                         callback(Event::NOT_EXISTS, exitSignal);
+                        setLastEvent(Event::NOT_EXISTS);
                         wd = -1;
                         discardRemainingEvents(fd);
                         break;
@@ -175,6 +205,7 @@ void FileWatcher::run(const std::string& path, std::shared_future<void> exitSign
                     else if (event->mask & IN_MODIFY)
                     {
                         callback(Event::MODIFIED, exitSignal);
+                        setLastEvent(Event::MODIFIED);
                     }
                 }
                 else
