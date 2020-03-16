@@ -20,6 +20,7 @@ rete::Builtin::Ptr FileMonitorNodeBuilder::buildBuiltin(rete::ArgumentList& args
     if (args[0].isConst())
     {
         acc.reset(new rete::ConstantStringAccessor(args[0].getAST()));
+        acc->index() = 0; // allow accessor to be applied to a token
     }
     else
     {
