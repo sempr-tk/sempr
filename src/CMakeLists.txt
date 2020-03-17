@@ -10,6 +10,7 @@ set(SRC_FILES
     Entity.cpp
     ECAccessors.cpp
     Component.cpp
+    SeparateFileStorage.cpp
     ./component/AffineTransform.cpp
     ./component/GeosGeometry.cpp
     ./component/TripleContainer.cpp
@@ -25,7 +26,7 @@ set(SRC_FILES
 
 # create the library
 add_library(sempr_core SHARED ${SRC_FILES})
-target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES})
+target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} stdc++fs)
 
 ## install stuff
 install(
