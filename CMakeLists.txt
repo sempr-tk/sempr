@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(sempr VERSION 0.3.1)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
+set(CMAKE_CXX_STANDARD 17)
+
 add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor)
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-undefined")

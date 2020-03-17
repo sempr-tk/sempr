@@ -7,4 +7,4 @@ Description: Core library of SEMPR (Semantic Environment Mapping, Processing and
 Version: @PROJECT_VERSION@
 Requires: eigen3 soprano rete
 Libs: -L${libdir} -lsempr_core -lgeos -lGeographic
-Cflags: -std=c++11 -I${includedir}
+Cflags: -std=c++17 -I${includedir}
