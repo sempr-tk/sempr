@@ -25,19 +25,6 @@ pkg_check_modules(Soprano REQUIRED soprano)
 include_directories(${Soprano_INCLUDE_DIRS})
 link_directories(${Soprano_LIBRARY_DIRS})
 
-# find package odb
-find_package(ODB REQUIRED COMPONENTS sqlite boost)
-include_directories(${ODB_INCLUDE_DIRS})
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include(${ODB_USE_FILE})
-include_directories(${ODB_COMPILE_OUTPUT_DIR})
-
-# libodb-sqlite-dev does not specify a dependency to libsqlite3-dev,
-# so lets check that manually. We just need the include dir set to
-# find 'sqlite3.h'. See issue #48
-pkg_check_modules(SQLITE REQUIRED sqlite3)
-include_directories(${SQLITE_LIBRARY_DIRS})
-
 # find package eigen3
 pkg_check_modules(EIGEN REQUIRED eigen3)
 include_directories(${EIGEN_INCLUDE_DIRS})
@@ -90,7 +77,7 @@ if (DEFINED ENV{CI})
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.0)")
 else()
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.0), libodb-dev, libodb-sqlite-2.4, libodb-boost-2.4, libsqlite3-dev, libsoprano-dev, libboost-all-dev, libgeos-dev, libgeos++-dev, libgeographic-dev, libeigen3-dev")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "rete (>= 0.2.0), libsoprano-dev, libboost-all-dev, libgeos-dev, libgeos++-dev, libgeographic-dev, libeigen3-dev")
 endif()
 
 include(CPack)

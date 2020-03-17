@@ -1,11 +1,10 @@
 prefix=@SEMPR_INSTALL_PREFIX@
 libdir=${prefix}/lib/sempr
 includedir=${prefix}/include
-database=@DATABASE@
 
 Name: sempr-core
 Description: Core library of SEMPR (Semantic Environment Mapping, Processing and Reasoning)
 Version: @PROJECT_VERSION@
-Requires: libodb libodb-boost libodb-sqlite eigen3 soprano rete
+Requires: eigen3 soprano rete
 Libs: -L${libdir} -lsempr_core -lgeos -lGeographic
-Cflags: -std=c++11 -D@CONFIG_DATABASE@ -I${includedir} -I${includedir}/sempr/odb_gen
+Cflags: -std=c++11 -I${includedir}
