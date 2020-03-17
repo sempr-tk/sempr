@@ -9,7 +9,12 @@ SEMPR is still under heavy development, so please expect things to change (and b
 
 SEMPR currently relies on a few other libraries: ODB for the object relational mapping, sqlite3 for a database connection, boost for uuids, soprano for SPARQL queries, qt4 for soprano, and a recent version of geos and boost geometry for more geometric operations.
 
-### GeographicLib, soprano, boost, geos 
+### GeographicLib, soprano, boost, geos, cereal
+To get cereal for the serialization of entities and components:
+```bash
+sudo apt-get install libcereal-dev
+```
+
 Soprano and boost can be retrieved easily, **if you are okay with using qt4**:
 ```bash
 sudo apt-get install libsoprano-dev qt4-default

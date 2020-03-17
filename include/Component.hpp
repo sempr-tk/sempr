@@ -2,6 +2,11 @@
 #define SEMPR_ENTITY_COMPONENT_HPP_
 
 #include <memory>
+
+// enable json serialization for all components
+#include <cereal/archives/json.hpp>
+#include <cereal/types/polymorphic.hpp>
+
 #include "Utility.hpp"
 
 namespace sempr {
@@ -43,6 +48,22 @@ public:
         the component.
     */
     void changed();
+
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        ar( cereal::make_nvp<Archive>("tag", tag_) );
+    }
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        ar( cereal::make_nvp<Archive>("tag", tag_) );
+    }
 };
 
 // specialization for sempr::ComponentName<class C>
@@ -54,6 +75,7 @@ struct ComponentName<Component> {
 }
 
 
+CEREAL_REGISTER_TYPE(sempr::Component)
 
 
 // also add a specialization for rete::util::to_string for Component to be able
