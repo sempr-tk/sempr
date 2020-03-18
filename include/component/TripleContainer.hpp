@@ -72,7 +72,10 @@ public:
 */
 class TripleIteratorImpl {
     friend class TripleIterator;
+public:
+    using Ptr = std::shared_ptr<TripleIteratorImpl>;
 protected:
+
     virtual ~TripleIteratorImpl();
 
     virtual const Triple operator * () const = 0;
@@ -85,9 +88,9 @@ protected:
     TripleIterator that delegates to a TripleIteratorImpl.
 */
 class TripleIterator {
-    TripleIteratorImpl* const impl_;
+    TripleIteratorImpl::Ptr impl_;
 public:
-    TripleIterator(TripleIteratorImpl* impl);
+    TripleIterator(TripleIteratorImpl::Ptr impl);
     ~TripleIterator();
 
     /**

@@ -13,6 +13,10 @@ Component::~Component()
 {
 }
 
+const Entity* Component::getEntity() const
+{
+    return entity_;
+}
 
 void Component::setTag(const std::string& tag)
 {
@@ -34,7 +38,7 @@ void Component::changed()
         if (entity_->core())
         {
             entity_->core()->changedComponent(
-                                entity_->shared_from_this(), 
+                                entity_->shared_from_this(),
                                 this->shared_from_this()
             );
         }

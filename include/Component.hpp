@@ -19,6 +19,9 @@ class Component : public std::enable_shared_from_this<Component> {
     std::string tag_;
 
     friend class Entity;
+protected:
+    // read-only access to the entity, in order to access e.g. the entities id.
+    const Entity* getEntity() const;
 public:
     Component();
     virtual ~Component();

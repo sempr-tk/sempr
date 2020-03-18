@@ -25,12 +25,21 @@ Core::~Core()
     }
 }
 
+std::mutex& Core::reasonerMutex()
+{
+    return reasonerMutex_;
+}
 
 rete::Reasoner& Core::reasoner()
 {
     return reasoner_;
 }
 
+void Core::performInference()
+{
+    std::lock_guard<std::mutex> lock(reasonerMutex_);
+    reasoner_.performInference();
+}
 
 void Core::addEntity(Entity::Ptr entity)
 {
@@ -71,7 +80,11 @@ void Core::removeEntity(Entity::Ptr entity)
 
     // remove corresponding WMEs
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
-    reasoner_.removeEvidence(evidence);
+
+    {
+        std::lock_guard<std::mutex> lock(reasonerMutex_);
+        reasoner_.removeEvidence(evidence);
+    }
 
     this->entities_.erase(entity);
     entity->core_ = nullptr;
@@ -82,7 +95,11 @@ void Core::addedComponent(Entity::Ptr entity,
 {
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
     auto wme = std::make_shared<ECWME>(entity, component);
-    reasoner_.addEvidence(wme, evidence);
+
+    {
+        std::lock_guard<std::mutex> lock(reasonerMutex_);
+        reasoner_.addEvidence(wme, evidence);
+    }
 }
 
 void Core::removedComponent(Entity::Ptr entity,
@@ -90,7 +107,11 @@ void Core::removedComponent(Entity::Ptr entity,
 {
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
     auto wme = std::make_shared<ECWME>(entity, component);
-    reasoner_.removeEvidence(wme, evidence);
+
+    {
+        std::lock_guard<std::mutex> lock(reasonerMutex_);
+        reasoner_.removeEvidence(wme, evidence);
+    }
 }
 
 void Core::changedComponent(Entity::Ptr entity,
@@ -105,7 +126,10 @@ void Core::changedComponent(Entity::Ptr entity,
     // to see if they are backed by evidence etc., so we should be good.
 
     auto wme = std::make_shared<ECWME>(entity, component);
-    reasoner_.net().getRoot()->activate(wme, rete::PropagationFlag::UPDATE);
+    {
+        std::lock_guard<std::mutex> lock(reasonerMutex_);
+        reasoner_.net().getRoot()->activate(wme, rete::PropagationFlag::UPDATE);
+    }
 }
 
 //void Core::answerQuery(query::Query::Ptr q)
