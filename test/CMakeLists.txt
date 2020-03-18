@@ -28,6 +28,10 @@ if(Boost_FOUND)
     target_link_libraries(EntityTest ${DEPENDENCIES})
     add_test(NAME EntityTest COMMAND EntityTest)
 
+    add_executable(FileStorageTest FileStorageTest.cpp)
+    target_link_libraries(FileStorageTest ${DEPENDENCIES})
+    add_test(NAME FileStorageTest COMMAND FileStorageTest)
+
     add_executable(TripleContainerTest TripleContainerTest.cpp)
     target_link_libraries(TripleContainerTest ${DEPENDENCIES})
     add_test(NAME TripleContainerTest COMMAND TripleContainerTest)
