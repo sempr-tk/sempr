@@ -10,9 +10,9 @@ namespace sempr {
 
 /**
     Interface for persistance strategies.
-    So far, only saving entities is required by the interface. The sempr::Core
-    will not decide on its own what to load -- this has to be done by the user
-    when initializing the system.
+    So far, only saving and removing entities is required by the interface.
+    The sempr::Core will not decide on its own what to load -- this has to be
+    done by the user when initializing the system.
 */
 class Storage {
 public:
@@ -27,9 +27,19 @@ public:
 
     /**
         Informs the storage that a specific component inside an entity has
-        been changed.
+        been changed, or was just added.
     */
     virtual void save(Entity::Ptr, Component::Ptr) = 0;
+
+    /**
+        Informs the storage that the given entity should be removed completely.
+    */
+    virtual void remove(Entity::Ptr) = 0;
+
+    /**
+        Informs the storage that a component was removed from an entity.
+    */
+    virtual void remove(Entity::Ptr, Component::Ptr) = 0;
 };
 
 

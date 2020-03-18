@@ -38,12 +38,32 @@ void SeparateFileStorage::save(Entity::Ptr entity)
 
     // ...and serialize the entity into it.
     cereal::JSONOutputArchive archive(ofs);
-    archive(*entity);
+
+    try {
+        archive(entity);
+    } catch (cereal::Exception& e) {
+        // catch cereal exceptions (unregistered classes e.g.), and make them
+        // sempr exceptions -> user only needs to catch sempr::Exception.
+        // TODO: There should probably be a hierarchy of sempr exceptions
+        throw sempr::Exception(e.what());
+    }
 }
 
 
 void SeparateFileStorage::save(Entity::Ptr entity, Component::Ptr)
 {
+    save(entity);
+}
+
+void SeparateFileStorage::remove(Entity::Ptr entity)
+{
+    fs::remove(dirPath_ / (entity->id() + ".json"));
+}
+
+void SeparateFileStorage::remove(Entity::Ptr entity, Component::Ptr)
+{
+    // to remove a component from an entity...
+    // just persist the entity again.
     save(entity);
 }
 

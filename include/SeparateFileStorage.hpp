@@ -47,6 +47,12 @@ public:
         whole.
     */
     void save(Entity::Ptr, Component::Ptr) override;
+    void remove(Entity::Ptr, Component::Ptr) override;
+
+    /**
+        Removes the file that the entity is stored in.
+    */
+    void remove(Entity::Ptr) override;
 
 
     /**
