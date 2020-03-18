@@ -1,7 +1,7 @@
 #ifndef SEMPR_CORE_SEPARATEFILESTORAGE_HPP_
 #define SEMPR_CORE_SEPARATEFILESTORAGE_HPP_
 
-#include <experimental/filesystem>
+#include <boost/filesystem.hpp>
 #include <set>
 #include <string>
 
@@ -9,7 +9,7 @@
 #include "IDGenerator.hpp"
 
 namespace sempr {
-    namespace fs = std::experimental::filesystem;
+    namespace fs = boost::filesystem;
 
 /**
     The SeparateFileStorage is an implementation of the Storage interface.

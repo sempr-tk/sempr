@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(sempr VERSION 0.3.1)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 
 add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor)
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
@@ -47,8 +47,14 @@ include_directories(${RETE_INCLUDE_DIRS})
 link_directories(${RETE_LIBRARY_DIRS})
 add_definitions(${RETE_CXX_FLAGS_OTHER})
 
-include_directories(include)
+# use boost filesystem instead of std filesystem and step back from using
+# c++17,... for now.
+find_package(Boost REQUIRED COMPONENTS filesystem)
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 
+
+include_directories(include)
 add_subdirectory(src)
 
 

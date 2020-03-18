@@ -26,7 +26,7 @@ set(SRC_FILES
 
 # create the library
 add_library(sempr_core SHARED ${SRC_FILES})
-target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} stdc++fs)
+target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES})
 
 ## install stuff
 install(

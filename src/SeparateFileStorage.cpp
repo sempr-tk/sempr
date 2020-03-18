@@ -23,7 +23,7 @@ SeparateFileStorage::SeparateFileStorage(const std::string& dir)
         {
             // and the id is just the stem.
             // /foo/bar/Entity_7.json -> Entity_7
-            entityIDs_.insert(p.path().stem());
+            entityIDs_.insert(p.path().stem().string());
         }
     }
 }
@@ -34,7 +34,7 @@ void SeparateFileStorage::save(Entity::Ptr entity)
     // open a json file in the specified folder...
     fs::path p = dirPath_;
     p /= entity->id() + ".json";
-    std::ofstream ofs(p);
+    std::ofstream ofs(p.string());
 
     // ...and serialize the entity into it.
     cereal::JSONOutputArchive archive(ofs);
