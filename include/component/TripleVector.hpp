@@ -1,6 +1,8 @@
 #ifndef SEMPR_COMPONENT_TRIPLEVECTOR_HPP_
 #define SEMPR_COMPONENT_TRIPLEVECTOR_HPP_
 
+#include <cereal/types/vector.hpp>
+
 #include "TripleContainer.hpp"
 
 namespace sempr {
@@ -57,6 +59,23 @@ public:
     */
     TripleIterator begin() const;
     TripleIterator end() const;
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("triples", triples_) );
+    }
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("triples", triples_) );
+    }
 };
 
 
@@ -78,6 +97,8 @@ class TripleVectorIterator : public TripleIteratorImpl {
 };
 
 }
+
+CEREAL_REGISTER_TYPE(sempr::TripleVector)
 
 
 // also, register a to_string function to display TripleContainer instances in

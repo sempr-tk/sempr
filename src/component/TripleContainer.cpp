@@ -10,6 +10,10 @@ Triple::Triple( const std::string& s,
 {
 }
 
+Triple::Triple()
+{
+}
+
 
 const std::string& Triple::getField(Triple::Field field) const
 {

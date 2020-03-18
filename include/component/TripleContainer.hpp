@@ -26,8 +26,11 @@ namespace sempr {
 */
 class Triple {
     std::string subject_, predicate_, object_;
+
 public:
     using Ptr = std::shared_ptr<Triple>;
+
+    Triple(); // default ctor just for cereal
 
     Triple( const std::string& s,
             const std::string& p,
@@ -57,6 +60,18 @@ public:
     bool operator == (const Triple& other) const;
 
     static std::string fieldName(Field);
+
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar( cereal::make_nvp<Archive>("s", subject_),
+            cereal::make_nvp<Archive>("p", predicate_),
+            cereal::make_nvp<Archive>("o", object_) );
+    }
 };
 
 
