@@ -32,6 +32,10 @@ if(Boost_FOUND)
     target_link_libraries(FileStorageTest ${DEPENDENCIES})
     add_test(NAME FileStorageTest COMMAND FileStorageTest)
 
+    add_executable(ComponentSerializationTest ComponentSerializationTest.cpp)
+    target_link_libraries(ComponentSerializationTest ${DEPENDENCIES})
+    add_test(NAME ComponentSerializationTest COMMAND ComponentSerializationTest)
+
     add_executable(TripleContainerTest TripleContainerTest.cpp)
     target_link_libraries(TripleContainerTest ${DEPENDENCIES})
     add_test(NAME TripleContainerTest COMMAND TripleContainerTest)
