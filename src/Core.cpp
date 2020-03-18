@@ -8,8 +8,13 @@
 
 namespace sempr {
 
+Core::Core(IDGenerator::Ptr idgen, Storage::Ptr storage)
+    : idgen_(idgen), storage_(storage)
+{
+}
+
 Core::Core(IDGenerator::Ptr idgen)
-    : idgen_(idgen)
+    : Core(idgen, nullptr)
 {
 }
 
@@ -32,6 +37,11 @@ rete::Reasoner& Core::reasoner()
 }
 
 
+Storage::Ptr Core::storage()
+{
+    return storage_;
+}
+
 void Core::addEntity(Entity::Ptr entity)
 {
     // add it to the core if the entity wasn't added to one before
@@ -49,7 +59,8 @@ void Core::addEntity(Entity::Ptr entity)
         entity->setId(idgen_->createIDFor(entity));
     }
 
-    // TODO: Persist the entity
+    // Persist the entity
+    if (storage_) storage_->save(entity);
 
     // add the WMEs to the reasoner
     auto components = entity->getComponents<Component>();
@@ -67,7 +78,8 @@ void Core::removeEntity(Entity::Ptr entity)
         throw sempr::Exception("Entity not part of this Core");
     }
 
-    // TODO: Un-persist entity
+    // Un-persist entity
+    if (storage_) storage_->remove(entity);
 
     // remove corresponding WMEs
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
@@ -80,6 +92,9 @@ void Core::removeEntity(Entity::Ptr entity)
 void Core::addedComponent(Entity::Ptr entity,
                           Component::Ptr component)
 {
+    // update storage
+    if (storage_) storage_->save(entity, component);
+
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
     auto wme = std::make_shared<ECWME>(entity, component);
     reasoner_.addEvidence(wme, evidence);
@@ -88,6 +103,9 @@ void Core::addedComponent(Entity::Ptr entity,
 void Core::removedComponent(Entity::Ptr entity,
                           Component::Ptr component)
 {
+    // Un-persist component
+    if (storage_) storage_->remove(entity, component);
+
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
     auto wme = std::make_shared<ECWME>(entity, component);
     reasoner_.removeEvidence(wme, evidence);
@@ -96,6 +114,9 @@ void Core::removedComponent(Entity::Ptr entity,
 void Core::changedComponent(Entity::Ptr entity,
                           Component::Ptr component)
 {
+    // update storage
+    if (storage_) storage_->save(entity, component);
+
     // NOTE: You may have noticed that there are often new evidences and WMEs
     // created, even for "removedComponent" and "changedComponent". This is okay
     // since the WMEs evaluate to be identical (as they point to the same
