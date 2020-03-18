@@ -103,4 +103,47 @@ void SeparateFileStorage::releaseIDOf(Entity::Ptr entity)
     }
 }
 
+
+std::vector<Entity::Ptr> SeparateFileStorage::loadAll() const
+{
+    std::vector<Entity::Ptr> entities;
+
+    // traverse the directoy and try to load all the json files as entities
+    for (auto& p : fs::directory_iterator(dirPath_))
+    {
+        if (p.path().extension() == ".json")
+        {
+            std::ifstream ifs(p.path().string());
+            cereal::JSONInputArchive archive(ifs);
+
+            try {
+                Entity::Ptr entity;
+                archive(entity);
+                entities.push_back(entity);
+            } catch (cereal::Exception& e) {
+                std::cerr << "(ignoring " << p.path().string() << ") cereal::Exception: " << e.what() << std::endl;
+            }
+        }
+    }
+
+    return entities;
+}
+
+
+Entity::Ptr SeparateFileStorage::load(const std::string& id) const
+{
+    Entity::Ptr entity = nullptr;
+    try {
+        std::ifstream ifs((dirPath_ / (id + ".json")).string());
+        cereal::JSONInputArchive archive(ifs);
+        archive(entity);
+    } catch (cereal::Exception& e) {
+        std::cerr << "(couldn't load " << id << ") cereal::Exception: " << e.what() << std::endl;
+    }
+
+    return entity;
+}
+
+
+
 }

@@ -64,6 +64,23 @@ public:
         Allows to re-assign the id of the entity
     */
     void releaseIDOf(Entity::Ptr) override;
+
+
+
+    /**
+        Load all stored entities.
+        Does *not* take already loaded entities into account, will always
+        return a new object for every entity!
+    */
+    std::vector<Entity::Ptr> loadAll() const;
+
+    /**
+        Try to load an entity with a specific id.
+        Does *not* take already loaded entities into account, will always
+        return a new object for the entity! (Or a nullptr if the entity could
+        not be loaded).
+    */
+    Entity::Ptr load(const std::string& id) const;
 };
 
 
