@@ -2,6 +2,7 @@
 #define SEMPR_COMPONENT_TRIPLEPROPERTYMAP_HPP_
 
 #include <map>
+#include <cereal/types/map.hpp>
 
 #include "TripleContainer.hpp"
 
@@ -50,6 +51,19 @@ public:
         This might not be enough to generate valid N3 from arbitrary values!
     */
     std::string toN3() const;
+
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar( cereal::make_nvp<Archive>("type", type_),
+            cereal::make_nvp<Archive>("strValue", strValue_),
+            cereal::make_nvp<Archive>("fltValue", fltValue_),
+            cereal::make_nvp<Archive>("intValue", intValue_) );
+    }
 };
 
 
@@ -77,6 +91,24 @@ public:
 
     TripleIterator begin() const;
     TripleIterator end() const;
+
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("map", map_) );
+    }
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("map", map_) );
+    }
 };
 
 
@@ -104,6 +136,7 @@ public:
 
 }
 
+CEREAL_REGISTER_TYPE(sempr::TriplePropertyMap)
 
 // also, register to_string function to display TriplePropertyMap instances in
 // the rete network
