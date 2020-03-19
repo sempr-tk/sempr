@@ -9,6 +9,8 @@
 
 #include "component/AffineTransform.hpp"
 #include "component/GeosGeometry.hpp"
+#include "component/TripleDocument.hpp"
+#include "component/TriplePropertyMap.hpp"
 #include "component/TripleVector.hpp"
 
 #include <boost/filesystem.hpp>
@@ -48,11 +50,23 @@ BOOST_AUTO_TEST_SUITE(FileStorageTest)
         auto geom = std::make_shared<sempr::GeosGeometry>(); // an empty one
         entity->addComponent(geom);
 
+        // TripleDocument
+        auto td = std::make_shared<sempr::TripleDocument>("/foo/bar/baz.rdf");
+        entity->addComponent(td);
+
+        // TriplePropertyMap
+        auto prop = std::make_shared<sempr::TriplePropertyMap>();
+        prop->map_["type"] = { "sempr:Something", true };
+        prop->map_["name"] = "John Smith";
+        prop->map_["age"] = 42;
+        entity->addComponent(prop);
+
         // TripleVector
         auto tv = std::make_shared<sempr::TripleVector>();
         tv->addTriple({"<foo>", "<bar>", "<baz>"});
         tv->addTriple({"<foobar>", "<barbaz>", "<foobarbaz>"});
         entity->addComponent(tv);
+
     }
 
 BOOST_AUTO_TEST_SUITE_END()
