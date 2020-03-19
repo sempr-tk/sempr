@@ -2,6 +2,8 @@ pkg_check_modules(Soprano REQUIRED soprano)
 include_directories(${Soprano_INCLUDE_DIRS})
 link_directories(${Soprano_LIBRARY_DIRS})
 
+find_package(Threads REQUIRED)
+
 # list of all source files to compile into the library
 set(SRC_FILES
     Core.cpp
@@ -14,19 +16,28 @@ set(SRC_FILES
     ./component/AffineTransform.cpp
     ./component/GeosGeometry.cpp
     ./component/TripleContainer.cpp
+    ./component/TripleDocument.cpp
+    ./component/TriplePropertyMap.cpp
     ./component/TripleVector.cpp
     ./nodes/AffineTransformNodes.cpp
     ./nodes/AffineTransformBuilders.cpp
     ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp
+    ./nodes/FileMonitorNode.cpp
+    ./nodes/FileMonitorNodeBuilder.cpp
+    ./nodes/LoadTriplesFromFileNode.cpp
+    ./nodes/LoadTriplesFromFileBuilder.cpp
+    ./nodes/TripleDocumentFilenameNode.cpp
+    ./nodes/TripleDocumentFilenameBuilder.cpp
     ./nodes/SopranoModule.cpp
     ./nodes/SopranoNodeBuilder.cpp
+    ./util/FileWatcher.cpp
 )
 
 # create the library
 add_library(sempr_core SHARED ${SRC_FILES})
-target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
 
 ## install stuff
 install(

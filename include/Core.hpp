@@ -14,12 +14,23 @@
 #include <set>
 #include <memory>
 #include <vector>
+#include <mutex>
 
 namespace sempr {
 
 class Core {
     /// The reasoner is the backbone of sempr, used for all kinds of event handling
     rete::Reasoner reasoner_;
+
+    /**
+        The reasoner is not thread-safe. Especially the rete network is not,
+        so when nodes want to trigger something themselves, they need to lock
+        it. This mutex here will be used by sempr::Core whenever it accesses the
+        reasoner or its internal structures, and it should also be used by the
+        aforementioned nodes. To do so, hand them the mutex by reference through
+        the NodeBuilders.
+    */
+    std::mutex reasonerMutex_;
 
     /// a set of all added entities, in order to unset their Core* when the core
     // is deconstructed.
@@ -38,8 +49,15 @@ public:
     ~Core();
 
     /**
+        Returns a reference to the mutex used by sempr::Core for thread-safe
+        access to the reasoner.
+    */
+    std::mutex& reasonerMutex();
+
+    /**
         Grant access to the internal reasoner, in order to register NodeBuilders
         and load/unload rules.
+        Please make sure to use the reasonerMutex() when accessing the reasoner.
     */
     rete::Reasoner& reasoner();
 
@@ -47,6 +65,12 @@ public:
         Access to the storage module
     */
     Storage::Ptr storage();
+
+    /*
+        Convenience method: Aquires a lock on reasonerMutex() and calls
+        reasoner().performInference() afterwards.
+    */
+    void performInference();
 
     /**
         Adds an entity by basically adding <Entity, Component>

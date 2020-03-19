@@ -67,7 +67,7 @@ TripleIteratorImpl::~TripleIteratorImpl()
 {
 }
 
-TripleIterator::TripleIterator(TripleIteratorImpl* impl)
+TripleIterator::TripleIterator(TripleIteratorImpl::Ptr impl)
     : impl_(impl)
 {
     if (!impl_) throw std::exception();
@@ -75,7 +75,6 @@ TripleIterator::TripleIterator(TripleIteratorImpl* impl)
 
 TripleIterator::~TripleIterator()
 {
-    delete impl_;
 }
 
 const Triple TripleIterator::operator*() const

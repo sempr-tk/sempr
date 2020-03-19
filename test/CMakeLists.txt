@@ -36,9 +36,21 @@ if(Boost_FOUND)
     target_link_libraries(ComponentSerializationTest ${DEPENDENCIES})
     add_test(NAME ComponentSerializationTest COMMAND ComponentSerializationTest)
 
+    add_executable(FileMonitorNodeTest FileMonitorNodeTest.cpp)
+    target_link_libraries(FileMonitorNodeTest ${DEPENDENCIES})
+    add_test(NAME FileMonitorNodeTest COMMAND FileMonitorNodeTest)
+
     add_executable(TripleContainerTest TripleContainerTest.cpp)
     target_link_libraries(TripleContainerTest ${DEPENDENCIES})
     add_test(NAME TripleContainerTest COMMAND TripleContainerTest)
+
+    add_executable(TripleDocumentTest TripleDocumentTest.cpp)
+    target_link_libraries(TripleDocumentTest ${DEPENDENCIES})
+    add_test(NAME TripleDocumentTest COMMAND TripleDocumentTest)
+
+    add_executable(TriplePropertyMapTest TriplePropertyMapTest.cpp)
+    target_link_libraries(TriplePropertyMapTest ${DEPENDENCIES})
+    add_test(NAME TriplePropertyMapTest COMMAND TriplePropertyMapTest)
 
     add_executable(ECNodeTest ECNodeTest.cpp)
     target_link_libraries(ECNodeTest ${DEPENDENCIES})
