@@ -48,6 +48,10 @@ if(Boost_FOUND)
     target_link_libraries(ECNodeTest ${DEPENDENCIES})
     add_test(NAME ECNodeTest COMMAND ECNodeTest)
 
+    add_executable(InferECTest InferECTest.cpp)
+    target_link_libraries(InferECTest ${DEPENDENCIES})
+    add_test(NAME InferECTest COMMAND InferECTest)
+
     add_executable(SopranoTest SopranoTest.cpp)
     target_link_libraries(SopranoTest ${DEPENDENCIES})
     add_test(NAME SopranoTest COMMAND SopranoTest)

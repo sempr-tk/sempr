@@ -47,6 +47,7 @@ set(SRC_FILES
     ./nodes/ExtractTriplesBuilder.cpp
     ./nodes/FileMonitorNode.cpp
     ./nodes/FileMonitorNodeBuilder.cpp
+    ./nodes/InferECNode.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
     ./nodes/TripleDocumentFilenameNode.cpp
