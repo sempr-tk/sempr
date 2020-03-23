@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0] - 2020-03-23
+
+- Added components and nodes to use with RDF triples:
+  TripleDocument, TriplePropertyMap
+- Added FileWatcher and a corresponding file:exists builtin to trigger rules
+  when a local file changes
+- Changed gitlab-ci to use a qt5 build of soprano
+
 ## [0.3.1] - 2020-03-05
 
 There has been a complete rework of the internal structure.
