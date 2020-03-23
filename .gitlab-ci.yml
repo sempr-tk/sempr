@@ -58,7 +58,7 @@ build-bionic:
         - apt update -qq
         - apt install -y -qq rete
         # install libsoprano4-qt5-dev (soprano qt5)
-        - apt install -y -qq libsoprano4-qt5-dev
+        - apt install -y -qq libsoprano4-qt5-dev qt5-default
         # build sempr
         - mkdir build_bionic && cd build_bionic
         - cmake ..
@@ -93,7 +93,7 @@ test-bionic:
         - apt update -qq
         - apt install -y -qq rete
         # install libsoprano4-qt5-dev (soprano qt5)
-        - apt install -y -qq libsoprano4-qt5-dev
+        - apt install -y -qq libsoprano4-qt5-dev qt5-default
         # test
         - cd build_bionic
         - make test
