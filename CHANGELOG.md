@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.0] - 2020-03-24
+
+- Removed dependency to ODB
+- Added serialization with cereal
+- Added SeparateFileStorage module
+
 ## [0.4.0] - 2020-03-23
 
 - Added components and nodes to use with RDF triples:
