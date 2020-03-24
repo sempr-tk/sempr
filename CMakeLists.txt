@@ -4,6 +4,11 @@ project(sempr VERSION 0.4.0)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
 add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor)
+
+# make serialization thread safe (i.e., allow serialization into multiple
+# different archives at the same time -- not access to a single archive!)
+add_definitions(-DCEREAL_THREAD_SAFE=1)
+
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-undefined")
 
