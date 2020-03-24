@@ -4,6 +4,7 @@
 //#include <sempr/query/Query.hpp>
 #include "Entity.hpp"
 #include "IDGenerator.hpp"
+#include "Storage.hpp"
 
 #include <rete-reasoner/Reasoner.hpp>
 //#include <sempr/storage/Storage.hpp>
@@ -37,9 +38,14 @@ class Core {
 
     /// An id generator to assign ids to entities that are added to the core
     IDGenerator::Ptr idgen_;
+
+    /// A storage module to persist entities
+    Storage::Ptr storage_;
 public:
     Core();
     Core(IDGenerator::Ptr idgen);
+    Core(IDGenerator::Ptr idgen, Storage::Ptr storage);
+
     ~Core();
 
     /**
@@ -56,6 +62,11 @@ public:
     rete::Reasoner& reasoner();
 
     /**
+        Access to the storage module
+    */
+    Storage::Ptr storage();
+
+    /*
         Convenience method: Aquires a lock on reasonerMutex() and calls
         reasoner().performInference() afterwards.
     */

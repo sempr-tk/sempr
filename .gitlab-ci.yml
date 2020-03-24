@@ -18,7 +18,7 @@ before_script:
     # install dependencies
     - apt update -qq
     - apt install -y -qq git g++ cmake
-    - apt install -y -qq odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libodb-dev
+    - apt install -y -qq libcereal-dev
     - apt install -y -qq libgeos-dev libgeos++-dev
     - apt install -y -qq libgeographic-dev libeigen3-dev
     - apt install -y -qq libboost-all-dev

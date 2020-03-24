@@ -2,6 +2,8 @@
 #define SEMPR_COMPONENT_GEOSGEOMETRY_HPP_
 
 #include <geos/geom/Geometry.h>
+#include <geos/io/WKTReader.h>
+#include <geos/io/WKTWriter.h>
 
 #include "../Component.hpp"
 
@@ -51,6 +53,45 @@ public:
         Sets a new geometry for this component. Frees the old geometry.
     */
     void setGeometry(geos::geom::Geometry* geometry);
+
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        // configure a writer
+        geos::io::WKTWriter writer;
+        int dim = geometry_->getCoordinateDimension();
+        writer.setOutputDimension(dim);
+
+        // create the wkt string
+        std::string wkt = writer.writeFormatted(geometry_);
+
+        // save the string (and the base class)
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("wkt", wkt) );
+    }
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        // load the wkt string (and the base class)
+        std::string wkt;
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("wkt", wkt) );
+
+        // create a wkt reader
+        const geos::geom::GeometryFactory& factory = *geos::geom::GeometryFactory::getDefaultInstance();
+        geos::io::WKTReader reader(factory);
+
+        // parse the string
+        geos::geom::Geometry* g = reader.read(wkt);
+
+        // set the new geometry
+        setGeometry(g);
+    }
 };
 
 
@@ -66,5 +107,8 @@ struct ComponentName<GeosGeometry> {
 };
 
 }
+
+CEREAL_REGISTER_TYPE(sempr::GeosGeometry)
+
 
 #endif /* include guard: SEMPR_COMPONENT_GEOSGEOMETRY_HPP_ */

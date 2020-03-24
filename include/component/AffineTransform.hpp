@@ -30,6 +30,42 @@ public:
         Sets a new transform
     */
     void setTransform(const Eigen::Affine3d& transform);
+
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        double data[4][4];
+        for (int col = 0; col < 4; col++)
+        {
+            for (int row = 0; row < 4; row++)
+            {
+                data[col][row] = transform_.matrix()(col, row);
+            }
+        }
+
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("matrix", data) );
+    }
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        double data[4][4];
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("matrix", data) );
+
+        for (int col = 0; col < 4; col++)
+        {
+            for (int row = 0; row < 4; row++)
+            {
+                transform_.matrix()(col, row) = data[col][row];
+            }
+        }
+    }
 };
 
 template <>
@@ -38,6 +74,10 @@ struct ComponentName<AffineTransform> {
 };
 
 }
+
+
+CEREAL_REGISTER_TYPE(sempr::AffineTransform)
+
 
 // register a to_string function to display AffineTransform in the rete network
 #include <rete-core/Util.hpp>

@@ -18,6 +18,7 @@ public:
         Creates a TripleDocument pointing at the specified file.
     */
     TripleDocument(const std::string& file);
+    TripleDocument() = default; // mainly for cereal.
 
     /**
         Sets a new filename.
@@ -25,6 +26,23 @@ public:
     void setFile(const std::string& file);
 
     std::string getFile() const;
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("file", file_) );
+    }
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
+            cereal::make_nvp<Archive>("file", file_) );
+    }
 };
 
 
@@ -34,6 +52,8 @@ struct ComponentName<TripleDocument> {
 };
 
 }
+
+CEREAL_REGISTER_TYPE(sempr::TripleDocument)
 
 #endif /* include guard: SEMPR_COMPONENT_TRIPLEDOCUMENT_HPP_ */
 

@@ -9,14 +9,13 @@ SEMPR is still under heavy development, so please expect things to change (and b
 
 SEMPR currently relies on a few other libraries: ODB for the object relational mapping, sqlite3 for a database connection, boost for uuids, soprano for SPARQL queries, qt4 for soprano, and a recent version of geos and boost geometry for more geometric operations.
 
-### ODB, GeographicLib, soprano, boost, geos 
-For a start, install the odb compiler and the required odb-libraries. If you are on Ubuntu 16.04 you can install them easily:
+### GeographicLib, soprano, boost, geos, cereal
+To get cereal for the serialization of entities and components:
 ```bash
-sudo apt-get install odb libodb-sqlite-2.4 libodb-boost-2.4 libsqlite3-dev libodb-dev
+sudo apt-get install libcereal-dev
 ```
-Else please follow the instructions [here](https://www.codesynthesis.com/products/odb/download.xhtml).
 
-Soprano and boost can be retrieved just as easily, **if you are okay with using qt4**:
+Soprano and boost can be retrieved easily, **if you are okay with using qt4**:
 ```bash
 sudo apt-get install libsoprano-dev qt4-default
 sudo apt-get install libboost-all-dev
@@ -63,7 +62,7 @@ in your own cmake-project.
 
 
 ## License
-SEMPR itself is released under a 3-clause BSD license. However, it relies heavily on [ODB](http://www.codesynthesis.com/products/odb/download.xhtml) which is licensed under GPL. Please take a look at the [license exception](LICENSE_ODB) granted by Code Synthesis (copied from [here](https://git.codesynthesis.com/cgit/odb/odb-etc/tree/license-exceptions/sempr-tk-odb-license-exception.txt)) which allows the use of SEMPR (everything belonging to the sempr-tk family) in other projects without imposing additional constraints to the BSD-3-license -- as long as you don't modify the persistent object model for which ODB is used.
+SEMPR is released under a 3-clause BSD license. 
 
 ## Maintenance and development
 DFKI GmbH - Plan-Based Robot Control

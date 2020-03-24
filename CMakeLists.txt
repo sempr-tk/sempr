@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(sempr VERSION 0.4.0)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
+set(CMAKE_CXX_STANDARD 11)
+
 add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor)
+add_definitions(-fPIC)
 
 # make serialization thread safe (i.e., allow serialization into multiple
 # different archives at the same time -- not access to a single archive!)
@@ -30,19 +32,6 @@ pkg_check_modules(Soprano REQUIRED soprano)
 include_directories(${Soprano_INCLUDE_DIRS})
 link_directories(${Soprano_LIBRARY_DIRS})
 
-# find package odb
-find_package(ODB REQUIRED COMPONENTS sqlite boost)
-include_directories(${ODB_INCLUDE_DIRS})
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include(${ODB_USE_FILE})
-include_directories(${ODB_COMPILE_OUTPUT_DIR})
-
-# libodb-sqlite-dev does not specify a dependency to libsqlite3-dev,
-# so lets check that manually. We just need the include dir set to
-# find 'sqlite3.h'. See issue #48
-pkg_check_modules(SQLITE REQUIRED sqlite3)
-include_directories(${SQLITE_LIBRARY_DIRS})
-
 # find package eigen3
 pkg_check_modules(EIGEN REQUIRED eigen3)
 include_directories(${EIGEN_INCLUDE_DIRS})
@@ -64,8 +53,14 @@ include_directories(${RETE_INCLUDE_DIRS})
 link_directories(${RETE_LIBRARY_DIRS})
 add_definitions(${RETE_CXX_FLAGS_OTHER})
 
-include_directories(include)
+# use boost filesystem instead of std filesystem and step back from using
+# c++17,... for now.
+find_package(Boost REQUIRED COMPONENTS filesystem)
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 
+
+include_directories(include)
 add_subdirectory(src)
 
 

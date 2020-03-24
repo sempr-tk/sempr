@@ -1,41 +1,49 @@
-#ifndef SEMPR_STORAGE_STORAGE_H_
-#define SEMPR_STORAGE_STORAGE_H_
+#ifndef SEMPR_CORE_STORAGE_HPP_
+#define SEMPR_CORE_STORAGE_HPP_
 
 #include "Entity.hpp"
-
-#include <memory>
-#include <vector>
+#include "Component.hpp"
 
 namespace sempr {
 
+
+
 /**
-    Backend for storing entities and their data.
+    Interface for persistance strategies.
+    So far, only saving and removing entities is required by the interface.
+    The sempr::Core will not decide on its own what to load -- this has to be
+    done by the user when initializing the system.
 */
 class Storage {
 public:
+    virtual ~Storage() = default;
     using Ptr = std::shared_ptr<Storage>;
-    using WPtr = std::weak_ptr<Storage>;
-    virtual ~Storage(){};
 
-    /** save data */
-    virtual void save( Entity::Ptr data ) = 0;
+    /**
+        Informs the storage that the given entity should be persisted.
+        Called the first time a entity is added to the system.
+    */
+    virtual void save(Entity::Ptr) = 0;
 
-    /** save bulk data */
-    virtual void save( std::vector<Entity::Ptr>& data ) = 0;
+    /**
+        Informs the storage that a specific component inside an entity has
+        been changed, or was just added.
+    */
+    virtual void save(Entity::Ptr, Component::Ptr) = 0;
 
-    /** load a single object **/
-    virtual Entity::Ptr load( const std::string& id ) = 0;
+    /**
+        Informs the storage that the given entity should be removed completely.
+    */
+    virtual void remove(Entity::Ptr) = 0;
 
-    /** load all objects **/
-    virtual void loadAll( std::vector<Entity::Ptr>& data ) = 0;
-
-    /** remove an object **/
-    virtual void remove( Entity::Ptr data ) = 0;
-
-    /** remove a bunch of objects */
-    virtual void remove( std::vector<Entity::Ptr>& data ) = 0;
+    /**
+        Informs the storage that a component was removed from an entity.
+    */
+    virtual void remove(Entity::Ptr, Component::Ptr) = 0;
 };
+
 
 }
 
-#endif /* end of include guard: SEMPR_STORAGE_STORAGE_H_ */
+#endif /* include guard: SEMPR_CORE_STORAGE_HPP_ */
+

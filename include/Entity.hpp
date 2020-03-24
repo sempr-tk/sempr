@@ -6,6 +6,12 @@
 #include <utility>
 #include <memory>
 
+// enable json serialization for all entities
+#include <cereal/archives/json.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/access.hpp>
+
 #include "Component.hpp"
 
 
@@ -26,6 +32,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
     std::vector<Component::Ptr> components_;
 
     friend class Core;
+    friend class cereal::access;
 
 protected:
     /// protected ctor because entities must never be created on the stack
@@ -93,10 +100,40 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
         }
         return results;
     }
+
+
+    /**
+        Serialization with cereal
+    */
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        ar(
+            cereal::make_nvp<Archive>("id", id_),
+            cereal::make_nvp<Archive>("components", components_)
+        );
+    }
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        ar(
+            cereal::make_nvp<Archive>("id", id_),
+            cereal::make_nvp<Archive>("components", components_)
+        );
+
+        // have to reset the components entity-ptr!
+        for (auto c : components_)
+        {
+            c->entity_ = this;
+        }
+    }
 };
 
 }
 
+
+CEREAL_REGISTER_TYPE(sempr::Entity)
 
 // Also: Add specialization for rete::util::to_string to be able to use it in
 // the rete::TupleWME

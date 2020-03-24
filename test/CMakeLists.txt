@@ -28,6 +28,14 @@ if(Boost_FOUND)
     target_link_libraries(EntityTest ${DEPENDENCIES})
     add_test(NAME EntityTest COMMAND EntityTest)
 
+    add_executable(FileStorageTest FileStorageTest.cpp)
+    target_link_libraries(FileStorageTest ${DEPENDENCIES})
+    add_test(NAME FileStorageTest COMMAND FileStorageTest)
+
+    add_executable(ComponentSerializationTest ComponentSerializationTest.cpp)
+    target_link_libraries(ComponentSerializationTest ${DEPENDENCIES})
+    add_test(NAME ComponentSerializationTest COMMAND ComponentSerializationTest)
+
     add_executable(FileMonitorNodeTest FileMonitorNodeTest.cpp)
     target_link_libraries(FileMonitorNodeTest ${DEPENDENCIES})
     add_test(NAME FileMonitorNodeTest COMMAND FileMonitorNodeTest)
