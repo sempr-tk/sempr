@@ -68,6 +68,11 @@ public:
     void addEntity(Entity::Ptr entity);
 
     /**
+        Returns the entity with the given id
+    */
+    Entity::Ptr getEntity(const std::string& id);
+
+    /**
         Removes the entity from the reasoner, by removing the evidence for the
         <Entity, Component> WMEs.
     */

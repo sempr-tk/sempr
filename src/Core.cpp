@@ -69,6 +69,16 @@ void Core::addEntity(Entity::Ptr entity)
 }
 
 
+Entity::Ptr Core::getEntity(const std::string& id)
+{
+    for (auto e : entities_)
+    {
+        if (e->id() == id) return e;
+    }
+    return nullptr;
+}
+
+
 void Core::removeEntity(Entity::Ptr entity)
 {
     if (entity->core_ != this)
