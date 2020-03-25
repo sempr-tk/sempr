@@ -14,6 +14,7 @@ namespace sempr {
 class EntityAccessor : public rete::TupleWMEAccessor<0, ECWME> {
 public:
     using Ptr = std::shared_ptr<EntityAccessor>;
+    EntityAccessor();
 
     /*
         Most methods do not need to be overridden, as the EntityAccessor
