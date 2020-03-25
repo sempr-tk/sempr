@@ -78,7 +78,11 @@ public:
     }
 };
 
-
+// register component name
+template <>
+struct ComponentName<TripleVector> {
+    static constexpr const char* value = "TripleVector";
+};
 
 
 /**

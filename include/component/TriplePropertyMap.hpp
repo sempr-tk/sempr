@@ -112,6 +112,13 @@ public:
 };
 
 
+// register component name
+template <>
+struct ComponentName<TriplePropertyMap> {
+    static constexpr const char* value = "TriplePropertyMap";
+};
+
+
 /**
     Iterator for TriplePropertyMap. Implements the conversion from
     TriplePropertyMapEntry to Triple.
