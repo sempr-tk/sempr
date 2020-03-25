@@ -4,7 +4,7 @@
 #include <rete-reasoner/NodeBuilder.hpp>
 #include <rete-reasoner/Exceptions.hpp>
 
-#include "nodes/InferECNode.hpp"
+#include "InferECNode.hpp"
 #include "../Utility.hpp"
 
 namespace sempr {
