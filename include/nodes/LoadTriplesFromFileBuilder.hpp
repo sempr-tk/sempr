@@ -3,7 +3,7 @@
 
 #include <rete-reasoner/NodeBuilder.hpp>
 
-#include "nodes/LoadTriplesFromFileNode.hpp"
+#include "LoadTriplesFromFileNode.hpp"
 
 namespace sempr {
 

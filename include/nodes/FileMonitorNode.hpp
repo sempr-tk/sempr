@@ -9,7 +9,7 @@
 #include <mutex>
 #include <map>
 
-#include "util/FileWatcher.hpp"
+#include "../util/FileWatcher.hpp"
 
 namespace sempr {
 

@@ -3,8 +3,6 @@
 
 #include <rete-reasoner/NodeBuilder.hpp>
 
-#include "nodes/AffineTransformNodes.hpp"
-
 namespace sempr {
 
 class TripleDocumentFilenameBuilder : public rete::NodeBuilder {

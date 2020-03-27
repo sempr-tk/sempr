@@ -5,7 +5,7 @@
 #include <rete-core/Util.hpp>
 #include <rete-core/Accessors.hpp>
 
-#include "component/AffineTransform.hpp"
+#include "../component/AffineTransform.hpp"
 
 namespace sempr {
 

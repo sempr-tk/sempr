@@ -4,8 +4,8 @@
 #include <rete-reasoner/NodeBuilder.hpp>
 #include <rete-reasoner/Exceptions.hpp>
 
-#include "nodes/AffineTransformNodes.hpp"
-#include "Utility.hpp"
+#include "AffineTransformNodes.hpp"
+#include "../Utility.hpp"
 
 namespace sempr {
 
