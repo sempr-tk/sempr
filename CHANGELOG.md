@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.1] - 2020-03-27
+
+- Fix: Multiple wrong include paths
+- Fix: Some ComponentName defs were missing
+- Fix: ECAccessor now registers its type, making it usable in rules/builders
+
 ## [0.5.0] - 2020-03-24
 
 - Removed dependency to ODB
