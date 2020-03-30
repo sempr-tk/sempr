@@ -52,6 +52,9 @@ public:
     */
     std::string toN3() const;
 
+    /// returns the type of this TriplePropertyMapEntry: STRING, FLOAT, INT, RESOURCE or INVALID
+    Type type() const;
+
 
     /**
         Serialization with cereal

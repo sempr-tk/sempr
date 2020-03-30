@@ -38,6 +38,10 @@ TriplePropertyMapEntry::TriplePropertyMapEntry(int val)
 {
 }
 
+TriplePropertyMapEntry::Type TriplePropertyMapEntry::type() const
+{
+    return type_;
+}
 
 TriplePropertyMapEntry::operator std::string() const
 {
