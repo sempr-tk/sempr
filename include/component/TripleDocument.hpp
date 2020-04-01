@@ -11,6 +11,8 @@ namespace sempr {
     obtain more information in the form of triples".
 */
 class TripleDocument : public Component {
+    SEMPR_COMPONENT
+
     std::string file_; // name of the file
 public:
     using Ptr = std::shared_ptr<TripleDocument>;

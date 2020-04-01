@@ -31,6 +31,8 @@ public:
     geos::geom::Geometry*.
 */
 class GeosGeometry : public GeosGeometryInterface {
+    SEMPR_COMPONENT
+
     geos::geom::Geometry* geometry_;
 public:
     /**

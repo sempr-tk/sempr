@@ -12,6 +12,8 @@ namespace sempr {
     with these in the rules, and apply them to geometries etc.
 */
 class AffineTransform : public Component {
+    SEMPR_COMPONENT
+
     Eigen::Affine3d transform_;
 public:
     using Ptr = std::shared_ptr<AffineTransform>;

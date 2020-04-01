@@ -87,13 +87,14 @@ public:
     the resulting triples valid RDF.
 */
 class TriplePropertyMap : public TripleContainer {
+    SEMPR_COMPONENT
 public:
     using Ptr = std::shared_ptr<TriplePropertyMap>;
 
     std::map<std::string, TriplePropertyMapEntry> map_;
 
-    TripleIterator begin() const;
-    TripleIterator end() const;
+    TripleIterator begin() const override;
+    TripleIterator end() const override;
 
 
     /**

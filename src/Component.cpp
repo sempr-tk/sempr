@@ -45,6 +45,11 @@ void Component::changed()
     }
 }
 
+void Component::loadFromJSON(cereal::JSONInputArchive& ar)
+{
+    this->load(ar);
+}
+
 
 }
 

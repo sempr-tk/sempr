@@ -8,6 +8,7 @@
 #include <cereal/types/polymorphic.hpp>
 
 #include "Utility.hpp"
+#include "util/ComponentDefs.hpp"
 
 namespace sempr {
     class Entity;
@@ -52,6 +53,18 @@ public:
     */
     void changed();
 
+
+    /**
+        Loads the the entity from a JSONInputArchive. This method is used to
+        update a component of unknown type through a Component* from a json
+        representation. It is automatically implemented by the
+        SEMPR_COMPONENT macro and relies on the templated load function for
+        general (de-)serialization with cereal.
+
+        Throws an exception if the deserialization fails, leaving the component
+        in a possibly inconsistent state.
+    */
+    virtual void loadFromJSON(cereal::JSONInputArchive& ar);
 
     /**
         Serialization with cereal
