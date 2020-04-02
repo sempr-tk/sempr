@@ -64,7 +64,7 @@ public:
         static_assert(has_load_method<std::decay<decltype(*this)>::type>::value, \
                 "Error: SEMPR_COMPONENT is missing the templated load method for " \
                 "deserialization with cereal."); \
-        this->load(ar); \
+        ar(*this); \
     }
 
 }
