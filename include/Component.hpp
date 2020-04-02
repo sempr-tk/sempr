@@ -59,12 +59,27 @@ public:
         update a component of unknown type through a Component* from a json
         representation. It is automatically implemented by the
         SEMPR_COMPONENT macro and relies on the templated load function for
-        general (de-)serialization with cereal.
+        general (de-)serialization with cereal. Be aware that this requires a
+        plain representation of the specific component, without any of the
+        polymorphism/pointer-overhead generated when you serialize a
+        Component::Ptr. Use saveToJSON to generate this, but be aware that the
+        type information is lost.
 
         Throws an exception if the deserialization fails, leaving the component
         in a possibly inconsistent state.
     */
     virtual void loadFromJSON(cereal::JSONInputArchive& ar);
+
+    /**
+        Saves a pure json representation of this component, i.e. without any
+        pointer-wrapper and polymorphism overhead, just the plain values. The
+        output of this method can be used as an input to loadFromJSON. Be aware
+        that the type information is lost.
+
+        This method is automatically implemented in the SEMPR_COMPONENT macro.
+    */
+    virtual void saveToJSON(cereal::JSONOutputArchive& ar);
+
 
     /**
         Serialization with cereal

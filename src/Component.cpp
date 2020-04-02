@@ -50,6 +50,11 @@ void Component::loadFromJSON(cereal::JSONInputArchive& ar)
     ar(*this);
 }
 
+void Component::saveToJSON(cereal::JSONOutputArchive& ar)
+{
+    ar(*this);
+}
+
 
 }
 

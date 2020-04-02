@@ -5,6 +5,7 @@
 
 namespace cereal {
     class JSONInputArchive;
+    class JSONOutputArchive;
 }
 
 namespace sempr {
@@ -51,6 +52,19 @@ public:
     static constexpr bool value = std::is_same<yes, decltype(test<T>(nullptr))>::value;
 };
 
+template <class T>
+struct has_save_method {
+private:
+    typedef std::true_type yes;
+    typedef std::true_type no;
+    template <class U, void (U::* f)(cereal::JSONOutputArchive&)> struct SFINAE {};
+    template <class C> static yes test(SFINAE<C, &C::template save<cereal::JSONOutputArchive>>*);
+    template <class C> static no test(...);
+public:
+    static constexpr bool value = std::is_same<yes, decltype(test<T>(nullptr))>::value;
+};
+
+
 
 /**
     The SEMPR_COMPONENT macro checks if the class implements the required
@@ -64,6 +78,13 @@ public:
         static_assert(has_load_method<std::decay<decltype(*this)>::type>::value, \
                 "Error: SEMPR_COMPONENT is missing the templated load method for " \
                 "deserialization with cereal."); \
+        ar(*this); \
+    } \
+    void saveToJSON(cereal::JSONOutputArchive& ar) override \
+    { \
+        static_assert(has_save_method<std::decay<decltype(*this)>::type>::value, \
+                "Error: SEMPR_COMPONENT is missing the templated save method for " \
+                "serialization with cereal."); \
         ar(*this); \
     }
 
