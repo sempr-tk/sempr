@@ -13,6 +13,8 @@ namespace sempr {
     given.
 */
 class TripleVector : public TripleContainer {
+    SEMPR_COMPONENT
+
     std::vector<Triple> triples_;
 public:
     using Ptr = std::shared_ptr<TripleVector>;
@@ -57,8 +59,8 @@ public:
     /**
         Allow iterating the TripleVector
     */
-    TripleIterator begin() const;
-    TripleIterator end() const;
+    TripleIterator begin() const override;
+    TripleIterator end() const override;
 
     /**
         Serialization with cereal

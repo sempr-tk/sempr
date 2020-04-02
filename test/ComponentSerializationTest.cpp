@@ -69,4 +69,35 @@ BOOST_AUTO_TEST_SUITE(FileStorageTest)
 
     }
 
+
+    /**
+        This test is used to check if the saveToJSON and loadFromJSON
+        principally do what I expect them to: I.e., generate a representation
+        of the component and -- this is the important part -- overwrite the
+        state of an existing component.
+    */
+    BOOST_AUTO_TEST_CASE(plain_save_load)
+    {
+        auto m1 = std::make_shared<sempr::TriplePropertyMap>();
+        auto m2 = std::make_shared<sempr::TriplePropertyMap>();
+
+        m1->map_["foo"] = 42;
+        m2->map_["bar"] = "hello";
+
+        sempr::Component::Ptr c1 = m1, c2 = m2;
+
+        // goal: overwrite m1 with the contents of m2, through base pointers.
+        std::stringstream ss;
+        {
+            cereal::JSONOutputArchive ar(ss);
+            c2->saveToJSON(ar);
+        }
+
+        cereal::JSONInputArchive ar(ss);
+        c1->loadFromJSON(ar);
+
+        BOOST_CHECK(m1->map_.find("foo") == m1->map_.end()); // foo must be gone
+        BOOST_CHECK(static_cast<std::string>(m1->map_["bar"]) == "hello"); // and bar must be there now.
+    }
+
 BOOST_AUTO_TEST_SUITE_END()
