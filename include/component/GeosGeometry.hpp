@@ -21,6 +21,7 @@ namespace sempr {
 */
 class GeosGeometryInterface : public Component {
 public:
+    using Ptr = std::shared_ptr<GeosGeometryInterface>;
     virtual const geos::geom::Geometry* geometry() const = 0;
     virtual geos::geom::Geometry* geometry() = 0;
 
