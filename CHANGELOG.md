@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.0] - 2020-04-08
+
+- Added method to TriplePropertyMapEntry that returns the current type
+- Added loadFromJSON and saveToJSON methods to component. These are implemented
+  in a `SEMPR_COMPONENT` macro that needs to be added to all components
+
 ## [0.5.1] - 2020-03-27
 
 - Fix: Multiple wrong include paths
