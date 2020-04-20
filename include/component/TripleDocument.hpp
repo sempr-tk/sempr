@@ -1,7 +1,7 @@
 #ifndef SEMPR_COMPONENT_TRIPLEDOCUMENT_HPP_
 #define SEMPR_COMPONENT_TRIPLEDOCUMENT_HPP_
 
-#include "Component.hpp"
+#include "../Component.hpp"
 
 namespace sempr {
 
