@@ -1,5 +1,6 @@
 #include "ECAccessors.hpp"
 #include "ECWME.hpp"
+#include "RDF.hpp"
 
 namespace sempr {
 
@@ -28,7 +29,7 @@ void EntityAccessor::getValue(rete::WME::Ptr wme, Entity::Ptr& value) const
 void EntityAccessor::getValue(rete::WME::Ptr wme, std::string& value) const
 {
     auto ec = std::static_pointer_cast<ECWME>(wme);
-    value = std::get<0>(ec->value_)->id();
+    value = "<" + sempr::baseURI() + std::get<0>(ec->value_)->id() + ">";
 }
 
 bool EntityAccessor::equals(const Accessor& other) const
