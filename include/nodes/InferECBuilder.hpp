@@ -55,13 +55,13 @@ public:
         // needs exactly 2 args, which must be vars bound to an entity and a
         // component
         if (args.size() != 2) throw rete::NodeBuilderException("Wrong number of arguments (!= 2)");
-        if (args[0].isConst() || !args[0].getAccessor()->canAs<rete::SpecificTypeAccessor<Entity::Ptr>>())
+        if (args[0].isConst() || !args[0].getAccessor()->canAs<EntityAccessor>())
             throw rete::NodeBuilderException("First argument must be bound to an Entity.");
         if (args[1].isConst() || !args[1].getAccessor()->canAs<rete::SpecificTypeAccessor<std::shared_ptr<C>>>())
             throw rete::NodeBuilderException("Second argument must be bound to a " + std::string(ComponentName<C>::value) + ".");
         // clone the accessors
-        std::unique_ptr<rete::SpecificTypeAccessor<Entity::Ptr>>
-            entity(args[0].getAccessor()->clone()->as<rete::SpecificTypeAccessor<Entity::Ptr>>());
+        std::unique_ptr<EntityAccessor>
+            entity(args[0].getAccessor()->clone()->as<EntityAccessor>());
 
         std::unique_ptr<rete::SpecificTypeAccessor<Component::Ptr>>
             component(args[1].getAccessor()->clone()->as<rete::SpecificTypeAccessor<Component::Ptr>>());

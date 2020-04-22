@@ -21,12 +21,21 @@ namespace sempr {
     to their entity (e.g. for the id).
 */
 class InferECNode : public rete::Production {
-    std::unique_ptr<rete::SpecificTypeAccessor<Entity::Ptr>> entity_;
+    /*
+        Note: Better would be a SpecificTypeAccessor here, too. But since I added
+        the StringAccessor base to the EntityAccessor (for easy interpretation
+        as a string, for more intuitive rules) this is not possible anymore.
+        Changing the EntityAccessor was a quick hack. The whole
+        accessor-structure needs a rework that removes those pesky inheritance
+        hierarchy and replaces it with... components/capabilities...
+        I notice a pattern... ;)
+    */
+    std::unique_ptr<EntityAccessor> entity_;
     std::unique_ptr<rete::SpecificTypeAccessor<Component::Ptr>> component_;
 public:
     using Ptr = std::shared_ptr<InferECNode>;
     InferECNode(
-        std::unique_ptr<rete::SpecificTypeAccessor<Entity::Ptr>> entity,
+        std::unique_ptr<EntityAccessor> entity,
         std::unique_ptr<rete::SpecificTypeAccessor<Component::Ptr>> component
     );
 

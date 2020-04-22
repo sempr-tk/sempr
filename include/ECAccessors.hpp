@@ -11,7 +11,9 @@ namespace sempr {
     ECWMEs are only a typedef to TupleWME<Entity::Ptr, Component::Ptr>.
 */
 //typedef rete::TupleWMEAccessor<0, ECWME> EntityAccessor;
-class EntityAccessor : public rete::TupleWMEAccessor<0, ECWME> {
+//class EntityAccessor : public rete::TupleWMEAccessor<0, ECWME> {
+class EntityAccessor : public rete::StringAccessor,
+                       public rete::ValueAccessor<Entity::Ptr, EntityAccessor> {
 public:
     using Ptr = std::shared_ptr<EntityAccessor>;
     EntityAccessor();
@@ -34,6 +36,13 @@ public:
 
     /// for visualization
     std::string toString() const override;
+
+    using rete::StringAccessor::getValue;
+    using rete::ValueAccessor<Entity::Ptr, EntityAccessor>::getValue;
+    void getValue(rete::WME::Ptr, Entity::Ptr& value) const override;
+    void getValue(rete::WME::Ptr, std::string& value) const override;
+
+    bool equals(const Accessor& other) const override;
 };
 
 /**

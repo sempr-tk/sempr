@@ -3,7 +3,7 @@
 namespace sempr {
 
 InferECNode::InferECNode(
-    std::unique_ptr<rete::SpecificTypeAccessor<Entity::Ptr>> entity,
+    std::unique_ptr<EntityAccessor> entity,
     std::unique_ptr<rete::SpecificTypeAccessor<Component::Ptr>> component)
     : entity_(std::move(entity)), component_(std::move(component))
 {
