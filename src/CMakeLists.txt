@@ -26,6 +26,8 @@ set(SRC_FILES
     ./nodes/ExtractTriplesBuilder.cpp
     ./nodes/FileMonitorNode.cpp
     ./nodes/FileMonitorNodeBuilder.cpp
+    ./nodes/GeoDistanceNode.cpp
+    ./nodes/GeoDistanceBuilder.cpp
     ./nodes/InferECNode.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
