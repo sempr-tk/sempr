@@ -35,6 +35,7 @@ rete::Builtin::Ptr UTMFromWGSBuilder::buildBuiltin(rete::ArgumentList& args) con
     {
         // create accessor
         zone.reset(new rete::ConstantNumberAccessor<int>(args[2].getAST().toFloat()));
+        zone->index() = 0;
     }
     else
     {
