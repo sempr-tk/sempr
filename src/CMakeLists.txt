@@ -26,6 +26,8 @@ set(SRC_FILES
     ./nodes/ExtractTriplesBuilder.cpp
     ./nodes/FileMonitorNode.cpp
     ./nodes/FileMonitorNodeBuilder.cpp
+    ./nodes/GeoConversionNodes.cpp
+    ./nodes/GeoConversionBuilders.cpp
     ./nodes/GeoDistanceNode.cpp
     ./nodes/GeoDistanceBuilder.cpp
     ./nodes/InferECNode.cpp
@@ -36,6 +38,7 @@ set(SRC_FILES
     ./nodes/SopranoModule.cpp
     ./nodes/SopranoNodeBuilder.cpp
     ./util/FileWatcher.cpp
+    ./util/GenericCoordinateFilter.cpp
 )
 
 # create the library
