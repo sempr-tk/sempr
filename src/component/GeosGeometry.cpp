@@ -36,4 +36,23 @@ void GeosGeometry::setGeometry(geos::geom::Geometry* geometry)
     geometry_ = geometry;
 }
 
+} // ns sempr
+
+
+namespace rete { namespace util {
+
+template <>
+std::string to_string(const sempr::GeosGeometryInterface& c)
+{
+    return std::string("GeosGeometry - ") + (c.geometry() ? c.geometry()->getGeometryType() : "nullptr");
 }
+
+template <>
+std::string to_string(const sempr::GeosGeometryInterface::Ptr& c)
+{
+    if (!c) return "nullptr";
+    return to_string(*c);
+}
+
+}}
+
