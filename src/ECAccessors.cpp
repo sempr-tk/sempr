@@ -1,5 +1,6 @@
 #include "ECAccessors.hpp"
 #include "ECWME.hpp"
+#include "RDF.hpp"
 
 namespace sempr {
 
@@ -17,6 +18,27 @@ EntityAccessor* EntityAccessor::clone() const
 {
     return new EntityAccessor(*this);
 }
+
+
+void EntityAccessor::getValue(rete::WME::Ptr wme, Entity::Ptr& value) const
+{
+    auto ec = std::static_pointer_cast<ECWME>(wme);
+    value = std::get<0>(ec->value_);
+}
+
+void EntityAccessor::getValue(rete::WME::Ptr wme, std::string& value) const
+{
+    auto ec = std::static_pointer_cast<ECWME>(wme);
+    value = "<" + sempr::baseURI() + std::get<0>(ec->value_)->id() + ">";
+}
+
+bool EntityAccessor::equals(const Accessor& other) const
+{
+    auto o = dynamic_cast<const EntityAccessor*>(&other);
+    if (o) return true;
+    return false;
+}
+
 
 
 bool ComponentTagAccessor::equals(const rete::Accessor& other) const
