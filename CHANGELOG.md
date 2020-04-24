@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0] - 2020-04-24
+
+- Fix: Wrong relative include path in a header file
+- Fix: Added a specialization of rete::util::to\_string for GeosGeometryInterface
+- EntityAccessor now inherits StringAccessor, in which case it returns the
+  entity id in a URI format, i.e.: `Entity_1` -> `<sempr:Entity_1>`. This allows
+  an easy usage in rules without an extra builtin to extract the id.
+- Added geo:distance(?dist ?geo1 ?geo2)
+- Added geo:UTMFromWGS(?geoOut ?geoIn ?utmZone) which transforms a geometry that
+  is specified in WGS84 lon/lat coordinates into a UTM coordinate system, in
+  which e.g. distance calculations with geo:distance make sense.
+
 ## [0.6.0] - 2020-04-08
 
 - Added method to TriplePropertyMapEntry that returns the current type
