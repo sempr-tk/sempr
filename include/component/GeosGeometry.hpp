@@ -113,5 +113,14 @@ struct ComponentName<GeosGeometry> {
 
 CEREAL_REGISTER_TYPE(sempr::GeosGeometry)
 
+// also, register a to_string function to display GeosGeometryInterface
+// in the rete network
+#include <rete-core/Util.hpp>
+namespace rete { namespace util {
+
+template <> std::string to_string(const sempr::GeosGeometryInterface& c);
+template <> std::string to_string(const sempr::GeosGeometryInterface::Ptr& c);
+
+}}
 
 #endif /* include guard: SEMPR_COMPONENT_GEOSGEOMETRY_HPP_ */
