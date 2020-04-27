@@ -47,6 +47,8 @@ find_package (GeographicLib)
 include_directories (${GeographicLib_INCLUDE_DIRS})
 add_definitions (${GeographicLib_DEFINITIONS})
 
+find_package(Cereal REQUIRED)
+
 # everything shall be connected through a rule based forward reasoner, based on the RETE algorithm
 pkg_check_modules(RETE REQUIRED rete>=0.2.4)
 include_directories(${RETE_INCLUDE_DIRS})
