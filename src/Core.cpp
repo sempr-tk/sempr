@@ -30,7 +30,7 @@ Core::~Core()
     }
 }
 
-std::mutex& Core::reasonerMutex()
+std::recursive_mutex& Core::reasonerMutex()
 {
     return reasonerMutex_;
 }
@@ -48,11 +48,7 @@ rete::RuleParser& Core::parser()
 
 std::vector<size_t> Core::addRules(const std::string& ruleString)
 {
-    std::lock_guard<std::mutex> lg(reasonerMutex_);
-    // NOTE: The lock_guard may cause problems, if addRules is called from
-    // within performInference as an effect of a rule! I think a recursive_mutex
-    // would be a fix for that? TODO!
-
+    std::lock_guard<std::recursive_mutex> lg(reasonerMutex_);
     auto newRules = ruleParser_.parseRules(ruleString, reasoner_.net());
 
     std::vector<size_t> ids;
@@ -90,7 +86,7 @@ std::vector<rete::ParsedRule::Ptr> Core::rules()
 
 void Core::performInference()
 {
-    std::lock_guard<std::mutex> lock(reasonerMutex_);
+    std::lock_guard<std::recursive_mutex> lock(reasonerMutex_);
     reasoner_.performInference();
 }
 
@@ -152,7 +148,7 @@ void Core::removeEntity(Entity::Ptr entity)
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
 
     {
-        std::lock_guard<std::mutex> lock(reasonerMutex_);
+        std::lock_guard<std::recursive_mutex> lock(reasonerMutex_);
         reasoner_.removeEvidence(evidence);
     }
 
@@ -170,7 +166,7 @@ void Core::addedComponent(Entity::Ptr entity,
     auto wme = std::make_shared<ECWME>(entity, component);
 
     {
-        std::lock_guard<std::mutex> lock(reasonerMutex_);
+        std::lock_guard<std::recursive_mutex> lock(reasonerMutex_);
         reasoner_.addEvidence(wme, evidence);
     }
 }
@@ -185,7 +181,7 @@ void Core::removedComponent(Entity::Ptr entity,
     auto wme = std::make_shared<ECWME>(entity, component);
 
     {
-        std::lock_guard<std::mutex> lock(reasonerMutex_);
+        std::lock_guard<std::recursive_mutex> lock(reasonerMutex_);
         reasoner_.removeEvidence(wme, evidence);
     }
 }
@@ -206,27 +202,9 @@ void Core::changedComponent(Entity::Ptr entity,
 
     auto wme = std::make_shared<ECWME>(entity, component);
     {
-        std::lock_guard<std::mutex> lock(reasonerMutex_);
+        std::lock_guard<std::recursive_mutex> lock(reasonerMutex_);
         reasoner_.net().getRoot()->activate(wme, rete::PropagationFlag::UPDATE);
     }
 }
-
-//void Core::answerQuery(query::Query::Ptr q)
-//{
-//    // same procedure as with events:
-//    for (auto m : modules_) {
-//        // m->answer(q);
-//        m->doProcess(q);
-//    }
-//}
-//
-//
-//void Core::addModule(processing::ModuleBase::Ptr module) {
-//    modules_.push_back(module);
-//    module->core_ = this;   // allow the module to ask queries later on.
-//    // NOTE: If we ever implement a "removeModule" make sure to un-set the pointer.
-//
-//    eventBroker_->addObserver(module);
-//}
 
 } /* sempr */

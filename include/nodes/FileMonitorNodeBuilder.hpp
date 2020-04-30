@@ -9,7 +9,7 @@
 namespace sempr {
 
 class FileMonitorNodeBuilder : public rete::NodeBuilder {
-    std::mutex& mutex_; // the mutex to sync the monitoring threads with
+    std::recursive_mutex& mutex_; // the mutex to sync the monitoring threads with
 public:
     /**
         Builds the FileMonitorNodes.
@@ -25,7 +25,7 @@ public:
         due to these access restrictions, and you will need to repeatedly call
         performInference(), releasing the lock inbetween calls.
     */
-    FileMonitorNodeBuilder(std::mutex& mutex);
+    FileMonitorNodeBuilder(std::recursive_mutex& mutex);
 
     rete::Builtin::Ptr buildBuiltin(rete::ArgumentList& args) const override;
 
