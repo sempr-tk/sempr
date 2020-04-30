@@ -34,6 +34,8 @@ set(SRC_FILES
     ./nodes/InferECNode.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
+    ./nodes/TextComponentTextNode.cpp
+    ./nodes/TextComponentTextBuilder.cpp
     ./nodes/TripleDocumentFilenameNode.cpp
     ./nodes/TripleDocumentFilenameBuilder.cpp
     ./nodes/SopranoModule.cpp
