@@ -15,6 +15,7 @@ set(SRC_FILES
     SeparateFileStorage.cpp
     ./component/AffineTransform.cpp
     ./component/GeosGeometry.cpp
+    ./component/TextComponent.cpp
     ./component/TripleContainer.cpp
     ./component/TripleDocument.cpp
     ./component/TriplePropertyMap.cpp
