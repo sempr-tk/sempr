@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_SUITE(SopranoTest)
         parser.registerNodeBuilder(std::move(builder));
 
         // create a rule to infer stuff
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[extract: EC<TripleContainer>(?e ?c) -> ExtractTriples(?c)]\n"
             "[updateSoprano: (?s ?p ?o) -> SopranoModule(?s ?p ?o)]\n"
             "[foobar: (?a <ex:foo> ?b), (?b <ex:bar> ?c) -> (?a <ex:foobar> ?c)]",

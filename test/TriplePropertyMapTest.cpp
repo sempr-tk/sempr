@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_SUITE(TriplePropertyMapTest)
         parser.registerNodeBuilder<ECNodeBuilder<TripleContainer>>();
         parser.registerNodeBuilder<ExtractTriplesBuilder>();
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[extract: EC<TripleContainer>(?entity ?component) -> ExtractTriples(?component)]\n",
             reasoner.net()
         );

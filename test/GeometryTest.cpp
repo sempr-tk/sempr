@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(GeometryTest)
 
         sempr::Core core;
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[EC<GeosGeomI>(?entity ?geometry) -> (<foo> <bar> <baz>)]",
             core.reasoner().net()
         );

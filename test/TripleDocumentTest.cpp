@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_SUITE(TripleDocumentTest)
         parser.registerNodeBuilder<LoadTriplesFromFileBuilder>();
         parser.registerNodeBuilder<TripleDocumentFilenameBuilder>();
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[extract: EC<TripleDocument>(?entity ?component), td:filename(?filename ?component) -> LoadTriplesFromFile(?filename)]\n"
             "[transitive: (?a <example:foo> ?b), (?b <example:foo> ?c) -> (?a <example:foo> ?c)]",
             core.reasoner().net()
@@ -129,7 +129,7 @@ ex:b ex:foo ex:c .
         parser.registerNodeBuilder<TripleDocumentFilenameBuilder>();
         parser.registerNodeBuilder<FileMonitorNodeBuilder>(core.reasonerMutex());
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[extract: EC<TripleDocument>(?entity ?component), td:filename(?filename ?component), "
             "          file:exists(?filename)"
             " -> "
