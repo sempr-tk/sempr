@@ -22,6 +22,8 @@ set(SRC_FILES
     ./component/TripleVector.cpp
     ./nodes/AffineTransformNodes.cpp
     ./nodes/AffineTransformBuilders.cpp
+    ./nodes/ConstructRulesNode.cpp
+    ./nodes/ConstructRulesBuilder.cpp
     ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp

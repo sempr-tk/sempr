@@ -24,6 +24,10 @@ if(Boost_FOUND)
     target_link_libraries(CoreTest ${DEPENDENCIES})
     add_test(NAME CoreTest COMMAND CoreTest)
 
+    add_executable(ConstructRulesEffectTest ConstructRulesEffectTest.cpp)
+    target_link_libraries(ConstructRulesEffectTest ${DEPENDENCIES})
+    add_test(NAME ConstructRulesEffectTest COMMAND ConstructRulesEffectTest)
+
     add_executable(EntityTest EntityTest.cpp)
     target_link_libraries(EntityTest ${DEPENDENCIES})
     add_test(NAME EntityTest COMMAND EntityTest)
