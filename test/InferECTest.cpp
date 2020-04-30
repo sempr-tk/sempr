@@ -33,14 +33,13 @@ BOOST_AUTO_TEST_SUITE(InferECTest)
         // reasoner/rule parser which translates "" to a string containing two
         // quotation marks. Makes it difficult to add a recursion anchor to a
         // default-rule.
-        bool parser_ok = parser.parseRules(
+        auto rules = parser.parseRules(
             "[defaultTF: EC<GeosGeom>(?entity ?geom),"
             "            tf:create(?default 0 0 0 0 0 0 1)"
             "            ->"
             "            EC<Transform>(?entity ?default)]\n",
             core.reasoner().net()
         );
-        BOOST_CHECK(parser_ok);
 
         auto entity = sempr::Entity::create();
         auto geom = std::make_shared<sempr::GeosGeometry>();

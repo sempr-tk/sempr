@@ -4,7 +4,7 @@ project(sempr VERSION 0.7.0)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor)
+add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor -Werror=unused-result)
 add_definitions(-fPIC)
 
 # make serialization thread safe (i.e., allow serialization into multiple

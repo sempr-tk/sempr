@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_SUITE(FileMonitorNodeTest)
         parser.registerNodeBuilder<ExtractTriplesBuilder>();
         parser.registerNodeBuilder<FileMonitorNodeBuilder>(core.reasonerMutex());
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[extract: EC<TripleContainer>(?entity ?component) -> ExtractTriples(?component)]\n"
             "[monitor: (?f <type> <file>), (?f <path> ?p), file:exists(?p) -> (?f <exists> \"true\")]",
             core.reasoner().net()

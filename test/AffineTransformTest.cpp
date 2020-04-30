@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
         sempr::Core core;
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[EC<Transform>(?e ?c), tf:create(?tf 1 2 3 4 5 6 7) -> (<c> <d> <e>)]",
             core.reasoner().net()
         );
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
         // 1. get all params and add them as triples, in order to check the
         //    inferred values manually afterwards
         // 2. reduced usage of tf:get to only get x and y, not checking values
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[EC<Transform>(?e ?tf), tf:get(?tf ?x ?y ?z ?qx ?qy ?qz ?qw)"
             "-> (<x> <value> ?x), (<y> <value> ?y), (<z> <value> ?z),"
             "   (<qx> <value> ?qx), (<qy> <value> ?qy), (<qz> <value> ?qz),"
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
         sempr::Core core;
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[EC<Transform>(?e ?left \"left\"),"
             " EC<Transform>(?e ?right \"right\"),"
             " tf:mul(?result ?left ?right)"
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
         sempr::Core core;
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[EC<Transform>(?e ?tf),"
             " tf:inv(?result ?tf)"
             " -> "
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
         sempr::Core core;
 
-        parser.parseRules(
+        auto rules = parser.parseRules(
             "[EC<Transform>(?e ?tf), tf:inv(?inv ?tf), tf:mul(?id ?inv ?tf) -> (<foo> <bar> <baz>)]",
             core.reasoner().net()
         );

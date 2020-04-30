@@ -46,14 +46,12 @@ BOOST_AUTO_TEST_SUITE(ECNodeTest)
         rete::RuleParser parser;
         parser.registerNodeBuilder<ECNodeBuilder<Component>>();
 
-        bool ok = parser.parseRules(
+        auto rules = parser.parseRules(
             "[rule1: EC<Component>(?e ?c) -> (<a> <b> <c>)]\n" // optional tag left out
             "[rule2: EC<Component>(?e ?c ?t) -> (<a> <b> <c>)]\n" // tag as variable
             "[rule3: EC<Component>(?e ?c \"foo\") -> (<a> <b> <c>)]", // tag as const string
             reasoner.net()
         );
-
-        BOOST_CHECK(ok);
     }
 
     BOOST_AUTO_TEST_CASE(ParseFailNumArgs)
@@ -66,13 +64,13 @@ BOOST_AUTO_TEST_SUITE(ECNodeTest)
         std::string tooManyArgs = "[rule2: EC<Component>(?e ?c ?t ?foo) -> (<a> <b> <c>)]";
 
         BOOST_CHECK_THROW(
-            parser.parseRules(tooFewArgs, reasoner.net()),
+            auto rules = parser.parseRules(tooFewArgs, reasoner.net()),
             rete::RuleConstructionException
         );
 
 
         BOOST_CHECK_THROW(
-            parser.parseRules(tooManyArgs, reasoner.net()),
+            auto rules = parser.parseRules(tooManyArgs, reasoner.net()),
             rete::RuleConstructionException
         );
     }
@@ -86,7 +84,7 @@ BOOST_AUTO_TEST_SUITE(ECNodeTest)
 
         std::string joinOnTag = "[rule1: EC<Component>(?e ?c ?tag), (?a <b> ?tag) -> (<foo> <bar> <baz>)]";
 
-        parser.parseRules(joinOnTag, reasoner.net());
+        auto rules = parser.parseRules(joinOnTag, reasoner.net());
 
         // create an entity
         auto entity = Entity::create();
@@ -133,7 +131,7 @@ BOOST_AUTO_TEST_SUITE(ECNodeTest)
         parser.registerNodeBuilder<ECNodeBuilder<Component>>();
 
         std::string checkTagValue = "[rule1: EC<Component>(?e ?c \"this is a tag\") -> (<foo> <bar> <baz>)]";
-        parser.parseRules(checkTagValue, reasoner.net());
+        auto rules = parser.parseRules(checkTagValue, reasoner.net());
 
         auto entity = Entity::create();
         entity->setId("Entity_1");
