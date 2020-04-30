@@ -40,6 +40,54 @@ rete::Reasoner& Core::reasoner()
     return reasoner_;
 }
 
+
+rete::RuleParser& Core::parser()
+{
+    return ruleParser_;
+}
+
+std::vector<size_t> Core::addRules(const std::string& ruleString)
+{
+    std::lock_guard<std::mutex> lg(reasonerMutex_);
+    // NOTE: The lock_guard may cause problems, if addRules is called from
+    // within performInference as an effect of a rule! I think a recursive_mutex
+    // would be a fix for that? TODO!
+
+    auto newRules = ruleParser_.parseRules(ruleString, reasoner_.net());
+
+    std::vector<size_t> ids;
+    for (auto r : newRules)
+    {
+        // for the result
+        ids.push_back(r->id());
+
+        // but also, store the rule permanently
+        rules_.push_back(r);
+    }
+    return ids;
+}
+
+void Core::removeRule(size_t id)
+{
+    auto it = std::find_if(rules_.begin(), rules_.end(),
+        [id](rete::ParsedRule::Ptr& rule) -> bool
+        {
+            return rule->id() == id;
+        });
+
+    if (it != rules_.end())
+    {
+        (*it)->disconnect();
+        rules_.erase(it);
+    }
+}
+
+std::vector<rete::ParsedRule::Ptr> Core::rules()
+{
+    return rules_;
+}
+
+
 void Core::performInference()
 {
     std::lock_guard<std::mutex> lock(reasonerMutex_);

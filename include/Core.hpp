@@ -7,8 +7,9 @@
 #include "Storage.hpp"
 
 #include <rete-reasoner/Reasoner.hpp>
-//#include <sempr/storage/Storage.hpp>
-//#include <sempr/processing/ModuleBase.hpp>
+#include <rete-reasoner/ParsedRule.hpp>
+#include <rete-reasoner/RuleParser.hpp>
+
 #include <string>
 #include <map>
 #include <set>
@@ -41,6 +42,13 @@ class Core {
 
     /// A storage module to persist entities
     Storage::Ptr storage_;
+
+    /// The currently active rules
+    std::vector<rete::ParsedRule::Ptr> rules_;
+
+    /// The RuleParser used to construct the rete network of the reasoner
+    rete::RuleParser ruleParser_;
+
 public:
     Core();
     Core(IDGenerator::Ptr idgen);
@@ -55,11 +63,46 @@ public:
     std::mutex& reasonerMutex();
 
     /**
-        Grant access to the internal reasoner, in order to register NodeBuilders
-        and load/unload rules.
+        TODO: Check if direct access to the reasoner is even necessary,
+        since we expose the rule parser and have a custom method to add/remove
+        rules, which also stores them at the sempr core.
+        -- Yes, keep it for now: For access to the inference state in the
+           test cases, e.g., or exporting the network as *.dot
+
+        Grant access to the internal reasoner, in order to load rules.
         Please make sure to use the reasonerMutex() when accessing the reasoner.
+
+        Note: Try to avoid using this. Add rules directly through addRules(...).
     */
     rete::Reasoner& reasoner();
+
+    /**
+        Grant access to the internal RuleParser, in order to register
+        NodeBuilders that can then be used in addRule.
+    */
+    rete::RuleParser& parser();
+
+    /**
+        Uses the internal RuleParser to construct the given rules.
+        Throws an exception if something goes wrong. Otherwise, the created
+        rules are stored in the core, and a list of ids is returned by which
+        they can be addressed.
+
+        TODO: What about default-prefixes? For sempr, rdf, rdfs, etc?
+    */
+    std::vector<size_t> addRules(const std::string& ruleString);
+
+    /**
+        Remove a rule by its id. Explicitely disconnects the rule from its
+        network, even if the ProductionNode is kept alive by the user.
+    */
+    void removeRule(size_t id);
+
+    /**
+        Returns the active rules.
+    */
+    std::vector<rete::ParsedRule::Ptr> rules();
+
 
     /**
         Access to the storage module

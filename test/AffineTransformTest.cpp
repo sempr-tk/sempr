@@ -31,16 +31,12 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
     BOOST_AUTO_TEST_CASE(affine_create)
     {
-        rete::RuleParser parser;
-        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        parser.registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
 
         sempr::Core core;
+        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
+        core.parser().registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
 
-        auto rules = parser.parseRules(
-            "[EC<Transform>(?e ?c), tf:create(?tf 1 2 3 4 5 6 7) -> (<c> <d> <e>)]",
-            core.reasoner().net()
-        );
+        core.addRules("[EC<Transform>(?e ?c), tf:create(?tf 1 2 3 4 5 6 7) -> (<c> <d> <e>)]");
 
         auto entity = sempr::Entity::create();
         auto tf = std::make_shared<sempr::AffineTransform>();
@@ -59,22 +55,20 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
     BOOST_AUTO_TEST_CASE(affine_get)
     {
-        rete::RuleParser parser;
-        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        parser.registerNodeBuilder<sempr::AffineTransformGetBuilder>();
-
         sempr::Core core;
+        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
+        core.parser().registerNodeBuilder<sempr::AffineTransformGetBuilder>();
+
 
         // 1. get all params and add them as triples, in order to check the
         //    inferred values manually afterwards
         // 2. reduced usage of tf:get to only get x and y, not checking values
-        auto rules = parser.parseRules(
+        core.addRules(
             "[EC<Transform>(?e ?tf), tf:get(?tf ?x ?y ?z ?qx ?qy ?qz ?qw)"
             "-> (<x> <value> ?x), (<y> <value> ?y), (<z> <value> ?z),"
             "   (<qx> <value> ?qx), (<qy> <value> ?qy), (<qz> <value> ?qz),"
             "   (<qw> <value> ?qw)]\n"
-            "[EC<Transform>(?e ?tf), tf:get(?tf ?x ?y) -> (<foo> <bar> <baz>)]",
-            core.reasoner().net()
+            "[EC<Transform>(?e ?tf), tf:get(?tf ?x ?y) -> (<foo> <bar> <baz>)]"
         );
 
         auto entity = sempr::Entity::create();
@@ -103,19 +97,16 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
     BOOST_AUTO_TEST_CASE(affine_mul)
     {
-        rete::RuleParser parser;
-        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        parser.registerNodeBuilder<sempr::AffineTransformMulBuilder>();
-
         sempr::Core core;
+        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
+        core.parser().registerNodeBuilder<sempr::AffineTransformMulBuilder>();
 
-        auto rules = parser.parseRules(
+        core.addRules(
             "[EC<Transform>(?e ?left \"left\"),"
             " EC<Transform>(?e ?right \"right\"),"
             " tf:mul(?result ?left ?right)"
             " -> "
-            " (<foo> <bar> <baz>)]",
-            core.reasoner().net()
+            " (<foo> <bar> <baz>)]"
         );
 
         auto entity = sempr::Entity::create();
@@ -152,18 +143,15 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
     BOOST_AUTO_TEST_CASE(affine_inv)
     {
-        rete::RuleParser parser;
-        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        parser.registerNodeBuilder<sempr::AffineTransformInvBuilder>();
-
         sempr::Core core;
+        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
+        core.parser().registerNodeBuilder<sempr::AffineTransformInvBuilder>();
 
-        auto rules = parser.parseRules(
+        core.addRules(
             "[EC<Transform>(?e ?tf),"
             " tf:inv(?result ?tf)"
             " -> "
-            " (<foo> <bar> <baz>)]",
-            core.reasoner().net()
+            " (<foo> <bar> <baz>)]"
         );
 
         auto entity = sempr::Entity::create();
@@ -186,18 +174,16 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
     BOOST_AUTO_TEST_CASE(affine_combination)
     {
-        rete::RuleParser parser;
-        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        parser.registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
-        parser.registerNodeBuilder<sempr::AffineTransformGetBuilder>();
-        parser.registerNodeBuilder<sempr::AffineTransformMulBuilder>();
-        parser.registerNodeBuilder<sempr::AffineTransformInvBuilder>();
-
         sempr::Core core;
+        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
+        core.parser().registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
+        core.parser().registerNodeBuilder<sempr::AffineTransformGetBuilder>();
+        core.parser().registerNodeBuilder<sempr::AffineTransformMulBuilder>();
+        core.parser().registerNodeBuilder<sempr::AffineTransformInvBuilder>();
 
-        auto rules = parser.parseRules(
-            "[EC<Transform>(?e ?tf), tf:inv(?inv ?tf), tf:mul(?id ?inv ?tf) -> (<foo> <bar> <baz>)]",
-            core.reasoner().net()
+
+        core.addRules(
+            "[EC<Transform>(?e ?tf), tf:inv(?inv ?tf), tf:mul(?id ?inv ?tf) -> (<foo> <bar> <baz>)]"
         );
 
         auto entity = sempr::Entity::create();
