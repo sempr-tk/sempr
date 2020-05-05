@@ -24,7 +24,7 @@ namespace sempr {
 class FileMonitorNode : public rete::Builtin {
     // a mutex to lock before triggering stuff in the rete network from the
     // monitoring threads
-    std::mutex& reteMutex_;
+    std::recursive_mutex& reteMutex_;
 
     // mapping of tokens to watchers
     std::map<rete::Token::Ptr, FileWatcher> watchers_;
@@ -67,7 +67,7 @@ public:
         immediate inference, and the monitors could still update the knowledge
         base later on.
     */
-    FileMonitorNode(std::mutex&, std::unique_ptr<rete::StringAccessor>);
+    FileMonitorNode(std::recursive_mutex&, std::unique_ptr<rete::StringAccessor>);
 
 
     /**

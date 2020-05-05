@@ -4,7 +4,7 @@
 
 namespace sempr {
 
-FileMonitorNode::FileMonitorNode(std::mutex& mutex, std::unique_ptr<rete::StringAccessor> acc)
+FileMonitorNode::FileMonitorNode(std::recursive_mutex& mutex, std::unique_ptr<rete::StringAccessor> acc)
     : rete::Builtin("file:exists"),
       reteMutex_(mutex), fileName_(std::move(acc))
 {
@@ -23,7 +23,7 @@ rete::WME::Ptr FileMonitorNode::process(rete::Token::Ptr)
 // helper: start a watcher
 void FileMonitorNode::startWatcher(rete::Token::Ptr token, const std::string& file)
 {
-    std::mutex& mutex = reteMutex_;
+    std::recursive_mutex& mutex = reteMutex_;
     auto mem = bmem_;
     watchers_[token].start(file,
         [this, &mutex, mem, token](FileWatcher::Event event, std::shared_future<void> exitSignal) -> void
@@ -40,7 +40,7 @@ void FileMonitorNode::startWatcher(rete::Token::Ptr token, const std::string& fi
             }
 
             // make sure to release the lock at the end in any case!
-            std::lock_guard<std::mutex> lock(mutex, std::adopt_lock);
+            std::lock_guard<std::recursive_mutex> lock(mutex, std::adopt_lock);
 
             auto bmem = mem.lock();
             if (!bmem) throw std::exception(); // should never happen.

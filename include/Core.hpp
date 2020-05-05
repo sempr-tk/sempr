@@ -31,7 +31,7 @@ class Core {
         aforementioned nodes. To do so, hand them the mutex by reference through
         the NodeBuilders.
     */
-    std::mutex reasonerMutex_;
+    std::recursive_mutex reasonerMutex_;
 
     /// a set of all added entities, in order to unset their Core* when the core
     // is deconstructed.
@@ -60,7 +60,7 @@ public:
         Returns a reference to the mutex used by sempr::Core for thread-safe
         access to the reasoner.
     */
-    std::mutex& reasonerMutex();
+    std::recursive_mutex& reasonerMutex();
 
     /**
         TODO: Check if direct access to the reasoner is even necessary,

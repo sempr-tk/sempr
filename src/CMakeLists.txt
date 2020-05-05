@@ -15,12 +15,15 @@ set(SRC_FILES
     SeparateFileStorage.cpp
     ./component/AffineTransform.cpp
     ./component/GeosGeometry.cpp
+    ./component/TextComponent.cpp
     ./component/TripleContainer.cpp
     ./component/TripleDocument.cpp
     ./component/TriplePropertyMap.cpp
     ./component/TripleVector.cpp
     ./nodes/AffineTransformNodes.cpp
     ./nodes/AffineTransformBuilders.cpp
+    ./nodes/ConstructRulesNode.cpp
+    ./nodes/ConstructRulesBuilder.cpp
     ./nodes/ECNode.cpp
     ./nodes/ExtractTriples.cpp
     ./nodes/ExtractTriplesBuilder.cpp
@@ -33,6 +36,8 @@ set(SRC_FILES
     ./nodes/InferECNode.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
+    ./nodes/TextComponentTextNode.cpp
+    ./nodes/TextComponentTextBuilder.cpp
     ./nodes/TripleDocumentFilenameNode.cpp
     ./nodes/TripleDocumentFilenameBuilder.cpp
     ./nodes/SopranoModule.cpp

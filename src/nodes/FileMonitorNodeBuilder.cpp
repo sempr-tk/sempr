@@ -3,7 +3,7 @@
 
 namespace sempr {
 
-FileMonitorNodeBuilder::FileMonitorNodeBuilder(std::mutex& mutex)
+FileMonitorNodeBuilder::FileMonitorNodeBuilder(std::recursive_mutex& mutex)
     : rete::NodeBuilder("file:exists", rete::NodeBuilder::BuilderType::BUILTIN),
       mutex_(mutex)
 {
