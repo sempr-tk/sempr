@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.8.0] - 2020-05-12
+
+- Added FindCereal.cmake
+- Fix/Adjustment: Let the core explicitely handle rules. This is a change done
+  together with rete v0.3.0 since which the RuleParser no longer adds the
+  production nodes to the rete::Network, but instead returns Rule-objects which
+  when deconstructed also remove the respective nodes from the network.
+  This fix keeps those alive.
+- Added ConstructRules-Node. This allows us to handle rules as data, by only
+  hard-coding a single rule (or a very limited set of rules) that has a
+  ConstructRules-effect and thus creates/removes rules as a result of the
+  inference process.
+- Added a simple TextComponent (in order to store rules as data).
+- Added toString method for ECNode. (Requires rete v0.4.0)
+
+
 ## [0.7.0] - 2020-04-24
 
 - Fix: Wrong relative include path in a header file
