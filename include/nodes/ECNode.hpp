@@ -43,6 +43,11 @@ public:
     {
     }
 
+    std::string toString() const override
+    {
+        return "EC<" + name_ + ">";
+    }
+
 
     /**
         Checks if a given WME is of type ECWME and if the component in the
@@ -102,6 +107,8 @@ public:
     ComponentTagNode(const std::string& tag);
     void activate(rete::WME::Ptr wme, rete::PropagationFlag flag) override;
     bool operator == (const AlphaNode& other) const override;
+
+    std::string toString() const override;
 };
 
 }

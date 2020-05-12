@@ -12,6 +12,11 @@ std::string ComponentTagNode::getDOTAttr() const
     return "[label=\"" + rete::util::dotEscape("Component.Tag == " + tag_) + "\"]";
 }
 
+std::string ComponentTagNode::toString() const
+{
+    return "Component.Tag == " + tag_;
+}
+
 void ComponentTagNode::activate(rete::WME::Ptr wme, rete::PropagationFlag flag)
 {
     if (flag == rete::PropagationFlag::RETRACT)
