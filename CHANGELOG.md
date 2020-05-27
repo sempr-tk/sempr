@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.1] - 2020-05-27
+
+- Changed install path of the library, in order to not having to mess with
+  LD\_LIBRARY\_PATH. (It's <install-dir\>/lib/libsempr\_core.so now, instead of
+  <install-dir\>/lib/sempr/libsempr\_core.so)
+
 ## [0.8.0] - 2020-05-12
 
 - Added FindCereal.cmake

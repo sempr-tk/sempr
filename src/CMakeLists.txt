@@ -54,7 +54,7 @@ target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${Geograph
 ## install stuff
 install(
     TARGETS sempr_core
-    LIBRARY DESTINATION lib/sempr COMPONENT common
+    LIBRARY DESTINATION lib COMPONENT common
 )
 # install header files
 install(

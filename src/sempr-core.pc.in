@@ -1,5 +1,5 @@
 prefix=@SEMPR_INSTALL_PREFIX@
-libdir=${prefix}/lib/sempr
+libdir=${prefix}/lib
 includedir=${prefix}/include
 
 Name: sempr-core
