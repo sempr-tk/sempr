@@ -53,12 +53,8 @@ pkg_check_modules(SEMPR REQUIRED sempr-core)
 include_directories(${SEMPR_INCLUDE_DIRS})
 link_directories(${SEMPR_LIBRARY_DIRS})
 target_link_libraries(foo ${SEMPR_LIBRARIES})
-add_definitions(${SEMPR_CFLAGS_OTHER})
 ```
 in your own cmake-project.
-
-> **Note:** *Maybe you noticed the '*add_definitions(...)*' line above. The used database backend is currently fixed at compile-time, and some header files that describe how to serialize the used datatypes for different databases make use of a `-DDATABASE_xxx` flag to select the correct implementation.  This flag is exported in the pkg-config file 'sempr-core.pc'*
-
 
 
 ## License
@@ -97,27 +93,49 @@ component->changed();
 Note that adding and removing components from an entity as well as calling `component->changed()` all trigger the rete network that is used inside the reasoner. That means that all relevant rules are (re-)evaluated, but the rules effect do not take place. In order to perform the reasoning for real, realizing effects and all consequences of those effects, you have to explicitely call:
 
 ```c++
-core.reasoner().performInference();
+core.performInference();
 ```
 
 At this point, this does not make any sense, as we did not add any rules yet. Normally you would do this right at the start, before adding entities to the system, but it is also possible to add (and remove) rules after data.
 
-Adding rules means extending the reasoners internal rete network. Since it is quite cumbersome to do this manually, we make use of a rule parser that transforms a textual representation of our rules into the pattern matching network. By default, the parser only understands basic RDD triple conditions and effects, but you can add additional node builders to extend its capabilities. E.g., to access our `MyComponent` in a rule we will need an instance of `sempr::ECNodeBuilder`:
+### Adding rules & node types
+
+Adding rules means extending the reasoners internal rete network. Since it is quite cumbersome to do this manually, we make use of a rule parser that transforms a textual representation of our rules into the pattern matching network. By default, the parser only understands basic RDF triple conditions and effects, but you can add additional node builders to extend its capabilities. E.g., to access our `MyComponent` in a rule we will need an instance of `sempr::ECNodeBuilder<MyComponent>`, or to compute the distance between two geometries in a rule there is a `GeoDistanceBuilder`. You can of course create your own rule parser instance, add the required node builders, and let it parse the rules directly into the cores rete network. But in that case you need to keep the rules alive yourself, and setup the parser again whenever you want to add more rules. Hence, the sempr core already owns an instance of the RuleParser, which we can extend:
 
 ```c++
-#include <rete-reasoner/RuleParser.hpp>
 #include <sempr/ECNodeBuilder.hpp>
 
-rete::RuleParser parser;
+rete::RuleParser& parser = core.parser();
 parser.registerNodeBuilder<sempr::ECNodeBuilder<MyComponent>>();
 
-parser.parseRules(
-    "[rule1: EC<MyComponent>(?entity ?component) -> (<foo> <bar> <baz>)]",
-    core.reasoner().net()
+sempr.addRules(
+    "[rule1: EC<MyComponent>(?entity ?component) -> (<foo> <bar> <baz>)]"
 );
 ```
 
 The above rule simply infers an RDF triple `<foo> <bar> <baz>` for every existing entity-MyComponent-pair.
+
+### Dynamic rules
+
+Keeping a parser directly at the core also allows us to implement another neat trick. The above rule is hardcoded into the source, which we would generally like to avoid, right? Of cource, we can write it into a file, load it at startup, and there you go. But still, this would imply that we have to restart the program whenever we want to change the rules. How about a more dynamic approach? The parser at the core can be used by a special node: `ConstructRules`. With this we can write a rule that takes some data, and infers a new rule from it. One of many possible ways to set this up is to add an entity and give it two components: A TriplePropertyMap in which we define that the entity is of type "Rules", and a TextComponent in which we store the actual rules which we want to infer. Then, we only need two rules to automatically create new rules from such entities: One to extract the type information from the TripleComponent, and one to actually construct the new rules:
+
+```c++
+rete::RuleParser& parser = core.parser();
+parser.registerNodeBuilder<ECNodeBuilder<TextComponent>>();
+parser.registerNodeBuilder<ECNodeBuilder<TripleContainer>>();
+parser.registerNodeBuilder<TextComponentTextBuilder>();
+parser.registerNodeBuilder<ConstructRulesBuilder>(&sempr);
+parser.registerNodeBuilder<ExtractTriplesBuilder>();
+
+sempr.addRules(
+	"[extractTriples: EC<TripleContainer>(?e ?c) -> ExtractTriples(?c)]"
+	"[inferRules: (?a <type> <Rules>), EC<TextComponent>(?a ?c), text:value(?text ?c) -> constructRules(?text)]"
+);
+```
+
+What happened? We are now treating rules like data. There are probably a lot of fancy ways to use this, but the simplest use case is probably that we can now edit the rules in a gui connected to a running sempr-core, with only a minimal set of hardcoded / statically loaded rules to start with.
+
+### Accessing inferred data
 
 After performing inference you might want to work with the inferred data. Theoretically, you can do this by accessing the internal state of the reasoner where you can iterate over all `rete::WME`s. But usually everything that happens with the data should be triggered by the reasoner, through a rule. Feel free to add your own effects! Even if you need to answer queries on demand, consider adding the updating logic as an effect for the reasoner. This is how it is done with the SopranoModule, which can answer SPARQL-queries on the rdf triples. In order to use it you will need to create the module itself, and a node builder that connects it with an effect of a rule:
 
@@ -126,21 +144,17 @@ After performing inference you might want to work with the inferred data. Theore
 
 // create the module itself
 auto soprano = std::make_shared<sempr::SopranoModule>();
-// create a node builder for it
-std::unique_ptr<sempr::SopranoNodeBuilder> 
-    builder(new sempr::SopranoNodeBuilder(soprano));
 
 // add the node builder to the parser
-parser.registerNodeBuilder(std::move(builder));
+parser.registerNodeBuilder<sempr::SopranoNodeBuilder>(soprano);
 
 // use it in a rule
-parser.parserRules(
+core.addRules(
     "[updateSoprano: (?s ?p ?o) -> SopranoModule(?s ?p ?o)]",
-    core.reasoner().net()
 );
 ```
 
-This rule makes sure that all the triples are added to the soprano module (you could even limit it to certain triples, or manipulate them before adding them, if you so desire for whatever reason). Now (after `performInference()`, of course) you can let soprano answer your queries.
+This rule makes sure that all the triples are added to the soprano module (you could even limit it to certain triples, or manipulate them before adding them, if you so desire to for whatever reason). Now (after `performInference()`, of course) you can let soprano answer your queries.
 
 ```c++
 sempr::SPARQLQuery query;
@@ -158,12 +172,17 @@ for (auto result : query.results)
 
 ### Components
 
-- TripleCointainer (interface), TripleVector
+- TripleCointainer (interface), TripleVector, TriplePropertyMap
   Contain rdf triples.
 - GeosGeometry
   Wraps a `geos::geom::Geometry*`
 - AffineTransform
   Wraps a `Eigen::Affine3d` (access in rules is currently limited to translation and rotation)
+- TextComponent
+  Very simple wrapper for `std::string`
+- TripleDocument
+  Very simple wrapper for a filename (can be easily replaced by a simple TriplePropertyMap or a TextComponent, if you like, the way how to load triple documents has changed over time, making this rather obsolete)
+
 
 ### Nodes/Builtins
 
@@ -176,7 +195,14 @@ for (auto result : query.results)
 | `tf:get(?tf ?x [?y ?z ?qx ?qy ?qz ?qw])`  | **Builtin.** Extracts the parameters from the given AffineTransform ?tf. ?y to ?qw are optional. | `AffineTransformGetBuilder`    | nodes/AffineTransformBuilders.hpp |
 | `tf:mul(?result ?left ?right)`            | **Builtin.** Binds ?result to ?left * ?right, where ?left and ?right must be bound to AffineTransforms. | `AffineTransformMulBuilder`    | nodes/AffineTransformBuilders.hpp |
 | `tf:inv(?result ?input)`                  | **Builtin.** Binds ?result to the inverse of the AffineTransform given in ?input. | `AffineTransformInvBuilder`    | nodes/AffineTransformBuilders.hpp |
-
+|`constructRules(?text)` | **Effect.** Constructs new rules from the given string | `ConstructRulesBuilder` | nodes/ConstructRulesBuilder.hpp |
+| `file:exists(?filename)` | **Builtin.** Passes only if the specified file exists. Installs a monitor on the file, retracting matches when it is deleted, and triggering updates when it is changed. | `FileMonitorNodeBuilder` | nodes/FileMonitorNodeBuilder.hpp |
+| `LoadTriplesFromFile(?filename)` | **Effect.** Loads the triples from the given file (rdf-xml, turtle, ...). Works nicely together with `file:exists`. ;-) | `LoadTriplesFromFileBuilder` | nodes/LoadTriplesFromFileBuilder.hpp |
+| `geo:UTMFromWGS(?out ?in ?zone)` | **Builtin.** Assumes the coordinates of the input geometry are in WGS84 and creates a copy that is transformed into UTM coordinates of the given zone. | `UTMFromWGSBuilder` | nodes/GeoConversionBuilders.hpp |
+| `geo:distance(?distance ?geoA ?geoB)` | **Builtin.** Computes the distance between the given geometries. | `GeoDistanceBuilder` | nodes/GeoDistanceBuilder.hpp |
+| `EC<ComponentName>(?entity ?component)` | **Effect.** Infers the entity-component-relation between the given entity and component | `InferECBuilder<ComponentType>` | nodes/InferECNode.hpp |
+| `text:value(?text ? textcomponent)` | **Builtin.** Extracts the text from a TextComponent | `TextComponentTextBuilder` | nodes/TextComponentTextBuilder.hpp |
+| `td:filename(?name ?component)` | **Builtin.** Extracts the filename from a TripleDocument component | `TripleDocumentFilenameBuilder` | nodes/TripleDocumentFilenameBuilder.hpp |
 
 
 ## Internal structure
@@ -191,35 +217,29 @@ Having an actual reasoner as the core of SEMPR allows us to automatically retrac
 This library is designed to be heavily extended for your personal needs. You might want to:
 
 - Implement custom components, to add custom datatypes.
-  - In this case, also register a `sempr::ECNodeBuilder<YourComponent>` at the rule parser to be able to add existence conditions for your components your rules, e.g.
+    - In this case, also register a `sempr::ECNodeBuilder<YourComponent>` at the rule parser to be able to add existence conditions for your components your rules, e.g.
     `[rule1: EC<YourComponent>(?entity ?component), ... -> ...]`
     Where "YourComponent" is the name you specified for the trait `sempr::ComponentName<YourComponent>::value`.
 - Add new conditions / computations for a component type. For this you will want to create a new type of node for the rete network in the reasoner, which is derived from `rete::Builtin`.
-  - You will also need a new `rete::NodeBuilder` that creates the node from its textual representation in your rules.
+    - You will also need a new `rete::NodeBuilder` that creates the node from its textual representation in your rules.
 - Add new working memory elements beside triples and entity-component-pairs, things that could be e.g. computed and returned by your builtins. Subclass from `rete::WME`. 
-  - And don't forget to also implement a `rete::Accessor` for it.
+    - And don't forget to also implement a `rete::Accessor` for it.
 - Add new "Systems", new effects to trigger when a complete match for the preconditions in your rules is found. Subclass from `rete::Production` .
-  - And again, don't forget you will need to implement a new `rete::NodeBuilder` and register it at the rule parser.
+    - And again, don't forget you will need to implement a new `rete::NodeBuilder` and register it at the rule parser.
 
 Please refer to the documentation of the `rete::Reasoner` for a more comprehensive and detailed description.
 
 
 
-### Geometry
-To store geometric data, SEMPR relies on [GEOS](http://geos.osgeo.org), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. 
+## Geometry
+To store geometric data, SEMPR relies on [GEOS](http://geos.osgeo.org), which implements a standard proposed by the _Open Geospatial Consortium (OGC)_. We have a small wrapper around a `geos::geom::Geometry*`, which makes it accessible to the system as a `sempr::GeosGeometry` component.
 
 ==TODO==
+More builtins to work with these geometries will be implemented soon (I guess).
 
 
-#### Serialization with ODB
-The `traits-sqlite-geom-geometry.hxx` implements a traits-class for `geos::geom::Geometry*` with templated methods to store any pointer to an `geos::geom::Geometry` or derived class. The serialization support is easily extended by inheriting from this traits-class: E.g., the line:
+## Serialization / persistence
 
-```c++
-template <> class value_traits<geom::Point*, id_blob> : public value_traits<geom::Geometry*, id_blob> {};
-```
+While older versions of sempr relied on ODB to persist its data, this has now changed. Don't get me wrong, ODB is a really cool piece of software for object relational mapping, which directly maps your C++ classes to SQL tables with minimum effort. But overall we noticed that SQL databases are not that handy to work with for us, and we also were in need for serialization to send data over the network. So, sempr now uses the header-only library [cereal](https://uscilab.github.io/cereal/) to serialize entities and components. The quite simple `sempr::SeparateFileStorage` class stores entities by serializing them to JSON and writing that into one file per entity.
 
-enables serialization of `geos::geom::MultiPoint*` in binary form (WKB). Use, e.g.:
-```c++
-#pragma db type("BLOB")
-geos::geom::MultiPoint* geometry_;
-```
+In order to update a component through a base pointer (`sempr::Component*`), which is needed for a generic interface to e.g. a GUI application connected to sempr, components must override a `loadFromJSON`and `saveToJSON` method. These methods are extremely simple and contain only a single line, and the same one for both methods, `ar(*this)`, to apply the given archive to the component. This is only needed to call the archive with the correct type of component, and can be automatically implemented using the `SEMPR_COMPONENT` macro in your class declaration. This also adds a compile-time check if the class has a load and save method implemented for serialization with cereal.
