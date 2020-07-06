@@ -14,7 +14,7 @@ set(SRC_FILES
     Component.cpp
     SeparateFileStorage.cpp
     ./component/AffineTransform.cpp
-    ./component/GeosGeometry.cpp
+    # ./component/GeosGeometry.cpp
     ./component/TextComponent.cpp
     ./component/TripleContainer.cpp
     ./component/TripleDocument.cpp
@@ -29,10 +29,10 @@ set(SRC_FILES
     ./nodes/ExtractTriplesBuilder.cpp
     ./nodes/FileMonitorNode.cpp
     ./nodes/FileMonitorNodeBuilder.cpp
-    ./nodes/GeoConversionNodes.cpp
-    ./nodes/GeoConversionBuilders.cpp
-    ./nodes/GeoDistanceNode.cpp
-    ./nodes/GeoDistanceBuilder.cpp
+    # ./nodes/GeoConversionNodes.cpp
+    # ./nodes/GeoConversionBuilders.cpp
+    # ./nodes/GeoDistanceNode.cpp
+    # ./nodes/GeoDistanceBuilder.cpp
     ./nodes/InferECNode.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
@@ -49,11 +49,35 @@ set(SRC_FILES
 # create the library
 add_library(sempr_core SHARED ${SRC_FILES})
 set_target_properties(sempr_core PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
+#target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
+target_link_libraries(sempr_core
+    ${Soprano_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
+
+
+
+# create the geos plugin
+add_library(sempr_plugin_geos SHARED
+    ./plugins/GeosPlugin.cpp
+    ./component/GeosGeometry.cpp
+    ./nodes/GeoConversionNodes.cpp
+    ./nodes/GeoConversionBuilders.cpp
+    ./nodes/GeoDistanceNode.cpp
+    ./nodes/GeoDistanceBuilder.cpp
+)
+set_target_properties(
+    sempr_plugin_geos
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+    sempr_plugin_geos sempr_core
+    ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES}
+    Qt5::Core
+)
+
 
 ## install stuff
 install(
-    TARGETS sempr_core
+    TARGETS sempr_core sempr_plugin_geos
     LIBRARY DESTINATION lib COMPONENT common
 )
 # install header files
