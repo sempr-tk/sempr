@@ -63,7 +63,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 # QtCore for its plugin system
 find_package(Qt5 COMPONENTS Core REQUIRED)
-
+set(CMAKE_AUTOMOC ON)
 
 include_directories(include)
 add_subdirectory(src)

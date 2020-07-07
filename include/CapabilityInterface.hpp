@@ -1,6 +1,8 @@
 #ifndef SEMPR_CAPABILITY_INTERFACE_HPP_
 #define SEMPR_CAPABILITY_INTERFACE_HPP_
 
+#include <QtPlugin>
+
 #include "Core.hpp"
 
 namespace sempr {
@@ -23,5 +25,8 @@ public:
 };
 
 }
+
+Q_DECLARE_INTERFACE(sempr::CapabilityInterface, "sempr.CapabilityInterface/1.0")
+
 
 #endif /* include guard: SEMPR_CAPABILITY_INTERFACE_HPP_ */

@@ -46,7 +46,7 @@ set(SRC_FILES
     ./util/GenericCoordinateFilter.cpp
 )
 
-# create the library
+# create the core library
 add_library(sempr_core SHARED ${SRC_FILES})
 set_target_properties(sempr_core PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 #target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
@@ -54,10 +54,8 @@ target_link_libraries(sempr_core
     ${Soprano_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
 
 
-
-# create the geos plugin
-add_library(sempr_plugin_geos SHARED
-    ./plugins/GeosPlugin.cpp
+# create the geos library part
+add_library(sempr_geos SHARED
     ./component/GeosGeometry.cpp
     ./nodes/GeoConversionNodes.cpp
     ./nodes/GeoConversionBuilders.cpp
@@ -65,21 +63,39 @@ add_library(sempr_plugin_geos SHARED
     ./nodes/GeoDistanceBuilder.cpp
 )
 set_target_properties(
+    sempr_geos
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+    sempr_geos sempr_core ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES}
+)
+
+# create the geos plugin
+add_library(sempr_plugin_geos SHARED
+    ./plugins/GeosPlugin.cpp
+)
+set_target_properties(
     sempr_plugin_geos
     PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 target_link_libraries(
-    sempr_plugin_geos sempr_core
-    ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES}
+    sempr_plugin_geos sempr_core sempr_geos ${RETE_LIBRARIES}
     Qt5::Core
 )
 
 
 ## install stuff
 install(
-    TARGETS sempr_core sempr_plugin_geos
+    TARGETS sempr_core sempr_geos
     LIBRARY DESTINATION lib COMPONENT common
 )
+
+install(
+    TARGETS sempr_plugin_geos
+    LIBRARY DESTINATION lib/sempr_plugins COMPONENT common
+)
+
+
 # install header files
 install(
     DIRECTORY ../include/

@@ -12,7 +12,7 @@ namespace sempr {
 class GeosPlugin : public QObject, public CapabilityInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "sempr.CapabilityInterface" FILE "geos.json")
+    Q_PLUGIN_METADATA(IID "sempr.CapabilityInterface/1.0" FILE "geos.json")
     Q_INTERFACES(CapabilityInterface)
 
 public:
