@@ -5,6 +5,7 @@
 #include "Entity.hpp"
 #include "IDGenerator.hpp"
 #include "Storage.hpp"
+#include "CapabilityInterface.hpp"
 
 #include <rete-reasoner/Reasoner.hpp>
 #include <rete-reasoner/ParsedRule.hpp>
@@ -49,6 +50,9 @@ class Core {
     /// The RuleParser used to construct the rete network of the reasoner
     rete::RuleParser ruleParser_;
 
+    /// The capabilities loaded from plugins
+    std::set<CapabilityInterface*> capabilities_;
+
 public:
     Core();
     Core(IDGenerator::Ptr idgen);
@@ -81,6 +85,12 @@ public:
         NodeBuilders that can then be used in addRule.
     */
     rete::RuleParser& parser();
+
+    /**
+        Checks for available plugins in the given folder and loads them.
+        This basically adds node builders to the reasoner.
+    */
+    void loadPlugins(const std::string& path = "/usr/lib/sempr_plugins");
 
     /**
         Uses the internal RuleParser to construct the given rules.

@@ -12,8 +12,8 @@ namespace sempr {
 class GeosPlugin : public QObject, public CapabilityInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "sempr.CapabilityInterface/1.0" FILE "geos.json")
-    Q_INTERFACES(CapabilityInterface)
+    Q_PLUGIN_METADATA(IID "sempr.CapabilityInterface/1.0")
+    Q_INTERFACES(sempr::CapabilityInterface)
 
 public:
     void setup(Core *core) const override;

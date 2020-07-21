@@ -71,8 +71,12 @@ target_link_libraries(
 )
 
 # create the geos plugin
+qt5_wrap_cpp(plugin_geos_src ./plugins/GeosPlugin.cpp ../include/plugins/GeosPlugin.hpp)
+message("qt5_wrap... ${plugin_geos_src}")
+
 add_library(sempr_plugin_geos SHARED
     ./plugins/GeosPlugin.cpp
+    ${plugin_geos_src}
 )
 set_target_properties(
     sempr_plugin_geos
@@ -82,6 +86,7 @@ target_link_libraries(
     sempr_plugin_geos sempr_core sempr_geos ${RETE_LIBRARIES}
     Qt5::Core
 )
+
 
 
 ## install stuff

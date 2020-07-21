@@ -5,6 +5,8 @@
 #include "SimpleIncrementalIDGenerator.hpp"
 
 #include <rete-reasoner/AssertedEvidence.hpp>
+#include <QPluginLoader>
+#include <QDir>
 
 namespace sempr {
 
@@ -29,6 +31,48 @@ Core::~Core()
         entity->core_ = nullptr;
     }
 }
+
+
+void Core::loadPlugins(const std::string& path)
+{
+    QDir pluginDir(QString::fromStdString(path));
+
+    auto list = pluginDir.entryList(QDir::Files);
+    std::cout << "Loading plugins. " << list.size() << " candidates..." << std::endl;
+    for (auto fname : list)
+    {
+        QPluginLoader loader(pluginDir.absoluteFilePath(fname));
+        QObject* plugin = loader.instance();
+        if (plugin)
+        {
+            CapabilityInterface* cap = qobject_cast<CapabilityInterface*>(plugin);
+            if (cap)
+            {
+                if (capabilities_.find(cap) != capabilities_.end())
+                {
+                    std::cout << "Plugin has already been loaded before." << std::endl;
+                }
+                else
+                {
+                    std::cout << "Loaded plugin " << loader.fileName().toStdString() << std::endl;
+                    capabilities_.insert(cap);
+                    cap->setup(this);
+                }
+            }
+            else
+            {
+                std::cout << loader.fileName().toStdString() << " is not a capability" << std::endl;
+                loader.unload();
+            }
+        }
+        else
+        {
+            // std::cout << fname.toStdString() << " is not a plugin" << std::endl;
+            std::cout << loader.errorString().toStdString() << std::endl;
+        }
+    }
+}
+
 
 std::recursive_mutex& Core::reasonerMutex()
 {

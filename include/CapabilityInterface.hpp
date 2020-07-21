@@ -3,9 +3,9 @@
 
 #include <QtPlugin>
 
-#include "Core.hpp"
 
 namespace sempr {
+    class Core;
 
 /**
     A capability in sempr is a group of functionality provided by one or more
@@ -21,7 +21,7 @@ public:
         Implements the capability at the given core, by e.g. registering the
         node builders.
     */
-    virtual void setup(Core* core) const;
+    virtual void setup(Core* core) const = 0;
 };
 
 }
