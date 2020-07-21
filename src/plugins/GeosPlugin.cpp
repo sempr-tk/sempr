@@ -1,4 +1,5 @@
 #include "plugins/GeosPlugin.hpp"
+#include "../include/plugins/moc_GeosPlugin.cpp"
 
 #include "Core.hpp"
 #include "component/GeosGeometry.hpp"

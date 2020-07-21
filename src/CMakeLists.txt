@@ -71,7 +71,7 @@ target_link_libraries(
 )
 
 # create the geos plugin
-qt5_wrap_cpp(plugin_geos_src ./plugins/GeosPlugin.cpp ../include/plugins/GeosPlugin.hpp)
+#qt5_wrap_cpp(plugin_geos_src ./plugins/GeosPlugin.cpp ../include/plugins/GeosPlugin.hpp)
 message("qt5_wrap... ${plugin_geos_src}")
 
 add_library(sempr_plugin_geos SHARED
@@ -87,7 +87,19 @@ target_link_libraries(
     Qt5::Core
 )
 
-
+# create the AffineTransform plugin (just to register node parsers, the
+# functionality is still located in sempr-core)
+add_library(sempr_plugin_affine SHARED
+    ./plugins/AffineTFPlugin.cpp
+)
+set_target_properties(sempr_plugin_affine
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_affine
+    sempr_core
+    ${RETE_LIBRARIES}
+    Qt5::Core
+)
 
 ## install stuff
 install(
@@ -96,7 +108,9 @@ install(
 )
 
 install(
-    TARGETS sempr_plugin_geos
+    TARGETS
+        sempr_plugin_geos
+        sempr_plugin_affine
     LIBRARY DESTINATION lib/sempr_plugins COMPONENT common
 )
 
