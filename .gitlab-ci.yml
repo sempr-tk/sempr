@@ -43,6 +43,7 @@ build-xenial:
         - mkdir build_xenial && cd build_xenial
         - cmake ..
         - make -j8
+        - export LD_LIBRARY_PATH=$(pwd)/src:$LD_LIBRARY_PATH # fixes a problem with dpkg-shlibdeps not finding libraries built by this project
         - make package
     artifacts:
         paths:
@@ -63,6 +64,7 @@ build-bionic:
         - mkdir build_bionic && cd build_bionic
         - cmake ..
         - make -j8
+        - export LD_LIBRARY_PATH=$(pwd)/src:$LD_LIBRARY_PATH # fixes a problem with dpkg-shlibdeps not finding libraries built by this project
         - make package
     artifacts:
         paths:
