@@ -97,6 +97,21 @@ target_link_libraries(sempr_plugin_affine
     ${QT_CORE}
 )
 
+# create a RDFPlugin that registers things like the ExtractTriple module and
+# also inserts a few default rules for extracting triples and updating soprano.
+add_library(sempr_plugin_rdf SHARED
+    ./plugins/RDFPlugin.cpp
+    ../include/plugins/RDFPlugin.hpp
+)
+set_target_properties(sempr_plugin_rdf
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_rdf
+    sempr_core
+    ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
+
 ## install stuff
 install(
     TARGETS sempr_core sempr_geos
@@ -107,6 +122,7 @@ install(
     TARGETS
         sempr_plugin_geos
         sempr_plugin_affine
+        sempr_plugin_rdf
     LIBRARY DESTINATION lib/sempr_plugins COMPONENT common
 )
 
