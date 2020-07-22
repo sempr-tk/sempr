@@ -14,7 +14,6 @@ set(SRC_FILES
     Component.cpp
     SeparateFileStorage.cpp
     ./component/AffineTransform.cpp
-    # ./component/GeosGeometry.cpp
     ./component/TextComponent.cpp
     ./component/TripleContainer.cpp
     ./component/TripleDocument.cpp
@@ -29,10 +28,6 @@ set(SRC_FILES
     ./nodes/ExtractTriplesBuilder.cpp
     ./nodes/FileMonitorNode.cpp
     ./nodes/FileMonitorNodeBuilder.cpp
-    # ./nodes/GeoConversionNodes.cpp
-    # ./nodes/GeoConversionBuilders.cpp
-    # ./nodes/GeoDistanceNode.cpp
-    # ./nodes/GeoDistanceBuilder.cpp
     ./nodes/InferECNode.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
@@ -49,7 +44,6 @@ set(SRC_FILES
 # create the core library
 add_library(sempr_core SHARED ${SRC_FILES})
 set_target_properties(sempr_core PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-#target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
 target_link_libraries(sempr_core
     ${Soprano_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
 
@@ -76,6 +70,7 @@ message("qt5_wrap... ${plugin_geos_src}")
 
 add_library(sempr_plugin_geos SHARED
     ./plugins/GeosPlugin.cpp
+    ../include/plugins/GeosPlugin.hpp
     ${plugin_geos_src}
 )
 set_target_properties(
@@ -84,13 +79,14 @@ set_target_properties(
 )
 target_link_libraries(
     sempr_plugin_geos sempr_core sempr_geos ${RETE_LIBRARIES}
-    Qt5::Core
+    ${QT_CORE}
 )
 
 # create the AffineTransform plugin (just to register node parsers, the
 # functionality is still located in sempr-core)
 add_library(sempr_plugin_affine SHARED
     ./plugins/AffineTFPlugin.cpp
+    ../include/plugins/AffineTFPlugin.hpp
 )
 set_target_properties(sempr_plugin_affine
     PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -98,7 +94,7 @@ set_target_properties(sempr_plugin_affine
 target_link_libraries(sempr_plugin_affine
     sempr_core
     ${RETE_LIBRARIES}
-    Qt5::Core
+    ${QT_CORE}
 )
 
 ## install stuff

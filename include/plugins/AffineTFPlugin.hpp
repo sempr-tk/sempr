@@ -10,7 +10,9 @@ namespace sempr {
 
 class AffineTFPlugin : public QObject, public CapabilityInterface {
     Q_OBJECT
+#ifndef QT4
     Q_PLUGIN_METADATA(IID "sempr.CapabilityInterface/1.0")
+#endif
     Q_INTERFACES(sempr::CapabilityInterface)
 
 public:

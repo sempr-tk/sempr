@@ -1,5 +1,4 @@
 #include "plugins/AffineTFPlugin.hpp"
-#include "../include/plugins/moc_AffineTFPlugin.cpp"
 
 #include "Core.hpp"
 #include "nodes/ECNodeBuilder.hpp"
@@ -19,5 +18,9 @@ void AffineTFPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<AffineTransformMulBuilder>();
     core->parser().registerNodeBuilder<AffineTransformCreateBuilder>();
 }
+
+#ifdef QT4
+Q_EXPORT_PLUGIN2(affinetransforms, AffineTFPlugin)
+#endif
 
 }

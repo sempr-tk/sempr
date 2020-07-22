@@ -1,5 +1,4 @@
 #include "plugins/GeosPlugin.hpp"
-#include "../include/plugins/moc_GeosPlugin.cpp"
 
 #include "Core.hpp"
 #include "component/GeosGeometry.hpp"
@@ -17,5 +16,8 @@ void GeosPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<UTMFromWGSBuilder>();
 }
 
+#ifdef QT4
+Q_EXPORT_PLUGIN2(geosgeometries, GeosPlugin)
+#endif
 
 }
