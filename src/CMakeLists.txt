@@ -112,6 +112,22 @@ target_link_libraries(sempr_plugin_rdf
     ${QT_CORE}
 )
 
+# create a UtilPlugin that registers additional utility stuff, e.g.
+# TextComponents, FileMonitor, ConstructRules, ...
+# Also, adds a rule to infers more rules from entities with text components.
+add_library(sempr_plugin_util SHARED
+    ./plugins/UtilPlugin.cpp
+    ../include/plugins/UtilPlugin.hpp
+)
+set_target_properties(sempr_plugin_util
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_util
+    sempr_core
+    ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
+
 ## install stuff
 install(
     TARGETS sempr_core sempr_geos
@@ -123,6 +139,7 @@ install(
         sempr_plugin_geos
         sempr_plugin_affine
         sempr_plugin_rdf
+        sempr_plugin_util
     LIBRARY DESTINATION lib/sempr_plugins COMPONENT common
 )
 
