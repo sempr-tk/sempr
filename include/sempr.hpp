@@ -1,11 +1,21 @@
 #include "Core.hpp"
-#include "Exception.hpp"
-#include "SimpleIncrementalIDGenerator.hpp"
-#include "RDF.hpp"
-#include "Utility.hpp"
-
 #include "Entity.hpp"
 #include "Component.hpp"
 
+#include "IDGenerator.hpp"
+#include "SimpleIncrementalIDGenerator.hpp"
+
 #include "Storage.hpp"
-#include "odb_storage/ODBStorage.hpp"
+#include "SeparateFileStorage.hpp"
+
+#include "RDF.hpp"
+#include "Exception.hpp"
+#include "Utility.hpp"
+
+#include "component/AffineTransform.hpp"
+#include "component/GeosGeometry.hpp"
+#include "component/TextComponent.hpp"
+#include "component/TripleDocument.hpp"
+#include "component/TriplePropertyMap.hpp"
+#include "component/TripleVector.hpp"
+
