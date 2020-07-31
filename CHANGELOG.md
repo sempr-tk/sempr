@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2] - 2020-07-31
+
+- Fix: Removed leftover -std=c++17 flag from and added missing flag to link
+  boost\_system to the pkg config file
+- Updated/fixed: sempr.hpp had some old includes and missed some new ones
+- Updated README
+
 ## [0.8.1] - 2020-05-27
 
 - Changed install path of the library, in order to not having to mess with

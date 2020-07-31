@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(sempr VERSION 0.8.1)
+project(sempr VERSION 0.8.2)
 
 set(CMAKE_CXX_STANDARD 11)
 
