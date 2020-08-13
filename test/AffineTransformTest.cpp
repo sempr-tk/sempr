@@ -5,8 +5,6 @@
 #include "Entity.hpp"
 #include "Exception.hpp"
 #include "component/AffineTransform.hpp"
-#include "nodes/AffineTransformBuilders.hpp"
-#include "nodes/ECNodeBuilder.hpp"
 
 #include <rete-reasoner/RuleParser.hpp>
 #include <rete-rdf/Triple.hpp>
@@ -33,8 +31,8 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
     {
 
         sempr::Core core;
-        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        core.parser().registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
+        core.loadPlugins("src");
+        core.loadPlugins("../src");
 
         core.addRules("[EC<Transform>(?e ?c), tf:create(?tf 1 2 3 4 5 6 7) -> (<c> <d> <e>)]");
 
@@ -56,8 +54,8 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
     BOOST_AUTO_TEST_CASE(affine_get)
     {
         sempr::Core core;
-        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        core.parser().registerNodeBuilder<sempr::AffineTransformGetBuilder>();
+        core.loadPlugins("src");
+        core.loadPlugins("../src");
 
 
         // 1. get all params and add them as triples, in order to check the
@@ -98,8 +96,8 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
     BOOST_AUTO_TEST_CASE(affine_mul)
     {
         sempr::Core core;
-        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        core.parser().registerNodeBuilder<sempr::AffineTransformMulBuilder>();
+        core.loadPlugins("src");
+        core.loadPlugins("../src");
 
         core.addRules(
             "[EC<Transform>(?e ?left \"left\"),"
@@ -144,8 +142,8 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
     BOOST_AUTO_TEST_CASE(affine_inv)
     {
         sempr::Core core;
-        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        core.parser().registerNodeBuilder<sempr::AffineTransformInvBuilder>();
+        core.loadPlugins("src");
+        core.loadPlugins("../src");
 
         core.addRules(
             "[EC<Transform>(?e ?tf),"
@@ -175,11 +173,8 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
     BOOST_AUTO_TEST_CASE(affine_combination)
     {
         sempr::Core core;
-        core.parser().registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
-        core.parser().registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
-        core.parser().registerNodeBuilder<sempr::AffineTransformGetBuilder>();
-        core.parser().registerNodeBuilder<sempr::AffineTransformMulBuilder>();
-        core.parser().registerNodeBuilder<sempr::AffineTransformInvBuilder>();
+        core.loadPlugins("src");
+        core.loadPlugins("../src");
 
 
         core.addRules(

@@ -5,7 +5,6 @@
 #include "Entity.hpp"
 #include "Exception.hpp"
 #include "component/GeosGeometry.hpp"
-#include "nodes/ECNodeBuilder.hpp"
 
 #include <rete-reasoner/RuleParser.hpp>
 
@@ -13,10 +12,11 @@ BOOST_AUTO_TEST_SUITE(GeometryTest)
 
     BOOST_AUTO_TEST_CASE(geom_in_rule)
     {
-        rete::RuleParser parser;
-        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::GeosGeometryInterface>>();
-
         sempr::Core core;
+        core.loadPlugins("src");
+        core.loadPlugins("../src");
+
+        rete::RuleParser& parser = core.parser();
 
         auto rules = parser.parseRules(
             "[EC<GeosGeomI>(?entity ?geometry) -> (<foo> <bar> <baz>)]",

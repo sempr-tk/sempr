@@ -17,7 +17,7 @@ link_directories(${Soprano_LIBRARY_DIRS})
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
-    set(DEPENDENCIES sempr_core ${Boost_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
+    set(DEPENDENCIES sempr_core sempr_plugin_geos ${Boost_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
 
     add_executable(CoreTest CoreTest.cpp)

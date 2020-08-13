@@ -61,6 +61,22 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
+# QtCore for its plugin system
+
+find_package(Qt5 COMPONENTS Core)
+if (NOT Qt5_FOUND)
+    message("Couldn't find Qt5. Looking for Qt4 instead...")
+    find_package(Qt4 COMPONENTS QtCore REQUIRED)
+    set(QT_CORE Qt4::QtCore)
+    add_definitions(-DQT4)
+else()
+    set(QT_CORE Qt5::Core)
+endif()
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include_directories(include)
 add_subdirectory(src)

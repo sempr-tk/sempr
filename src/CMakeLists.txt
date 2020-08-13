@@ -14,7 +14,6 @@ set(SRC_FILES
     Component.cpp
     SeparateFileStorage.cpp
     ./component/AffineTransform.cpp
-    ./component/GeosGeometry.cpp
     ./component/TextComponent.cpp
     ./component/TripleContainer.cpp
     ./component/TripleDocument.cpp
@@ -29,10 +28,6 @@ set(SRC_FILES
     ./nodes/ExtractTriplesBuilder.cpp
     ./nodes/FileMonitorNode.cpp
     ./nodes/FileMonitorNodeBuilder.cpp
-    ./nodes/GeoConversionNodes.cpp
-    ./nodes/GeoConversionBuilders.cpp
-    ./nodes/GeoDistanceNode.cpp
-    ./nodes/GeoDistanceBuilder.cpp
     ./nodes/InferECNode.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
@@ -46,16 +41,109 @@ set(SRC_FILES
     ./util/GenericCoordinateFilter.cpp
 )
 
-# create the library
+# create the core library
 add_library(sempr_core SHARED ${SRC_FILES})
 set_target_properties(sempr_core PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-target_link_libraries(sempr_core ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
+target_link_libraries(sempr_core
+    ${Soprano_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
+
+
+# create the geos library part
+add_library(sempr_geos SHARED
+    ./component/GeosGeometry.cpp
+    ./nodes/GeoConversionNodes.cpp
+    ./nodes/GeoConversionBuilders.cpp
+    ./nodes/GeoDistanceNode.cpp
+    ./nodes/GeoDistanceBuilder.cpp
+)
+set_target_properties(
+    sempr_geos
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+    sempr_geos sempr_core ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES}
+)
+
+# create the geos plugin
+#qt5_wrap_cpp(plugin_geos_src ./plugins/GeosPlugin.cpp ../include/plugins/GeosPlugin.hpp)
+message("qt5_wrap... ${plugin_geos_src}")
+
+add_library(sempr_plugin_geos SHARED
+    ./plugins/GeosPlugin.cpp
+    ../include/plugins/GeosPlugin.hpp
+    ${plugin_geos_src}
+)
+set_target_properties(
+    sempr_plugin_geos
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+    sempr_plugin_geos sempr_core sempr_geos ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
+
+# create the AffineTransform plugin (just to register node parsers, the
+# functionality is still located in sempr-core)
+add_library(sempr_plugin_affine SHARED
+    ./plugins/AffineTFPlugin.cpp
+    ../include/plugins/AffineTFPlugin.hpp
+)
+set_target_properties(sempr_plugin_affine
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_affine
+    sempr_core
+    ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
+
+# create a RDFPlugin that registers things like the ExtractTriple module and
+# also inserts a few default rules for extracting triples and updating soprano.
+add_library(sempr_plugin_rdf SHARED
+    ./plugins/RDFPlugin.cpp
+    ../include/plugins/RDFPlugin.hpp
+)
+set_target_properties(sempr_plugin_rdf
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_rdf
+    sempr_core
+    ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
+
+# create a UtilPlugin that registers additional utility stuff, e.g.
+# TextComponents, FileMonitor, ConstructRules, ...
+# Also, adds a rule to infers more rules from entities with text components.
+add_library(sempr_plugin_util SHARED
+    ./plugins/UtilPlugin.cpp
+    ../include/plugins/UtilPlugin.hpp
+)
+set_target_properties(sempr_plugin_util
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_util
+    sempr_core
+    ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
 
 ## install stuff
 install(
-    TARGETS sempr_core
+    TARGETS sempr_core sempr_geos
     LIBRARY DESTINATION lib COMPONENT common
 )
+
+install(
+    TARGETS
+        sempr_plugin_geos
+        sempr_plugin_affine
+        sempr_plugin_rdf
+        sempr_plugin_util
+    LIBRARY DESTINATION lib/sempr_plugins COMPONENT common
+)
+
+
 # install header files
 install(
     DIRECTORY ../include/
