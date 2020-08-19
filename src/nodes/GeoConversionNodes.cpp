@@ -59,9 +59,9 @@ rete::WME::Ptr UTMFromWGSNode::process(rete::Token::Ptr token)
     // apply the transformation to it
     copy->apply_rw(&filter);
     // put it into a geometry component
-    auto component = std::make_shared<GeosGeometry>(copy);
+    auto component = std::make_shared<GeosGeometry>(std::move(copy));
     // put that into a WME
-    auto wme = std::make_shared<rete::TupleWME<GeosGeometry::Ptr>>(component);
+    auto wme = std::make_shared<rete::TupleWME<GeosGeometryInterface::Ptr>>(component);
 
     return wme;
 }

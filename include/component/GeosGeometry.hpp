@@ -34,13 +34,14 @@ public:
 class GeosGeometry : public GeosGeometryInterface {
     SEMPR_COMPONENT
 
-    geos::geom::Geometry* geometry_;
+    std::unique_ptr<geos::geom::Geometry> geometry_;
 public:
     /**
         Constructs a GeosGeometry containing a given geos::geom::Geometry.
         Takes ownership of geometry.
     */
     GeosGeometry(geos::geom::Geometry* geometry);
+    GeosGeometry(std::unique_ptr<geos::geom::Geometry> geometry);
 
     /**
         Creates an empty geometry.
@@ -53,8 +54,9 @@ public:
     const geos::geom::Geometry* geometry() const override;
 
     /**
-        Sets a new geometry for this component. Frees the old geometry.
+        Sets a new geometry for this component. Delete the old geometry and takes the ownership.
     */
+    void setGeometry(std::unique_ptr<geos::geom::Geometry> geometry);
     void setGeometry(geos::geom::Geometry* geometry);
 
 
@@ -70,7 +72,7 @@ public:
         writer.setOutputDimension(dim);
 
         // create the wkt string
-        std::string wkt = writer.writeFormatted(geometry_);
+        std::string wkt = writer.writeFormatted(geometry_.get());
 
         // save the string (and the base class)
         ar( cereal::make_nvp<Archive>("base", cereal::base_class<Component>(this)),
@@ -90,10 +92,11 @@ public:
         geos::io::WKTReader reader(factory);
 
         // parse the string
-        geos::geom::Geometry* g = reader.read(wkt);
+        std::unique_ptr<geos::geom::Geometry> g(reader.read(wkt));
 
         // set the new geometry
-        setGeometry(g);
+        setGeometry(std::move(g));
+
     }
 };
 
