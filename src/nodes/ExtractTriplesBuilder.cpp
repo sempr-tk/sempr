@@ -17,15 +17,16 @@ rete::Production::Ptr ExtractTriplesBuilder::buildEffect(rete::ArgumentList& arg
     if (args[0].isConst()) throw rete::NodeBuilderException("Argument must be a variable bound to a TripleContainer, but is a constant");
 
     auto accessor = args[0].getAccessor();
-    auto containerAccessor = std::dynamic_pointer_cast<ComponentAccessor<TripleContainer>>(accessor);
-
-    if (!containerAccessor) throw rete::NodeBuilderException("Argument must be a TripleContainer");
-
-    // clone the accessor
-    std::unique_ptr<ComponentAccessor<TripleContainer>> acc(containerAccessor->clone());
+    auto inter = accessor->getInterpretation<TripleContainer::Ptr>();
+    if (!inter)
+    {
+        throw rete::NodeBuilderException(
+                "Variable " + args[0].getVariableName() +
+                " has no interpretation as TripleContainer::Ptr");
+    }
 
     // create the node
-    ExtractTriples::Ptr node(new ExtractTriples(std::move(acc)));
+    ExtractTriples::Ptr node(new ExtractTriples(inter->makePersistent()));
     return node;
 }
 

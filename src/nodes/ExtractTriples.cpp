@@ -3,8 +3,8 @@
 namespace sempr {
 
 ExtractTriples::ExtractTriples(
-        std::unique_ptr<ComponentAccessor<TripleContainer>> container)
-    : accessor_(std::move(container))
+        rete::PersistentInterpretation<TripleContainer::Ptr> container)
+    : container_(std::move(container))
 {
 }
 
@@ -16,7 +16,7 @@ void ExtractTriples::execute(
     if (flag == rete::PropagationFlag::ASSERT || flag == rete::PropagationFlag::UPDATE)
     {
         TripleContainer::Ptr container;
-        accessor_->getValue(token, container);
+        container_.interpretation->getValue(token, container);
 
         for (auto triple : *container)
         {
@@ -34,7 +34,7 @@ void ExtractTriples::execute(
 
 std::string ExtractTriples::toString() const
 {
-    return "ExtractTriples(" + accessor_->toString() + ")";
+    return "ExtractTriples(" + container_.accessor->toString() + ")";
 }
 
 
