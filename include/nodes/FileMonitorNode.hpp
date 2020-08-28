@@ -30,7 +30,7 @@ class FileMonitorNode : public rete::Builtin {
     std::map<rete::Token::Ptr, FileWatcher> watchers_;
 
     // accessor for the filename
-    std::unique_ptr<rete::StringAccessor> fileName_;
+    rete::PersistentInterpretation<std::string> fileName_;
 
     // starts a watcher for the given token.
     void startWatcher(rete::Token::Ptr, const std::string& file);
@@ -67,7 +67,7 @@ public:
         immediate inference, and the monitors could still update the knowledge
         base later on.
     */
-    FileMonitorNode(std::recursive_mutex&, std::unique_ptr<rete::StringAccessor>);
+    FileMonitorNode(std::recursive_mutex&, rete::PersistentInterpretation<std::string>);
 
 
     /**

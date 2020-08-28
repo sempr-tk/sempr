@@ -16,22 +16,24 @@ rete::Builtin::Ptr FileMonitorNodeBuilder::buildBuiltin(rete::ArgumentList& args
     if (args.size() != 1) throw rete::NodeBuilderException("Invalid number of args (!= 1)");
     if (args[0].isVariable() && !args[0].getAccessor()) throw rete::NodeBuilderException("Argument  " + args[0].getVariableName() + " must not be unbound.");
 
-    std::unique_ptr<rete::StringAccessor> acc;
+    rete::PersistentInterpretation<std::string> interpretation;
     if (args[0].isConst())
     {
-        acc.reset(new rete::ConstantStringAccessor(args[0].getAST()));
+        auto acc = new rete::ConstantAccessor<std::string>(args[0].getAST());
         acc->index() = 0; // allow accessor to be applied to a token
+        interpretation = acc->getInterpretation<std::string>()->makePersistent();
     }
     else
     {
-        if(!args[0].getAccessor()->canAs<rete::StringAccessor>())
+        auto in = args[0].getAccessor()->getInterpretation<std::string>();
+        if (!in)
             throw rete::NodeBuilderException("Argument " + args[0].getVariableName() + " not compatible to StringAccessor.");
 
-        acc.reset(args[0].getAccessor()->clone()->as<rete::StringAccessor>());
+        interpretation = in->makePersistent();
     }
 
     // create the node:;
-    auto node = std::make_shared<FileMonitorNode>(mutex_, std::move(acc));
+    auto node = std::make_shared<FileMonitorNode>(mutex_, std::move(interpretation));
     return node;
 }
 
