@@ -3,8 +3,8 @@
 namespace sempr {
 
 InferECNode::InferECNode(
-    std::unique_ptr<EntityAccessor> entity,
-    std::unique_ptr<rete::SpecificTypeAccessor<Component::Ptr>> component)
+    rete::PersistentInterpretation<Entity::Ptr> entity,
+    rete::PersistentInterpretation<Component::Ptr> component)
     : entity_(std::move(entity)), component_(std::move(component))
 {
 }
@@ -17,8 +17,8 @@ void InferECNode::execute(
     {
         Entity::Ptr e;
         Component::Ptr c;
-        entity_->getValue(token, e);
-        component_->getValue(token, c);
+        entity_.interpretation->getValue(token, e);
+        component_.interpretation->getValue(token, c);
 
         auto ecwme = std::make_shared<ECWME>(e, c);
         inferred.push_back(ecwme);
@@ -27,7 +27,8 @@ void InferECNode::execute(
 
 std::string InferECNode::toString() const
 {
-    return "EC(" + entity_->toString() + ", " + component_->toString() + ")";
+    return "EC(" + entity_.accessor->toString() + ", "
+                 + component_.accessor->toString() + ")";
 }
 
 
