@@ -14,10 +14,9 @@ namespace sempr {
 */
 class UTMFromWGSNode : public rete::Builtin {
 public:
-    typedef rete::SpecificTypeAccessor<std::shared_ptr<GeosGeometryInterface>> accessor_t;
     UTMFromWGSNode(
-            std::unique_ptr<accessor_t> geo,
-            std::unique_ptr<rete::NumberAccessor> zone
+            rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo,
+            rete::PersistentInterpretation<int> zone
     );
 
     rete::WME::Ptr process(rete::Token::Ptr) override;
@@ -25,9 +24,8 @@ public:
     bool operator == (const rete::BetaNode& other) const override;
 
 private:
-    std::unique_ptr<accessor_t> geo_;
-    std::unique_ptr<rete::NumberAccessor> zone_;
-
+    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo_;
+    rete::PersistentInterpretation<int> zone_;
 };
 
 

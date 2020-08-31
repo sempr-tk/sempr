@@ -4,6 +4,7 @@
 #include <rete-reasoner/Exceptions.hpp>
 #include <rete-core/TupleWME.hpp>
 #include <rete-core/TupleWMEAccessor.hpp>
+#include "TupleComponentAccessor.hpp"
 
 namespace sempr {
 
@@ -21,30 +22,32 @@ rete::Builtin::Ptr UTMFromWGSBuilder::buildBuiltin(rete::ArgumentList& args) con
 
     // second must be a geometry
     if (args[1].isConst() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->canAs<UTMFromWGSNode::accessor_t>())
+        !args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>())
     {
         throw rete::NodeBuilderException("Second argument must be a geometry");
     }
     // clone accessor
-    std::unique_ptr<UTMFromWGSNode::accessor_t> geo(
-        args[1].getAccessor()->clone()->as<UTMFromWGSNode::accessor_t>());
+    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo(
+        args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>()->makePersistent()
+    );
 
     // third argument must be an number
-    std::unique_ptr<rete::NumberAccessor> zone;
+    rete::PersistentInterpretation<int> zone;
     if (args[2].isConst())
     {
         // create accessor
-        zone.reset(new rete::ConstantNumberAccessor<int>(args[2].getAST().toFloat()));
-        zone->index() = 0;
+        rete::ConstantAccessor<int> acc(args[2].getAST().toFloat());
+        acc.index() = 0;
+        zone = acc.getInterpretation<int>()->makePersistent();
     }
     else
     {
-        if (!args[2].getAccessor() || !args[2].getAccessor()->canAs<rete::NumberAccessor>())
+        if (!args[2].getAccessor() || !args[2].getAccessor()->getInterpretation<int>())
         {
-            throw rete::NodeBuilderException("Third argument must be a number indicating the target zone");
+            throw rete::NodeBuilderException("Third argument must be an integer indicating the target zone");
         }
 
-        zone.reset(args[2].getAccessor()->clone()->as<rete::NumberAccessor>());
+        zone = args[2].getAccessor()->getInterpretation<int>()->makePersistent();
     }
 
     // create the node

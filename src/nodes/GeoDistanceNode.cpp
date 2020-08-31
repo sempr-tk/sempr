@@ -5,8 +5,8 @@
 namespace sempr {
 
 GeoDistanceNode::GeoDistanceNode(
-    std::unique_ptr<GeoDistanceNode::accessor_t> geo1,
-    std::unique_ptr<GeoDistanceNode::accessor_t> geo2
+    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo1,
+    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo2
     )
     : rete::Builtin("geo:distance"),
       geo1_(std::move(geo1)),
@@ -17,8 +17,8 @@ GeoDistanceNode::GeoDistanceNode(
 rete::WME::Ptr GeoDistanceNode::process(rete::Token::Ptr token)
 {
     GeosGeometryInterface::Ptr g1, g2;
-    geo1_->getValue(token, g1);
-    geo2_->getValue(token, g2);
+    geo1_.interpretation->getValue(token, g1);
+    geo2_.interpretation->getValue(token, g2);
 
     // no result to pass on if any of the geometries is a nullptr
     if (!g1->geometry() || !g2->geometry()) return nullptr;
@@ -40,8 +40,8 @@ bool GeoDistanceNode::operator==(const rete::BetaNode& other) const
     auto o = dynamic_cast<const GeoDistanceNode*>(&other);
     if (!o) return false;
 
-    return *(o->geo1_) == *(this->geo1_) &&
-           *(o->geo2_) == *(this->geo2_);
+    return *(o->geo1_.accessor) == *(this->geo1_.accessor) &&
+           *(o->geo2_.accessor) == *(this->geo2_.accessor);
 }
 
 
