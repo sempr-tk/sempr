@@ -4,6 +4,7 @@
 
 #include "nodes/AffineTransformNodes.hpp"
 #include "nodes/AffineTransformBuilders.hpp"
+#include "TupleComponentAccessor.hpp"
 
 namespace sempr {
 

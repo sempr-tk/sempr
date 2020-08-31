@@ -15,9 +15,6 @@ void GeosPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<ECNodeBuilder<GeosGeometryInterface>>();
     core->parser().registerNodeBuilder<ECNodeBuilder<GeosGeometry>>();
 
-    core->parser().registerNodeBuilder<InferECBuilder<GeosGeometryInterface>>();
-    core->parser().registerNodeBuilder<InferECBuilder<GeosGeometry>>();
-
     core->parser().registerNodeBuilder<GeoDistanceBuilder>();
     core->parser().registerNodeBuilder<UTMFromWGSBuilder>();
 }

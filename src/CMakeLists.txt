@@ -29,6 +29,7 @@ set(SRC_FILES
     ./nodes/FileMonitorNode.cpp
     ./nodes/FileMonitorNodeBuilder.cpp
     ./nodes/InferECNode.cpp
+    ./nodes/InferECBuilder.cpp
     ./nodes/LoadTriplesFromFileNode.cpp
     ./nodes/LoadTriplesFromFileBuilder.cpp
     ./nodes/TextComponentTextNode.cpp

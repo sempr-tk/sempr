@@ -35,7 +35,8 @@ public:
     between different component types.
 */
 template <class C>
-class ComponentAccessor : public rete::Accessor<ECWME, std::shared_ptr<C>> {
+class ComponentAccessor :
+        public rete::Accessor<ECWME, std::shared_ptr<C>, Component::Ptr> {
 public:
     using Ptr = std::shared_ptr<ComponentAccessor>;
 
@@ -66,6 +67,11 @@ public:
         value = std::static_pointer_cast<C>(component);
     }
 
+    void getValue(ECWME::Ptr wme, Component::Ptr& value) const override
+    {
+        value = std::get<1>(wme->value_);
+    }
+
 
     // must be cloneable
     ComponentAccessor* clone() const override
@@ -81,6 +87,42 @@ public:
         return ComponentName<C>::value + (this->index_ < 0 ? std::string("") : "[" + std::to_string(this->index_) + "]");
     }
 };
+
+// specialization for ComponentAccessor<Component::Ptr>, else the doubled
+// template argument causes error
+template <>
+class ComponentAccessor<Component> :
+        public rete::Accessor<ECWME, Component::Ptr> {
+public:
+    using Ptr = std::shared_ptr<ComponentAccessor>;
+
+    bool equals(const rete::AccessorBase& other) const override
+    {
+        auto o = dynamic_cast<const ComponentAccessor*>(&other);
+        if (o)
+            return true;
+        else
+            return false;
+    }
+
+    void getValue(ECWME::Ptr wme, Component::Ptr& value) const override
+    {
+        value = std::get<1>(wme->value_);
+    }
+
+    ComponentAccessor* clone() const override
+    {
+        auto a = new ComponentAccessor();
+        a->index_ = this->index_;
+        return a;
+    }
+
+    std::string toString() const override
+    {
+        return "Component" + (this->index_ < 0 ? std::string("") : "[" + std::to_string(this->index_) + "]");
+    }
+};
+
 
 /**
     Accessor to get the tag of a component
