@@ -14,22 +14,23 @@ SopranoNodeBuilder::SopranoNodeBuilder(SopranoModule::Ptr module)
 
 void SopranoNodeBuilder::argToAccessor(
         rete::Argument& arg,
-        std::unique_ptr<rete::StringAccessor>& acc) const
+        rete::PersistentInterpretation<std::string>& acc) const
 {
     if (arg.isConst())
     {
-        acc.reset(new rete::ConstantStringAccessor(arg.getAST()));
+        rete::ConstantAccessor<std::string> accessor(arg.getAST());
+        acc = accessor.getInterpretation<std::string>()->makePersistent();
     }
     else
     {
-        if (arg.getAccessor()->canAs<rete::StringAccessor>())
+        if (arg.getAccessor()->getInterpretation<std::string>())
         {
-            acc.reset(arg.getAccessor()->clone()->as<rete::StringAccessor>());
+            acc = arg.getAccessor()->getInterpretation<std::string>()->makePersistent();
         }
         else
         {
             throw rete::NodeBuilderException("Argument " + arg.getVariableName()
-                                             + " is not compatible to string");
+                                             + " has no string interpretation.");
         }
     }
 }
@@ -42,7 +43,7 @@ rete::Production::Ptr SopranoNodeBuilder::buildEffect(rete::ArgumentList& args) 
     // must have exactly 3 arguments, which are string accessors
     if (args.size() != 3) throw rete::NodeBuilderException("Wrong number of arguments (!=3)");
 
-    std::unique_ptr<rete::StringAccessor> s, p, o;
+    rete::PersistentInterpretation<std::string> s, p, o;
     argToAccessor(args[0], s);
     argToAccessor(args[1], p);
     argToAccessor(args[2], o);

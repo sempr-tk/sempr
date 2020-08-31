@@ -94,9 +94,9 @@ void SopranoModule::answer(SPARQLQuery& query) const
 // -------------------------------------------------------------------
 SopranoNode::SopranoNode(
         SopranoModule::Ptr module,
-        std::unique_ptr<rete::StringAccessor> sub,
-        std::unique_ptr<rete::StringAccessor> pred,
-        std::unique_ptr<rete::StringAccessor> obj)
+        rete::PersistentInterpretation<std::string> sub,
+        rete::PersistentInterpretation<std::string> pred,
+        rete::PersistentInterpretation<std::string> obj)
     : module_(module),
       sub_(std::move(sub)), pred_(std::move(pred)), obj_(std::move(obj))
 {
@@ -107,9 +107,9 @@ void SopranoNode::execute(rete::Token::Ptr token, rete::PropagationFlag flag,
 {
     // get s,p,o from the token
     std::string s, p, o;
-    sub_->getValue(token, s);
-    pred_->getValue(token, p);
-    obj_->getValue(token, o);
+    sub_.interpretation->getValue(token, s);
+    pred_.interpretation->getValue(token, p);
+    obj_.interpretation->getValue(token, o);
 
     if (flag == rete::PropagationFlag::ASSERT)
     {
