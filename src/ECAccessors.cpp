@@ -60,4 +60,11 @@ ComponentTagAccessor* ComponentTagAccessor::clone() const
     return a;
 }
 
+std::string ComponentTagAccessor::toString() const
+{
+    return "Component" +
+           (index_ < 0 ? std::string("") : "[" + std::to_string(index_) + "]") +
+           ".tag";
+}
+
 }
