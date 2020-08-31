@@ -25,17 +25,17 @@ rete::Production::Ptr LoadTriplesFromFileBuilder::buildEffect(rete::ArgumentList
 
 
     // create the accessor
-    std::unique_ptr<rete::StringAccessor> filename;
+    rete::PersistentInterpretation<std::string> filename;
     if (args[0].isConst())
     {
-        // TODO: Due to a bug in rete this includes quotation marks :(
-        filename.reset(new rete::ConstantStringAccessor(args[0].getAST()));
+        rete::ConstantAccessor<std::string> acc(args[0].getAST());
+        filename = acc.getInterpretation<std::string>()->makePersistent();
     }
     else
     {
-        if (!args[0].getAccessor()->canAs<rete::StringAccessor>())
-            throw rete::NodeBuilderException("Argument " + args[0].getVariableName() + " is not compatible with StringAccessor.");
-        filename.reset(args[0].getAccessor()->clone()->as<rete::StringAccessor>());
+        if (!args[0].getAccessor()->getInterpretation<std::string>())
+            throw rete::NodeBuilderException("Argument " + args[0].getVariableName() + " has no string interpretation.");
+        filename = args[0].getAccessor()->getInterpretation<std::string>()->makePersistent();
     }
 
     // build the node

@@ -13,17 +13,17 @@ namespace sempr {
     This node creates a new affine transformation from the given parameters.
 */
 class AffineTransformCreate : public rete::Builtin {
-    std::unique_ptr<rete::NumberAccessor> x_, y_, z_, qx_, qy_, qz_, qw_;
+    rete::PersistentInterpretation<float> x_, y_, z_, qx_, qy_, qz_, qw_;
 public:
     // all values must be given when creating a new affine transformation.
     AffineTransformCreate(
-        std::unique_ptr<rete::NumberAccessor> x,
-        std::unique_ptr<rete::NumberAccessor> y,
-        std::unique_ptr<rete::NumberAccessor> z,
-        std::unique_ptr<rete::NumberAccessor> qx,
-        std::unique_ptr<rete::NumberAccessor> qy,
-        std::unique_ptr<rete::NumberAccessor> qz,
-        std::unique_ptr<rete::NumberAccessor> qw
+        rete::PersistentInterpretation<float> x,
+        rete::PersistentInterpretation<float> y,
+        rete::PersistentInterpretation<float> z,
+        rete::PersistentInterpretation<float> qx,
+        rete::PersistentInterpretation<float> qy,
+        rete::PersistentInterpretation<float> qz,
+        rete::PersistentInterpretation<float> qw
     );
 
 
@@ -53,9 +53,9 @@ public:
     makes the transition from "Value in Value in WME" to "Value in WME".)
 */
 class AffineTransformGet : public rete::Builtin {
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf_;
+    rete::PersistentInterpretation<AffineTransform::Ptr> tf_;
 public:
-    AffineTransformGet(std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf);
+    AffineTransformGet(rete::PersistentInterpretation<AffineTransform::Ptr> tf);
 
     /**
         Extracts the parameters. Returns a TupleWME<double, double, ..., double>
@@ -74,12 +74,12 @@ public:
     Multiplication of AffineTransforms
 */
 class AffineTransformMul : public rete::Builtin {
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> left_, right_;
+    rete::PersistentInterpretation<AffineTransform::Ptr> left_, right_;
 public:
     // for multiplication of two AffineTransforms.
     AffineTransformMul(
-        std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> left,
-        std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> right
+        rete::PersistentInterpretation<AffineTransform::Ptr> left,
+        rete::PersistentInterpretation<AffineTransform::Ptr> right
     );
 
     rete::WME::Ptr process(rete::Token::Ptr) override;
@@ -95,10 +95,10 @@ public:
     Compute inverse
 */
 class AffineTransformInv : public rete::Builtin {
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf_;
+    rete::PersistentInterpretation<AffineTransform::Ptr> tf_;
 public:
     AffineTransformInv(
-        std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf
+        rete::PersistentInterpretation<AffineTransform::Ptr> tf
     );
 
     rete::WME::Ptr process(rete::Token::Ptr) override;

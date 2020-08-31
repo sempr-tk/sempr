@@ -15,10 +15,10 @@ namespace sempr {
     the triples that it contains as individual WMEs.
 */
 class ExtractTriples : public rete::Production {
-    std::unique_ptr<ComponentAccessor<TripleContainer>> accessor_;
+    rete::PersistentInterpretation<TripleContainer::Ptr> container_;
 public:
     using Ptr = std::shared_ptr<ExtractTriples>;
-    ExtractTriples(std::unique_ptr<ComponentAccessor<TripleContainer>> container);
+    ExtractTriples(rete::PersistentInterpretation<TripleContainer::Ptr> container);
 
     /**
         Infer triples from the TripleContainer in the token, iff the propagationflag

@@ -113,14 +113,14 @@ public:
 */
 class SopranoNode : public rete::Production {
     SopranoModule::Ptr module_;
-    std::unique_ptr<rete::StringAccessor> sub_, pred_, obj_;
+    rete::PersistentInterpretation<std::string> sub_, pred_, obj_;
 
 public:
     using Ptr = std::shared_ptr<SopranoNode>;
     SopranoNode(SopranoModule::Ptr,
-            std::unique_ptr<rete::StringAccessor> sub,
-            std::unique_ptr<rete::StringAccessor> pred,
-            std::unique_ptr<rete::StringAccessor> obj);
+            rete::PersistentInterpretation<std::string> sub,
+            rete::PersistentInterpretation<std::string> pred,
+            rete::PersistentInterpretation<std::string> obj);
 
     /**
         Update the Soprano::Model. Does not infer anything.

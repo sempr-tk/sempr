@@ -18,10 +18,10 @@ namespace sempr {
     - NTriples
 */
 class LoadTriplesFromFileNode : public rete::Production {
-    std::unique_ptr<rete::StringAccessor> filename_;
+    rete::PersistentInterpretation<std::string> filename_;
 public:
     using Ptr = std::shared_ptr<LoadTriplesFromFileNode>;
-    LoadTriplesFromFileNode(std::unique_ptr<rete::StringAccessor> filename);
+    LoadTriplesFromFileNode(rete::PersistentInterpretation<std::string> filename);
 
     /**
         Infers triples from the given Token by extracting a filename from it,

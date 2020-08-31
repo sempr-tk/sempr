@@ -19,17 +19,25 @@ rete::Builtin::Ptr GeoDistanceBuilder::buildBuiltin(rete::ArgumentList& args) co
     if (args.size() != 3) throw rete::NodeBuilderException("Invalid number of arguments (!=3)");
     if (args[0].isConst() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be unbound, as it is reserved for the result.");
 
-    std::unique_ptr<GeoDistanceNode::accessor_t> geo1, geo2;
+    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo1, geo2;
 
     if (args[1].isConst() || args[2].isConst()) throw rete::NodeBuilderException("Arguments cannot be constants");
-    if (!args[1].getAccessor() || !args[1].getAccessor()->canAs<GeoDistanceNode::accessor_t>())
+
+    if (!args[1].getAccessor() ||
+        !args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>())
+    {
         throw rete::NodeBuilderException("Second argument must be bound to a Geometry");
-    if (!args[2].getAccessor() || !args[2].getAccessor()->canAs<GeoDistanceNode::accessor_t>())
+    }
+
+    if (!args[2].getAccessor() ||
+        !args[2].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>())
+    {
         throw rete::NodeBuilderException("Third argument must be bound to a Geometry");
+    }
 
     // clone accessors
-    geo1.reset(args[1].getAccessor()->clone()->as<GeoDistanceNode::accessor_t>());
-    geo2.reset(args[2].getAccessor()->clone()->as<GeoDistanceNode::accessor_t>());
+    geo1 = args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>()->makePersistent();
+    geo2 = args[2].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>()->makePersistent();
 
     // create the node
     auto node = std::make_shared<GeoDistanceNode>(std::move(geo1), std::move(geo2));

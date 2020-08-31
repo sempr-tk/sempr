@@ -3,8 +3,11 @@
 
 namespace sempr {
 
-ConstructRulesNode::ConstructRulesNode(Core* sempr, std::unique_ptr<rete::StringAccessor> rules)
-    : rules_(std::move(rules)), sempr_(sempr)
+ConstructRulesNode::ConstructRulesNode(
+        Core* sempr,
+        rete::PersistentInterpretation<std::string> rules)
+    :
+        rules_(std::move(rules)), sempr_(sempr)
 {
 }
 
@@ -18,7 +21,7 @@ void ConstructRulesNode::execute(
     if (flag == rete::PropagationFlag::ASSERT || flag == rete::PropagationFlag::UPDATE)
     {
         std::string rulestring;
-        rules_->getValue(token, rulestring);
+        rules_.interpretation->getValue(token, rulestring);
 
         // create new rules
         try {
@@ -45,7 +48,7 @@ void ConstructRulesNode::execute(
 
 std::string ConstructRulesNode::toString() const
 {
-    return "ConstructRules(" + rules_->toString() + ")";
+    return "ConstructRules(" + rules_.accessor->toString() + ")";
 }
 
 }

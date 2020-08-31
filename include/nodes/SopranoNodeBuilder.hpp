@@ -17,7 +17,7 @@ namespace sempr {
 class SopranoNodeBuilder : public rete::NodeBuilder {
     SopranoModule::Ptr module_;
 
-    void argToAccessor(rete::Argument& arg, std::unique_ptr<rete::StringAccessor>& acc) const;
+    void argToAccessor(rete::Argument& arg, rete::PersistentInterpretation<std::string>& acc) const;
 public:
     SopranoNodeBuilder(SopranoModule::Ptr);
     rete::Production::Ptr buildEffect(rete::ArgumentList& args) const override;

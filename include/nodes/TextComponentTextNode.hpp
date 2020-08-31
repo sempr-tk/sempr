@@ -13,10 +13,10 @@ namespace sempr {
     Propagates a TupleWME<std::string> with the value.
 */
 class TextComponentTextNode : public rete::Builtin {
-    std::unique_ptr<rete::SpecificTypeAccessor<TextComponent::Ptr>> component_;
+    rete::PersistentInterpretation<TextComponent::Ptr> component_;
 public:
     TextComponentTextNode(
-        std::unique_ptr<rete::SpecificTypeAccessor<TextComponent::Ptr>> c
+        rete::PersistentInterpretation<TextComponent::Ptr> c
     );
 
     rete::WME::Ptr process(rete::Token::Ptr) override;

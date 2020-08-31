@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_SUITE(InferECTest)
         parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
         parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::GeosGeometry>>();
         parser.registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
-        parser.registerNodeBuilder<sempr::InferECBuilder<sempr::AffineTransform>>();
+        parser.registerNodeBuilder<sempr::InferECBuilder>();
 
         sempr::Core core;
 
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(InferECTest)
             "[defaultTF: EC<GeosGeom>(?entity ?geom),"
             "            tf:create(?default 0 0 0 0 0 0 1)"
             "            ->"
-            "            EC<Transform>(?entity ?default)]\n",
+            "            EC(?entity ?default)]\n",
             core.reasoner().net()
         );
 

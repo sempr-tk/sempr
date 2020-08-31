@@ -29,11 +29,6 @@ void RDFPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<ECNodeBuilder<TripleVector>>();
     core->parser().registerNodeBuilder<ECNodeBuilder<TriplePropertyMap>>();
 
-    core->parser().registerNodeBuilder<InferECBuilder<TripleContainer>>();
-    core->parser().registerNodeBuilder<InferECBuilder<TripleDocument>>();
-    core->parser().registerNodeBuilder<InferECBuilder<TripleVector>>();
-    core->parser().registerNodeBuilder<InferECBuilder<TriplePropertyMap>>();
-
     core->parser().registerNodeBuilder<ExtractTriplesBuilder>();
     core->parser().registerNodeBuilder<SopranoNodeBuilder>(soprano_);
     core->parser().registerNodeBuilder<TripleDocumentFilenameBuilder>();

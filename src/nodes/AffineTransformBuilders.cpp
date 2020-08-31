@@ -4,6 +4,7 @@
 
 #include "nodes/AffineTransformNodes.hpp"
 #include "nodes/AffineTransformBuilders.hpp"
+#include "TupleComponentAccessor.hpp"
 
 namespace sempr {
 
@@ -23,15 +24,18 @@ rete::Builtin::Ptr AffineTransformCreateBuilder::buildBuiltin(rete::ArgumentList
     if (args.size() != 8) throw rete::NodeBuilderException("Invalid number of arguments (!= 8)");
     if (args[0].isConst() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be unbound variable to store the result in");
 
-    std::unique_ptr<rete::NumberAccessor> params[7];
+    rete::PersistentInterpretation<float> params[7];
     for (int i = 1; i < 8; i++)
     {
         if (args[i].isConst())
         {
             // create const accessors for constants in rule defs
-            params[i-1].reset(new rete::ConstantNumberAccessor<float>(args[i].getAST().toFloat()));
+            auto acc = new rete::ConstantAccessor<float>(args[i].getAST().toFloat());
             // Allow the accessor to be applied to a token.
-            params[i-1]->index() = 0;
+            acc->index() = 0;
+
+            // save it in a unified format
+            params[i-1] = acc->getInterpretation<float>()->makePersistent();
         }
         else
         {
@@ -41,14 +45,15 @@ rete::Builtin::Ptr AffineTransformCreateBuilder::buildBuiltin(rete::ArgumentList
                                                  "is unbound!");
             }
 
-            if (!args[i].getAccessor()->canAs<rete::NumberAccessor>())
+            auto interpretation = args[i].getAccessor()->getInterpretation<float>();
+            if (!interpretation)
             {
                 throw rete::NodeBuilderException("Argument " + std::to_string(i) + " (" + args[i].getVariableName() + ") "
                                                  "is incompatible to rete::NumberAccessor");
             }
 
-            // all good. clone accessor
-            params[i-1].reset(args[i].getAccessor()->clone()->as<rete::NumberAccessor>());
+            // all good. save a persistent copy
+            params[i-1] = interpretation->makePersistent();
         }
     }
 
@@ -89,7 +94,9 @@ rete::Builtin::Ptr AffineTransformGetBuilder::buildBuiltin(rete::ArgumentList& a
     // the first argument must be bound to an AffineTransform
     if (args[0].isConst()) throw rete::NodeBuilderException("First argument must be AffineTransform, but is some constant.");
     if (!args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be AffineTransform, but is unbound.");
-    if (!args[0].getAccessor()->canAs<rete::SpecificTypeAccessor<AffineTransform::Ptr>>())
+
+    auto interpretation = args[0].getAccessor()->getInterpretation<AffineTransform::Ptr>();
+    if (!interpretation)
         throw rete::NodeBuilderException("First argument must be bound to an AffineTransform, nothing else.");
 
     // all other arguments must be unbound variables to store the results in
@@ -110,12 +117,8 @@ rete::Builtin::Ptr AffineTransformGetBuilder::buildBuiltin(rete::ArgumentList& a
     if (args.size() > 6) args[6].bind(std::make_shared<rete::TupleWMEAccessor<5, ResultWME>>()); // ?qz
     if (args.size() > 7) args[7].bind(std::make_shared<rete::TupleWMEAccessor<6, ResultWME>>()); // ?qw
 
-    // clone the accessor to the AffineTransform
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> accessor(
-        args[0].getAccessor()->clone()->as<rete::SpecificTypeAccessor<AffineTransform::Ptr>>()
-    );
     // create the node
-    auto node = std::make_shared<AffineTransformGet>(std::move(accessor));
+    auto node = std::make_shared<AffineTransformGet>(interpretation->makePersistent());
 
     return node;
 }
@@ -131,21 +134,26 @@ AffineTransformMulBuilder::AffineTransformMulBuilder()
 rete::Builtin::Ptr AffineTransformMulBuilder::buildBuiltin(rete::ArgumentList& args) const
 {
     // exactly 3 arguments: one unbound result variable and two bound to AffineTransforms.
-    if (args.size() != 3) throw rete::NodeBuilderException("Invalid number of arguments (!= 3)");
-    if (args[0].isConst() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be unbound, for the result.");
+    if (args.size() != 3)
+        throw rete::NodeBuilderException("Invalid number of arguments (!= 3)");
+
+    if (args[0].isConst() || args[0].getAccessor())
+        throw rete::NodeBuilderException("First argument must be unbound, for the result.");
+
     // second: variable bound to AffineTransform.
     if (args[1].isConst() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->canAs<rete::SpecificTypeAccessor<AffineTransform::Ptr>>())
+        !args[1].getAccessor()->getInterpretation<AffineTransform::Ptr>())
         throw rete::NodeBuilderException("Second argument must be bound to an AffineTransform.");
+
     // third: variable bound to AffineTransform
     if (args[1].isConst() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->canAs<rete::SpecificTypeAccessor<AffineTransform::Ptr>>())
+        !args[1].getAccessor()->getInterpretation<AffineTransform::Ptr>())
         throw rete::NodeBuilderException("Second argument must be bound to an AffineTransform.");
 
     // clone the accessors
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>>
-        left(args[1].getAccessor()->clone()->as<rete::SpecificTypeAccessor<AffineTransform::Ptr>>()),
-        right(args[2].getAccessor()->clone()->as<rete::SpecificTypeAccessor<AffineTransform::Ptr>>());
+    rete::PersistentInterpretation<AffineTransform::Ptr>
+        left(args[1].getAccessor()->getInterpretation<AffineTransform::Ptr>()->makePersistent()),
+        right(args[2].getAccessor()->getInterpretation<AffineTransform::Ptr>()->makePersistent());
 
     // create the node
     auto node = std::make_shared<AffineTransformMul>(std::move(left), std::move(right));
@@ -171,12 +179,12 @@ rete::Builtin::Ptr AffineTransformInvBuilder::buildBuiltin(rete::ArgumentList& a
     if (args.size() != 2) throw rete::NodeBuilderException("Invalid number of arguments (!=2)");
     if (args[0].isConst() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be an unbound variable.");
     if (args[1].isConst() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->canAs<rete::SpecificTypeAccessor<AffineTransform::Ptr>>())
+        !args[1].getAccessor()->getInterpretation<AffineTransform::Ptr>())
         throw rete::NodeBuilderException("Second argument must be bound to an AffineTransform.");
 
     // clone accessor
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>>
-        input(args[1].getAccessor()->clone()->as<rete::SpecificTypeAccessor<AffineTransform::Ptr>>());
+    rete::PersistentInterpretation<AffineTransform::Ptr>
+        input(args[1].getAccessor()->getInterpretation<AffineTransform::Ptr>()->makePersistent());
 
     // construct node
     auto node = std::make_shared<AffineTransformInv>(std::move(input));

@@ -14,9 +14,10 @@ namespace sempr {
     Returns a TupleWME<std::string> with the filename.
 */
 class TripleDocumentFilenameNode : public rete::Builtin {
-    std::unique_ptr<rete::SpecificTypeAccessor<TripleDocument::Ptr>> document_;
+    rete::PersistentInterpretation<TripleDocument::Ptr> document_;
 public:
-    TripleDocumentFilenameNode(std::unique_ptr<rete::SpecificTypeAccessor<TripleDocument::Ptr>>);
+    TripleDocumentFilenameNode(
+        rete::PersistentInterpretation<TripleDocument::Ptr>);
 
     rete::WME::Ptr process(rete::Token::Ptr) override;
 

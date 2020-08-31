@@ -13,10 +13,9 @@ namespace sempr {
 */
 class GeoDistanceNode : public rete::Builtin {
 public:
-    typedef rete::SpecificTypeAccessor<std::shared_ptr<GeosGeometryInterface>> accessor_t;
     GeoDistanceNode(
-            std::unique_ptr<accessor_t> geo1,
-            std::unique_ptr<accessor_t> geo2
+            rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo1,
+            rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo2
     );
 
     rete::WME::Ptr process(rete::Token::Ptr) override;
@@ -24,7 +23,7 @@ public:
     bool operator == (const rete::BetaNode& other) const override;
 
 private:
-    std::unique_ptr<accessor_t> geo1_, geo2_;
+    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo1_, geo2_;
 
 };
 

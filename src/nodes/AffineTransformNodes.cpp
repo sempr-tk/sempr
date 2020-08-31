@@ -10,13 +10,13 @@ namespace sempr {
 // Create
 // ----------------------------------------------------------------------------
 AffineTransformCreate::AffineTransformCreate(
-        std::unique_ptr<rete::NumberAccessor> x,
-        std::unique_ptr<rete::NumberAccessor> y,
-        std::unique_ptr<rete::NumberAccessor> z,
-        std::unique_ptr<rete::NumberAccessor> qx,
-        std::unique_ptr<rete::NumberAccessor> qy,
-        std::unique_ptr<rete::NumberAccessor> qz,
-        std::unique_ptr<rete::NumberAccessor> qw
+        rete::PersistentInterpretation<float> x,
+        rete::PersistentInterpretation<float> y,
+        rete::PersistentInterpretation<float> z,
+        rete::PersistentInterpretation<float> qx,
+        rete::PersistentInterpretation<float> qy,
+        rete::PersistentInterpretation<float> qz,
+        rete::PersistentInterpretation<float> qw
     )
     : rete::Builtin("tf:create"),
         x_(std::move(x)),
@@ -31,18 +31,20 @@ AffineTransformCreate::AffineTransformCreate(
 
 rete::WME::Ptr AffineTransformCreate::process(rete::Token::Ptr token)
 {
-    Eigen::Vector3d translation(
-        x_->getDouble(token),
-        y_->getDouble(token),
-        z_->getDouble(token)
-    );
+    float x, y, z;
+    x_.interpretation->getValue(token, x);
+    y_.interpretation->getValue(token, y);
+    z_.interpretation->getValue(token, z);
 
-    Eigen::Quaterniond quaternion(
-            qw_->getDouble(token),
-            qx_->getDouble(token),
-            qy_->getDouble(token),
-            qz_->getDouble(token)
-    );
+    Eigen::Vector3d translation(x, y, z);
+
+    float qx, qy, qz, qw;
+    qx_.interpretation->getValue(token, qx);
+    qy_.interpretation->getValue(token, qy);
+    qz_.interpretation->getValue(token, qz);
+    qw_.interpretation->getValue(token, qw);
+
+    Eigen::Quaterniond quaternion(qw, qx, qy, qz);
 
     // create the eigen matrix representing the transformation
     Eigen::Affine3d tf = Eigen::Affine3d::Identity();
@@ -67,20 +69,20 @@ bool AffineTransformCreate::operator==(const rete::BetaNode& other) const
     auto o = dynamic_cast<const AffineTransformCreate*>(&other);
     if (!o) return false;
 
-    return *(o->x_) == *(this->x_) &&
-           *(o->y_) == *(this->y_) &&
-           *(o->z_) == *(this->z_) &&
-           *(o->qx_) == *(this->qx_) &&
-           *(o->qy_) == *(this->qy_) &&
-           *(o->qz_) == *(this->qz_) &&
-           *(o->qw_) == *(this->qw_);
+    return *(o->x_.accessor) == *(this->x_.accessor) &&
+           *(o->y_.accessor) == *(this->y_.accessor) &&
+           *(o->z_.accessor) == *(this->z_.accessor) &&
+           *(o->qx_.accessor) == *(this->qx_.accessor) &&
+           *(o->qy_.accessor) == *(this->qy_.accessor) &&
+           *(o->qz_.accessor) == *(this->qz_.accessor) &&
+           *(o->qw_.accessor) == *(this->qw_.accessor);
 }
 
 // ----------------------------------------------------------------------------
 // Get (extract parameters)
 // ----------------------------------------------------------------------------
 AffineTransformGet::AffineTransformGet(
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf
+    rete::PersistentInterpretation<AffineTransform::Ptr> tf
     )
     : rete::Builtin("tf:get"),
         tf_(std::move(tf))
@@ -91,7 +93,7 @@ rete::WME::Ptr AffineTransformGet::process(rete::Token::Ptr token)
 {
     // get AffineTransform from token
     AffineTransform::Ptr tf;
-    tf_->getValue(token, tf);
+    tf_.interpretation->getValue(token, tf);
 
     // compute translation and quaternion
     auto t = tf->transform().translation();
@@ -113,15 +115,15 @@ bool AffineTransformGet::operator==(const rete::BetaNode& other) const
     auto o = dynamic_cast<const AffineTransformGet*>(&other);
     if (!o) return false;
 
-    return *(this->tf_) == *(o->tf_);
+    return *(this->tf_.accessor) == *(o->tf_.accessor);
 }
 
 // ----------------------------------------------------------------------------
 // Multiply
 // ----------------------------------------------------------------------------
 AffineTransformMul::AffineTransformMul(
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> left,
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> right
+    rete::PersistentInterpretation<AffineTransform::Ptr> left,
+    rete::PersistentInterpretation<AffineTransform::Ptr> right
     )
     : rete::Builtin("tf:mul"),
         left_(std::move(left)),
@@ -133,8 +135,8 @@ rete::WME::Ptr AffineTransformMul::process(rete::Token::Ptr token)
 {
     // get the operands
     AffineTransform::Ptr left, right;
-    left_->getValue(token, left);
-    right_->getValue(token, right);
+    left_.interpretation->getValue(token, left);
+    right_.interpretation->getValue(token, right);
 
     // multiply transformations
     auto result = left->transform() * right->transform();
@@ -150,8 +152,8 @@ bool AffineTransformMul::operator==(const rete::BetaNode& other) const
     auto o = dynamic_cast<const AffineTransformMul*>(&other);
     if (!o) return false;
 
-    return *(this->left_) == *(o->left_) &&
-           *(this->right_) == *(o->right_);
+    return *(this->left_.accessor) == *(o->left_.accessor) &&
+           *(this->right_.accessor) == *(o->right_.accessor);
 }
 
 
@@ -159,7 +161,7 @@ bool AffineTransformMul::operator==(const rete::BetaNode& other) const
 // Inverse
 // ----------------------------------------------------------------------------
 AffineTransformInv::AffineTransformInv(
-    std::unique_ptr<rete::SpecificTypeAccessor<AffineTransform::Ptr>> tf
+    rete::PersistentInterpretation<AffineTransform::Ptr> tf
     )
     : rete::Builtin("tf:inv"),
         tf_(std::move(tf))
@@ -171,7 +173,7 @@ rete::WME::Ptr AffineTransformInv::process(rete::Token::Ptr token)
 {
     // get operand
     AffineTransform::Ptr tf;
-    tf_->getValue(token, tf);
+    tf_.interpretation->getValue(token, tf);
 
     // compute inverse
     auto inv = tf->transform().inverse();
@@ -187,7 +189,7 @@ bool AffineTransformInv::operator==(const rete::BetaNode& other) const
     auto o = dynamic_cast<const AffineTransformInv*>(&other);
     if (!o) return false;
 
-    return *(this->tf_) == *(o->tf_);
+    return *(this->tf_.accessor) == *(o->tf_.accessor);
 }
 
 }

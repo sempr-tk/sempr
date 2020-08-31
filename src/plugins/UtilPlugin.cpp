@@ -15,7 +15,7 @@ namespace sempr {
 void UtilPlugin::setup(Core* core) const
 {
     core->parser().registerNodeBuilder<ECNodeBuilder<TextComponent>>();
-    core->parser().registerNodeBuilder<InferECBuilder<TextComponent>>();
+    core->parser().registerNodeBuilder<InferECBuilder>();
     core->parser().registerNodeBuilder<ConstructRulesBuilder>(core);
     core->parser().registerNodeBuilder<FileMonitorNodeBuilder>(core->reasonerMutex());
     core->parser().registerNodeBuilder<TextComponentTextBuilder>();

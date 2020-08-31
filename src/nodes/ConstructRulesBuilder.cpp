@@ -19,20 +19,21 @@ rete::Production::Ptr ConstructRulesBuilder::buildEffect(rete::ArgumentList& arg
     // must have exactly one argument, a string.
     if (args.size() != 1) throw rete::NodeBuilderException("Invalid number of arguments (!= 1).");
 
-    std::unique_ptr<rete::StringAccessor> rules;
+    rete::PersistentInterpretation<std::string> rules;
     if (args[0].isConst())
     {
-        rules.reset(new rete::ConstantStringAccessor(args[0].getAST()));
-        rules->index() = 0;
+        auto acc = new rete::ConstantAccessor<std::string>(args[0].getAST());
+        acc->index() = 0;
+        rules = acc->getInterpretation<std::string>()->makePersistent();
     }
     else
     {
-        if (!args[0].getAccessor()->canAs<rete::StringAccessor>())
+        if (!args[0].getAccessor()->getInterpretation<std::string>())
         {
-            throw rete::NodeBuilderException("Argument " + args[0].getVariableName() + " is not compatible with StringAccessor.");
+            throw rete::NodeBuilderException("Argument " + args[0].getVariableName() + " has no interpretation as string.");
         }
 
-        rules.reset(args[0].getAccessor()->clone()->as<rete::StringAccessor>());
+        rules = args[0].getAccessor()->getInterpretation<std::string>()->makePersistent();
     }
 
     // build the node

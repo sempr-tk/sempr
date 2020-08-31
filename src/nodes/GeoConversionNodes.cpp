@@ -8,11 +8,12 @@ namespace sempr {
 
 
 UTMFromWGSNode::UTMFromWGSNode(
-        std::unique_ptr<accessor_t> geo,
-        std::unique_ptr<rete::NumberAccessor> zone)
-    : rete::Builtin("geo:UTMFromWGS"),
-      geo_(std::move(geo)),
-      zone_(std::move(zone))
+        rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo,
+        rete::PersistentInterpretation<int> zone)
+    :
+        rete::Builtin("geo:UTMFromWGS"),
+        geo_(std::move(geo)),
+        zone_(std::move(zone))
 {
 }
 
@@ -20,8 +21,8 @@ rete::WME::Ptr UTMFromWGSNode::process(rete::Token::Ptr token)
 {
     GeosGeometryInterface::Ptr geometry;
     int targetZone;
-    geo_->getValue(token, geometry);
-    zone_->getValue(token, targetZone);
+    geo_.interpretation->getValue(token, geometry);
+    zone_.interpretation->getValue(token, targetZone);
 
     if (!geometry->geometry()) return nullptr;
 
@@ -71,8 +72,8 @@ bool UTMFromWGSNode::operator== (const rete::BetaNode& other) const
     auto o = dynamic_cast<const UTMFromWGSNode*>(&other);
     if (!o) return false;
 
-    return *(o->geo_) == *(this->geo_) &&
-           *(o->zone_) == *(this->zone_);
+    return *(o->geo_.accessor) == *(this->geo_.accessor) &&
+           *(o->zone_.accessor) == *(this->zone_.accessor);
 }
 
 

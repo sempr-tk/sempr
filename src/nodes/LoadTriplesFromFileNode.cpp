@@ -8,8 +8,10 @@
 namespace sempr {
 
 
-LoadTriplesFromFileNode::LoadTriplesFromFileNode(std::unique_ptr<rete::StringAccessor> filename)
-    : filename_(std::move(filename))
+LoadTriplesFromFileNode::LoadTriplesFromFileNode(
+        rete::PersistentInterpretation<std::string> filename)
+    :
+        filename_(std::move(filename))
 {
 }
 
@@ -28,6 +30,9 @@ void LoadTriplesFromFileNode::execute(
             Soprano::SerializationNTriples
         };
 
+        std::string fname;
+        filename_.interpretation->getValue(token, fname);
+
         bool success = false;
         for (auto option : options)
         {
@@ -36,8 +41,9 @@ void LoadTriplesFromFileNode::execute(
                 std::cerr << "Soprano: No parser for option " << option << std::endl;
                 continue;
             }
+
             auto statements = p->parseFile(
-                    QString::fromStdString(filename_->getString(token)),
+                    QString::fromStdString(fname),
                     QUrl(), option);
             if (!p->lastError())
             {
@@ -58,14 +64,14 @@ void LoadTriplesFromFileNode::execute(
 
         if (!success)
         {
-            std::cerr << "Soprano: Failed to parse file: " << filename_->getString(token) << std::endl;
+            std::cerr << "Soprano: Failed to parse file: " << fname << std::endl;
         }
     }
 }
 
 std::string LoadTriplesFromFileNode::toString() const
 {
-    return "LoadTriplesFromFile(" + filename_->toString() + ")";
+    return "LoadTriplesFromFile(" + filename_.accessor->toString() + ")";
 }
 
 

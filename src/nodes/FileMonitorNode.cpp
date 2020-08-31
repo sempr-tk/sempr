@@ -4,9 +4,12 @@
 
 namespace sempr {
 
-FileMonitorNode::FileMonitorNode(std::recursive_mutex& mutex, std::unique_ptr<rete::StringAccessor> acc)
-    : rete::Builtin("file:exists"),
-      reteMutex_(mutex), fileName_(std::move(acc))
+FileMonitorNode::FileMonitorNode(
+        std::recursive_mutex& mutex,
+        rete::PersistentInterpretation<std::string> acc)
+    :
+        rete::Builtin("file:exists"),
+        reteMutex_(mutex), fileName_(std::move(acc))
 {
 }
 
@@ -85,7 +88,9 @@ void FileMonitorNode::leftActivate(rete::Token::Ptr token, rete::PropagationFlag
     }
     else if (flag == rete::PropagationFlag::UPDATE)
     {
-        if (fileName_->getString(token) == watchers_[token].getCurrentPath())
+        std::string file;
+        fileName_.interpretation->getValue(token, file);
+        if (file == watchers_[token].getCurrentPath())
         {
             // fileName did not change, so lets check what the current state of
             // the file is and decide if we drop the update or propagate it.
@@ -111,7 +116,7 @@ void FileMonitorNode::leftActivate(rete::Token::Ptr token, rete::PropagationFlag
             // watcher.
             watchers_[token].stop();
             bmem->leftActivate(token, nullptr, rete::PropagationFlag::RETRACT);
-            startWatcher(token, fileName_->getString(token));
+            startWatcher(token, file);
         }
     }
     else if (flag == rete::PropagationFlag::ASSERT)
@@ -119,7 +124,9 @@ void FileMonitorNode::leftActivate(rete::Token::Ptr token, rete::PropagationFlag
         std::cout << "FileMonitorNode: ASSERT" << std::endl;
         // Add a new watcher and do nothing else. The watcher will at some point
         // trigger an assert if the file exists, but will do so asynchronously.
-        startWatcher(token, fileName_->getString(token));
+        std::string file;
+        fileName_.interpretation->getValue(token, file);
+        startWatcher(token, file);
     }
 }
 
@@ -131,7 +138,7 @@ bool FileMonitorNode::operator == (const rete::BetaNode& other) const
     auto o = dynamic_cast<const FileMonitorNode*>(&other);
     if (!o) return false;
 
-    return *(o->fileName_) == *(this->fileName_);
+    return *(o->fileName_.accessor) == *(this->fileName_.accessor);
 }
 
 

@@ -17,7 +17,7 @@ namespace sempr {
     persist and edit them in the same manner as everything else.
 */
 class ConstructRulesNode : public rete::Production {
-    std::unique_ptr<rete::StringAccessor> rules_;
+    rete::PersistentInterpretation<std::string> rules_;
     Core* sempr_;
 
     // in order to deconstruct rules that have been removed we need to keep
@@ -30,7 +30,7 @@ public:
         Creates a new ConstructRulesNode. This node will add the rules it gets
         through the given string accessor to the specified sempr instance.
     */
-    ConstructRulesNode(Core* sempr, std::unique_ptr<rete::StringAccessor> rules);
+    ConstructRulesNode(Core* sempr, rete::PersistentInterpretation<std::string> rules);
 
     /**
         Constructs/deconstructs rules
