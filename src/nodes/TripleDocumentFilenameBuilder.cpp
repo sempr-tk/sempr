@@ -20,15 +20,15 @@ rete::Builtin::Ptr TripleDocumentFilenameBuilder::buildBuiltin(rete::ArgumentLis
     if (!args[0].isVariable() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be ab unbound variable for the result.");
 
     if (!args[1].isVariable() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->canAs<rete::SpecificTypeAccessor<TripleDocument::Ptr>>())
+        !args[1].getAccessor()->getInterpretation<TripleDocument::Ptr>())
     {
         throw rete::NodeBuilderException("Second argument must be bound to a TripleDocument.");
     }
 
     // clone the accessor
-    std::unique_ptr<rete::SpecificTypeAccessor<TripleDocument::Ptr>>
+    rete::PersistentInterpretation<TripleDocument::Ptr>
     doc(
-        args[1].getAccessor()->clone()->as<rete::SpecificTypeAccessor<TripleDocument::Ptr>>()
+        args[1].getAccessor()->getInterpretation<TripleDocument::Ptr>()->makePersistent()
     );
 
     // create the node
