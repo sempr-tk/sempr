@@ -20,15 +20,15 @@ rete::Builtin::Ptr TextComponentTextBuilder::buildBuiltin(rete::ArgumentList& ar
         throw rete::NodeBuilderException("First argument must be an unbound variable for the result.");
 
     if (!args[1].isVariable() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->canAs<rete::SpecificTypeAccessor<TextComponent::Ptr>>())
+        !args[1].getAccessor()->getInterpretation<TextComponent::Ptr>())
     {
         throw rete::NodeBuilderException("Second argument must be bound to a TextComponent.");
     }
 
     // clone the accessor
-    std::unique_ptr<rete::SpecificTypeAccessor<TextComponent::Ptr>>
+    rete::PersistentInterpretation<TextComponent::Ptr>
     text(
-        args[1].getAccessor()->clone()->as<rete::SpecificTypeAccessor<TextComponent::Ptr>>()
+        args[1].getAccessor()->getInterpretation<TextComponent::Ptr>()->makePersistent()
     );
 
     // create the node
