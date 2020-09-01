@@ -52,6 +52,8 @@ BOOST_AUTO_TEST_SUITE(SopranoTest)
 
         // query before adding anything. expect 0 results.
         core.reasoner().performInference();
+
+
         sempr::SPARQLQuery query;
         query.query = "SELECT * WHERE { ?a <ex:foobar> ?b . }";
         soprano->answer(query);
@@ -66,6 +68,7 @@ BOOST_AUTO_TEST_SUITE(SopranoTest)
         // add part2, expect 3 results
         entity->addComponent(part2);
         core.reasoner().performInference();
+        std::ofstream("SopranoTest_1.dot") << core.reasoner().net().toDot();
         soprano->answer(query);
         std::cout << query.results.size() << std::endl;
         BOOST_CHECK(query.results.size() == 3);

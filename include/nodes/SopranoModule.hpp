@@ -4,6 +4,7 @@
 #include <rete-core/Production.hpp>
 #include <rete-core/Accessors.hpp>
 #include <rete-rdf/Triple.hpp>
+#include <rete-rdf/TriplePart.hpp>
 
 #include <Soprano/Soprano>
 
@@ -76,12 +77,6 @@ public:
     was contained in the SopranoNode this would be difficult to aquire.
 */
 class SopranoModule {
-    // TODO: So far we have no "TripleNode" datatype as we have strings, numbers and components!
-    // TripleAccessor is merely an implementation of StringAccessor, and thus returns the contents of
-    // triples as strings... In this case we want to have them as actual nodes, as
-    // <http://some.random/resource#foo> or "42"^^<xsd:Integer> etc...
-    // Whereas with a StringAccessor we expect "42" (without quotation marks),
-    // and maybe "http://....#foo" (without <>, without "")?
     Soprano::Model* model_;
 
     static Soprano::Statement StatementFromSPO(const std::string& subject,
@@ -113,14 +108,14 @@ public:
 */
 class SopranoNode : public rete::Production {
     SopranoModule::Ptr module_;
-    rete::PersistentInterpretation<std::string> sub_, pred_, obj_;
+    rete::PersistentInterpretation<rete::TriplePart> sub_, pred_, obj_;
 
 public:
     using Ptr = std::shared_ptr<SopranoNode>;
     SopranoNode(SopranoModule::Ptr,
-            rete::PersistentInterpretation<std::string> sub,
-            rete::PersistentInterpretation<std::string> pred,
-            rete::PersistentInterpretation<std::string> obj);
+            rete::PersistentInterpretation<rete::TriplePart> sub,
+            rete::PersistentInterpretation<rete::TriplePart> pred,
+            rete::PersistentInterpretation<rete::TriplePart> obj);
 
     /**
         Update the Soprano::Model. Does not infer anything.

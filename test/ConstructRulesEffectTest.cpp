@@ -49,14 +49,6 @@ BOOST_AUTO_TEST_SUITE(ConstructRulesEffectTest)
         core.parser().registerNodeBuilder<ECNodeBuilder<TextComponent>>();
         core.parser().registerNodeBuilder<TextComponentTextBuilder>();
 
-        /*
-        // i should really fix the bug in the rule parser that includes the
-        // quotation marks in the string constant...
-        core.addRules(
-            "[(<a> <foo> <b>) -> constructRules(\"[true() -> (<x> <y> <z>)]\")]"
-        );
-        */
-
         core.addRules(
             "[EC<TextComponent>(?e ?c), text:value(?text ?c) -> constructRules(?text)]"
         );
@@ -103,6 +95,30 @@ BOOST_AUTO_TEST_SUITE(ConstructRulesEffectTest)
         wmes = core.reasoner().getCurrentState().getWMEs();
         BOOST_CHECK(!contains(wmes, "<x>", "<y>", "<z>"));
 
+    }
+
+
+    BOOST_AUTO_TEST_CASE(test2)
+    {
+        sempr::Core core;
+        core.parser().registerNodeBuilder<ConstructRulesBuilder>(&core);
+
+        core.addRules(
+            "[true() -> constructRules(\"[foo: true() -> constructRules(\\\"[bar: true() -> (<foo> <bar> <baz>)]\\\")]\")]"
+        );
+
+        core.performInference();
+
+        {
+            std::ofstream("ConstructRulesEffectTest_direct.dot") << core.reasoner().net().toDot();
+        }
+
+        auto wmes = core.reasoner().getCurrentState().getWMEs();
+
+        BOOST_CHECK(wmes.size() == 1);
+
+        // check if the new rule has been evaluated already
+        BOOST_CHECK(contains(wmes, "<foo>", "<bar>", "<baz>"));
     }
 BOOST_AUTO_TEST_SUITE_END()
 

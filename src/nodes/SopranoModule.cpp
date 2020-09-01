@@ -94,9 +94,9 @@ void SopranoModule::answer(SPARQLQuery& query) const
 // -------------------------------------------------------------------
 SopranoNode::SopranoNode(
         SopranoModule::Ptr module,
-        rete::PersistentInterpretation<std::string> sub,
-        rete::PersistentInterpretation<std::string> pred,
-        rete::PersistentInterpretation<std::string> obj)
+        rete::PersistentInterpretation<rete::TriplePart> sub,
+        rete::PersistentInterpretation<rete::TriplePart> pred,
+        rete::PersistentInterpretation<rete::TriplePart> obj)
     : module_(module),
       sub_(std::move(sub)), pred_(std::move(pred)), obj_(std::move(obj))
 {
@@ -106,18 +106,18 @@ void SopranoNode::execute(rete::Token::Ptr token, rete::PropagationFlag flag,
         std::vector<rete::WME::Ptr>&)
 {
     // get s,p,o from the token
-    std::string s, p, o;
+    rete::TriplePart s, p, o;
     sub_.interpretation->getValue(token, s);
     pred_.interpretation->getValue(token, p);
     obj_.interpretation->getValue(token, o);
 
     if (flag == rete::PropagationFlag::ASSERT)
     {
-        module_->addTriple(s, p, o);
+        module_->addTriple(s.value, p.value, o.value);
     }
     else if (flag == rete::PropagationFlag::RETRACT)
     {
-        module_->removeTriple(s, p, o);
+        module_->removeTriple(s.value, p.value, o.value);
     }
     else
     {

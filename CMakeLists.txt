@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(sempr VERSION 0.8.2)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor -Werror=unused-result)
 add_definitions(-fPIC)

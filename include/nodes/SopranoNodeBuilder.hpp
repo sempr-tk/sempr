@@ -3,6 +3,7 @@
 
 #include <rete-reasoner/NodeBuilder.hpp>
 #include <rete-reasoner/Exceptions.hpp>
+#include <rete-rdf/TriplePart.hpp>
 
 #include "SopranoModule.hpp"
 #include "../Utility.hpp"
@@ -17,7 +18,9 @@ namespace sempr {
 class SopranoNodeBuilder : public rete::NodeBuilder {
     SopranoModule::Ptr module_;
 
-    void argToAccessor(rete::Argument& arg, rete::PersistentInterpretation<std::string>& acc) const;
+    void argToAccessor(
+            rete::Argument& arg,
+            rete::PersistentInterpretation<rete::TriplePart>& acc) const;
 public:
     SopranoNodeBuilder(SopranoModule::Ptr);
     rete::Production::Ptr buildEffect(rete::ArgumentList& args) const override;

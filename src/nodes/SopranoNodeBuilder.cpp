@@ -14,23 +14,24 @@ SopranoNodeBuilder::SopranoNodeBuilder(SopranoModule::Ptr module)
 
 void SopranoNodeBuilder::argToAccessor(
         rete::Argument& arg,
-        rete::PersistentInterpretation<std::string>& acc) const
+        rete::PersistentInterpretation<rete::TriplePart>& acc) const
 {
     if (arg.isConst())
     {
-        rete::ConstantAccessor<std::string> accessor(arg.getAST());
-        acc = accessor.getInterpretation<std::string>()->makePersistent();
+        rete::ConstantAccessor<rete::TriplePart> accessor({arg.getAST()});
+        acc = accessor.getInterpretation<rete::TriplePart>()->makePersistent();
     }
     else
     {
-        if (arg.getAccessor()->getInterpretation<std::string>())
+        if (arg.getAccessor()->getInterpretation<rete::TriplePart>())
         {
-            acc = arg.getAccessor()->getInterpretation<std::string>()->makePersistent();
+            acc = arg.getAccessor()->getInterpretation<rete::TriplePart>()->makePersistent();
         }
         else
         {
-            throw rete::NodeBuilderException("Argument " + arg.getVariableName()
-                                             + " has no string interpretation.");
+            throw rete::NodeBuilderException(
+                    "Argument " + arg.getVariableName() +
+                    " has no interpretation as TriplePart.");
         }
     }
 }
@@ -43,7 +44,7 @@ rete::Production::Ptr SopranoNodeBuilder::buildEffect(rete::ArgumentList& args) 
     // must have exactly 3 arguments, which are string accessors
     if (args.size() != 3) throw rete::NodeBuilderException("Wrong number of arguments (!=3)");
 
-    rete::PersistentInterpretation<std::string> s, p, o;
+    rete::PersistentInterpretation<rete::TriplePart> s, p, o;
     argToAccessor(args[0], s);
     argToAccessor(args[1], p);
     argToAccessor(args[2], o);

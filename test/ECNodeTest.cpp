@@ -104,12 +104,6 @@ BOOST_AUTO_TEST_SUITE(ECNodeTest)
         // But many concrete syntaxes assume string as the default datatype.
         // Still, the quotation marks are needed.
         auto triple = std::make_shared<rete::Triple>("<a>", "<b>", "this is a tag");
-        // This would be better:
-        //auto triple = std::make_shared<rete::Triple>("<a>", "<b>", "\"this is a tag\"");
-        // But the triple accessor in the rete network only gives us the raw content,
-        // including the quotation marks, not the actual value. But the tag of
-        // the component does not have quotation marks...
-        // What to do? ... See https://git.ni.dfki.de/sempr/rete/issues/13
 
         reasoner.addEvidence(ecwme, evidence);
         reasoner.addEvidence(triple, evidence);
@@ -136,7 +130,7 @@ BOOST_AUTO_TEST_SUITE(ECNodeTest)
         auto entity = Entity::create();
         entity->setId("Entity_1");
         auto component = std::make_shared<Component>();
-        component->setTag("\"this is a tag\""); // NOTE: See sempr/rete issue #13
+        component->setTag("this is a tag");
         entity->addComponent(component);
         auto evidence = std::make_shared<rete::AssertedEvidence>("FactGroup-1");
         auto ecwme = std::make_shared<ECWME>(entity, component);

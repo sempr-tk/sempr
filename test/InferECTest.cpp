@@ -29,10 +29,7 @@ BOOST_AUTO_TEST_SUITE(InferECTest)
         // Useless in its current form, but could be extended to e.g. create
         // default-transformations (identity) for all geometries that have none.
         // One thing preventing this currently is the lack of a component:setTag
-        // builtin (which is controversial!), and a bug in the
-        // reasoner/rule parser which translates "" to a string containing two
-        // quotation marks. Makes it difficult to add a recursion anchor to a
-        // default-rule.
+        // builtin (which is controversial!)
         auto rules = parser.parseRules(
             "[defaultTF: EC<GeosGeom>(?entity ?geom),"
             "            tf:create(?default 0 0 0 0 0 0 1)"

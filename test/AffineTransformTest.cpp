@@ -119,11 +119,11 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
 
         auto left = std::make_shared<sempr::AffineTransform>(tfleft);
-        left->setTag("\"left\""); // TODO: fix rule-parser to exclude "" from constant strings.
+        left->setTag("left");
         entity->addComponent(left);
 
         auto right = std::make_shared<sempr::AffineTransform>(tfright);
-        right->setTag("\"right\""); // TODO: fix rule-parser to exclude "" from constant strings.
+        right->setTag("right");
         entity->addComponent(right);
 
         core.addEntity(entity);
