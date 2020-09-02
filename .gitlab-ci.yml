@@ -17,7 +17,7 @@ before_script:
     # distro-specific (bionic / xenial)
     # install dependencies
     - apt update -qq
-    - apt install -y -qq git g++-8 cmake
+    - apt install -y -qq git g++ cmake
     - apt install -y -qq libcereal-dev
     - apt install -y -qq libgeos-dev libgeos++-dev
     - apt install -y -qq libgeographic-dev libeigen3-dev
@@ -41,7 +41,7 @@ build-xenial:
         - apt install -y -qq libsoprano-dev qt4-default
         # build sempr
         - mkdir build_xenial && cd build_xenial
-        - cmake .. -DCMAKE_CXX_COMPILER=g++-8
+        - cmake ..
         - make -j8
         - export LD_LIBRARY_PATH=$(pwd)/src:$LD_LIBRARY_PATH # fixes a problem with dpkg-shlibdeps not finding libraries built by this project
         - make package
@@ -62,7 +62,7 @@ build-bionic:
         - apt install -y -qq libsoprano4-qt5-dev qt5-default
         # build sempr
         - mkdir build_bionic && cd build_bionic
-        - cmake .. -DCMAKE_CXX_COMPILER=g++-8
+        - cmake ..
         - make -j8
         - export LD_LIBRARY_PATH=$(pwd)/src:$LD_LIBRARY_PATH # fixes a problem with dpkg-shlibdeps not finding libraries built by this project
         - make package
