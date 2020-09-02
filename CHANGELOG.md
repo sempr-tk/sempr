@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0] - 2020-09-01
+
+- Added: Plugins that register node builders and default rules
+- Fixed/Updated: Using rete v0.6.0 with a new accessor system and fixed
+  string/triple handling.
+- Requires C++14 now.
+
 ## [0.8.2] - 2020-07-31
 
 - Fix: Removed leftover -std=c++17 flag from and added missing flag to link
