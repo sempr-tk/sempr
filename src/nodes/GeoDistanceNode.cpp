@@ -27,10 +27,10 @@ rete::WME::Ptr GeoDistanceNode::process(rete::Token::Ptr token)
     if (g1->geometry()->isEmpty() || g2->geometry()->isEmpty()) return nullptr;
 
     // compute distance
-    double dist = g1->geometry()->distance(g2->geometry());
+    float dist = g1->geometry()->distance(g2->geometry());
 
     // create a wme with the result
-    auto wme = std::make_shared<rete::TupleWME<double>>(dist);
+    auto wme = std::make_shared<rete::TupleWME<float>>(dist);
     return wme;
 }
 

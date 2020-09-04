@@ -43,7 +43,7 @@ rete::Builtin::Ptr GeoDistanceBuilder::buildBuiltin(rete::ArgumentList& args) co
     auto node = std::make_shared<GeoDistanceNode>(std::move(geo1), std::move(geo2));
 
     // bind the result variable to an accessor matching the return of GeoDistanceNode
-    auto resultAccessor = std::make_shared<rete::TupleWMEAccessor<0, rete::TupleWME<double>>>();
+    auto resultAccessor = std::make_shared<rete::TupleWMEAccessor<0, rete::TupleWME<float>>>();
     args[0].bind(resultAccessor);
 
     return node;
