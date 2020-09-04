@@ -2,6 +2,8 @@
 #define SEMPR_ECACCESSORS_HPP_
 
 #include <rete-core/Accessors.hpp>
+#include <rete-rdf/TriplePart.hpp>
+
 #include "ECWME.hpp"
 #include "Utility.hpp"
 
@@ -13,10 +15,11 @@ namespace sempr {
 //typedef rete::TupleWMEAccessor<0, ECWME> EntityAccessor;
 
 /**
-    Extracts the Entity-Part from an ECWME, as an Entity::Ptr or a std::string
-    which is a URI of the form <sempr:EntityId>.
+    Extracts the Entity-Part from an ECWME, as an Entity::Ptr, a std::string
+    which is just the EntityId, or a TriplePart which is a URI of the form <sempr:EntityId>.
 */
-class EntityAccessor : public rete::Accessor<ECWME, Entity::Ptr, std::string> {
+class EntityAccessor : public rete::Accessor<ECWME, Entity::Ptr,
+                                             rete::TriplePart, std::string> {
 public:
     using Ptr = std::shared_ptr<EntityAccessor>;
     EntityAccessor();
@@ -26,6 +29,7 @@ public:
     bool equals(const AccessorBase& other) const override;
 
     void getValue(ECWME::Ptr, Entity::Ptr& value) const override;
+    void getValue(ECWME::Ptr, rete::TriplePart& value) const override;
     void getValue(ECWME::Ptr, std::string& value) const override;
 
 };
