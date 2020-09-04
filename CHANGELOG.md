@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.9.1] - 2020-09-04
+
+- GeoDistanceNode now returns float values, for compatibility with rete
+  comparison builtins (le, ge, lt, gt, eq, neq).
+  At some point I should probably change it all to doubles...
+- Fixed: URI representation of entities is now properly returned in an
+  interpretation of rete::TriplePart (previously: std::string), whereas the
+  std::string interpretation now returns the pure id.
+- For compatibility with newer geos versions, the geometry component now
+  contains a unique\_ptr to geos::geom::Geometry.
+
 ## [0.9.0] - 2020-09-01
 
 - Added: Plugins that register node builders and default rules
