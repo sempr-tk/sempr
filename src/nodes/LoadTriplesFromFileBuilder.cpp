@@ -29,6 +29,7 @@ rete::Production::Ptr LoadTriplesFromFileBuilder::buildEffect(rete::ArgumentList
     if (args[0].isConst())
     {
         rete::ConstantAccessor<std::string> acc(args[0].getAST());
+        acc.index() = 0;
         filename = acc.getInterpretation<std::string>()->makePersistent();
     }
     else
