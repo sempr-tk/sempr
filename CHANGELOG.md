@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.2] - 2020-10-09
+
+- Fix: LoadTriplesFromFile builtin support for constants
+- (Mainly releasing this to trigger a build with rete 0.7.0)
+
 ## [0.9.1] - 2020-09-04
 
 - GeoDistanceNode now returns float values, for compatibility with rete
