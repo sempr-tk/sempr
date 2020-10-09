@@ -12,50 +12,69 @@ link_directories(${Soprano_LIBRARY_DIRS})
 #endif(GDAL_FOUND)
 
 
-add_executable(manual_test main.cpp)
-
-
-target_link_libraries(manual_test sempr_core ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
+#add_executable(manual_test main.cpp)
+#target_link_libraries(manual_test sempr_core ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
 if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
+    include_directories(${Boost_INCLUDE_DIRS})
+    set(DEPENDENCIES sempr_core sempr_plugin_geos ${Boost_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
-  set(DEPENDENCIES sempr_core ${Boost_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
 
-  add_executable(sempr_storage_test SEMPR_tests.cpp storage_tests.cpp)
-  target_link_libraries(sempr_storage_test ${DEPENDENCIES})
-  add_test(NAME sempr_storage_test COMMAND sempr_storage_test)
+    add_executable(CoreTest CoreTest.cpp)
+    target_link_libraries(CoreTest ${DEPENDENCIES})
+    add_test(NAME CoreTest COMMAND CoreTest)
 
-  add_executable(sempr_RDFPropertymap_test SEMPR_tests.cpp RDFPropertymap_tests.cpp)
-  target_link_libraries(sempr_RDFPropertymap_test ${DEPENDENCIES})
-  add_test(NAME sempr_RDFPropertymap_test COMMAND sempr_RDFPropertymap_test)
+    add_executable(ConstructRulesEffectTest ConstructRulesEffectTest.cpp)
+    target_link_libraries(ConstructRulesEffectTest ${DEPENDENCIES})
+    add_test(NAME ConstructRulesEffectTest COMMAND ConstructRulesEffectTest)
 
-  add_executable(sempr_queries_test SEMPR_tests.cpp queries_tests.cpp)
-  target_link_libraries(sempr_queries_test ${DEPENDENCIES})
-  add_test(NAME sempr_queries_test COMMAND sempr_queries_test)
+    add_executable(EntityTest EntityTest.cpp)
+    target_link_libraries(EntityTest ${DEPENDENCIES})
+    add_test(NAME EntityTest COMMAND EntityTest)
 
-  add_executable(sempr_geometries_tests SEMPR_tests.cpp geometries_tests.cpp)
-  target_link_libraries(sempr_geometries_tests ${DEPENDENCIES})
-  add_test(NAME sempr_geometries_tests COMMAND sempr_geometries_tests)
+    add_executable(FileStorageTest FileStorageTest.cpp)
+    target_link_libraries(FileStorageTest ${DEPENDENCIES})
+    add_test(NAME FileStorageTest COMMAND FileStorageTest)
 
-  add_executable(sempr_spatial_index_tests SEMPR_tests.cpp spatial_index_tests.cpp)
-  target_link_libraries(sempr_spatial_index_tests ${DEPENDENCIES})
-  add_test(NAME sempr_spatial_index_tests COMMAND sempr_spatial_index_tests)
-  
-  add_executable(sempr_entity_tests SEMPR_tests.cpp Entity_tests.cpp)
-  target_link_libraries(sempr_entity_tests ${DEPENDENCIES})
-  add_test(NAME sempr_entity_tests COMMAND sempr_entity_tests)
-  
-  add_executable(sempr_semanticentity_tests SEMPR_tests.cpp SemanticEntity_tests.cpp)
-  target_link_libraries(sempr_semanticentity_tests ${DEPENDENCIES})
-  add_test(NAME sempr_semanticentity_tests COMMAND sempr_semanticentity_tests)
+    add_executable(ComponentSerializationTest ComponentSerializationTest.cpp)
+    target_link_libraries(ComponentSerializationTest ${DEPENDENCIES})
+    add_test(NAME ComponentSerializationTest COMMAND ComponentSerializationTest)
 
-  add_executable(sempr_pointcloud_tests SEMPR_tests.cpp PointCloud_tests.cpp)
-  target_link_libraries(sempr_pointcloud_tests ${DEPENDENCIES})
-  add_test(NAME sempr_pointcloud_tests COMMAND sempr_pointcloud_tests)
+    add_executable(FileMonitorNodeTest FileMonitorNodeTest.cpp)
+    target_link_libraries(FileMonitorNodeTest ${DEPENDENCIES})
+    add_test(NAME FileMonitorNodeTest COMMAND FileMonitorNodeTest)
 
-  #todo: add a macro to reduce the line of command here!
+    add_executable(TripleContainerTest TripleContainerTest.cpp)
+    target_link_libraries(TripleContainerTest ${DEPENDENCIES})
+    add_test(NAME TripleContainerTest COMMAND TripleContainerTest)
 
+    add_executable(TripleDocumentTest TripleDocumentTest.cpp)
+    target_link_libraries(TripleDocumentTest ${DEPENDENCIES})
+    add_test(NAME TripleDocumentTest COMMAND TripleDocumentTest)
+
+    add_executable(TriplePropertyMapTest TriplePropertyMapTest.cpp)
+    target_link_libraries(TriplePropertyMapTest ${DEPENDENCIES})
+    add_test(NAME TriplePropertyMapTest COMMAND TriplePropertyMapTest)
+
+    add_executable(ECNodeTest ECNodeTest.cpp)
+    target_link_libraries(ECNodeTest ${DEPENDENCIES})
+    add_test(NAME ECNodeTest COMMAND ECNodeTest)
+
+    add_executable(InferECTest InferECTest.cpp)
+    target_link_libraries(InferECTest ${DEPENDENCIES})
+    add_test(NAME InferECTest COMMAND InferECTest)
+
+    add_executable(SopranoTest SopranoTest.cpp)
+    target_link_libraries(SopranoTest ${DEPENDENCIES})
+    add_test(NAME SopranoTest COMMAND SopranoTest)
+
+    add_executable(GeometryTest GeometryTest.cpp)
+    target_link_libraries(GeometryTest ${DEPENDENCIES})
+    add_test(NAME GeometryTest COMMAND GeometryTest)
+
+    add_executable(AffineTransformTest AffineTransformTest.cpp)
+    target_link_libraries(AffineTransformTest ${DEPENDENCIES})
+    add_test(NAME AffineTransformTest COMMAND AffineTransformTest)
 endif()
 
 

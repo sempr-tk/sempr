@@ -1,0 +1,155 @@
+default:
+    image: buildpack-deps:xenial
+
+before_script:
+    # setup private key to access nniemann/debian-pkgs
+    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan git.ni.dfki.de >> ~/.ssh/known_hosts
+    - git config --global user.email "gitlab-ci@git.ni.dfki.de"
+    - git config --global user.name "gitlab-CI/CD"
+    # clone nniemann/debian-pkgs. These are debian files for pegmatite, rete, sempr
+    - git clone git@git.ni.dfki.de:nniemann/debian-pkgs.git /tmp/debian-pkgs
+    # setup and install of rete will be done in the build phase, as it is
+    # distro-specific (bionic / xenial)
+    # install dependencies
+    - apt update -qq
+    - apt install -y -qq git g++ cmake
+    - apt install -y -qq libcereal-dev
+    - apt install -y -qq libgeos-dev libgeos++-dev
+    - apt install -y -qq libgeographic-dev libeigen3-dev
+    - apt install -y -qq libboost-all-dev
+
+stages:
+    - build
+    - test
+    - deploy
+
+
+build-xenial:
+    stage: build
+    image: buildpack-deps:xenial
+    script:
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/xenial ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # install soprano (qt4)
+        - apt install -y -qq libsoprano-dev qt4-default
+        # build sempr
+        - mkdir build_xenial && cd build_xenial
+        - cmake ..
+        - make -j8
+        - export LD_LIBRARY_PATH=$(pwd)/src:$LD_LIBRARY_PATH # fixes a problem with dpkg-shlibdeps not finding libraries built by this project
+        - make package
+    artifacts:
+        paths:
+            - build_xenial
+        expire_in: 1 hour
+
+build-bionic:
+    stage: build
+    image: buildpack-deps:bionic
+    script:
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/bionic ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # install libsoprano4-qt5-dev (soprano qt5)
+        - apt install -y -qq libsoprano4-qt5-dev qt5-default
+        # build sempr
+        - mkdir build_bionic && cd build_bionic
+        - cmake ..
+        - make -j8
+        - export LD_LIBRARY_PATH=$(pwd)/src:$LD_LIBRARY_PATH # fixes a problem with dpkg-shlibdeps not finding libraries built by this project
+        - make package
+    artifacts:
+        paths:
+            - build_bionic
+        expire_in: 1 hour
+
+build-focal:
+    stage: build
+    image: buildpack-deps:focal
+    script:
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/focal ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # install libsoprano4-qt5-dev (soprano qt5)
+        - apt install -y -qq libsoprano4-qt5-dev qt5-default
+        # build sempr
+        - mkdir build_focal && cd build_focal
+        - cmake ..
+        - make -j8
+        - make package
+    artifacts:
+        paths:
+            - build_focal
+        expire_in: 1 hour
+
+test-xenial:
+    stage: test
+    image: buildpack-deps:xenial
+    dependencies: 
+        - build-xenial
+    script:
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/xenial ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # install soprano (qt4)
+        - apt install -y -qq libsoprano-dev qt4-default
+        # test
+        - cd build_xenial
+        - make test
+
+test-bionic:
+    stage: test
+    image: buildpack-deps:bionic
+    dependencies: 
+        - build-bionic
+    script:
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/bionic ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # install libsoprano4-qt5-dev (soprano qt5)
+        - apt install -y -qq libsoprano4-qt5-dev qt5-default
+        # test
+        - cd build_bionic
+        - make test
+
+test-focal:
+    stage: test
+    image: buildpack-deps:focal
+    dependencies: 
+        - build-focal
+    script:
+        # get and install rete
+        - echo "deb [trusted=yes] file:/tmp/debian-pkgs/focal ./" >> /etc/apt/sources.list
+        - apt update -qq
+        - apt install -y -qq rete
+        # install libsoprano4-qt5-dev (soprano qt5)
+        - apt install -y -qq libsoprano4-qt5-dev qt5-default
+        # test
+        - cd build_focal
+        - make test
+
+deploy-deb:
+    stage: deploy
+    only:
+        - tags
+    script:
+        - cp build_xenial/sempr*.deb /tmp/debian-pkgs/xenial/
+        - cp build_bionic/sempr*.deb /tmp/debian-pkgs/bionic/
+        - cp build_focal/sempr*.deb /tmp/debian-pkgs/focal/
+        - cd /tmp/debian-pkgs
+        - ./update-pkg-list
+        - git add --all
+        - git commit -m "auto deployment of sempr $CI_COMMIT_REF_NAME"
+        - git push
+

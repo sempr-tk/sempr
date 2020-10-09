@@ -1,153 +1,173 @@
 pkg_check_modules(Soprano REQUIRED soprano)
 include_directories(${Soprano_INCLUDE_DIRS})
 link_directories(${Soprano_LIBRARY_DIRS})
-# message("SOPRANO: ${Soprano_INCLUDE_DIRS}")
 
-#find_package(GDAL)
-#if(GDAL_FOUND)
-#    include_directories(${GDAL_INCLUDE_DIR})
-#    link_directories(${GDAL_LIBRARY})
-#endif(GDAL_FOUND)
+find_package(Threads REQUIRED)
 
-
-find_package(OpenMP)
-if(OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
-
-
-file(GLOB_RECURSE SRC_FILES core/* data/* entity/* processing/* query/* storage/*)
-file(GLOB_RECURSE ODB_FILES
-    ../include/sempr/storage/DBObject.hpp
-    ../include/sempr/storage/History.hpp
-    ../include/sempr/storage/Dummy.hpp
-    ../include/sempr/data/*
-    ../include/sempr/entity/*
+# list of all source files to compile into the library
+set(SRC_FILES
+    Core.cpp
+    RDF.cpp
+    SimpleIncrementalIDGenerator.cpp
+    Entity.cpp
+    ECAccessors.cpp
+    Component.cpp
+    SeparateFileStorage.cpp
+    ./component/AffineTransform.cpp
+    ./component/TextComponent.cpp
+    ./component/TripleContainer.cpp
+    ./component/TripleDocument.cpp
+    ./component/TriplePropertyMap.cpp
+    ./component/TripleVector.cpp
+    ./nodes/AffineTransformNodes.cpp
+    ./nodes/AffineTransformBuilders.cpp
+    ./nodes/ConstructRulesNode.cpp
+    ./nodes/ConstructRulesBuilder.cpp
+    ./nodes/ECNode.cpp
+    ./nodes/ExtractTriples.cpp
+    ./nodes/ExtractTriplesBuilder.cpp
+    ./nodes/FileMonitorNode.cpp
+    ./nodes/FileMonitorNodeBuilder.cpp
+    ./nodes/InferECNode.cpp
+    ./nodes/InferECBuilder.cpp
+    ./nodes/LoadTriplesFromFileNode.cpp
+    ./nodes/LoadTriplesFromFileBuilder.cpp
+    ./nodes/TextComponentTextNode.cpp
+    ./nodes/TextComponentTextBuilder.cpp
+    ./nodes/TripleDocumentFilenameNode.cpp
+    ./nodes/TripleDocumentFilenameBuilder.cpp
+    ./nodes/SopranoModule.cpp
+    ./nodes/SopranoNodeBuilder.cpp
+    ./util/FileWatcher.cpp
+    ./util/GenericCoordinateFilter.cpp
 )
 
-# message( "found files: ${SRC_FILES}")
-# message( "found files: ${ODB_FILES}")
-
-# There are two variables to be set:
-# 1. the odb-compiler needs to know which database is used. e.g. "sqlite"
-# 2. the traits that implement serialization of new datatypes are selected based on the
-#    database, too, and need a definition of e.g. DATABASE_SQLITE.
-# So, we need to set both, and also pass our choice on to extensions of sempr.
-# - based on the "DATABASE" variable also set the definition of "DATABASE_*"
-# - add the DATABASE-variable to the pkgconfig-file. Extensions can use this to set the parameter
-#   for the odb-compiler.
-# - TODO: currently we also include -DDATABASE_* in the pkgconfig, so this is a bit redundant,
-#   isn't it?
-set(DATABASE sqlite)
-if (${DATABASE} MATCHES sqlite)
-    set(CONFIG_DATABASE DATABASE_SQLITE)
-# elseif()
-endif()
-
-# ODB_GENERATED = list of _odb.h files
-# ODB needs the include dirs, too
-# in addition to the projects include dir
-# header prologue: dataype serialization definitions
-# X_CPP_OPTION (passed to underlying c++ compiler): -fPIC for Qt5-support!
-odb_compile(ODB_GENERATED
-    FILES ${ODB_FILES}
-    HEADER_PROLOGUE ${PROJECT_SOURCE_DIR}/include/sempr/storage/traits.hxx
-    INCLUDE ../include ${Soprano_INCLUDE_DIRS} ${GDAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    # PROFILE boost/uuid
-    PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/include
-    X_CPP_OPTION -fPIC
-    DB ${DATABASE} GENERATE_QUERY GENERATE_SESSION GENERATE_SCHEMA STANDARD c++11)
-
-list(APPEND SRC_FILES ${ODB_GENERATED})
-#message("ODB_GENERATED: ${ODB_GENERATED}")
-
-include_directories(${ODB_COMPILE_OUTPUT_DIR})
-# message("ODB_COMPILE_OUTPUT_DIR: ${ODB_COMPILE_OUTPUT_DIR}")
-# message("SOURCE FILES: ${SRC_FILES}")
+# create the core library
 add_library(sempr_core SHARED ${SRC_FILES})
-target_link_libraries(sempr_core ${ODB_LIBRARIES} ${Soprano_LIBRARIES} ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES})
-target_compile_definitions(sempr_core PUBLIC -D${CONFIG_DATABASE})
-# target_include_directories(sempr_core
-    # PRIVATE ${ODB_COMPILE_OUTPUT_DIR} )
+set_target_properties(sempr_core PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+target_link_libraries(sempr_core
+    ${Soprano_LIBRARIES} ${RETE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
 
 
-
-
-
-##
-## generate precompiled header (for autocomplete-clang)
-##
-# Define a list of headers to exclude from the pch. Use this while working on SEMPR to avoid
-# having to generate from scratch when adding a new function etc.
-file(GLOB_RECURSE EXCLUDE_FROM_PCH
-    # ../include/sempr/processing/SpatialIndex.hpp
-    # ../include/sempr/query/SpatialIndexQuery.hpp
+# create the geos library part
+add_library(sempr_geos SHARED
+    ./component/GeosGeometry.cpp
+    ./nodes/GeoConversionNodes.cpp
+    ./nodes/GeoConversionBuilders.cpp
+    ./nodes/GeoDistanceNode.cpp
+    ./nodes/GeoDistanceBuilder.cpp
+)
+set_target_properties(
+    sempr_geos
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+    sempr_geos sempr_core ${GEOS_LIBRARY} ${GeographicLib_LIBRARIES}
 )
 
+# create the geos plugin
+#qt5_wrap_cpp(plugin_geos_src ./plugins/GeosPlugin.cpp ../include/plugins/GeosPlugin.hpp)
+message("qt5_wrap... ${plugin_geos_src}")
 
-# check if clang exists
-find_program(CLANG clang++)
-if (NOT CLANG)
-    message("clang not found, not generating pch.")
-else()
-    message("FOUND CLANG: ${CLANG}")
-    file(GLOB_RECURSE ALL_HEADERS ../include/*)
-    string(REPLACE ".cpp" ".h" ODB_GENERATED_HPP "${ODB_GENERATED}")
-    list(INSERT ALL_HEADERS ${ODB_GENERATED_HPP})
+add_library(sempr_plugin_geos SHARED
+    ./plugins/GeosPlugin.cpp
+    ../include/plugins/GeosPlugin.hpp
+    ${plugin_geos_src}
+)
+set_target_properties(
+    sempr_plugin_geos
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+    sempr_plugin_geos sempr_core sempr_geos ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
 
-    if (EXCLUDE_FROM_PCH)
-        list(REMOVE_ITEM ALL_HEADERS ${EXCLUDE_FROM_PCH})
-    endif()
+# create the AffineTransform plugin (just to register node parsers, the
+# functionality is still located in sempr-core)
+add_library(sempr_plugin_affine SHARED
+    ./plugins/AffineTFPlugin.cpp
+    ../include/plugins/AffineTFPlugin.hpp
+)
+set_target_properties(sempr_plugin_affine
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_affine
+    sempr_core
+    ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
 
-    include(${PROJECT_SOURCE_DIR}/cmake/PCH.cmake)
-    add_precompiled_header(sempr-core.pch ALL_HEADERS "-D${CONFIG_DATABASE}")
-    add_dependencies(sempr-core.pch_pch_target ODB_GENERATED_TARGET)
+# create a RDFPlugin that registers things like the ExtractTriple module and
+# also inserts a few default rules for extracting triples and updating soprano.
+add_library(sempr_plugin_rdf SHARED
+    ./plugins/RDFPlugin.cpp
+    ../include/plugins/RDFPlugin.hpp
+)
+set_target_properties(sempr_plugin_rdf
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_rdf
+    sempr_core
+    ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
 
-    install(
-        FILES ${CMAKE_CURRENT_BINARY_DIR}/sempr-core.pch
-        DESTINATION include/sempr
-    )
-endif()
-
+# create a UtilPlugin that registers additional utility stuff, e.g.
+# TextComponents, FileMonitor, ConstructRules, ...
+# Also, adds a rule to infers more rules from entities with text components.
+add_library(sempr_plugin_util SHARED
+    ./plugins/UtilPlugin.cpp
+    ../include/plugins/UtilPlugin.hpp
+)
+set_target_properties(sempr_plugin_util
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(sempr_plugin_util
+    sempr_core
+    ${RETE_LIBRARIES}
+    ${QT_CORE}
+)
 
 ## install stuff
 install(
-    TARGETS sempr_core
-    LIBRARY DESTINATION lib/sempr
-)
-# headers.
-# maybe having the "include/sempr" folder wasn't such a good idea, after all. Makes things a bit
-# weird. what shall the dir structure look like?
-# lets make it look like this:
-    # .../include/
-    # .../include/sempr/
-    # .../include/sempr/core
-    # .../include/sempr/entity
-    # .../include/sempr/...
-    # .../include/sempr-agri
-    # .../include/sempr-agri/...
-install(
-    DIRECTORY ../include/sempr
-    DESTINATION include
+    TARGETS sempr_core sempr_geos
+    LIBRARY DESTINATION lib COMPONENT common
 )
 
-# odb-generated headers
-# well... where to put them? how to include them?
-# includes are currently used directly: #include <Point_odb.h>
-# TODO: should we change that?
-# just move them to a common folder: .../include/sempr/odb_gen
-# and add the path to the include dirs in the config file
 install(
-    DIRECTORY ${ODB_COMPILE_OUTPUT_DIR}
-    DESTINATION include/sempr
-    FILES_MATCHING PATTERN "*.h"
+    TARGETS
+        sempr_plugin_geos
+        sempr_plugin_affine
+        sempr_plugin_rdf
+        sempr_plugin_util
+    LIBRARY DESTINATION lib/sempr_plugins COMPONENT common
 )
 
-# pkg-config-file
+
+# install header files
+install(
+    DIRECTORY ../include/
+    DESTINATION include/sempr COMPONENT common
+)
+
+
+# pkg-config-file - one to find sempr when installed through deb packaging...
+set(SEMPR_INSTALL_PREFIX "/usr")
 configure_file("sempr-core.pc.in" "sempr-core.pc" @ONLY)
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/sempr-core.pc"
     DESTINATION lib/pkgconfig
+    COMPONENT pkgconfig-deb
 )
+
+# ... and one to find sempr in the CMAKE_INSTALL_PREFIX path
+set(SEMPR_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+configure_file("sempr-core.pc.in" "sempr-core-dev.pc" @ONLY)
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/sempr-core-dev.pc"
+    DESTINATION lib/pkgconfig
+    COMPONENT pkgconfig-cmake
+)
+
+
