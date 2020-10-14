@@ -5,7 +5,7 @@
 #include <QtPlugin>
 
 #include "../CapabilityInterface.hpp"
-#include "nodes/SopranoModule.hpp"
+#include "../nodes/SopranoModule.hpp"
 
 namespace sempr {
 

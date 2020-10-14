@@ -93,6 +93,24 @@ public:
     void loadPlugins(const std::string& path = "/usr/lib/sempr_plugins");
 
     /**
+        Returns the plugin of the given type, or nullptr if no such
+        plugin has been loaded.
+    */
+    template <class PluginType>
+    PluginType* getPlugin()
+    {
+        for (auto cap : capabilities_)
+        {
+            if (PluginType* p = dynamic_cast<PluginType*>(cap))
+            {
+                return p;
+            }
+        }
+
+        return nullptr;
+    }
+
+    /**
         Uses the internal RuleParser to construct the given rules.
         Throws an exception if something goes wrong. Otherwise, the created
         rules are stored in the core, and a list of ids is returned by which
