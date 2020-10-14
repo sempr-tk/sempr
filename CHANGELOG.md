@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.3] - 2020-10-14
+
+- Added (template) method to access loaded plugins
+
 ## [0.9.2] - 2020-10-09
 
 - Fix: LoadTriplesFromFile builtin support for constants
