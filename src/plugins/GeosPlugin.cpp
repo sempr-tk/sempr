@@ -7,6 +7,7 @@
 
 #include "nodes/GeoDistanceBuilder.hpp"
 #include "nodes/GeoConversionBuilders.hpp"
+#include "nodes/GeoAreaBuilder.hpp"
 
 namespace sempr {
 
@@ -17,6 +18,7 @@ void GeosPlugin::setup(Core* core) const
 
     core->parser().registerNodeBuilder<GeoDistanceBuilder>();
     core->parser().registerNodeBuilder<UTMFromWGSBuilder>();
+    core->parser().registerNodeBuilder<GeoAreaBuilder>();
 }
 
 #ifdef QT4
