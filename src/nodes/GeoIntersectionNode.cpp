@@ -24,7 +24,7 @@ rete::WME::Ptr GeoIntersectionNode::process(rete::Token::Ptr token)
     if (!g1->geometry() || !g2->geometry()) return nullptr;
 
     auto intersection = g1->geometry()->intersection(g2->geometry());
-    auto resultGeom = std::make_shared<GeosGeometry>(intersection);
+    auto resultGeom = std::make_shared<GeosGeometry>(std::move(intersection));
     auto wme = std::make_shared<rete::TupleWME<GeosGeometryInterface::Ptr>>(resultGeom);
     return wme;
 }
