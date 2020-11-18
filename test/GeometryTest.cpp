@@ -158,4 +158,78 @@ BOOST_AUTO_TEST_SUITE(GeometryTest)
         );
     }
 
+    BOOST_AUTO_TEST_CASE(geom_union)
+    {
+        sempr::Core core;
+        core.loadPlugins("src");
+        core.loadPlugins("../src");
+
+        core.addRules(
+            "[EC<GeosGeomI>(?e1 ?g1), EC<GeosGeomI>(?e2 ?g2), lt(?e1 ?e2), "
+            " geo:union(?union ?g1 ?g2), geo:area(?area ?union)"
+            "-> (<union> <hasArea> ?area)]"
+        );
+
+        auto e1 = sempr::Entity::create();
+        auto g1 = std::make_shared<sempr::GeosGeometry>();
+        e1->addComponent(g1);
+
+        auto e2 = sempr::Entity::create();
+        auto g2 = std::make_shared<sempr::GeosGeometry>();
+        e2->addComponent(g2);
+
+
+        const geos::geom::GeometryFactory& factory =
+                *geos::geom::GeometryFactory::getDefaultInstance();
+        geos::io::WKTReader reader(factory);
+
+        std::unique_ptr<geos::geom::Geometry> r1(reader.read(
+              "POLYGON(("
+              "0 2,"
+              "2 2,"
+              "2 0,"
+              "0 0,"
+              "0 2))"
+        ));
+        std::unique_ptr<geos::geom::Geometry> r2(reader.read(
+              "POLYGON(("
+              "1 3,"
+              "3 3,"
+              "3 1,"
+              "1 1,"
+              "1 3))"
+        ));
+
+        //       3 +-----------+
+        //         |           |
+        //         |           |
+        // 2 +-----+-----+     |
+        //   |     |     |     |
+        //   |     |     |     |
+        //   |   1 +-----+-----+
+        //   |     1     |     3
+        //   |           |
+        // 0 +-----------+
+        //   0           2
+
+        // intersection: 1
+        // union: 7 (4+4-intersection)
+
+
+        g1->setGeometry(std::move(r1));
+        g2->setGeometry(std::move(r2));
+
+        core.addEntity(e1);
+        core.addEntity(e2);
+
+        core.performInference();
+        std::ofstream("geom_union.dot") << core.reasoner().net().toDot();
+
+        BOOST_CHECK(
+            containsTriple(core.reasoner(),
+                "<union>", "<hasArea>", std::to_string(7.))
+        );
+    }
+
+
 BOOST_AUTO_TEST_SUITE_END()
