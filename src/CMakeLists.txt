@@ -56,6 +56,14 @@ add_library(sempr_geos SHARED
     ./nodes/GeoConversionBuilders.cpp
     ./nodes/GeoDistanceNode.cpp
     ./nodes/GeoDistanceBuilder.cpp
+    ./nodes/GeoAreaNode.cpp
+    ./nodes/GeoAreaBuilder.cpp
+    ./nodes/GeoIntersectionNode.cpp
+    ./nodes/GeoIntersectionBuilder.cpp
+    ./nodes/GeoUnionNode.cpp
+    ./nodes/GeoUnionBuilder.cpp
+    ./nodes/GeoUnionAllNode.cpp
+    ./nodes/GeoUnionAllBuilder.cpp
 )
 set_target_properties(
     sempr_geos
