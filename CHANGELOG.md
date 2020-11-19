@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.0] - 2020-11-19
+
+- Added several geometry builtins:
+  - geo:area
+  - geo:intersection
+  - geo:union
+  - geo:unionAll (union on GROUP BY results)
+
 ## [0.9.3] - 2020-10-14
 
 - Added (template) method to access loaded plugins
