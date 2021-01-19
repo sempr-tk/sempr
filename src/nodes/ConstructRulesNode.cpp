@@ -24,11 +24,7 @@ void ConstructRulesNode::execute(
         rules_.interpretation->getValue(token, rulestring);
 
         // create new rules
-        try {
-            inferredRules = sempr_->addRules(rulestring);
-        } catch (std::exception& e) {
-            std::cerr << e.what() << std::endl;
-        }
+        inferredRules = sempr_->addRules(rulestring);
     }
 
     if (flag == rete::PropagationFlag::RETRACT || flag == rete::PropagationFlag::UPDATE)
