@@ -64,6 +64,8 @@ add_library(sempr_geos SHARED
     ./nodes/GeoUnionBuilder.cpp
     ./nodes/GeoUnionAllNode.cpp
     ./nodes/GeoUnionAllBuilder.cpp
+    ./nodes/GeoIntersectsNode.cpp
+    ./nodes/GeoIntersectsBuilder.cpp
 )
 set_target_properties(
     sempr_geos
