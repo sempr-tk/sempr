@@ -90,7 +90,8 @@ public:
         Checks for available plugins in the given folder and loads them.
         This basically adds node builders to the reasoner.
     */
-    void loadPlugins(const std::string& path = "/usr/lib/sempr_plugins");
+    void loadPlugins();
+    void loadPlugins(const std::string& path);// = "/usr/lib/sempr_plugins");
 
     /**
         Returns the plugin of the given type, or nullptr if no such

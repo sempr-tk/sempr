@@ -7,6 +7,7 @@
 #include <rete-reasoner/AssertedEvidence.hpp>
 #include <QPluginLoader>
 #include <QDir>
+#include <cstdlib>
 
 namespace sempr {
 
@@ -33,11 +34,63 @@ Core::~Core()
 }
 
 
+void Core::loadPlugins()
+{
+
+    // if a SEMPR_PLUGINS_PATH is given, just use that.
+    char* var = std::getenv("SEMPR_PLUGINS_PATH");
+    if (var)
+    {
+        std::string path(var);
+        std::cout << "Loading plugins from SEMPR_PLUGINS_PATH " << path << std::endl;
+        loadPlugins(path);
+        return;
+    }
+    else
+    {
+        std::cerr << "SEMPR_PLUGINS_PATH not set, searching LD_LIBRARY_PATH" << std::endl;
+        // search for a sempr_plugins folder in the paths in the PATH variable
+        var = std::getenv("LD_LIBRARY_PATH");
+        if (var)
+        {
+            // split path by ':'
+            auto parts = QString::fromStdString(std::string(var)).split(":", QString::SkipEmptyParts);
+
+            for (auto path : parts)
+            {
+                std::cout << ".." << path.toStdString() << std::endl;
+                QDir dir(path);
+                if (dir.exists("sempr_plugins"))
+                {
+                    std::cout << "found sempr_plugins folder in " << dir.absolutePath().toStdString() << std::endl;
+                    loadPlugins(dir.absoluteFilePath("sempr_plugins").toStdString());
+                    return;
+                }
+            }
+
+            std::cerr << "Couldn't find 'sempr_plugins' in any of the paths in the LD_LIBRARY_PATH variable." << std::endl;
+        }
+        else
+        {
+            std::cerr << "LD_LIBRARY_PATH variable not set?" << std::endl;
+        }
+    }
+
+    // last resort: try standard installation path, /usr/lib/sempr_plugins
+    std::cout << "Trying /usr/lib/sempr_plugins..." << std::endl;
+    if (QDir("/usr/lib/sempr_plugins").exists())
+        loadPlugins("/usr/lib/sempr_plugins");
+    else
+        throw std::runtime_error("Could not find a sempr_plugins folder");
+
+}
+
+
 void Core::loadPlugins(const std::string& path)
 {
     QDir pluginDir(QString::fromStdString(path));
 
-    auto list = pluginDir.entryList(QDir::Files);
+    auto list = pluginDir.entryList(QDir::Files | QDir::NoSymLinks);
     std::cout << "Loading plugins. " << list.size() << " candidates..." << std::endl;
     for (auto fname : list)
     {
@@ -45,16 +98,21 @@ void Core::loadPlugins(const std::string& path)
         QObject* plugin = loader.instance();
         if (plugin)
         {
+            auto name = loader.metaData()["className"].toString().toStdString();
+
             CapabilityInterface* cap = qobject_cast<CapabilityInterface*>(plugin);
             if (cap)
             {
                 if (capabilities_.find(cap) != capabilities_.end())
                 {
-                    std::cout << "Plugin has already been loaded before." << std::endl;
+                    std::cout << "Plugin " << name
+                              << " provided by " << loader.fileName().toStdString()
+                              << " has already been loaded before." << std::endl;
                 }
                 else
                 {
-                    std::cout << "Loaded plugin " << loader.fileName().toStdString() << std::endl;
+                    std::cout << "Loaded plugin " << name << " from "
+                              << loader.fileName().toStdString() << std::endl;
                     capabilities_.insert(cap);
                     cap->setup(this);
                 }
