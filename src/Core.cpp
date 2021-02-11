@@ -98,7 +98,11 @@ void Core::loadPlugins(const std::string& path)
         QObject* plugin = loader.instance();
         if (plugin)
         {
+#ifdef QT4
+            auto name = ""; // no loader.mataData() in Qt4 ...
+#else
             auto name = loader.metaData()["className"].toString().toStdString();
+#endif
 
             CapabilityInterface* cap = qobject_cast<CapabilityInterface*>(plugin);
             if (cap)
