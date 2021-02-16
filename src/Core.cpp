@@ -222,10 +222,10 @@ void Core::addEntity(Entity::Ptr entity)
     if (storage_) storage_->save(entity);
 
     // add the WMEs to the reasoner
-    auto components = entity->getComponents<Component>();
+    auto components = entity->getComponentsWithTag<Component>();
     for (auto& c : components)
     {
-        addedComponent(entity, c);
+        addedComponent(entity, std::get<0>(c), std::get<1>(c));
     }
 }
 
@@ -262,14 +262,16 @@ void Core::removeEntity(Entity::Ptr entity)
     entity->core_ = nullptr;
 }
 
-void Core::addedComponent(Entity::Ptr entity,
-                          Component::Ptr component)
+void Core::addedComponent(
+        Entity::Ptr entity,
+        Component::Ptr component,
+        const std::string& tag)
 {
     // update storage
     if (storage_) storage_->save(entity, component);
 
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
-    auto wme = std::make_shared<ECWME>(entity, component);
+    auto wme = std::make_shared<ECWME>(entity, component, tag);
 
     {
         std::lock_guard<std::recursive_mutex> lock(reasonerMutex_);
@@ -277,14 +279,16 @@ void Core::addedComponent(Entity::Ptr entity,
     }
 }
 
-void Core::removedComponent(Entity::Ptr entity,
-                          Component::Ptr component)
+void Core::removedComponent(
+        Entity::Ptr entity,
+        Component::Ptr component,
+        const std::string& tag)
 {
     // Un-persist component
     if (storage_) storage_->remove(entity, component);
 
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
-    auto wme = std::make_shared<ECWME>(entity, component);
+    auto wme = std::make_shared<ECWME>(entity, component, tag);
 
     {
         std::lock_guard<std::recursive_mutex> lock(reasonerMutex_);
@@ -292,8 +296,10 @@ void Core::removedComponent(Entity::Ptr entity,
     }
 }
 
-void Core::changedComponent(Entity::Ptr entity,
-                          Component::Ptr component)
+void Core::changedComponent(
+        Entity::Ptr entity,
+        Component::Ptr component,
+        const std::string& tag)
 {
     // update storage
     if (storage_) storage_->save(entity, component);
@@ -306,7 +312,7 @@ void Core::changedComponent(Entity::Ptr entity,
     // added, and discards the new wme. The reasoner also compares WMEs by value
     // to see if they are backed by evidence etc., so we should be good.
 
-    auto wme = std::make_shared<ECWME>(entity, component);
+    auto wme = std::make_shared<ECWME>(entity, component, tag);
     {
         std::lock_guard<std::recursive_mutex> lock(reasonerMutex_);
         reasoner_.net().getRoot()->activate(wme, rete::PropagationFlag::UPDATE);
