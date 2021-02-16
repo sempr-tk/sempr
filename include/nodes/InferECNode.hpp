@@ -23,11 +23,13 @@ namespace sempr {
 class InferECNode : public rete::Production {
     rete::PersistentInterpretation<Entity::Ptr> entity_;
     rete::PersistentInterpretation<Component::Ptr> component_;
+    rete::PersistentInterpretation<std::string> tag_;
 public:
     using Ptr = std::shared_ptr<InferECNode>;
     InferECNode(
         rete::PersistentInterpretation<Entity::Ptr> entity,
-        rete::PersistentInterpretation<Component::Ptr> component
+        rete::PersistentInterpretation<Component::Ptr> component,
+        rete::PersistentInterpretation<std::string> tag
     );
 
     void execute(rete::Token::Ptr, rete::PropagationFlag, std::vector<rete::WME::Ptr>&) override;
