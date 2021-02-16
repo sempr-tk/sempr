@@ -34,7 +34,8 @@ void InferECNode::execute(
 std::string InferECNode::toString() const
 {
     return "EC(" + entity_.accessor->toString() + ", "
-                 + component_.accessor->toString() + ")";
+                 + component_.accessor->toString() + ", "
+                 + tag_.accessor->toString() + ")";
 }
 
 
