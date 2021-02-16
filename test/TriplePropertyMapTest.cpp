@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_SUITE(TriplePropertyMapTest)
 
         // add the entity-component-pair to the reasoner
         auto evidence = std::make_shared<rete::AssertedEvidence>("FactGroup-1");
-        auto ecwme = std::make_shared<ECWME>(entity, container);
+        auto ecwme = std::make_shared<ECWME>(entity, container, "");
         reasoner.addEvidence(ecwme, evidence);
 
         // perfom inference

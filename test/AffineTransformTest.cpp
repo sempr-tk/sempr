@@ -119,12 +119,10 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
 
 
         auto left = std::make_shared<sempr::AffineTransform>(tfleft);
-        left->setTag("left");
-        entity->addComponent(left);
+        entity->addComponent(left, "left");
 
         auto right = std::make_shared<sempr::AffineTransform>(tfright);
-        right->setTag("right");
-        entity->addComponent(right);
+        entity->addComponent(right, "right");
 
         core.addEntity(entity);
         core.reasoner().performInference();

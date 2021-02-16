@@ -90,13 +90,12 @@ BOOST_AUTO_TEST_SUITE(ECNodeTest)
         auto entity = Entity::create();
         entity->setId("Entity_1"); // usually set when added to the core
         auto component = std::make_shared<Component>();
-        // set the components tag!
-        component->setTag("this is a tag");
-        entity->addComponent(component);
+        // add component to the entity, with a tag
+        entity->addComponent(component, "this is a tag");
 
         // add the pair to the reasoner, and also a triple
         auto evidence = std::make_shared<rete::AssertedEvidence>("FactGroup-1");
-        auto ecwme = std::make_shared<ECWME>(entity, component);
+        auto ecwme = std::make_shared<ECWME>(entity, component, "this is a tag"); // usually, the entity does this through the core
 
         // this is a malformed triple: the object is not valid without quotes.
         // Actually, rdf specifies literals as:
@@ -130,10 +129,9 @@ BOOST_AUTO_TEST_SUITE(ECNodeTest)
         auto entity = Entity::create();
         entity->setId("Entity_1");
         auto component = std::make_shared<Component>();
-        component->setTag("this is a tag");
-        entity->addComponent(component);
+        entity->addComponent(component, "this is a tag");
         auto evidence = std::make_shared<rete::AssertedEvidence>("FactGroup-1");
-        auto ecwme = std::make_shared<ECWME>(entity, component);
+        auto ecwme = std::make_shared<ECWME>(entity, component, "this is a tag"); // usually done by the entity
 
         reasoner.addEvidence(ecwme, evidence);
         reasoner.performInference();
