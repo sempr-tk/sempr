@@ -20,10 +20,6 @@ class Component : public std::enable_shared_from_this<Component> {
     /// a pointer to the entity that this component belongs to.
     Entity* entity_;
 
-    /// a string-tag attached to the component. completely optional, but if used
-    /// must be set before adding the component to an entity.
-    std::string tag_;
-
     friend class Entity;
 protected:
     // read-only access to the entity, in order to access e.g. the entities id.
@@ -33,19 +29,6 @@ public:
     virtual ~Component();
     using Ptr = std::shared_ptr<Component>;
 
-
-    /**
-        Sets the tag for this component.
-
-        \throws sempr::Exception if the component has already been added to an
-                entity.
-    */
-    void setTag(const std::string& tag);
-
-    /**
-        Returns the tag assigned to this component.
-    */
-    std::string getTag() const;
 
     /**
         Triggers an UPDATE signal in order to re-evaluate rules that depend on
@@ -85,15 +68,13 @@ public:
         Serialization with cereal
     */
     template <class Archive>
-    void save(Archive& ar) const
+    void save(Archive& /*ar*/) const
     {
-        ar( cereal::make_nvp<Archive>("tag", tag_) );
     }
 
     template <class Archive>
-    void load(Archive& ar)
+    void load(Archive& /*ar*/)
     {
-        ar( cereal::make_nvp<Archive>("tag", tag_) );
     }
 };
 

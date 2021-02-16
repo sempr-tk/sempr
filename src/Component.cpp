@@ -5,7 +5,7 @@
 
 namespace sempr {
 
-Component::Component() : entity_(nullptr), tag_("")
+Component::Component() : entity_(nullptr)
 {
 }
 
@@ -18,17 +18,6 @@ const Entity* Component::getEntity() const
     return entity_;
 }
 
-void Component::setTag(const std::string& tag)
-{
-    if (entity_) throw sempr::Exception("Cannot set component tag after adding it to an entity");
-    tag_ = tag;
-}
-
-std::string Component::getTag() const
-{
-    return tag_;
-}
-
 
 void Component::changed()
 {
@@ -39,7 +28,8 @@ void Component::changed()
         {
             entity_->core()->changedComponent(
                                 entity_->shared_from_this(),
-                                this->shared_from_this()
+                                this->shared_from_this(),
+                                entity_->getTag(this->shared_from_this())
             );
         }
     }
