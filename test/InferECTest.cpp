@@ -13,6 +13,27 @@
 #include <rete-reasoner/RuleParser.hpp>
 #include <rete-rdf/Triple.hpp>
 
+
+bool contains(const std::vector<rete::WME::Ptr>& wmes,
+              const std::string& subject,
+              const std::string& predicate,
+              const std::string& object)
+{
+    for (auto& wme : wmes)
+    {
+        auto triple = std::dynamic_pointer_cast<rete::Triple>(wme);
+        if (!triple) continue;
+
+        if (triple->subject == subject &&
+            triple->predicate == predicate &&
+            triple->object == object)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 BOOST_AUTO_TEST_SUITE(InferECTest)
 
     BOOST_AUTO_TEST_CASE(infer)
@@ -63,6 +84,36 @@ BOOST_AUTO_TEST_SUITE(InferECTest)
             }
         }
         BOOST_CHECK(affine_found);
+    }
+
+    BOOST_AUTO_TEST_CASE(infer_with_tag)
+    {
+        sempr::Core core;
+        auto& parser = core.parser();
+        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::AffineTransform>>();
+        parser.registerNodeBuilder<sempr::ECNodeBuilder<sempr::GeosGeometry>>();
+        parser.registerNodeBuilder<sempr::AffineTransformCreateBuilder>();
+        parser.registerNodeBuilder<sempr::InferECBuilder>();
+
+        auto rules = core.addRules(
+            "[defaultTF: EC<GeosGeom>(?entity ?geom),"
+            "            tf:create(?default 0 0 0 0 0 0 1)"
+            "            ->"
+            "            EC(?entity ?default \"default_tf\")]\n"
+            "[test: EC<Transform>(?e ?add \"default_tf\")"
+            " -> (<test> <is> <success>)]"
+        );
+
+        auto entity = sempr::Entity::create();
+        auto geom = std::make_shared<sempr::GeosGeometry>();
+        entity->addComponent(geom);
+        core.addEntity(entity);
+
+        core.performInference();
+        std::ofstream("infer_with_tag.dot") << core.reasoner().net().toDot();
+
+        auto wmes = core.reasoner().getCurrentState().getWMEs();
+        BOOST_CHECK(contains(wmes, "<test>", "<is>", "<success>"));
     }
 
 BOOST_AUTO_TEST_SUITE_END()
