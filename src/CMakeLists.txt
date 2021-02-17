@@ -38,6 +38,8 @@ set(SRC_FILES
     ./nodes/TripleDocumentFilenameBuilder.cpp
     ./nodes/SopranoModule.cpp
     ./nodes/SopranoNodeBuilder.cpp
+    ./nodes/CreateEntityNode.cpp
+    ./nodes/CreateEntityBuilder.cpp
     ./util/FileWatcher.cpp
     ./util/GenericCoordinateFilter.cpp
 )
