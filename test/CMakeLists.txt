@@ -75,6 +75,10 @@ if(Boost_FOUND)
     add_executable(AffineTransformTest AffineTransformTest.cpp)
     target_link_libraries(AffineTransformTest ${DEPENDENCIES})
     add_test(NAME AffineTransformTest COMMAND AffineTransformTest)
+
+    add_executable(CreateEntityTest CreateEntityTest.cpp)
+    target_link_libraries(CreateEntityTest ${DEPENDENCIES})
+    add_test(NAME CreateEntityTest COMMAND CreateEntityTest)
 endif()
 
 
