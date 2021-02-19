@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0] - 2021-02-19
+
+- added geo:intersects builtin
+- added createEntity builtin
+- load plugins from SEMPR\_PLUGINS\_PATH env variable
+- changed ECWME to include tags. This allows inferring a tag in rules
+
 ## [0.10.0] - 2020-11-19
 
 - Added several geometry builtins:
