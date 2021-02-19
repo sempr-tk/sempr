@@ -28,8 +28,9 @@ void ComponentTagNode::activate(rete::WME::Ptr wme, rete::PropagationFlag flag)
     // actually check the tag:
     auto ecwme = std::static_pointer_cast<ECWME>(wme);
     auto component = std::get<1>(ecwme->value_);
+    auto tag = std::get<2>(ecwme->value_);
 
-    if (component->getTag() == tag_)
+    if (tag == tag_)
     {
         propagate(wme, flag);
     }

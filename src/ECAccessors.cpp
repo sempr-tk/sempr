@@ -54,8 +54,7 @@ bool ComponentTagAccessor::equals(const rete::AccessorBase& other) const
 
 void ComponentTagAccessor::getValue(ECWME::Ptr wme, std::string& value) const
 {
-    auto component = std::get<1>(wme->value_);
-    value = component->getTag();
+    value = std::get<2>(wme->value_);
 }
 
 ComponentTagAccessor* ComponentTagAccessor::clone() const

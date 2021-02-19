@@ -3,9 +3,12 @@
 namespace sempr {
 
 InferECNode::InferECNode(
-    rete::PersistentInterpretation<Entity::Ptr> entity,
-    rete::PersistentInterpretation<Component::Ptr> component)
-    : entity_(std::move(entity)), component_(std::move(component))
+        rete::PersistentInterpretation<Entity::Ptr> entity,
+        rete::PersistentInterpretation<Component::Ptr> component,
+        rete::PersistentInterpretation<std::string> tag)
+    :
+        entity_(std::move(entity)), component_(std::move(component)),
+        tag_(std::move(tag))
 {
 }
 
@@ -17,10 +20,13 @@ void InferECNode::execute(
     {
         Entity::Ptr e;
         Component::Ptr c;
+        std::string t;
+
         entity_.interpretation->getValue(token, e);
         component_.interpretation->getValue(token, c);
+        tag_.interpretation->getValue(token, t);
 
-        auto ecwme = std::make_shared<ECWME>(e, c);
+        auto ecwme = std::make_shared<ECWME>(e, c, t);
         inferred.push_back(ecwme);
     }
 }
@@ -28,7 +34,8 @@ void InferECNode::execute(
 std::string InferECNode::toString() const
 {
     return "EC(" + entity_.accessor->toString() + ", "
-                 + component_.accessor->toString() + ")";
+                 + component_.accessor->toString() + ", "
+                 + tag_.accessor->toString() + ")";
 }
 
 

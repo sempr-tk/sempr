@@ -5,14 +5,17 @@
 #include <vector>
 #include <utility>
 #include <memory>
+#include <map>
 
 // enable json serialization for all entities
 #include <cereal/archives/json.hpp>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/types/vector.hpp>
+#include <cereal/types/map.hpp>
 #include <cereal/access.hpp>
 
 #include "Component.hpp"
+#include "Exception.hpp"
 
 
 namespace sempr {
@@ -26,10 +29,14 @@ namespace sempr {
 TODO: Inherit rete::WME, or create a rete::WME that wraps Entity?
 */
 class Entity : public std::enable_shared_from_this<Entity> {
+    template <class T = Component>
+    using ComponentTag = std::pair<std::shared_ptr<T>, std::string>;
+
+private:
     /// raw pointer, set and unset by the core when the entity is added/removed.
     Core* core_;
     std::string id_;
-    std::vector<Component::Ptr> components_;
+    std::map<Component::Ptr, std::string> components_; // with tag
 
     friend class Core;
     friend class cereal::access;
@@ -72,11 +79,20 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
 
     /**
         Adds a given component as a part of this entity.
+        Sets the tag to an empty string.
     */
     void addComponent(Component::Ptr);
 
     /**
+        Adds a given component as a part of this entity, assigned with a
+        specific tag.
+    */
+    void addComponent(Component::Ptr, const std::string& tag);
+
+    /**
         Removes a known component from the entity.
+        (Tag does not matter, as each component can only be once assigned to
+        the entity, thus only have one tag).
     */
     void removeComponent(Component::Ptr);
 
@@ -90,8 +106,9 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
         getComponents() const
     {
         std::vector<std::shared_ptr<C>> results;
-        for (auto component : components_)
+        for (auto ct : components_)
         {
+            auto component = ct.first;
             auto ptr = std::dynamic_pointer_cast<C>(component);
             if (ptr)
             {
@@ -99,6 +116,35 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
             }
         }
         return results;
+    }
+
+    template <class C>
+    std::vector<ComponentTag<C>> getComponentsWithTag() const
+    {
+        std::vector<ComponentTag<C>> results;
+        for (auto ct : components_)
+        {
+            auto component = ct.first;
+            auto ptr = std::dynamic_pointer_cast<C>(component);
+            if (ptr)
+            {
+                results.push_back(ComponentTag<C>(ptr, ct.second));
+            }
+        }
+        return results;
+    }
+
+    std::string getTag(Component::Ptr c) const
+    {
+        auto it = components_.find(c);
+        if (it != components_.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            throw sempr::Exception("Component is not part of this entity.");
+        }
     }
 
 
@@ -125,7 +171,7 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
         // have to reset the components entity-ptr!
         for (auto c : components_)
         {
-            c->entity_ = this;
+            c.first->entity_ = this;
         }
     }
 };

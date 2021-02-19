@@ -2,6 +2,8 @@
 #define SEMPR_TUPLECOMPONENTACCESSOR_HPP_
 
 #include <rete-core/TupleWMEAccessor.hpp>
+#include <rete-core/Util.hpp>
+
 #include "Component.hpp"
 
 namespace rete {
@@ -48,6 +50,13 @@ public:
         auto acc = new TupleWMEAccessor();
         acc->index_ = this->index_;
         return acc;
+    }
+
+    std::string toString() const override
+    {
+        return rete::util::beautified_typename<typename sempr::remove_shared_ptr<T>::type>().value + // what
+                "[" + std::to_string(this->index_) +"]" + // where in token
+                "[" + std::to_string(I) + "]"; // where in tuple
     }
 
 };

@@ -39,17 +39,22 @@ void Entity::setId(const std::string& id)
 
 void Entity::addComponent(Component::Ptr c)
 {
+    addComponent(c, "");
+}
+
+void Entity::addComponent(Component::Ptr c, const std::string& tag)
+{
     if (!c) throw sempr::Exception("cannot add nullptr as component");
     if (c->entity_) throw sempr::Exception("Component already part of an entity");
 
     c->entity_ = this;
-    components_.push_back(c);
+    components_[c] = tag;
 
     // if the entity is already part of a core we need to inform the reasoner
     // about the new component.
     if (core_)
     {
-        core_->addedComponent(shared_from_this(), c);
+        core_->addedComponent(shared_from_this(), c, tag);
     }
 }
 
@@ -59,7 +64,7 @@ void Entity::removeComponent(Component::Ptr c)
     if (c->entity_ != this) throw sempr::Exception("Component to remove is not part of this entity");
 
     // find the component in the entities component-list
-    auto it = std::find(components_.begin(), components_.end(), c);
+    auto it = components_.find(c);
 
     // should never happen
     if (it == components_.end()) throw sempr::Exception("Component to remove not part of this entity -- but has entity_ set to this");
@@ -69,10 +74,10 @@ void Entity::removeComponent(Component::Ptr c)
     // about the removed component.
     if (core_)
     {
-        core_->removedComponent(shared_from_this(), *it);
+        core_->removedComponent(shared_from_this(), it->first, it->second);
     }
-    
-    (*it)->entity_ = nullptr;
+
+    it->first->entity_ = nullptr;
     components_.erase(it);
 }
 
@@ -83,7 +88,7 @@ void Entity::removeComponent(Component::Ptr c)
 
 namespace rete { namespace util {
 
-template <> 
+template <>
 std::string to_string(const sempr::Entity& e)
 {
     return e.id();

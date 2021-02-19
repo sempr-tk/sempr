@@ -163,22 +163,22 @@ public:
 
 
     /**
-        Notifies the reasoner that the entity has a new component.
+        Notifies the reasoner that the entity has a new component with a tag.
         This is automatically called by the entity.
     */
-    void addedComponent(Entity::Ptr, Component::Ptr);
+    void addedComponent(Entity::Ptr, Component::Ptr, const std::string&);
 
     /**
-        Notifies the reasoner that the entity lost a component.
+        Notifies the reasoner that the entity lost a component with a tag.
         This is automatically called by the entity.
     */
-    void removedComponent(Entity::Ptr, Component::Ptr);
+    void removedComponent(Entity::Ptr, Component::Ptr, const std::string&);
 
     /**
         Notifies the reasoner that a component of an entity has changed.
         This is automatically called by the component.
     */
-    void changedComponent(Entity::Ptr, Component::Ptr);
+    void changedComponent(Entity::Ptr, Component::Ptr, const std::string& tag);
 
 
     // TODO: Add "modules"? Query-/Interface-Modules/-Nodes?
