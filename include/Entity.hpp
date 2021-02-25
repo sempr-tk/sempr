@@ -36,6 +36,8 @@ private:
     /// raw pointer, set and unset by the core when the entity is added/removed.
     Core* core_;
     std::string id_;
+    bool idIsURI_;
+
     std::map<Component::Ptr, std::string> components_; // with tag
 
     friend class Core;
@@ -69,6 +71,11 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
     std::string id() const;
 
     /**
+        Returns true if the id has been set by setURI(...)
+    */
+    bool idIsURI() const;
+
+    /**
         Sets the entities id. Useful if you want to explicitely identify
         specific entities and thus assign hard-coded ids.
         If you don't set an ID, the persistence layer in the core will.
@@ -76,6 +83,13 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
         \throws an exception if the entity already has an id.
     */
     void setId(const std::string&);
+
+    /**
+        Set the entities id, but flags it as an URI.
+        This prevents padding it in "<sempr:" + id + ">" when interpreting
+        the entity as a TriplePart.
+    */
+    void setURI(const std::string&);
 
     /**
         Adds a given component as a part of this entity.
@@ -156,6 +170,7 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
     {
         ar(
             cereal::make_nvp<Archive>("id", id_),
+            cereal::make_nvp<Archive>("idIsURI", idIsURI_),
             cereal::make_nvp<Archive>("components", components_)
         );
     }
@@ -165,6 +180,7 @@ TODO: I'm not sure if this should be exposed here. I added it to allow the Compo
     {
         ar(
             cereal::make_nvp<Archive>("id", id_),
+            cereal::make_nvp<Archive>("idIsURI", idIsURI_),
             cereal::make_nvp<Archive>("components", components_)
         );
 

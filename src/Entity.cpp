@@ -8,7 +8,7 @@
 
 namespace sempr {
 
-Entity::Entity() : core_(nullptr), id_("")
+Entity::Entity() : core_(nullptr), id_(""), idIsURI_(false)
 {
 }
 
@@ -36,6 +36,19 @@ void Entity::setId(const std::string& id)
     if (!id_.empty()) throw sempr::Exception("Entity already has an id");
     id_ = id;
 }
+
+
+void Entity::setURI(const std::string& uri)
+{
+    setId(uri);
+    idIsURI_ = true;
+}
+
+bool Entity::idIsURI() const
+{
+    return idIsURI_;
+}
+
 
 void Entity::addComponent(Component::Ptr c)
 {

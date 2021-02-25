@@ -26,9 +26,9 @@ public:
         return pool;
     }
 
-    Entity::Ptr get(const std::string& id)
+    Entity::Ptr get(const std::string& id, bool isURI)
     {
-        auto it = entities_.find(id);
+        auto it = entities_.find({id, isURI});
         if (it != entities_.end())
         {
             return it->second;
@@ -36,14 +36,20 @@ public:
         else
         {
             auto e = Entity::create();
-            e->setId(id);
-            entities_[id] = e;
+            if (isURI)
+                e->setURI(id);
+            else
+                e->setId(id);
+
+            entities_[{id, isURI}] = e;
             return e;
         }
     }
 
 private:
-    std::map<std::string, Entity::Ptr> entities_;
+    std::map<
+        std::pair<std::string, bool>,
+        Entity::Ptr> entities_;
 
 };
 

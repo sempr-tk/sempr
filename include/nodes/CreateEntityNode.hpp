@@ -4,6 +4,7 @@
 #include <rete-core/Builtin.hpp>
 #include <rete-core/Util.hpp>
 #include <rete-core/Accessors.hpp>
+#include <rete-rdf/TriplePart.hpp>
 
 #include "../Entity.hpp"
 
@@ -25,8 +26,10 @@ TODO: - global ID pool, to properly reuse existing entities?
 */
 class CreateEntityNode : public rete::Builtin {
     rete::PersistentInterpretation<std::string> id_;
+    rete::PersistentInterpretation<rete::TriplePart> uri_;
 public:
     CreateEntityNode(rete::PersistentInterpretation<std::string> id);
+    CreateEntityNode(rete::PersistentInterpretation<rete::TriplePart> uri);
 
     rete::WME::Ptr process(rete::Token::Ptr) override;
     bool operator == (const rete::BetaNode& other) const override;

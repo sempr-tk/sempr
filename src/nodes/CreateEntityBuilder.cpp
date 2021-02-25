@@ -22,12 +22,6 @@ rete::Builtin::Ptr CreateEntityBuilder::buildBuiltin(rete::ArgumentList& args) c
         throw rete::NodeBuilderException("Invalid number of arguments (!= 2)");
     if (args[0].isConst() || args[0].getAccessor())
         throw rete::NodeBuilderException("First argument must be unbound");
-    if (args[1].isVariable() &&
-        (!args[1].getAccessor() ||
-         !args[1].getAccessor()->getInterpretation<std::string>()))
-        throw rete::NodeBuilderException(
-                "Second argument not interpretable as a string");
-
 
     rete::Builtin::Ptr node;
     if (args[1].isConst())
@@ -37,11 +31,30 @@ rete::Builtin::Ptr CreateEntityBuilder::buildBuiltin(rete::ArgumentList& args) c
         node = std::make_shared<CreateEntityNode>(
                 acc.getInterpretation<std::string>()->makePersistent());
     }
-    else
+    else /* isVariable */
     {
-        node = std::make_shared<CreateEntityNode>(
-                args[1].getAccessor()->getInterpretation<std::string>()
-                                     ->makePersistent());
+        if (args[1].getAccessor())
+        {
+            // try a triple-part interpretation -> URI
+            auto tpI = args[1].getAccessor()->getInterpretation<rete::TriplePart>();
+            if (tpI)
+                node =std::make_shared<CreateEntityNode>(tpI->makePersistent());
+            else
+            {
+                // try a string interpretation
+                auto strI = args[1].getAccessor()->getInterpretation<std::string>();
+                if (strI)
+                    node = std::make_shared<CreateEntityNode>(strI->makePersistent());
+                else
+                    throw rete::NodeBuilderException(
+                            args[1].getVariableName() +
+                            " has an invalid type for the entities ID");
+            }
+        }
+        else
+        {
+            throw rete::NodeBuilderException("Second argument cannot be unbound");
+        }
     }
 
     auto resultAccessor = std::make_shared<rete::TupleWME<Entity::Ptr>::Accessor<0>>();

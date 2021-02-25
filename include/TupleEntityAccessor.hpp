@@ -39,7 +39,11 @@ public:
 
     void getValue(std::shared_ptr<TWME> wme, rete::TriplePart& value) const override
     {
-        value.value = "<" + sempr::baseURI() + std::get<I>(wme->value_)->id() + ">";
+        auto& e = std::get<I>(wme->value_);
+        if (e->idIsURI())
+            value.value = e->id();
+        else
+            value.value = "<" + sempr::baseURI() + std::get<I>(wme->value_)->id() + ">";
     }
 
     void getValue(std::shared_ptr<TWME> wme, std::string& value) const override

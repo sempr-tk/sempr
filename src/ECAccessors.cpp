@@ -33,7 +33,11 @@ void EntityAccessor::getValue(ECWME::Ptr wme, std::string& value) const
 
 void EntityAccessor::getValue(ECWME::Ptr wme, rete::TriplePart& value) const
 {
-    value.value = "<" + sempr::baseURI() + std::get<0>(wme->value_)->id() + ">";
+    auto& e = std::get<0>(wme->value_);
+    if (e->idIsURI())
+        value.value = e->id();
+    else
+        value.value = "<" + sempr::baseURI() + std::get<0>(wme->value_)->id() + ">";
 }
 
 bool EntityAccessor::equals(const AccessorBase& other) const
