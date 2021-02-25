@@ -9,6 +9,7 @@
 #include "nodes/ConstructRulesBuilder.hpp"
 #include "nodes/FileMonitorNodeBuilder.hpp"
 #include "nodes/TextComponentTextBuilder.hpp"
+#include "nodes/CreateEntityBuilder.hpp"
 
 namespace sempr {
 
@@ -19,6 +20,7 @@ void UtilPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<ConstructRulesBuilder>(core);
     core->parser().registerNodeBuilder<FileMonitorNodeBuilder>(core->reasonerMutex());
     core->parser().registerNodeBuilder<TextComponentTextBuilder>();
+    core->parser().registerNodeBuilder<CreateEntityBuilder>();
 
     // default rule to infer rules from entities with text components
     core->addRules(
