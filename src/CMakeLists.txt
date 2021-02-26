@@ -74,6 +74,8 @@ add_library(sempr_geos SHARED
     ./nodes/GeoDifferenceBuilder.cpp
     ./nodes/GeoFromWKTNode.cpp
     ./nodes/GeoFromWKTBuilder.cpp
+    ./nodes/GeoToWKTNode.cpp
+    ./nodes/GeoToWKTBuilder.cpp
 )
 set_target_properties(
     sempr_geos

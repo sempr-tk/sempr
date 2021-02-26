@@ -15,6 +15,7 @@
 #include "nodes/GeoBufferBuilder.hpp"
 #include "nodes/GeoDifferenceBuilder.hpp"
 #include "nodes/GeoFromWKTBuilder.hpp"
+#include "nodes/GeoToWKTBuilder.hpp"
 
 namespace sempr {
 
@@ -33,6 +34,7 @@ void GeosPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<GeoBufferBuilder>();
     core->parser().registerNodeBuilder<GeoDifferenceBuilder>();
     core->parser().registerNodeBuilder<GeoFromWKTBuilder>();
+    core->parser().registerNodeBuilder<GeoToWKTBuilder>();
 }
 
 #ifdef QT4
