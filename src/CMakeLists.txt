@@ -70,6 +70,8 @@ add_library(sempr_geos SHARED
     ./nodes/GeoIntersectsBuilder.cpp
     ./nodes/GeoBufferNode.cpp
     ./nodes/GeoBufferBuilder.cpp
+    ./nodes/GeoDifferenceNode.cpp
+    ./nodes/GeoDifferenceBuilder.cpp
 )
 set_target_properties(
     sempr_geos

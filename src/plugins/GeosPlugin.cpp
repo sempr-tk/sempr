@@ -13,6 +13,7 @@
 #include "nodes/GeoUnionAllBuilder.hpp"
 #include "nodes/GeoIntersectsBuilder.hpp"
 #include "nodes/GeoBufferBuilder.hpp"
+#include "nodes/GeoDifferenceBuilder.hpp"
 
 namespace sempr {
 
@@ -29,6 +30,7 @@ void GeosPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<GeoUnionAllBuilder>();
     core->parser().registerNodeBuilder<GeoIntersectsBuilder>();
     core->parser().registerNodeBuilder<GeoBufferBuilder>();
+    core->parser().registerNodeBuilder<GeoDifferenceBuilder>();
 }
 
 #ifdef QT4
