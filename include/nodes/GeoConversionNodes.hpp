@@ -29,6 +29,26 @@ private:
 };
 
 
+
+/**
+    Converts a geometry from an UTM zone to WGS84
+*/
+class WGSFromUTMNode : public rete::Builtin {
+public:
+    WGSFromUTMNode(
+            rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo,
+            rete::PersistentInterpretation<int> zone
+    );
+
+    rete::WME::Ptr process(rete::Token::Ptr) override;
+
+    bool operator == (const rete::BetaNode& other) const override;
+
+private:
+    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo_;
+    rete::PersistentInterpretation<int> zone_;
+};
+
 }
 
 

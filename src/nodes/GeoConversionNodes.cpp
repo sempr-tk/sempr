@@ -7,6 +7,10 @@
 namespace sempr {
 
 
+// -----------------------------------------------------------------------
+// UTM from WGS
+// -----------------------------------------------------------------------
+
 UTMFromWGSNode::UTMFromWGSNode(
         rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo,
         rete::PersistentInterpretation<int> zone)
@@ -76,6 +80,77 @@ bool UTMFromWGSNode::operator== (const rete::BetaNode& other) const
            *(o->zone_.accessor) == *(this->zone_.accessor);
 }
 
+
+
+
+// -----------------------------------------------------------------------
+// WGS from UTM
+// -----------------------------------------------------------------------
+WGSFromUTMNode::WGSFromUTMNode(
+        rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo,
+        rete::PersistentInterpretation<int> zone)
+    :
+        rete::Builtin("geo:WGSFromUTM"),
+        geo_(std::move(geo)),
+        zone_(std::move(zone))
+{
+}
+
+rete::WME::Ptr WGSFromUTMNode::process(rete::Token::Ptr token)
+{
+    GeosGeometryInterface::Ptr geometry;
+    int sourceZone;
+    geo_.interpretation->getValue(token, geometry);
+    zone_.interpretation->getValue(token, sourceZone);
+
+    if (!geometry->geometry()) return nullptr;
+
+    // create a coordinate filter which will apply the transformation
+    GenericCoordinateFilter filter(
+        [sourceZone](geos::geom::Coordinate* coordinate) -> void
+        {
+            double x = coordinate->x;
+            double y = coordinate->y;
+
+            double meridianConvergence, scaleOfProjection;
+
+            // TODO: In UTMFromWGS there is an additional transfer into the
+            // northern hemisphere to get rid of discontinuities.
+            // Is that necessary? Does it neet to be reverted?
+
+            GeographicLib::UTMUPS::Reverse(
+                sourceZone,
+                true, // north
+                x, y,
+                coordinate->y, // lat
+                coordinate->x, // lon
+                meridianConvergence,
+                scaleOfProjection
+            );
+        }
+    );
+
+    // create a clone of the geometry
+    auto copy = geometry->geometry()->clone();
+    // apply the transformation to it
+    copy->apply_rw(&filter);
+    // put it into a geometry component
+    auto component = std::make_shared<GeosGeometry>(std::move(copy));
+    // put that into a WME
+    auto wme = std::make_shared<rete::TupleWME<GeosGeometryInterface::Ptr>>(component);
+
+    return wme;
+}
+
+
+bool WGSFromUTMNode::operator== (const rete::BetaNode& other) const
+{
+    auto o = dynamic_cast<const WGSFromUTMNode*>(&other);
+    if (!o) return false;
+
+    return *(o->geo_.accessor) == *(this->geo_.accessor) &&
+           *(o->zone_.accessor) == *(this->zone_.accessor);
+}
 
 
 
