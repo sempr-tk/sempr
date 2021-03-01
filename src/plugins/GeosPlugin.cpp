@@ -26,6 +26,7 @@ void GeosPlugin::setup(Core* core) const
 
     core->parser().registerNodeBuilder<GeoDistanceBuilder>();
     core->parser().registerNodeBuilder<UTMFromWGSBuilder>();
+    core->parser().registerNodeBuilder<WGSFromUTMBuilder>();
     core->parser().registerNodeBuilder<GeoAreaBuilder>();
     core->parser().registerNodeBuilder<GeoIntersectionBuilder>();
     core->parser().registerNodeBuilder<GeoUnionBuilder>();
