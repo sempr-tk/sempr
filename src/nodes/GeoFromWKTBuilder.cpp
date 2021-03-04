@@ -26,6 +26,7 @@ rete::Builtin::Ptr GeoFromWKTBuilder::buildBuiltin(rete::ArgumentList& args) con
         if (args[1].getAST().isString())
         {
             rete::ConstantAccessor<std::string> acc(args[1].getAST().toString());
+            acc.index() = 0;
             wkt = acc.getInterpretation<std::string>()->makePersistent();
         }
         else
