@@ -12,6 +12,10 @@
 #include "nodes/GeoUnionBuilder.hpp"
 #include "nodes/GeoUnionAllBuilder.hpp"
 #include "nodes/GeoIntersectsBuilder.hpp"
+#include "nodes/GeoBufferBuilder.hpp"
+#include "nodes/GeoDifferenceBuilder.hpp"
+#include "nodes/GeoFromWKTBuilder.hpp"
+#include "nodes/GeoToWKTBuilder.hpp"
 
 namespace sempr {
 
@@ -22,11 +26,16 @@ void GeosPlugin::setup(Core* core) const
 
     core->parser().registerNodeBuilder<GeoDistanceBuilder>();
     core->parser().registerNodeBuilder<UTMFromWGSBuilder>();
+    core->parser().registerNodeBuilder<WGSFromUTMBuilder>();
     core->parser().registerNodeBuilder<GeoAreaBuilder>();
     core->parser().registerNodeBuilder<GeoIntersectionBuilder>();
     core->parser().registerNodeBuilder<GeoUnionBuilder>();
     core->parser().registerNodeBuilder<GeoUnionAllBuilder>();
     core->parser().registerNodeBuilder<GeoIntersectsBuilder>();
+    core->parser().registerNodeBuilder<GeoBufferBuilder>();
+    core->parser().registerNodeBuilder<GeoDifferenceBuilder>();
+    core->parser().registerNodeBuilder<GeoFromWKTBuilder>();
+    core->parser().registerNodeBuilder<GeoToWKTBuilder>();
 }
 
 #ifdef QT4

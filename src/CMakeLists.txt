@@ -68,6 +68,14 @@ add_library(sempr_geos SHARED
     ./nodes/GeoUnionAllBuilder.cpp
     ./nodes/GeoIntersectsNode.cpp
     ./nodes/GeoIntersectsBuilder.cpp
+    ./nodes/GeoBufferNode.cpp
+    ./nodes/GeoBufferBuilder.cpp
+    ./nodes/GeoDifferenceNode.cpp
+    ./nodes/GeoDifferenceBuilder.cpp
+    ./nodes/GeoFromWKTNode.cpp
+    ./nodes/GeoFromWKTBuilder.cpp
+    ./nodes/GeoToWKTNode.cpp
+    ./nodes/GeoToWKTBuilder.cpp
 )
 set_target_properties(
     sempr_geos
