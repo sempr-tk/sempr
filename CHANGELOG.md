@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.12.0] - 2021-03-15
+
+- added createEntity builtin
+- added idIsURI flag to entity, to allow skipping the automatic "sempr:" prefix
+- added geometry builtins:
+  - geo:buffer
+  - geo:difference
+  - geo:fromWKT
+  - geo:toWKT
+  - geo:WGSFromUTM
+
 ## [0.11.0] - 2021-02-19
 
 - added geo:intersects builtin
