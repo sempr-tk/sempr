@@ -159,7 +159,7 @@ set_target_properties(
     PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 target_link_libraries(
-    sempr_date sempr_core
+    sempr_date sempr_core ${RETE_LIBRARIES} ${QT_CORE}
 )
 
 #Date plugin
@@ -177,17 +177,17 @@ target_link_libraries(
 
 ## install stuff
 install(
-    TARGETS sempr_core sempr_geos
+    TARGETS sempr_core sempr_geos sempr_date
     LIBRARY DESTINATION lib COMPONENT common
 )
 
 install(
     TARGETS
+        sempr_plugin_date
         sempr_plugin_geos
         sempr_plugin_affine
         sempr_plugin_rdf
         sempr_plugin_util
-	sempr_plugin_date
     LIBRARY DESTINATION lib/sempr_plugins COMPONENT common
 )
 

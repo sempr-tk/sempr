@@ -19,11 +19,11 @@ rete::WME::Ptr DateMonthNode::process(rete::Token::Ptr token)
     std::string date;
     date_.interpretation->getValue(token, date);
 
-    std::cout << "date:month | token = " << date << std::endl;
+    //std::cout << "date:month | token = " << date << std::endl;
 
     int month = stoi(date.substr(5,2)); //month is always in field 5 and is length 2
 
-    std::cout << "date:month | month(int) is " << month << std::endl;
+    //std::cout << "date:month | month(int) is " << month << std::endl;
 
     auto wme = std::make_shared<rete::TupleWME<int>>(month);
 
