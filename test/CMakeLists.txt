@@ -79,6 +79,10 @@ if(Boost_FOUND)
     add_executable(CreateEntityTest CreateEntityTest.cpp)
     target_link_libraries(CreateEntityTest ${DEPENDENCIES})
     add_test(NAME CreateEntityTest COMMAND CreateEntityTest)
+
+    add_executable(ComponentQueryTest ComponentQueryTest.cpp)
+    target_link_libraries(ComponentQueryTest ${DEPENDENCIES} sempr_plugin_rdf)
+    add_test(NAME ComponentQueryTest COMMAND ComponentQueryTest)
 endif()
 
 
