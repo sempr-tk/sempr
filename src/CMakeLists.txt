@@ -149,6 +149,32 @@ target_link_libraries(sempr_plugin_util
     ${QT_CORE}
 )
 
+# Date sections
+add_library(sempr_date SHARED
+    ./nodes/DateMonthBuilder.cpp
+    ./nodes/DateMonthNode.cpp
+)
+set_target_properties(
+    sempr_date
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+    sempr_date sempr_core
+)
+
+#Date plugin
+add_library(sempr_plugin_date SHARED
+    ./plugins/DatePlugin.cpp
+    ../include/plugins/DatePlugin.hpp
+)
+set_target_properties(sempr_plugin_date
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+	sempr_plugin_date sempr_core sempr_date ${RETE_LIBRARIES} ${QT_CORE}
+)
+
+
 ## install stuff
 install(
     TARGETS sempr_core sempr_geos
@@ -161,6 +187,7 @@ install(
         sempr_plugin_affine
         sempr_plugin_rdf
         sempr_plugin_util
+	sempr_plugin_date
     LIBRARY DESTINATION lib/sempr_plugins COMPONENT common
 )
 
