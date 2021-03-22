@@ -143,6 +143,13 @@ namespace sempr {
             return ComponentQuery<U, T, Ts...>(var, *this);
         }
 
+        // specify whether the result shall include inferred components
+        ComponentQuery<T, Ts...>& includeInferred(bool f)
+        {
+            includeInferred_ = f;
+            return *this;
+        }
+
         std::vector<ResultType> execute()
         {
             std::vector<ResultType> results;
@@ -171,6 +178,7 @@ namespace sempr {
                     auto component = std::get<1>(ecwme->value_);
                     auto tag = std::get<2>(ecwme->value_); // TODO: use
 
+
                     // NOTE: Components extracted from a ecwme are always shared_ptr
                     auto specific = std::dynamic_pointer_cast<T>(component);
 
@@ -179,6 +187,10 @@ namespace sempr {
                     result.component = specific;
                     result.entity = entity;
                     result.tag = tag;
+
+                    // maybe we need to skip this ecwme, if the component is
+                    // only inferred
+                    if (!includeInferred_ && result.isInferred()) continue;
 
                     if (specific)
                     {
@@ -203,13 +215,17 @@ namespace sempr {
                 // use the copy constructor to initialize the base class
                 ComponentQuery<Ts...>(toExtend),
                 // and just remember the newly added variable name
-                var_(var)
+                var_(var),
+                // by default, dont include inferred components
+                // (for safety - don't modify them!)
+                includeInferred_(false)
         {
         }
 
 
     private:
         std::string var_; // the variable this class cares about
+        bool includeInferred_; // whether to include inferred data in the result
     };
 
 

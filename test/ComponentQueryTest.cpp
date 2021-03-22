@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_SUITE(ComponentQueryTest)
         // query for "big" entities, and get their geometry component
         auto results = plugin->componentQuery(
                   "SELECT * WHERE { ?f <ex:size> <ex:big> . }")
-            .with<sempr::GeosGeometry>("f")
+            .with<sempr::GeosGeometry>("f").includeInferred(true)
             .execute();
 
         // only one of the entities is "big" ...
