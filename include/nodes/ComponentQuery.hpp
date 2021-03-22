@@ -14,6 +14,29 @@
 
 namespace sempr {
 
+
+    /**
+        A container to attach more information to the result of a component
+        query.
+    */
+    template <class T>
+    struct ComponentQueryResult {
+        Entity::Ptr         entity;
+        std::shared_ptr<T>  component;
+        std::string         tag;
+
+        bool isInferred() const
+        {
+            auto allComponents = entity->getComponents<Component>();
+            auto it = std::find(
+                allComponents.begin(), allComponents.end(),
+                component);
+
+            return it == allComponents.end();
+        }
+
+    };
+
     /**
         ComponentQuery objects are extended SPARQL queries: In the first step,
         a simple SPARQL query is executed. Afterwards, specific datatypes are
@@ -110,7 +133,7 @@ namespace sempr {
     public:
         typedef typename ExtendTuple<
                      typename ComponentQuery<Ts...>::ResultType,
-                     std::shared_ptr<T>>::type
+                     ComponentQueryResult<T>>::type
             ResultType;
 
 
@@ -144,17 +167,25 @@ namespace sempr {
 
                 for (auto& ecwme : set_of_ecwme)
                 {
+                    auto entity = std::get<0>(ecwme->value_);
                     auto component = std::get<1>(ecwme->value_);
                     auto tag = std::get<2>(ecwme->value_); // TODO: use
 
                     // NOTE: Components extracted from a ecwme are always shared_ptr
                     auto specific = std::dynamic_pointer_cast<T>(component);
+
+                    // prepare result
+                    ComponentQueryResult<T> result;
+                    result.component = specific;
+                    result.entity = entity;
+                    result.tag = tag;
+
                     if (specific)
                     {
                         ResultType ext;
                         copy_tuple(prev, ext);
                         std::get<std::tuple_size<ResultType>::value-1>(ext)
-                            = specific;
+                            = result;
                         results.push_back(ext);
                     }
                 }

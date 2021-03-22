@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_SUITE(ComponentQueryTest)
         // now access the geometry and make sure it is the correct one by
         // checking the size constraint again
         auto geo = std::get<1>(r);
-        BOOST_CHECK(geo->geometry()->getArea() >= 400);
+        BOOST_CHECK(geo.component->geometry()->getArea() >= 400);
     }
 
     BOOST_AUTO_TEST_CASE(queryTest2)
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_SUITE(ComponentQueryTest)
         // print the contents of the container... not a real test, but
         // nice to see once. ;)
         auto container = std::get<1>(r);
-        for (auto& entry : *container)
+        for (auto& entry : *container.component)
         {
             std::cout << entry.toString() << std::endl;
         }
