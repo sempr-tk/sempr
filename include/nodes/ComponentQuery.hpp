@@ -35,6 +35,11 @@ namespace sempr {
             return it == allComponents.end();
         }
 
+        operator bool () const
+        {
+            return (entity && component);
+        }
+
     };
 
     /**
@@ -115,10 +120,6 @@ namespace sempr {
         }
 
     protected:
-        ComponentQuery(std::array<std::string, 0> /*vars*/)
-        {
-        }
-
         ComponentQueryModule::Ptr componentQueryModule_;
 
     private:
@@ -150,6 +151,12 @@ namespace sempr {
             return *this;
         }
 
+        ComponentQuery<T, Ts...>& optional(bool f)
+        {
+            optional_ = f;
+            return *this;
+        }
+
         std::vector<ResultType> execute()
         {
             std::vector<ResultType> results;
@@ -158,6 +165,13 @@ namespace sempr {
 
             for (auto& prev : prevVec)
             {
+                // Keep track if at least one match with the current result from
+                // the superclass was found. If optional_ is set we might need
+                // to add an empty result in the end.
+                bool foundAMatch = false;
+
+                // check if the given variable name was even present in the
+                // sparql query
                 auto& sparqlResult = std::get<0>(prev);
                 if (sparqlResult.find(var_) == sparqlResult.end())
                 {
@@ -169,15 +183,17 @@ namespace sempr {
                             " not used in the sparql query?");
                 }
 
+                // get the id from the sparql query and get all ECWMEs that
+                // contain an entity with that id
                 auto id = sparqlResult[var_].second;
                 auto set_of_ecwme = this->componentQueryModule_->get(id);
 
+                // check every ECWME if it matches the criteria
                 for (auto& ecwme : set_of_ecwme)
                 {
                     auto entity = std::get<0>(ecwme->value_);
                     auto component = std::get<1>(ecwme->value_);
-                    auto tag = std::get<2>(ecwme->value_); // TODO: use
-
+                    auto tag = std::get<2>(ecwme->value_);
 
                     // NOTE: Components extracted from a ecwme are always shared_ptr
                     auto specific = std::dynamic_pointer_cast<T>(component);
@@ -199,9 +215,22 @@ namespace sempr {
                         std::get<std::tuple_size<ResultType>::value-1>(ext)
                             = result;
                         results.push_back(ext);
+
+                        foundAMatch = true;
                     }
                 }
 
+                // if this query-part is marked optional and no match was
+                // found, we need to add one with an empty result
+                if (!foundAMatch && optional_)
+                {
+                    ResultType ext;
+                    copy_tuple(prev, ext);
+                    // note: no values set to the ComponentQueryResult<T> in
+                    // the last part of the tuple makes its evaluation as bool
+                    // 'false'.
+                    results.push_back(ext);
+                }
             }
 
             return results;
@@ -218,7 +247,9 @@ namespace sempr {
                 var_(var),
                 // by default, dont include inferred components
                 // (for safety - don't modify them!)
-                includeInferred_(false)
+                includeInferred_(false),
+                // by default, every "with<T>" is required
+                optional_(false)
         {
         }
 
@@ -226,6 +257,13 @@ namespace sempr {
     private:
         std::string var_; // the variable this class cares about
         bool includeInferred_; // whether to include inferred data in the result
+        bool optional_; // if false, results from superclasses are dropped if
+                        // no matching component is found.
+                        // if true, results from superclasses are added with
+                        // a single empty ComponentQueryResult<T> if no match
+                        // was found.
+                        // Similar to the difference between INNER JOIN and
+                        // LEFT JOIN
     };
 
 

@@ -58,24 +58,50 @@ BOOST_AUTO_TEST_SUITE(ComponentQueryTest)
         BOOST_REQUIRE(plugin);
 
 
-        // query for "big" entities, and get their geometry component
-        auto results = plugin->componentQuery(
-                  "SELECT * WHERE { ?f <ex:size> <ex:big> . }")
-            .with<sempr::GeosGeometry>("f").includeInferred(true)
-            .execute();
+        {
+            // query for "big" entities, and get their geometry component
+            auto results = plugin->componentQuery(
+                    "SELECT * WHERE { ?f <ex:size> <ex:big> . }")
+                .with<sempr::GeosGeometry>("f").includeInferred(true)
+                .execute();
 
-        // only one of the entities is "big" ...
-        BOOST_REQUIRE(results.size() == 1);
+            // only one of the entities is "big" ...
+            BOOST_REQUIRE(results.size() == 1);
 
-        auto& r = results[0];
-        auto sparqlResult = std::get<0>(r);
-        // ... and it is "field2"
-        BOOST_CHECK(sparqlResult["f"].second == "ex:field2");
+            auto& r = results[0];
+            auto sparqlResult = std::get<0>(r);
+            // ... and it is "field2"
+            BOOST_CHECK(sparqlResult["f"].second == "ex:field2");
 
-        // now access the geometry and make sure it is the correct one by
-        // checking the size constraint again
-        auto geo = std::get<1>(r);
-        BOOST_CHECK(geo.component->geometry()->getArea() >= 400);
+            // now access the geometry and make sure it is the correct one by
+            // checking the size constraint again
+            auto geo = std::get<1>(r);
+            BOOST_CHECK(geo.component->geometry()->getArea() >= 400);
+        }
+
+        // leaving out the inferred components, there should be no result
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT * WHERE { ?f <ex:size> <ex:big> . }")
+                .with<sempr::GeosGeometry>("f")
+                .execute();
+            BOOST_CHECK(results.size() == 0);
+        }
+
+        // but if the component is optional, there should be a result with
+        // a nullptr geometry
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT * WHERE { ?f <ex:size> <ex:big> . }")
+                .with<sempr::GeosGeometry>("f").optional(true)
+                .execute();
+            BOOST_REQUIRE(results.size() == 1);
+            auto& r = results[0];
+            auto geo = std::get<1>(r);
+            BOOST_CHECK(geo.component == nullptr);
+            BOOST_CHECK(geo.entity == nullptr);
+            BOOST_CHECK(!geo);
+        }
     }
 
     BOOST_AUTO_TEST_CASE(queryTest2)
