@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_SUITE(ComponentQueryTest)
 
         {
             auto results = plugin->componentQuery(
-                    "SELECT * WHERE { ?a <ex:foo> ?b . }")
+                    "SELECT DISTINCT ?a WHERE { ?a <ex:foo> ?b . }")
                 .with<sempr::TriplePropertyMap>("a").withTag("bar-tag")
                 .execute();
             BOOST_REQUIRE(results.size() == 1);
