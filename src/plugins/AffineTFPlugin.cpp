@@ -18,8 +18,13 @@ void AffineTFPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<AffineTransformCreateBuilder>();
 }
 
+CapabilityInterface* AffineTFPluginBuilder::create() const
+{
+    return new AffineTFPlugin();
+}
+
 #ifdef QT4
-Q_EXPORT_PLUGIN2(affinetransforms, AffineTFPlugin)
+Q_EXPORT_PLUGIN2(affinetransforms, AffineTFPluginBuilder)
 #endif
 
 }

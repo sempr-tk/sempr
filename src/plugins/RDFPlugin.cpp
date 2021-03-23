@@ -46,8 +46,14 @@ SopranoModule& RDFPlugin::soprano() const
     return *soprano_;
 }
 
+
+CapabilityInterface* RDFPluginBuilder::create() const
+{
+    return new RDFPlugin();
+}
+
 #ifdef QT4
-Q_EXPORT_PLUGIN2(rdf, RDFPlugin)
+Q_EXPORT_PLUGIN2(rdf, RDFPluginBuilder)
 #endif
 
 }
