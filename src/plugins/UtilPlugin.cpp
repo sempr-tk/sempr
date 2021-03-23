@@ -33,8 +33,13 @@ void UtilPlugin::setup(Core* core) const
     );
 }
 
+CapabilityInterface* UtilPluginBuilder::create() const
+{
+    return new UtilPlugin();
+}
+
 #ifdef QT4
-Q_EXPORT_PLUGIN2(utilities, UtilPlugin)
+Q_EXPORT_PLUGIN2(utilities, UtilPluginBuilder)
 #endif
 
 }

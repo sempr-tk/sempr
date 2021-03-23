@@ -9,16 +9,22 @@
 
 namespace sempr {
 
-class GeosPlugin : public QObject, public CapabilityInterface
+class GeosPlugin : public CapabilityInterface
 {
-    Q_OBJECT
-#ifndef QT4
-    Q_PLUGIN_METADATA(IID "sempr.CapabilityInterface/1.0")
-#endif
-    Q_INTERFACES(sempr::CapabilityInterface)
-
 public:
     void setup(Core *core) const override;
+};
+
+
+
+class  GeosPluginBuilder : public QObject, public CapabilityBuilderInterface {
+    Q_OBJECT
+#ifndef QT4
+    Q_PLUGIN_METADATA(IID "sempr.CapabilityBuilderInterface/1.0")
+#endif
+    Q_INTERFACES(sempr::CapabilityBuilderInterface)
+public:
+    CapabilityInterface* create() const override;
 };
 
 }

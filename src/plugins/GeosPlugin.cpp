@@ -38,8 +38,14 @@ void GeosPlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<GeoToWKTBuilder>();
 }
 
+
+CapabilityInterface* GeosPluginBuilder::create() const
+{
+    return new GeosPlugin();
+}
+
 #ifdef QT4
-Q_EXPORT_PLUGIN2(geosgeometries, GeosPlugin)
+Q_EXPORT_PLUGIN2(geosgeometries, GeosPluginBuilder)
 #endif
 
 }
