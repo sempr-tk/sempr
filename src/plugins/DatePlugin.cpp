@@ -17,7 +17,7 @@ CapabilityInterface* DatePluginBuilder::create() const
 }
 
 #ifdef QT4
-Q_EXPORT_PLUGIN2(date, DatePlugin)
+Q_EXPORT_PLUGIN2(date, DatePluginBuilder)
 #endif
 
 }
