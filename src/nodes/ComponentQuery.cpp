@@ -33,19 +33,16 @@ void ComponentQueryModule::addECWME(ECWME::Ptr wme)
 {
     std::string id = wmeToId(wme);
     ecwmes_[id].insert(wme);
-    std::cout << "add ECWME " << id << std::endl;
 }
 
 void ComponentQueryModule::removeECWME(ECWME::Ptr wme)
 {
     std::string id = wmeToId(wme);
     ecwmes_[id].erase(wme);
-    std::cout << "remove ECWME " << id << std::endl;
 }
 
 std::set<ECWME::Ptr> ComponentQueryModule::get(const std::string& id)
 {
-    std::cout << "query for ECWMEs " << id << std::endl;
     return ecwmes_[id];
 }
 
