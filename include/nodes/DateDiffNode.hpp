@@ -7,7 +7,11 @@
 namespace sempr {
 
 /*
-    Compute the difference in days between two date strings, format: YYYY-MM-DD HH:MM:SS    
+    Compute the difference in days between two date strings, format: YYYY-MM-DD HH:MM:SS
+
+    The difference is always with respect to date1, so:
+        diff > 0 -> date1 > date2
+        diff < 0 -> date1 < date2
 */
 class DateDiffNode : public rete::Builtin {
 public:
