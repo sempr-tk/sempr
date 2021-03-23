@@ -151,8 +151,14 @@ target_link_libraries(sempr_plugin_util
 
 # Date sections
 add_library(sempr_date SHARED
+    ./nodes/DateDayBuilder.cpp
+    ./nodes/DateDayNode.cpp
+    ./nodes/DateDiffBuilder.cpp
+    ./nodes/DateDiffNode.cpp
     ./nodes/DateMonthBuilder.cpp
     ./nodes/DateMonthNode.cpp
+    ./nodes/DateYearBuilder.cpp
+    ./nodes/DateYearNode.cpp    
 )
 set_target_properties(
     sempr_date

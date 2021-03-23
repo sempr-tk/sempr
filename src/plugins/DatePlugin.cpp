@@ -1,13 +1,22 @@
 #include "plugins/DatePlugin.hpp"
 #include "Core.hpp"
 #include "nodes/DateMonthBuilder.hpp"
-//Add further builtins?
+#include "nodes/DateYearBuilder.hpp"
+#include "nodes/DateDayBuilder.hpp"
+#include "nodes/DateDiffBuilder.hpp"
+//Add further builtins...
 
 namespace sempr {
 
 void DatePlugin::setup(Core* core) const
 {
-    core->parser().registerNodeBuilder<DateMonthBuilder>();
+    core->parser().registerNodeBuilder<DateMonthBuilder>();    
+    core->parser().registerNodeBuilder<DateYearBuilder>();
+    core->parser().registerNodeBuilder<DateDayBuilder>();
+    core->parser().registerNodeBuilder<DateDiffBuilder>();
+    //core->parser().registerNodeBuilder<DateLTBuilder>();
+    //core->parser().registerNodeBuilder<DatePlusBuilder>();
+    //core->parser().registerNodeBuilder<DateMinusBuilder>();
     //...
 }
 
