@@ -157,6 +157,13 @@ namespace sempr {
             return *this;
         }
 
+        ComponentQuery<T, Ts...>& withTag(const std::string& tag)
+        {
+            doTagCheck_ = true;
+            requiredTag_ = tag;
+            return *this;
+        }
+
         std::vector<ResultType> execute()
         {
             std::vector<ResultType> results;
@@ -194,6 +201,9 @@ namespace sempr {
                     auto entity = std::get<0>(ecwme->value_);
                     auto component = std::get<1>(ecwme->value_);
                     auto tag = std::get<2>(ecwme->value_);
+
+                    // option to filter by tag
+                    if (doTagCheck_ && tag != requiredTag_) continue;
 
                     // NOTE: Components extracted from a ecwme are always shared_ptr
                     auto specific = std::dynamic_pointer_cast<T>(component);
@@ -249,7 +259,9 @@ namespace sempr {
                 // (for safety - don't modify them!)
                 includeInferred_(false),
                 // by default, every "with<T>" is required
-                optional_(false)
+                optional_(false),
+                // by default, do not filter by tag
+                doTagCheck_(false)
         {
         }
 
@@ -264,6 +276,8 @@ namespace sempr {
                         // was found.
                         // Similar to the difference between INNER JOIN and
                         // LEFT JOIN
+        bool doTagCheck_; // set if the components shall be filtered by tag
+        std::string requiredTag_; // required tag if doTagCheck_ is set
     };
 
 

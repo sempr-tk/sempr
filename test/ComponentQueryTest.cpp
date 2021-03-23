@@ -150,4 +150,67 @@ BOOST_AUTO_TEST_SUITE(ComponentQueryTest)
         }
     }
 
+
+
+    BOOST_AUTO_TEST_CASE(filterbytag)
+    {
+        sempr::Core core;
+        core.loadPlugins("../src");
+        core.loadPlugins("src");
+
+        auto e1 = sempr::Entity::create();
+        auto c1 = std::make_shared<sempr::TriplePropertyMap>();
+        auto c2 = std::make_shared<sempr::TriplePropertyMap>();
+
+        c1->map_["ex:foo"] = "bar";
+        c2->map_["ex:foo"] = "baz";
+
+        e1->addComponent(c1, "bar-tag");
+        e1->addComponent(c2, "baz-tag");
+
+        core.addEntity(e1);
+        core.performInference();
+
+        std::ofstream("ComponentQueryTest_filterbytag.dot") << core.reasoner().net().toDot();
+
+        auto plugin = core.getPlugin<sempr::RDFPlugin>();
+        BOOST_REQUIRE(plugin);
+
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT DISTINCT ?a WHERE { ?a <ex:foo> ?b . }")
+                .with<sempr::TriplePropertyMap>("a")
+                .execute();
+
+            std::cout << results.size() << std::endl;
+
+            for (auto& r : results)
+            {
+                auto b = std::get<0>(r);
+                std::cout << "{";
+                for (auto& binding : b)
+                {
+                    std::cout << binding.first << " : " << binding.second.second << ", ";
+                }
+                std::cout << "} , " << rete::util::demangle(typeid(std::get<1>(r)).name()) << ", " << std::get<1>(r).tag << std::get<1>(r).component << std::endl;
+            }
+
+            BOOST_CHECK(results.size() == 2);
+        }
+
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT * WHERE { ?a <ex:foo> ?b . }")
+                .with<sempr::TriplePropertyMap>("a").withTag("bar-tag")
+                .execute();
+            BOOST_REQUIRE(results.size() == 1);
+            auto& r = results[0];
+
+            auto tpm = std::get<1>(r);
+            BOOST_CHECK(tpm.tag == "bar-tag");
+            std::string val = tpm.component->map_["ex:foo"];
+            BOOST_CHECK(val == "bar");
+        }
+    }
+
 BOOST_AUTO_TEST_SUITE_END()
