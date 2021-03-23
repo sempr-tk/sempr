@@ -31,6 +31,11 @@ Core::~Core()
     {
         entity->core_ = nullptr;
     }
+
+    for (auto cap : capabilities_)
+    {
+        delete cap;
+    }
 }
 
 
@@ -104,14 +109,17 @@ void Core::loadPlugins(const std::string& path)
             auto name = loader.metaData()["className"].toString().toStdString();
 #endif
 
-            CapabilityInterface* cap = qobject_cast<CapabilityInterface*>(plugin);
-            if (cap)
+            CapabilityBuilderInterface* capBuilder = qobject_cast<CapabilityBuilderInterface*>(plugin);
+            if (capBuilder)
             {
+                CapabilityInterface* cap = capBuilder->create();
+
                 if (capabilities_.find(cap) != capabilities_.end())
                 {
                     std::cout << "Plugin " << name
                               << " provided by " << loader.fileName().toStdString()
                               << " has already been loaded before." << std::endl;
+                    delete cap;
                 }
                 else
                 {

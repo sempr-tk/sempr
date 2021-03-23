@@ -75,8 +75,14 @@ ComponentQuery<> RDFPlugin::componentQuery(const std::string& sparql) const
     return ComponentQuery<>(soprano_, component_, sparql);
 }
 
+
+CapabilityInterface* RDFPluginBuilder::create() const
+{
+    return new RDFPlugin();
+}
+
 #ifdef QT4
-Q_EXPORT_PLUGIN2(rdf, RDFPlugin)
+Q_EXPORT_PLUGIN2(rdf, RDFPluginBuilder)
 #endif
 
 }
