@@ -9,16 +9,21 @@
 
 namespace sempr {
 
-class DatePlugin : public QObject, public CapabilityInterface
+class DatePlugin : public CapabilityInterface
+{
+public:
+    void setup(Core *core) const override;
+};
+
+class DatePluginBuilder : public QObject, public CapabilityBuilderInterface
 {
     Q_OBJECT
 #ifndef QT4
-    Q_PLUGIN_METADATA(IID "sempr.CapabilityInterface/1.0")
+    Q_PLUGIN_METADATA(IID "sempr.CapabilityBuilderInterface/1.0")
 #endif
-    Q_INTERFACES(sempr::CapabilityInterface)
-
+    Q_INTERFACES(sempr::CapabilityBuilderInterface)
 public:
-    void setup(Core *core) const override;
+    CapabilityInterface* create() const override;
 };
 
 }

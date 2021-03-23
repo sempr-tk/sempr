@@ -11,6 +11,11 @@ void DatePlugin::setup(Core* core) const
     //...
 }
 
+CapabilityInterface* DatePluginBuilder::create() const
+{
+    return new DatePlugin();
+}
+
 #ifdef QT4
 Q_EXPORT_PLUGIN2(date, DatePlugin)
 #endif
