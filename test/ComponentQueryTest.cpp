@@ -151,6 +151,105 @@ BOOST_AUTO_TEST_SUITE(ComponentQueryTest)
     }
 
 
+    BOOST_AUTO_TEST_CASE(aggregate)
+    {
+        sempr::Core core;
+        core.loadPlugins("../src");
+        core.loadPlugins("src");
+
+        auto e1 = sempr::Entity::create();
+        auto c1 = std::make_shared<sempr::TriplePropertyMap>();
+        auto c2 = std::make_shared<sempr::TriplePropertyMap>();
+
+        c1->map_["ex:foo"] = "bar";
+        c2->map_["ex:foo"] = "baz";
+
+        e1->addComponent(c1, "bar-tag");
+        e1->addComponent(c2, "baz-tag");
+
+        core.addEntity(e1);
+        core.performInference();
+
+        auto plugin = core.getPlugin<sempr::RDFPlugin>();
+        BOOST_REQUIRE(plugin);
+
+        // query for existing stuff
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT DISTINCT ?a WHERE { ?a <ex:foo> ?b . }")
+                .with<sempr::TriplePropertyMap>("a").aggregate()
+                .execute();
+
+            BOOST_REQUIRE(results.size() == 1);
+            auto& r = results[0];
+
+            auto tpms = std::get<1>(r);
+            BOOST_CHECK(tpms.size() == 2);
+        }
+
+        // query for existing stuff, filter by tag
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT DISTINCT ?a WHERE { ?a <ex:foo> ?b . }")
+                .with<sempr::TriplePropertyMap>("a").aggregate().withTag("baz-tag")
+                .execute();
+
+            BOOST_REQUIRE(results.size() == 1);
+            auto& r = results[0];
+
+            auto tpms = std::get<1>(r);
+            BOOST_CHECK(tpms.size() == 1);
+        }
+
+        // query for existing stuff, filter by tag, different order of calls
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT DISTINCT ?a WHERE { ?a <ex:foo> ?b . }")
+                .with<sempr::TriplePropertyMap>("a").withTag("baz-tag").aggregate()
+                .execute();
+
+            BOOST_REQUIRE(results.size() == 1);
+            auto& r = results[0];
+
+            auto tpms = std::get<1>(r);
+            BOOST_CHECK(tpms.size() == 1);
+        }
+
+
+        // query for non-existing component
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT DISTINCT ?a WHERE { ?a <ex:foo> ?b . }")
+                .with<sempr::GeosGeometry>("a").aggregate()
+                .execute();
+
+            BOOST_CHECK(results.size() == 0);
+        }
+
+        // query for non-existing component, but optional
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT DISTINCT ?a WHERE { ?a <ex:foo> ?b . }")
+                .with<sempr::GeosGeometry>("a").aggregate().optional(true)
+                .execute();
+
+            BOOST_REQUIRE(results.size() == 1);
+            BOOST_CHECK(std::get<1>(results[0]).size() == 0);
+        }
+
+        // query for non-existing component, but optional, different order of calls
+        {
+            auto results = plugin->componentQuery(
+                    "SELECT DISTINCT ?a WHERE { ?a <ex:foo> ?b . }")
+                .with<sempr::GeosGeometry>("a").optional(true).aggregate()
+                .execute();
+
+            BOOST_REQUIRE(results.size() == 1);
+            BOOST_CHECK(std::get<1>(results[0]).size() == 0);
+        }
+
+    }
+
 
     BOOST_AUTO_TEST_CASE(filterbytag)
     {
