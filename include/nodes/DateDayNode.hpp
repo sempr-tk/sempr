@@ -13,8 +13,7 @@ namespace sempr {
 */
 class DateDayNode : public rete::Builtin {
 public:
-    DateDayNode(rete::PersistentInterpretation<std::string> date);
-    DateDayNode();
+    DateDayNode(rete::PersistentInterpretation<std::string> date);    
 
     rete::WME::Ptr process(rete::Token::Ptr) override;
     bool operator == (const rete::BetaNode& other) const override;

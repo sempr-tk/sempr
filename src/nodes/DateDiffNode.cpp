@@ -2,6 +2,8 @@
 #include <rete-core/TupleWME.hpp>
 #include <string>
 #include <cmath>
+#include <ctime>
+#include <regex>
 
 namespace sempr {
 
@@ -15,12 +17,26 @@ DateDiffNode::DateDiffNode(
 {
 }
 
+/*
+    Check whether a Date string has the format "YYYY(-|/|.)MM(-|/|.)DD HH:MM:SS"
+    Implicitly verifies the length as well
+*/
+bool DateDiffNode::validate(std::string date){
+    auto const regex = std::regex("[0-9]{4}(/|-|.)(0[1-9]|1[0-2])(/|-|.)([0-2][1-9]|3[0-1])(\\s([0-1][1-9]|2[0-3])(:([0-5][0-9])){2}){0,1}");
+        
+    return std::regex_match(date, regex);
+}
+
 rete::WME::Ptr DateDiffNode::process(rete::Token::Ptr token)
 {
     std::string date1, date2;
     date1_.interpretation->getValue(token, date1);
     date2_.interpretation->getValue(token, date2);
 
+    if(!validate(date1) || !validate(date2))
+        return nullptr;
+
+    //Once validated these substrings are fixed
     int year1 = stoi(date1.substr(0,4));
     int year2 = stoi(date2.substr(0,4));
 
@@ -30,26 +46,17 @@ rete::WME::Ptr DateDiffNode::process(rete::Token::Ptr token)
     int day1 = stoi(date1.substr(8,2));
     int day2 = stoi(date2.substr(8,2));
 
-    //Calculate number of days since arbitrary starting point: e.g. 2020-01-01
-    int aYear = 2020;
-    int aMonth = 01;
-    int aDay = 01;
-    int nDays1 = (year1 - aYear)*365 + day1 - aDay;
-    int nDays2 = (year2 - aYear)*365 + day2 - aDay;
+    int dayDiff = 0;
 
-    //Get the number of days for each month passed
-    for(int i=month1-1; i>=aMonth; i--) nDays1 += monthLength[i-1];
-    for(int i=month2-1; i>=aMonth; i--) nDays2 += monthLength[i-1];
-    
-    //Leap year adjustment
-    if(month1 >= 2 || year1 > aYear) nDays1 += 1; //Leap year 2020
-    nDays1 += (year1 - aYear)/4; //+1 day for every leap year after 2020
-    
-    if(month2 >= 2 || year2 > aYear) nDays2 += 1; //Leap year 2020
-    nDays2 += (year2 - aYear)/4; //+1 day for every leap year after 2020
-
-    //Get difference in days
-    int dayDiff = nDays1 - nDays2;
+    //Calculate number of days
+    struct std::tm a = {0,0,0,day1,month1,year1-1900};
+    struct std::tm b = {0,0,0,day2,month2,year2-1900};
+    std::time_t t1 = std::mktime(&a);
+    std::time_t t2 = std::mktime(&b);
+    if ( t1 != (std::time_t)(-1) && t2 != (std::time_t)(-1) )
+    {
+        dayDiff = std::difftime(t2, t1) / (60 * 60 * 24); //Adjust to days
+    }
 
     auto wme = std::make_shared<rete::TupleWME<int>>(dayDiff);
 

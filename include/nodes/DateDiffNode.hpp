@@ -15,8 +15,7 @@ namespace sempr {
 */
 class DateDiffNode : public rete::Builtin {
 public:
-    DateDiffNode(rete::PersistentInterpretation<std::string> date1, rete::PersistentInterpretation<std::string> date2);
-    DateDiffNode();
+    DateDiffNode(rete::PersistentInterpretation<std::string> date1, rete::PersistentInterpretation<std::string> date2);    
 
     rete::WME::Ptr process(rete::Token::Ptr) override;
     bool operator == (const rete::BetaNode& other) const override;
@@ -24,7 +23,7 @@ public:
 private:
     rete::PersistentInterpretation<std::string> date1_;
     rete::PersistentInterpretation<std::string> date2_;
-    int monthLength [12] = {31,28,31,30,31,30,31,31,30,31,30,31};
+    bool validate(std::string);
 };
 
 }

@@ -14,7 +14,6 @@ namespace sempr {
 class DateYearNode : public rete::Builtin {
 public:
     DateYearNode(rete::PersistentInterpretation<std::string> date);
-    DateYearNode();
 
     rete::WME::Ptr process(rete::Token::Ptr) override;
     bool operator == (const rete::BetaNode& other) const override;
