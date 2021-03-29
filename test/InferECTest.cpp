@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_SUITE(InferECTest)
         // builtin (which is controversial!)
         auto rules = parser.parseRules(
             "[defaultTF: EC<GeosGeom>(?entity ?geom),"
-            "            tf:create(?default 0 0 0 0 0 0 1)"
+            "            tf:create(?default 0. 0. 0. 0. 0. 0. 1.)"
             "            ->"
             "            EC(?entity ?default)]\n",
             core.reasoner().net()
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_SUITE(InferECTest)
 
         auto rules = core.addRules(
             "[defaultTF: EC<GeosGeom>(?entity ?geom),"
-            "            tf:create(?default 0 0 0 0 0 0 1)"
+            "            tf:create(?default 0. 0. 0. 0. 0. 0. 1.)"
             "            ->"
             "            EC(?entity ?default \"default_tf\")]\n"
             "[test: EC<Transform>(?e ?add \"default_tf\")"
