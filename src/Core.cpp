@@ -81,10 +81,12 @@ void Core::loadPlugins()
         }
     }
 
-    // last resort: try standard installation path, /usr/lib/sempr_plugins
-    std::cout << "Trying /usr/lib/sempr_plugins..." << std::endl;
+    // last resort: try standard installation path, like /usr/lib/sempr_plugins and /usr/local/lib/sempr_plugins
+    std::cout << "Trying standard installation path /usr/.../lib/sempr_plugins" << std::endl;
     if (QDir("/usr/lib/sempr_plugins").exists())
         loadPlugins("/usr/lib/sempr_plugins");
+    else if (QDir("/usr/local/lib/sempr_plugins").exists())
+        loadPlugins("/usr/local/lib/sempr_plugins");
     else
         throw std::runtime_error("Could not find a sempr_plugins folder");
 
