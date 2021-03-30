@@ -28,7 +28,7 @@ rete::WME::Ptr GeoFromWKTNode::process(rete::Token::Ptr token)
             auto wme = std::make_shared<rete::TupleWME<GeosGeometryInterface::Ptr>>(resultGeom);
             return wme;
         }
-    } catch (geos::io::ParseException e) {
+    } catch (geos::io::ParseException& e) {
     }
 
     return nullptr;

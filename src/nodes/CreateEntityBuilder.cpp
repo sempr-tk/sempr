@@ -26,10 +26,20 @@ rete::Builtin::Ptr CreateEntityBuilder::buildBuiltin(rete::ArgumentList& args) c
     rete::Builtin::Ptr node;
     if (args[1].isConst())
     {
-        rete::ConstantAccessor<std::string> acc(args[1].getAST().toString());
-        acc.index() = 0;
-        node = std::make_shared<CreateEntityNode>(
-                acc.getInterpretation<std::string>()->makePersistent());
+        if (args[1].getAST().isURI())
+        {
+            rete::ConstantAccessor<rete::TriplePart> acc({args[1].getAST()});
+            acc.index() = 0;
+            node = std::make_shared<CreateEntityNode>(
+                    acc.getInterpretation<rete::TriplePart>()->makePersistent());
+        }
+        else
+        {
+            rete::ConstantAccessor<std::string> acc(args[1].getAST().toString());
+            acc.index() = 0;
+            node = std::make_shared<CreateEntityNode>(
+                    acc.getInterpretation<std::string>()->makePersistent());
+        }
     }
     else /* isVariable */
     {

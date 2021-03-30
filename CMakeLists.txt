@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD 14)
 add_definitions(-Wall -Wno-unknown-pragmas -Wextra -pedantic -Wnon-virtual-dtor -Werror=unused-result)
 add_definitions(-fPIC)
 
+add_definitions(-Wfatal-errors)
+
 # make serialization thread safe (i.e., allow serialization into multiple
 # different archives at the same time -- not access to a single archive!)
 add_definitions(-DCEREAL_THREAD_SAFE=1)

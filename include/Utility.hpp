@@ -10,6 +10,65 @@ namespace sempr {
     class Entity;
     class Component;
 
+    // copy the contents of one tuple into a larger one
+    // e.g., tuple<int, float> into tuple<int, float, string>
+    template <size_t... I, typename T1, typename T2>
+    void copy_tuple_impl(T1 const& from, T2& to, std::index_sequence<I...>)
+    {
+        // The index sequence is just a helper to get a multiple size_t
+        // template args in "size_t... I", ranging from 0 to size-1 of the
+        // "from" tuple.
+        //
+        // We need the brace initialization of the dummy-array just to
+        // provide a context in which parameter pack expansion is allowed.
+        int dummy[] = {
+            // The first part is the copy from the source tuple to the
+            // destination tuple. The comma-*operator* discards the result
+            // of the first expression and always returns the result of the
+            // second expression, which in this case is always 0 and
+            // provides a valid type for the int-array.
+            (std::get<I>(to) = std::get<I>(from), 0)...
+            // The ellipsis (...) expands the parameter pack with the given
+            // pattern, where the pack (here: I) is replaced by its values:
+            // (std::get<0>(to) = std::get<0>(from), 0),
+            // (std::get<1>(to) = std::get<1>(from), 0),
+            //                [...]
+        };
+        // the static cast simply suppresses the compiler warning us about
+        // the unused variable "dummy".
+        static_cast<void>(dummy);
+    }
+
+    template <typename T1, typename T2>
+    void copy_tuple(T1 const& from, T2& to)
+    {
+        copy_tuple_impl(from, to,
+            std::make_index_sequence<std::tuple_size<T1>::value>());
+    }
+
+    /**
+        Define a new tuple with more types.
+        ExtendTuple<std::tuple<int, float>, float, string, bool>::type
+                  = std::tuple<int, float, float, string, bool>
+    */
+    template <class...> struct ExtendTuple;
+    template <class... Ts, class... Us>
+    struct ExtendTuple<std::tuple<Ts...>, Us...> {
+        typedef std::tuple<Ts..., Us...> type;
+    };
+
+
+    /**
+        Return a sub-array from the given array.
+    */
+    template <size_t Begin, size_t End, class T, size_t N>
+    std::array<T, End-Begin> sub_array(const std::array<T, N>& in)
+    {
+        std::array<T, End-Begin> out;
+        std::copy(in.begin() + Begin, in.begin() + End, out.begin());
+        return out;
+    }
+
     template <class C>
     struct ComponentName {
         // to be specified by component implementations
