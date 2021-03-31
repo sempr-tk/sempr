@@ -16,26 +16,16 @@ rete::Builtin::Ptr TextComponentTextBuilder::buildBuiltin(rete::ArgumentList& ar
 {
     // exactly 2 args: Unbound var for result, and a TextComponent
     if (args.size() != 2) throw rete::NodeBuilderException("Invalid number of arguments (!=2).");
-    if (!args[0].isVariable() || args[0].getAccessor())
-        throw rete::NodeBuilderException("First argument must be an unbound variable for the result.");
+    rete::util::requireNumberOfArgs(args, 2);
+    rete::util::requireUnboundVariable(args, 0);
 
-    if (!args[1].isVariable() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->getInterpretation<TextComponent::Ptr>())
-    {
-        throw rete::NodeBuilderException("Second argument must be bound to a TextComponent.");
-    }
-
-    // clone the accessor
-    rete::PersistentInterpretation<TextComponent::Ptr>
-    text(
-        args[1].getAccessor()->getInterpretation<TextComponent::Ptr>()->makePersistent()
-    );
+    auto text = rete::util::requireInterpretation<TextComponent::Ptr>(args, 1);
 
     // create the node
     auto node = std::make_shared<TextComponentTextNode>(std::move(text));
 
     // create an accessor for the result
-    auto resultAcc = std::make_shared<rete::TupleWMEAccessor<0, rete::TupleWME<std::string>>>();
+    auto resultAcc = std::make_shared<rete::TupleWME<std::string>::Accessor<0>>();
 
     // bind the result
     args[0].bind(resultAcc);

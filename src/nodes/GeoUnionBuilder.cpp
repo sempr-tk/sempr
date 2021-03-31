@@ -16,30 +16,11 @@ GeoUnionBuilder::GeoUnionBuilder()
 rete::Builtin::Ptr GeoUnionBuilder::buildBuiltin(rete::ArgumentList& args) const
 {
     // exactly 3 args: result, geo1, geo2
-    if (args.size() != 3) throw rete::NodeBuilderException("Invalid number of arguments (!=3)");
-    if (args[0].isConst() || args[0].getAccessor())
-        throw rete::NodeBuilderException(
-                "First argument must be unbound, as it is reserved for the "
-                "result.");
+    rete::util::requireNumberOfArgs(args, 3);
+    rete::util::requireUnboundVariable(args, 0);
 
-    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo1, geo2;
-
-    if (args[1].isConst() || args[2].isConst())
-        throw rete::NodeBuilderException("Arguments cannot be constants");
-
-    if (!args[1].getAccessor() ||
-        !args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>())
-    {
-        throw rete::NodeBuilderException(
-                "Second argument must be bound to a Geometry");
-    }
-
-    if (!args[2].getAccessor() ||
-        !args[2].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>())
-    {
-        throw rete::NodeBuilderException(
-                "Third argument must be bound to a Geometry");
-    }
+    auto geo1 = rete::util::requireInterpretation<GeosGeometryInterface::Ptr>(args, 1);
+    auto geo2 = rete::util::requireInterpretation<GeosGeometryInterface::Ptr>(args, 2);
 
     // clone accessors
     geo1 = args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>()->makePersistent();
@@ -51,9 +32,7 @@ rete::Builtin::Ptr GeoUnionBuilder::buildBuiltin(rete::ArgumentList& args) const
     // bind the result variable to an accessor matching the return of GeoDistanceNode
     auto resultAccessor =
         std::make_shared<
-            rete::TupleWMEAccessor<0,
-                rete::TupleWME<GeosGeometryInterface::Ptr>
-            >
+                rete::TupleWME<GeosGeometryInterface::Ptr>::Accessor<0>
         >();
 
     args[0].bind(resultAccessor);

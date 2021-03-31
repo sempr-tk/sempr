@@ -42,12 +42,12 @@ rete::Production::Ptr SopranoNodeBuilder::buildEffect(rete::ArgumentList& args) 
     if (!module_) throw rete::NodeBuilderException("No SopranoModule set in SopranoNodeBuilder!");
 
     // must have exactly 3 arguments, which are string accessors
-    if (args.size() != 3) throw rete::NodeBuilderException("Wrong number of arguments (!=3)");
+    rete::util::requireNumberOfArgs(args, 3);
 
     rete::PersistentInterpretation<rete::TriplePart> s, p, o;
-    argToAccessor(args[0], s);
-    argToAccessor(args[1], p);
-    argToAccessor(args[2], o);
+    s = rete::util::requireInterpretation<rete::TriplePart>(args, 0);
+    p = rete::util::requireInterpretation<rete::TriplePart>(args, 1);
+    o = rete::util::requireInterpretation<rete::TriplePart>(args, 2);
 
     auto node = std::make_shared<SopranoNode>(module_,
                                               std::move(s),
