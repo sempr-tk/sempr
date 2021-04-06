@@ -31,7 +31,7 @@ rete::Builtin::Ptr CreateEntityBuilder::buildBuiltin(rete::ArgumentList& args) c
         {
             // requireInterpretation<rete::TriplePart> is not implemented
             // for args with arg.isConst()
-            rete::ConstantAccessor<rete::TriplePart> acc({args[1].getAST().toString()});
+            rete::ConstantAccessor<rete::TriplePart> acc({args[1].getAST()});
             acc.index() = 0;
             node = std::make_shared<CreateEntityNode>(
                     acc.getInterpretation<rete::TriplePart>()->makePersistent()
