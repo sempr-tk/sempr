@@ -20,39 +20,14 @@ UTMFromWGSBuilder::UTMFromWGSBuilder()
 rete::Builtin::Ptr UTMFromWGSBuilder::buildBuiltin(rete::ArgumentList& args) const
 {
     // exactly 3 arguments needed
-    if (args.size() != 3) throw rete::NodeBuilderException("Invalid number of arguments (!= 3)");
+    rete::util::requireNumberOfArgs(args, 3);
     // first must be unbound for the result
-    if (args[0].isConst() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be an unbound variable to store the result in");
-
+    rete::util::requireUnboundVariable(args, 0);
     // second must be a geometry
-    if (args[1].isConst() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>())
-    {
-        throw rete::NodeBuilderException("Second argument must be a geometry");
-    }
-    // clone accessor
-    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo(
-        args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>()->makePersistent()
-    );
+    auto geo = rete::util::requireInterpretation<GeosGeometryInterface::Ptr>(args, 1);
 
-    // third argument must be an number
-    rete::PersistentInterpretation<int> zone;
-    if (args[2].isConst())
-    {
-        // create accessor
-        rete::ConstantAccessor<int> acc(args[2].getAST().toInt());
-        acc.index() = 0;
-        zone = acc.getInterpretation<int>()->makePersistent();
-    }
-    else
-    {
-        if (!args[2].getAccessor() || !args[2].getAccessor()->getInterpretation<int>())
-        {
-            throw rete::NodeBuilderException("Third argument must be an integer indicating the target zone");
-        }
-
-        zone = args[2].getAccessor()->getInterpretation<int>()->makePersistent();
-    }
+    // third argument must be an integer
+    auto zone = rete::util::requireInterpretation<int>(args, 2);
 
     // create the node
     auto node = std::make_shared<UTMFromWGSNode>(std::move(geo), std::move(zone));
@@ -77,39 +52,16 @@ WGSFromUTMBuilder::WGSFromUTMBuilder()
 rete::Builtin::Ptr WGSFromUTMBuilder::buildBuiltin(rete::ArgumentList& args) const
 {
     // exactly 3 arguments needed
-    if (args.size() != 3) throw rete::NodeBuilderException("Invalid number of arguments (!= 3)");
-    // first must be unbound for the result
-    if (args[0].isConst() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be an unbound variable to store the result in");
+    rete::util::requireNumberOfArgs(args, 3);
 
-    // second must be a geometry
-    if (args[1].isConst() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>())
-    {
-        throw rete::NodeBuilderException("Second argument must be a geometry");
-    }
-    // clone accessor
-    rete::PersistentInterpretation<GeosGeometryInterface::Ptr> geo(
-        args[1].getAccessor()->getInterpretation<GeosGeometryInterface::Ptr>()->makePersistent()
-    );
+    // first must be unbound for the result
+    rete::util::requireUnboundVariable(args, 0);
+
+    // second must be the geometry
+    auto geo = rete::util::requireInterpretation<GeosGeometryInterface::Ptr>(args, 1);
 
     // third argument must be an number
-    rete::PersistentInterpretation<int> zone;
-    if (args[2].isConst())
-    {
-        // create accessor
-        rete::ConstantAccessor<int> acc(args[2].getAST().toInt());
-        acc.index() = 0;
-        zone = acc.getInterpretation<int>()->makePersistent();
-    }
-    else
-    {
-        if (!args[2].getAccessor() || !args[2].getAccessor()->getInterpretation<int>())
-        {
-            throw rete::NodeBuilderException("Third argument must be an integer indicating the target zone");
-        }
-
-        zone = args[2].getAccessor()->getInterpretation<int>()->makePersistent();
-    }
+    auto zone = rete::util::requireInterpretation<int>(args, 2);
 
     // create the node
     auto node = std::make_shared<WGSFromUTMNode>(std::move(geo), std::move(zone));

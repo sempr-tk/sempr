@@ -16,26 +16,16 @@ rete::Builtin::Ptr TripleDocumentFilenameBuilder::buildBuiltin(rete::ArgumentLis
 {
     // there must be exactly 2 arguments: Unbound variable for the result, and
     // a variable bound to a TripleDocument.
-    if (args.size() != 2) throw rete::NodeBuilderException("Invalid number of arguments (!= 2).");
-    if (!args[0].isVariable() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be ab unbound variable for the result.");
+    rete::util::requireNumberOfArgs(args, 2);
+    rete::util::requireUnboundVariable(args, 0);
 
-    if (!args[1].isVariable() || !args[1].getAccessor() ||
-        !args[1].getAccessor()->getInterpretation<TripleDocument::Ptr>())
-    {
-        throw rete::NodeBuilderException("Second argument must be bound to a TripleDocument.");
-    }
-
-    // clone the accessor
-    rete::PersistentInterpretation<TripleDocument::Ptr>
-    doc(
-        args[1].getAccessor()->getInterpretation<TripleDocument::Ptr>()->makePersistent()
-    );
+    auto doc = rete::util::requireInterpretation<TripleDocument::Ptr>(args, 1);
 
     // create the node
     auto node = std::make_shared<TripleDocumentFilenameNode>(std::move(doc));
 
     // create an accessor for the result
-    auto resultAcc = std::make_shared<rete::TupleWMEAccessor<0, rete::TupleWME<std::string>>>();
+    auto resultAcc = std::make_shared<rete::TupleWME<std::string>::Accessor<0>>();
 
     // bind the result accessor
     args[0].bind(resultAcc);

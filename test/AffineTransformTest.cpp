@@ -16,7 +16,6 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
     {
         for (auto wme : wmes)
         {
-            std::cout << wme->type() << std::endl;
             auto t = std::dynamic_pointer_cast<rete::Triple>(wme);
             if (t)
             {
@@ -34,7 +33,7 @@ BOOST_AUTO_TEST_SUITE(AffineTransformTest)
         core.loadPlugins("src");
         core.loadPlugins("../src");
 
-        core.addRules("[EC<Transform>(?e ?c), tf:create(?tf 1 2 3 4 5 6 7) -> (<c> <d> <e>)]");
+        core.addRules("[EC<Transform>(?e ?c), tf:create(?tf 1. 2. 3. 4. 5. 6. 7.) -> (<c> <d> <e>)]");
 
         auto entity = sempr::Entity::create();
         auto tf = std::make_shared<sempr::AffineTransform>();
