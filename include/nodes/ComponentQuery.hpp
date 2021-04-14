@@ -7,9 +7,9 @@
 #include <tuple>
 #include <array>
 
-#include "nodes/SopranoModule.hpp" // for SPARQL-Queries etc
-#include "nodes/ComponentQueryNode.hpp"
-#include "Utility.hpp"
+#include "SopranoModule.hpp" // for SPARQL-Queries etc
+#include "ComponentQueryNode.hpp"
+#include "../Utility.hpp"
 
 
 namespace sempr {
