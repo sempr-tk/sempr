@@ -11,29 +11,10 @@ rete::Production::Ptr InferECBuilder::buildEffect(rete::ArgumentList& args) cons
 {
     // needs exactly 2 or 3 args, which must be vars bound to an entity and a
     // component, and an optional tag
-    if (args.size() != 2 && args.size() != 3)
-        throw rete::NodeBuilderException("Wrong number of arguments (!= 2/3)");
-    else if (args[0].isConst() ||
-            !args[0].getAccessor()->getInterpretation<Entity::Ptr>())
-        throw rete::NodeBuilderException("First argument must be bound to an Entity.");
-    else if (args[1].isConst() ||
-            !args[1].getAccessor()->getInterpretation<Component::Ptr>())
-        throw rete::NodeBuilderException("Second argument must be bound to a Component.");
-    else if (args.size() == 3 &&
-            (
-            (args[2].isConst() && !args[2].getAST().isString()) ||
-            (args[2].isVariable() && !args[2].getAccessor()->getInterpretation<std::string>())
-            ))
-        throw rete::NodeBuilderException("Third argument must be a string.");
+    rete::util::requireNumberOfArgs(args, 2, 3);
 
-    // clone the accessors
-    rete::PersistentInterpretation<Entity::Ptr>
-        entity(args[0].getAccessor()->getInterpretation<Entity::Ptr>()
-                                    ->makePersistent());
-
-    rete::PersistentInterpretation<Component::Ptr>
-        component(args[1].getAccessor()->getInterpretation<Component::Ptr>()
-                                       ->makePersistent());
+    auto entity = rete::util::requireInterpretation<Entity::Ptr>(args, 0);
+    auto component = rete::util::requireInterpretation<Component::Ptr>(args, 1);
 
     InferECNode::Ptr node;
     if (args.size() == 2)
@@ -49,22 +30,12 @@ rete::Production::Ptr InferECBuilder::buildEffect(rete::ArgumentList& args) cons
     }
     else // args.size() == 3
     {
-        rete::AccessorBase::Ptr tagAcc;
-        if (args[2].isConst())
-        {
-            tagAcc = std::make_shared<rete::ConstantAccessor<std::string>>(
-                        args[2].getAST().toString());
-            tagAcc->index() = 0;
-        }
-        else
-        {
-            tagAcc = args[2].getAccessor();
-        }
-
+        auto tag = rete::util::requireInterpretation<std::string>(args, 2);
         node = std::make_shared<InferECNode>(
                 std::move(entity),
                 std::move(component),
-                tagAcc->getInterpretation<std::string>()->makePersistent());
+                std::move(tag)
+        );
     }
 
     return node;

@@ -23,6 +23,7 @@ void ComponentTagNode::activate(rete::WME::Ptr wme, rete::PropagationFlag flag)
     {
         // just pass it on
         propagate(wme, rete::PropagationFlag::RETRACT);
+        return;
     }
 
     // actually check the tag:

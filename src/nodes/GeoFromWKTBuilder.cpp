@@ -17,43 +17,11 @@ GeoFromWKTBuilder::GeoFromWKTBuilder()
 rete::Builtin::Ptr GeoFromWKTBuilder::buildBuiltin(rete::ArgumentList& args) const
 {
     // exactly 2 args: result, wkt
-    if (args.size() != 2) throw rete::NodeBuilderException("Invalid number of arguments (!=2)");
-    if (args[0].isConst() || args[0].getAccessor()) throw rete::NodeBuilderException("First argument must be unbound, as it is reserved for the result.");
+    rete::util::requireNumberOfArgs(args, 2);
+    rete::util::requireUnboundVariable(args, 0);
 
-    rete::PersistentInterpretation<std::string> wkt;
-    if (args[1].isConst())
-    {
-        if (args[1].getAST().isString())
-        {
-            rete::ConstantAccessor<std::string> acc(args[1].getAST().toString());
-            acc.index() = 0;
-            wkt = acc.getInterpretation<std::string>()->makePersistent();
-        }
-        else
-        {
-            throw rete::NodeBuilderException("Given wkt-parameter is not a string");
-        }
-    }
-    else /* isVariable */
-    {
-        auto acc = args[1].getAccessor();
-        if (acc)
-        {
-            auto strInterp = acc->getInterpretation<std::string>();
-            if (strInterp)
-                wkt = strInterp->makePersistent();
-            else
-                throw rete::NodeBuilderException(
-                        "Variable " + args[1].getVariableName() +
-                        " is not a string");
-        }
-        else
-        {
-            throw rete::NodeBuilderException(
-                    "Variable " + args[1].getVariableName() +
-                    " is unbound. Must be a string.");
-        }
-    }
+    auto wkt = rete::util::requireInterpretation<std::string>(args, 1);
+
     // create the node
     auto node = std::make_shared<GeoFromWKTNode>(std::move(wkt));
 

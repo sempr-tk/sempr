@@ -121,7 +121,10 @@ TripleIterator TriplePropertyMap::begin() const
     std::string sub = "";
     if (this->getEntity())
     {
-        sub = "<" + sempr::baseURI() + this->getEntity()->id() + ">";
+        if (this->getEntity()->idIsURI())
+            sub = this->getEntity()->id();
+        else
+            sub = "<" + sempr::baseURI() + this->getEntity()->id() + ">";
     }
 
     return TripleIterator(
@@ -136,7 +139,10 @@ TripleIterator TriplePropertyMap::end() const
     std::string sub = "";
     if (this->getEntity())
     {
-        sub = "<" + sempr::baseURI() + this->getEntity()->id() + ">";
+        if (this->getEntity()->idIsURI())
+            sub = this->getEntity()->id();
+        else
+            sub = "<" + sempr::baseURI() + this->getEntity()->id() + ">";
     }
 
     return TripleIterator(

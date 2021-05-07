@@ -18,42 +18,42 @@ rete::Builtin::Ptr CreateEntityBuilder::buildBuiltin(rete::ArgumentList& args) c
 {
     // need exactly 2 arguments: Unbound variable for the result, and a string
     // for the id
-    if (args.size() != 2)
-        throw rete::NodeBuilderException("Invalid number of arguments (!= 2)");
-    if (args[0].isConst() || args[0].getAccessor())
-        throw rete::NodeBuilderException("First argument must be unbound");
+    rete::util::requireNumberOfArgs(args, 2);
+    rete::util::requireUnboundVariable(args, 0);
 
+    // note: the construction can not happen as easy as usual, as the
+    // CreateEntityNode supports both std::string and rete::TriplePart
+    // arguments -- string-ids and URIs -- and handles them differently.
     rete::Builtin::Ptr node;
     if (args[1].isConst())
     {
-        rete::ConstantAccessor<std::string> acc(args[1].getAST().toString());
-        acc.index() = 0;
-        node = std::make_shared<CreateEntityNode>(
-                acc.getInterpretation<std::string>()->makePersistent());
-    }
-    else /* isVariable */
-    {
-        if (args[1].getAccessor())
+        if (args[1].getAST().isURI())
         {
-            // try a triple-part interpretation -> URI
-            auto tpI = args[1].getAccessor()->getInterpretation<rete::TriplePart>();
-            if (tpI)
-                node =std::make_shared<CreateEntityNode>(tpI->makePersistent());
-            else
-            {
-                // try a string interpretation
-                auto strI = args[1].getAccessor()->getInterpretation<std::string>();
-                if (strI)
-                    node = std::make_shared<CreateEntityNode>(strI->makePersistent());
-                else
-                    throw rete::NodeBuilderException(
-                            args[1].getVariableName() +
-                            " has an invalid type for the entities ID");
-            }
+            // requireInterpretation<rete::TriplePart> is not implemented
+            // for args with arg.isConst()
+            rete::ConstantAccessor<rete::TriplePart> acc({args[1].getAST()});
+            acc.index() = 0;
+            node = std::make_shared<CreateEntityNode>(
+                    acc.getInterpretation<rete::TriplePart>()->makePersistent()
+            );
         }
         else
         {
-            throw rete::NodeBuilderException("Second argument cannot be unbound");
+            node = std::make_shared<CreateEntityNode>(
+                    rete::util::requireInterpretation<std::string>(args, 1)
+            );
+        }
+    }
+    else /* isVariable */
+    {
+        try {
+            // try a triple-part interpretation -> URI
+            auto uri = rete::util::requireInterpretation<rete::TriplePart>(args, 1);
+            node = std::make_shared<CreateEntityNode>(std::move(uri));
+        } catch (rete::NodeBuilderException&) {
+            // try a string interpretation
+            auto id = rete::util::requireInterpretation<std::string>(args, 1);
+            node = std::make_shared<CreateEntityNode>(std::move(id));
         }
     }
 
