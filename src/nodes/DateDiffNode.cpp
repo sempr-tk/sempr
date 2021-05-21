@@ -19,6 +19,7 @@ DateDiffNode::DateDiffNode(
 {
 }
 
+//Compute the difference date1 - date2
 rete::WME::Ptr DateDiffNode::process(rete::Token::Ptr token)
 {
     std::string date1, date2;
@@ -46,7 +47,7 @@ rete::WME::Ptr DateDiffNode::process(rete::Token::Ptr token)
     int dayDiff = 0;
     std::time_t t1 = std::mktime(&a);
     std::time_t t2 = std::mktime(&b);
-    dayDiff = std::difftime(t2, t1) / (60 * 60 * 24); //Adjust to days    
+    dayDiff = std::difftime(t1, t2) / (60 * 60 * 24); //Adjust to days    
 
     auto wme = std::make_shared<rete::TupleWME<int>>(dayDiff);
 
