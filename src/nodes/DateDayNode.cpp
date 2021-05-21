@@ -1,6 +1,12 @@
 #include "nodes/DateDayNode.hpp"
 #include <rete-core/TupleWME.hpp>
+
 #include <string>
+#include <cmath>
+#include <ctime>
+#include <sstream>
+#include <locale>
+#include <iomanip>
 
 namespace sempr {
 
@@ -16,10 +22,18 @@ rete::WME::Ptr DateDayNode::process(rete::Token::Ptr token)
 {
     std::string date;
     date_.interpretation->getValue(token, date);
+    std::string dateFormat = "%Y-%m-%d %H:%M:%S"; //TODO: make parameter
 
     //std::cout << "date:day | token = " << date << std::endl;
 
-    int day = stoi(date.substr(8,2));
+    std::tm tm_ = {};
+    std::istringstream ss1(date);
+    ss1 >> std::get_time(&tm_, dateFormat.c_str());
+    if (ss1.fail()){
+        return nullptr;
+    }
+
+    int day = tm_.tm_mday;
 
     //std::cout << "date:day | Day(int) is " << Day << std::endl;
 

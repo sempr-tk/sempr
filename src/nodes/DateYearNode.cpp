@@ -1,6 +1,12 @@
 #include "nodes/DateYearNode.hpp"
 #include <rete-core/TupleWME.hpp>
+
 #include <string>
+#include <iostream>
+#include <ctime>
+#include <sstream>
+#include <locale>
+#include <iomanip>
 
 namespace sempr {
 
@@ -16,11 +22,17 @@ rete::WME::Ptr DateYearNode::process(rete::Token::Ptr token)
 {
     std::string date;
     date_.interpretation->getValue(token, date);
-
+    std::string dateFormat = "%Y-%m-%d %H:%M:%S"; //TODO: make parameter
+    
     //std::cout << "date:Year | token = " << date << std::endl;
+    std::tm tm_ = {};
+    std::istringstream ss1(date);
+    ss1 >> std::get_time(&tm_, dateFormat.c_str());
+    if (ss1.fail()){
+        return nullptr;
+    }
 
-    int year = stoi(date.substr(0,4)); //Year = 4 initial characters
-
+    int year = tm_.tm_year + 1900;
     //std::cout << "date:Year | Year(int) is " << Year << std::endl;
 
     auto wme = std::make_shared<rete::TupleWME<int>>(year);

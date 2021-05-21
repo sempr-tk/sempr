@@ -3,6 +3,10 @@
 
 #include <string>
 #include <iostream>
+#include <ctime>
+#include <sstream>
+#include <locale>
+#include <iomanip>
 
 namespace sempr {
 
@@ -18,10 +22,18 @@ rete::WME::Ptr DateMonthNode::process(rete::Token::Ptr token)
 {
     std::string date;
     date_.interpretation->getValue(token, date);
+    std::string dateFormat = "%Y-%m-%d %H:%M:%S"; //TODO: make parameter
 
     //std::cout << "date:month | token = " << date << std::endl;
 
-    int month = stoi(date.substr(5,2)); //month is always in field 5 and is length 2
+    std::tm tm_ = {};
+    std::istringstream ss1(date);
+    ss1 >> std::get_time(&tm_, dateFormat.c_str());
+    if (ss1.fail()){
+        return nullptr;
+    }
+
+    int month = tm_.tm_mon + 1;
 
     //std::cout << "date:month | month(int) is " << month << std::endl;
 
