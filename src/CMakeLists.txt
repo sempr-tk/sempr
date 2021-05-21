@@ -160,7 +160,9 @@ add_library(sempr_date SHARED
     ./nodes/DateMonthBuilder.cpp
     ./nodes/DateMonthNode.cpp
     ./nodes/DateYearBuilder.cpp
-    ./nodes/DateYearNode.cpp    
+    ./nodes/DateYearNode.cpp
+    ./nodes/DatePlusBuilder.cpp
+    ./nodes/DatePlusNode.cpp
 )
 set_target_properties(
     sempr_date

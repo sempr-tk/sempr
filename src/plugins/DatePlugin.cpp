@@ -4,6 +4,7 @@
 #include "nodes/DateYearBuilder.hpp"
 #include "nodes/DateDayBuilder.hpp"
 #include "nodes/DateDiffBuilder.hpp"
+#include "nodes/DatePlusBuilder.hpp"
 //Add further builtins...
 
 namespace sempr {
@@ -15,7 +16,7 @@ void DatePlugin::setup(Core* core) const
     core->parser().registerNodeBuilder<DateDayBuilder>();
     core->parser().registerNodeBuilder<DateDiffBuilder>();
     //core->parser().registerNodeBuilder<DateLTBuilder>();
-    //core->parser().registerNodeBuilder<DatePlusBuilder>();
+    core->parser().registerNodeBuilder<DatePlusBuilder>();
     //core->parser().registerNodeBuilder<DateMinusBuilder>();
     //...
 }
