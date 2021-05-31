@@ -112,6 +112,11 @@ public:
     }
 
     /**
+        Removes the plugin from the core and deletes it.
+    */
+    void removePlugin(CapabilityInterface* plugin);
+
+    /**
         Uses the internal RuleParser to construct the given rules.
         Throws an exception if something goes wrong. Otherwise, the created
         rules are stored in the core, and a list of ids is returned by which

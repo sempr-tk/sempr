@@ -146,6 +146,15 @@ void Core::loadPlugins(const std::string& path)
 }
 
 
+void Core::removePlugin(CapabilityInterface* plugin)
+{
+    if (this->capabilities_.erase(plugin))
+    {
+        delete plugin;
+    }
+}
+
+
 std::recursive_mutex& Core::reasonerMutex()
 {
     return reasonerMutex_;
