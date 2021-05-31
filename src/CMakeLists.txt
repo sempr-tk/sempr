@@ -151,14 +151,49 @@ target_link_libraries(sempr_plugin_util
     ${QT_CORE}
 )
 
+# Date sections
+add_library(sempr_date SHARED
+    ./nodes/DateDayBuilder.cpp
+    ./nodes/DateDayNode.cpp
+    ./nodes/DateDiffBuilder.cpp
+    ./nodes/DateDiffNode.cpp
+    ./nodes/DateMonthBuilder.cpp
+    ./nodes/DateMonthNode.cpp
+    ./nodes/DateYearBuilder.cpp
+    ./nodes/DateYearNode.cpp
+    ./nodes/DatePlusBuilder.cpp
+    ./nodes/DatePlusNode.cpp
+)
+set_target_properties(
+    sempr_date
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+    sempr_date sempr_core ${RETE_LIBRARIES} ${QT_CORE}
+)
+
+#Date plugin
+add_library(sempr_plugin_date SHARED
+    ./plugins/DatePlugin.cpp
+    ../include/plugins/DatePlugin.hpp
+)
+set_target_properties(sempr_plugin_date
+    PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+target_link_libraries(
+	sempr_plugin_date sempr_core sempr_date ${RETE_LIBRARIES} ${QT_CORE}
+)
+
+
 ## install stuff
 install(
-    TARGETS sempr_core sempr_geos
+    TARGETS sempr_core sempr_geos sempr_date
     LIBRARY DESTINATION lib COMPONENT common
 )
 
 install(
     TARGETS
+        sempr_plugin_date
         sempr_plugin_geos
         sempr_plugin_affine
         sempr_plugin_rdf
