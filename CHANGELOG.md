@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0] - 2021-05-31
+
+- changed plugin structure to separate plugin instances for multiple sempr cores
+- added `componentQuery` to RDFPlugin: An extended SPARQL query that also
+  fetches c++ objects associated with ids
+- added builtins to deal with dates
+
 ## [0.12.0] - 2021-03-15
 
 - added createEntity builtin
