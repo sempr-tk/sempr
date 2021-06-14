@@ -238,7 +238,7 @@ void Core::addEntity(Entity::Ptr entity)
     }
 
     // Persist the entity
-    if (storage_) storage_->save(entity);
+    if (storage_ && !entity->isTemporary()) storage_->save(entity);
 
     // add the WMEs to the reasoner
     auto components = entity->getComponentsWithTag<Component>();
@@ -267,7 +267,7 @@ void Core::removeEntity(Entity::Ptr entity)
     }
 
     // Un-persist entity
-    if (storage_) storage_->remove(entity);
+    if (storage_ && !entity->isTemporary()) storage_->remove(entity);
 
     // remove corresponding WMEs
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
@@ -287,7 +287,7 @@ void Core::addedComponent(
         const std::string& tag)
 {
     // update storage
-    if (storage_) storage_->save(entity, component);
+    if (storage_ && !entity->isTemporary()) storage_->save(entity, component);
 
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
     auto wme = std::make_shared<ECWME>(entity, component, tag);
@@ -304,7 +304,7 @@ void Core::removedComponent(
         const std::string& tag)
 {
     // Un-persist component
-    if (storage_) storage_->remove(entity, component);
+    if (storage_ && !entity->isTemporary()) storage_->remove(entity, component);
 
     auto evidence = std::make_shared<rete::AssertedEvidence>(entity->id());
     auto wme = std::make_shared<ECWME>(entity, component, tag);
@@ -321,7 +321,7 @@ void Core::changedComponent(
         const std::string& tag)
 {
     // update storage
-    if (storage_) storage_->save(entity, component);
+    if (storage_ && !entity->isTemporary()) storage_->save(entity, component);
 
     // NOTE: You may have noticed that there are often new evidences and WMEs
     // created, even for "removedComponent" and "changedComponent". This is okay

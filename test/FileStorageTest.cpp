@@ -44,6 +44,14 @@ BOOST_AUTO_TEST_SUITE(FileStorageTest)
 
         // entity should be persisted now
         BOOST_CHECK(fs::exists(folder / (entity->id() + ".json")));
+
+        // create a temporary entity
+        auto tmp = sempr::Entity::createTemporary();
+        tmp->setId(entityID + "_tmp");
+        core.addEntity(tmp);
+
+        // entity should *not* be persisted
+        BOOST_CHECK(!fs::exists(folder / (tmp->id() + ".json")));
     }
 
     BOOST_AUTO_TEST_CASE(load)

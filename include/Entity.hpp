@@ -37,6 +37,7 @@ private:
     Core* core_;
     std::string id_;
     bool idIsURI_;
+    bool isTemporary_; // temporary entities are not persisted!
 
     std::map<Component::Ptr, std::string> components_; // with tag
 
@@ -56,12 +57,20 @@ public:
         Creates a new Entity.
     */
     static Entity::Ptr create();
+    static Entity::Ptr createTemporary();
 
     /**
         Returns a pointer to the currently set core of the entity.
 TODO: I'm not sure if this should be exposed here. I added it to allow the Component-class (which has a pointer to entity) to notify the core about an internal update. I could also make the component a friend of entity, but in that case every component can see all components added to the entity, which would be wrong, as it could lead to cross-dependencies.
     */
     Core* core() const;
+
+
+    /**
+     * Returns if the entity was created to be temporary and thus
+     * must not be persisted
+    */
+    bool isTemporary() const;
 
     /**
         Get the entities id.

@@ -35,7 +35,7 @@ public:
         }
         else
         {
-            auto e = Entity::create();
+            auto e = Entity::createTemporary();
             if (isURI)
                 e->setURI(id);
             else
