@@ -8,7 +8,7 @@
 
 namespace sempr {
 
-Entity::Entity() : core_(nullptr), id_(""), idIsURI_(false)
+Entity::Entity() : core_(nullptr), id_(""), idIsURI_(false), isTemporary_(false)
 {
 }
 
@@ -21,10 +21,24 @@ Entity::Ptr Entity::create()
     return Entity::Ptr(new Entity());
 }
 
+Entity::Ptr Entity::createTemporary()
+{
+    Entity::Ptr e(new Entity());
+    e->isTemporary_ = true;
+    return e;
+}
+
+
 Core* Entity::core() const
 {
     return core_;
 }
+
+bool Entity::isTemporary() const
+{
+    return isTemporary_;
+}
+
 
 std::string Entity::id() const
 {

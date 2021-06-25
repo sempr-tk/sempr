@@ -1,5 +1,6 @@
 #include "SeparateFileStorage.hpp"
 #include "Exception.hpp"
+#include <stdexcept>
 
 #include <cereal/archives/json.hpp>
 #include <cereal/types/memory.hpp>
@@ -31,6 +32,11 @@ SeparateFileStorage::SeparateFileStorage(const std::string& dir)
 
 void SeparateFileStorage::save(Entity::Ptr entity)
 {
+    if (entity->isTemporary())
+    {
+        throw sempr::Exception("Tried to save a temporary entity.");
+    }
+
     // open a json file in the specified folder...
     fs::path p = dirPath_;
     p /= entity->id() + ".json";
@@ -89,7 +95,7 @@ void SeparateFileStorage::releaseIDOf(Entity::Ptr entity)
 {
     entityIDs_.erase(entity->id());
 
-    if (entity->id().length() > 7)
+    if (entity->id().length() > 7 && entity->id().substr(0, 7) == "Entity_")
     {
         // extract the numerical part
         std::stringstream ss(entity->id().substr(7)); // strips "Entity_"
