@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.14.0] - 2021-06-28
+
+- create temporary (i.e., non-persistent) entities with Entity::createTemporary
+- added `EC<Component>` to UtilBuildin
+
 ## [0.13.0] - 2021-05-31
 
 - changed plugin structure to separate plugin instances for multiple sempr cores
