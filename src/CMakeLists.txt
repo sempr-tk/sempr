@@ -11,6 +11,8 @@ set(SRC_FILES
     SimpleIncrementalIDGenerator.cpp
     Entity.cpp
     ECAccessors.cpp
+    ECWMEToJSONConverter.cpp
+    TupleWMEToJSONConverter.cpp
     Component.cpp
     SeparateFileStorage.cpp
     ./component/AffineTransform.cpp
