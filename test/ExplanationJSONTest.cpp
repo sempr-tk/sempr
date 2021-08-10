@@ -5,6 +5,7 @@
 #include <rete-reasoner/ExplanationToJSONVisitor.hpp>
 #include "ECWMEToJSONConverter.hpp"
 #include "TupleWMEToJSONConverter.hpp"
+#include "TupleGeoToJSONConverter.hpp"
 #include <rete-rdf/Triple.hpp>
 
 
@@ -53,6 +54,7 @@ R"foo(
         rete::ExplanationToJSONVisitor visitor;
         visitor.addToJSONConverter(std::make_shared<ECWMEToJSONConverter>());
         visitor.addToJSONConverter(std::make_shared<TupleWMEToJSONConverter>());
+        visitor.addToJSONConverter(std::make_shared<TupleGeoToJSONConverter>());
 
         infstate.traverseExplanation(wme, visitor);
         {

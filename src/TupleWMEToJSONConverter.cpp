@@ -23,6 +23,26 @@ namespace {
         return j;
     }
 
+    template <class T, class = std::enable_if_t<std::is_base_of<Component, T>::value, void>>
+    nlohmann::json componenttoJson(std::shared_ptr<rete::TupleWME<std::shared_ptr<T>>> wme)
+    {
+        Component::Ptr component = std::get<0>(wme->value_);
+
+        nlohmann::json j;
+        j["type"] = "Component";
+        j["description"] = wme->description_;
+        std::stringstream ssComponent;
+        {
+            cereal::JSONOutputArchive ar(ssComponent);
+            component->saveToJSON(ar);
+        }
+        auto compJson = nlohmann::json::parse(ssComponent.str());
+        j["value"]["component"] = compJson["value0"];
+        j["value"]["component-type"] = rete::util::demangle(typeid(*component).name());
+
+        return j;
+    }
+
 
     nlohmann::json toJson(std::shared_ptr<rete::TupleWME<>> wme)
     {
@@ -75,6 +95,8 @@ bool TupleWMEToJSONConverter::convert(rete::WME::Ptr wme, std::string& json)
         j = toJson(w);
     else if (auto w = std::dynamic_pointer_cast<rete::TupleWME<Entity::Ptr>>(wme))
         j = toJson(w);
+    else if (auto w = std::dynamic_pointer_cast<rete::TupleWME<AffineTransform::Ptr>>(wme))
+        j = componenttoJson(w);
     else if (auto w = std::dynamic_pointer_cast<rete::TupleWME<rete::TriplePart>>(wme))
         j = toJson(w);
     else if (auto w = std::dynamic_pointer_cast<rete::TupleWME<>>(wme))
