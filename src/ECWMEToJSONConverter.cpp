@@ -1,7 +1,7 @@
 #include "ECWMEToJSONConverter.hpp"
 #include "ECWME.hpp"
 
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 #include <cereal/archives/json.hpp>
 #include <rete-core/Util.hpp>
 

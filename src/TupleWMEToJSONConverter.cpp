@@ -2,7 +2,7 @@
 #include <rete-core/TupleWME.hpp>
 #include "component/AffineTransform.hpp"
 
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 #include <cereal/archives/json.hpp>
 #include <rete-core/Util.hpp>
 #include "sempr/Entity.hpp"

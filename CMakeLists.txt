@@ -63,6 +63,9 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
+# nlohmann json
+include_directories(external)
+
 # QtCore for its plugin system
 
 find_package(Qt5 COMPONENTS Core)
