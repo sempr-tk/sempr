@@ -5,7 +5,7 @@
 #include "nlohmann/json.hpp"
 #include <cereal/archives/json.hpp>
 #include <rete-core/Util.hpp>
-#include "sempr/Entity.hpp"
+#include "Entity.hpp"
 #include <rete-rdf/TriplePart.hpp>
 
 namespace sempr {
