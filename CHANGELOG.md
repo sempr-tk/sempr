@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.15.0] - 2021-08-11
+
+- added WMEToJSON-Converters to support new json-explanation feature in rete
+
 ## [0.14.0] - 2021-06-28
 
 - create temporary (i.e., non-persistent) entities with Entity::createTemporary
