@@ -80,6 +80,14 @@ if(Boost_FOUND)
     target_link_libraries(CreateEntityTest ${DEPENDENCIES})
     add_test(NAME CreateEntityTest COMMAND CreateEntityTest)
 
+    add_executable(WMEToJSONConverterTest WMEToJSONConverterTest.cpp)
+    target_link_libraries(WMEToJSONConverterTest ${DEPENDENCIES} sempr_plugin_rdf)
+    add_test(NAME WMEToJSONConverterTest COMMAND WMEToJSONConverterTest)
+
+    add_executable(ExplanationJSONTest ExplanationJSONTest.cpp)
+    target_link_libraries(ExplanationJSONTest ${DEPENDENCIES} sempr_plugin_rdf)
+    add_test(NAME ExplanationJSONTest COMMAND ExplanationJSONTest)
+
     add_executable(ComponentQueryTest ComponentQueryTest.cpp)
     target_link_libraries(ComponentQueryTest ${DEPENDENCIES} sempr_plugin_rdf)
     add_test(NAME ComponentQueryTest COMMAND ComponentQueryTest)

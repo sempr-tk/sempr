@@ -11,6 +11,8 @@ set(SRC_FILES
     SimpleIncrementalIDGenerator.cpp
     Entity.cpp
     ECAccessors.cpp
+    ECWMEToJSONConverter.cpp
+    TupleWMEToJSONConverter.cpp
     Component.cpp
     SeparateFileStorage.cpp
     ./component/AffineTransform.cpp
@@ -55,6 +57,7 @@ target_link_libraries(sempr_core
 
 # create the geos library part
 add_library(sempr_geos SHARED
+    ./TupleGeoToJSONConverter.cpp
     ./component/GeosGeometry.cpp
     ./nodes/GeoConversionNodes.cpp
     ./nodes/GeoConversionBuilders.cpp
